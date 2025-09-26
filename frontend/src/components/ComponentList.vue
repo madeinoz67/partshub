@@ -509,15 +509,30 @@
                           :key="image.id"
                           class="col-md-3 col-xs-6"
                         >
-                          <q-card flat bordered class="cursor-pointer" @click="viewImage(image)">
+                          <q-card flat bordered class="cursor-pointer image-card" @click="viewImage(image)">
                             <div class="relative-position" style="height: 150px; overflow: hidden;">
                               <img
                                 :src="getThumbnailUrl(image.id, props.row.id)"
                                 :alt="image.filename"
                                 class="absolute-center"
                                 style="width: 100%; height: 100%; object-fit: cover;"
-                                @error="onImageError($event, image)"
+                                @error="(event) => console.log('Image load error:', event, 'URL:', getThumbnailUrl(image.id, props.row.id))"
                               />
+
+                              <!-- Admin Delete Button Overlay -->
+                              <div v-if="canPerformCrud()" class="image-overlay absolute-full flex flex-center">
+                                <q-btn
+                                  round
+                                  color="negative"
+                                  icon="delete"
+                                  size="sm"
+                                  @click.stop="confirmDeleteAttachment(image, props.row.id)"
+                                  class="delete-btn"
+                                >
+                                  <q-tooltip>Delete Image</q-tooltip>
+                                </q-btn>
+                              </div>
+
                               <q-tooltip>{{ image.filename }}</q-tooltip>
                             </div>
                             <q-card-section class="q-pa-xs">
@@ -525,7 +540,7 @@
                                 {{ getFileDisplayName(image.filename) }}
                               </div>
                               <div class="text-caption text-center text-grey">
-                                {{ formatFileSize(image.size || 0) }}
+                                {{ formatFileSize(image.file_size || image.size || image.fileSize || 0) }}
                               </div>
                             </q-card-section>
                           </q-card>
@@ -571,16 +586,29 @@
                             </q-item-label>
                           </q-item-section>
                           <q-item-section side>
-                            <q-btn
-                              flat
-                              round
-                              icon="download"
-                              color="primary"
-                              size="sm"
-                              @click.stop="downloadAttachment(datasheet)"
-                            >
-                              <q-tooltip>Download</q-tooltip>
-                            </q-btn>
+                            <div class="row q-gutter-xs">
+                              <q-btn
+                                flat
+                                round
+                                icon="download"
+                                color="primary"
+                                size="sm"
+                                @click.stop="downloadAttachment(datasheet)"
+                              >
+                                <q-tooltip>Download</q-tooltip>
+                              </q-btn>
+                              <q-btn
+                                v-if="canPerformCrud()"
+                                flat
+                                round
+                                icon="delete"
+                                color="negative"
+                                size="sm"
+                                @click.stop="confirmDeleteAttachment(datasheet, props.row.id)"
+                              >
+                                <q-tooltip>Delete File</q-tooltip>
+                              </q-btn>
+                            </div>
                           </q-item-section>
                         </q-item>
                       </q-list>
@@ -608,20 +636,33 @@
                           <q-item-section>
                             <q-item-label>{{ getFileDisplayName(document.filename) }}</q-item-label>
                             <q-item-label caption>
-                              {{ document.title || 'Document' }} • {{ formatFileSize(document.size || 0) }}
+                              {{ document.title || 'Document' }} • {{ formatFileSize(document.file_size || document.size || 0) }}
                             </q-item-label>
                           </q-item-section>
                           <q-item-section side>
-                            <q-btn
-                              flat
-                              round
-                              icon="download"
-                              color="primary"
-                              size="sm"
-                              @click.stop="downloadAttachment(document)"
-                            >
-                              <q-tooltip>Download</q-tooltip>
-                            </q-btn>
+                            <div class="row q-gutter-xs">
+                              <q-btn
+                                flat
+                                round
+                                icon="download"
+                                color="primary"
+                                size="sm"
+                                @click.stop="downloadAttachment(document)"
+                              >
+                                <q-tooltip>Download</q-tooltip>
+                              </q-btn>
+                              <q-btn
+                                v-if="canPerformCrud()"
+                                flat
+                                round
+                                icon="delete"
+                                color="negative"
+                                size="sm"
+                                @click.stop="confirmDeleteAttachment(document, props.row.id)"
+                              >
+                                <q-tooltip>Delete Document</q-tooltip>
+                              </q-btn>
+                            </div>
                           </q-item-section>
                         </q-item>
                       </q-list>
@@ -694,9 +735,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
 import { useAuth } from '../composables/useAuth'
 import FileUpload from './FileUpload.vue'
+import { api } from '../boot/axios'
 import type { Component } from '../services/api'
 
 // Component props
@@ -720,6 +763,7 @@ const emit = defineEmits<{
 // Store
 const componentsStore = useComponentsStore()
 const { canPerformCrud } = useAuth()
+const $q = useQuasar()
 const {
   components,
   loading,
@@ -948,7 +992,34 @@ const getDetailedAttachments = (componentId: string) => {
 
 const getImageAttachments = (componentId: string, basicAttachments?: any[]) => {
   const detailed = getDetailedAttachments(componentId)
+
+  // If we don't have detailed attachments, fetch them now
+  if (detailed.length === 0 && basicAttachments && basicAttachments.length > 0) {
+    fetchDetailedAttachments(componentId)
+  }
+
   const attachments = detailed.length > 0 ? detailed : (basicAttachments || [])
+  console.log('Getting image attachments for component', componentId)
+  console.log('- detailed:', detailed)
+  console.log('- basic:', basicAttachments)
+  console.log('- final attachments:', attachments)
+
+  // Log each attachment structure
+  if (attachments) {
+    attachments.forEach((att, index) => {
+      console.log(`Attachment ${index}:`, {
+        id: att.id,
+        filename: att.filename,
+        file_size: att.file_size,
+        size: att.size,
+        fileSize: att.fileSize,
+        attachment_type: att.attachment_type,
+        mime_type: att.mime_type,
+        allProperties: Object.keys(att)
+      })
+    })
+  }
+
   return attachments.filter(att =>
     att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) ||
     att.attachment_type === 'image'
@@ -988,37 +1059,43 @@ const formatFileSize = (bytes: number) => {
 }
 
 const getThumbnailUrl = (attachmentId: string, componentId: string) => {
-  return `/api/v1/components/${componentId}/attachments/${attachmentId}/thumbnail`
+  return `http://localhost:8000/api/v1/components/${componentId}/attachments/${attachmentId}/thumbnail`
 }
 
-const onImageError = (event: Event, image: any) => {
-  // If thumbnail fails to load, show a placeholder icon
-  const target = event.target as HTMLImageElement
-  const parent = target.parentElement
-  if (parent) {
-    parent.innerHTML = `
-      <div class="absolute-center text-center">
-        <q-icon name="image" size="4rem" color="blue" />
-      </div>
-    `
-  }
+const handleImageError = (image: any) => {
+  // Set error flag on the image object to trigger Vue's reactivity
+  image.hasError = true
 }
 
 const toggleExpand = async (props: any) => {
+  console.log('Toggle expand called for component:', props.row.id, 'current expand state:', props.expand)
   props.expand = !props.expand
+  console.log('New expand state:', props.expand)
 
   // If expanding and we don't have detailed attachments, fetch them
   if (props.expand && !detailedAttachments.value[props.row.id]) {
+    console.log('Fetching detailed attachments because row is expanding and no cached data exists')
     await fetchDetailedAttachments(props.row.id)
+  } else if (props.expand) {
+    console.log('Row expanding but detailed attachments already cached:', detailedAttachments.value[props.row.id])
+  } else {
+    console.log('Row collapsing, no API call needed')
   }
 }
 
 const fetchDetailedAttachments = async (componentId: string) => {
   try {
+    console.log('Fetching detailed attachments for component:', componentId)
     const response = await api.get(`/api/v1/components/${componentId}/attachments`)
-    detailedAttachments.value[componentId] = response.data.attachments
+    console.log('API response:', response)
+    console.log('Response data:', response.data)
+    const attachments = response.data.attachments || response.data || []
+    console.log('Parsed attachments:', attachments)
+    detailedAttachments.value[componentId] = attachments
   } catch (error) {
-    console.error('Failed to fetch detailed attachments:', error)
+    console.error('Failed to fetch detailed attachments for component', componentId, ':', error)
+    console.error('Error details:', error.response?.data, error.response?.status)
+    detailedAttachments.value[componentId] = []
   }
 }
 
@@ -1046,6 +1123,45 @@ const handleUploadSuccess = async (data: any) => {
   // Also refresh detailed attachments for the specific component if it's currently expanded
   if (data && data.componentId) {
     await fetchDetailedAttachments(data.componentId)
+  }
+}
+
+const confirmDeleteAttachment = (attachment: any, componentId: string) => {
+  // Use Quasar's Dialog plugin for confirmation
+  $q.dialog({
+    title: 'Delete Attachment',
+    message: `Are you sure you want to delete "${attachment.filename || attachment.original_filename}"? This action cannot be undone.`,
+    cancel: true,
+    persistent: true,
+    color: 'negative'
+  }).onOk(() => {
+    deleteAttachment(attachment, componentId)
+  })
+}
+
+const deleteAttachment = async (attachment: any, componentId: string) => {
+  try {
+    await api.delete(`/api/v1/components/${componentId}/attachments/${attachment.id}`)
+
+    // Refresh the component data
+    await componentsStore.fetchComponents()
+
+    // Refresh detailed attachments for this component
+    await fetchDetailedAttachments(componentId)
+
+    // Show success message
+    $q.notify({
+      type: 'positive',
+      message: 'Attachment deleted successfully',
+      position: 'top'
+    })
+  } catch (error) {
+    console.error('Failed to delete attachment:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to delete attachment',
+      position: 'top'
+    })
   }
 }
 
@@ -1118,5 +1234,24 @@ onMounted(() => {
   line-height: 1;
   letter-spacing: 0.5px;
   margin-top: 2px;
+}
+
+/* Image card with delete overlay */
+.image-card {
+  position: relative;
+}
+
+.image-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-card:hover .image-overlay {
+  opacity: 1;
+}
+
+.delete-btn {
+  background: rgba(244, 67, 54, 0.9) !important;
 }
 </style>
