@@ -227,6 +227,90 @@ class ComponentService:
 
         return query.count()
 
+    def search_components(
+        self,
+        query: Optional[str] = None,
+        filters: Optional[Dict[str, Any]] = None,
+        limit: int = 50,
+        offset: int = 0
+    ) -> List[Component]:
+        """
+        Search components with filters - compatible with KiCad API.
+
+        Args:
+            query: Search term for component name, part number, manufacturer
+            filters: Dictionary of additional filters (package, category_id, manufacturer)
+            limit: Maximum number of results
+            offset: Results offset for pagination
+
+        Returns:
+            List of Component objects matching the search criteria
+        """
+        # Use the existing list_components method with appropriate parameter mapping
+        search_term = query
+        category = None
+        component_type = None
+        manufacturer = None
+
+        if filters:
+            # Map KiCad API filters to list_components parameters
+            if 'category_id' in filters:
+                # Get category name from ID for list_components compatibility
+                from ..models import Category
+                category_obj = self.db.query(Category).filter(Category.id == filters['category_id']).first()
+                if category_obj:
+                    category = category_obj.name
+
+            if 'package' in filters:
+                component_type = filters['package']
+
+            if 'manufacturer' in filters:
+                manufacturer = filters['manufacturer']
+
+        # Build additional search constraints for manufacturer
+        components_query = self.db.query(Component).options(
+            selectinload(Component.category),
+            selectinload(Component.storage_location),
+            selectinload(Component.tags),
+            selectinload(Component.kicad_data)
+        )
+
+        # Apply search term filter
+        if search_term:
+            search_term_like = f"%{search_term}%"
+            components_query = components_query.filter(
+                or_(
+                    Component.name.ilike(search_term_like),
+                    Component.part_number.ilike(search_term_like),
+                    Component.manufacturer.ilike(search_term_like),
+                    Component.notes.ilike(search_term_like)
+                )
+            )
+
+        # Apply category filter
+        if category:
+            components_query = components_query.join(Category).filter(Category.name.ilike(f"%{category}%"))
+
+        # Apply component type/package filter
+        if component_type:
+            # Check both component_type field and specifications.package
+            components_query = components_query.filter(
+                or_(
+                    Component.component_type.ilike(f"%{component_type}%"),
+                    Component.specifications.op('->>')('package').ilike(f"%{component_type}%"),
+                    Component.specifications.op('->>')('Package').ilike(f"%{component_type}%")
+                )
+            )
+
+        # Apply manufacturer filter
+        if manufacturer:
+            components_query = components_query.filter(Component.manufacturer.ilike(f"%{manufacturer}%"))
+
+        # Apply pagination
+        components_query = components_query.offset(offset).limit(limit)
+
+        return components_query.all()
+
     def update_stock(
         self,
         component_id: str,

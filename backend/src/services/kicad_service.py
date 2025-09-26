@@ -363,21 +363,42 @@ class KiCadExportService:
                 datasheet_url = f"http://localhost:8000/api/v1/components/{component.id}/attachments/{attachment.id}/download"
                 break
 
+        # Extract keywords from tags if available
+        keywords = []
+        if hasattr(component, 'tags') and component.tags:
+            keywords = [tag.name for tag in component.tags]
+
+        # Get footprint name from kicad_data or generate from package
+        footprint_name = None
+        if component.kicad_data and component.kicad_data.footprint_name:
+            footprint_name = component.kicad_data.footprint_name
+        elif component.package:
+            footprint_name = f"{component.component_type}_{component.package}"
+
         return {
-            "component_id": component.id,
+            # Contract test expected fields
+            "id": component.id,
+            "name": component.name,
+            "description": component.notes,
+            "library_name": component.kicad_data.symbol_library if component.kicad_data else "PartsHub",
+            "symbol_name": component.kicad_data.symbol_name if component.kicad_data else None,
+            "footprint_name": footprint_name,
+            "datasheet_url": datasheet_url,
+            "keywords": keywords,
+            "properties": fields,  # Rename fields to properties for contract tests
+            "created_at": component.created_at.isoformat() if component.created_at else "",
+            "updated_at": component.updated_at.isoformat() if component.updated_at else "",
+
+            # Additional KiCad-specific fields
             "reference": reference,
             "value": component.value or component.name,
             "footprint": footprint,
             "symbol_library": component.kicad_data.symbol_library if component.kicad_data else None,
-            "symbol_name": component.kicad_data.symbol_name if component.kicad_data else None,
             "footprint_library": component.kicad_data.footprint_library if component.kicad_data else None,
-            "footprint_name": component.kicad_data.footprint_name if component.kicad_data else None,
             "model_3d_path": component.kicad_data.model_3d_path if component.kicad_data else None,
-            "fields": fields,
             "specifications": component.specifications or {},
             "manufacturer": component.manufacturer,
-            "part_number": component.part_number,
-            "datasheet_url": datasheet_url
+            "part_number": component.part_number
         }
 
     def get_symbol_data(self, component: Component) -> Dict[str, Any]:
