@@ -12,6 +12,7 @@ services:
       - partshub_data:/app/data
     environment:
       - DATABASE_URL=sqlite:///./data/partshub.db
+      - ENVIRONMENT=production
       - SEED_DB=true
     restart: unless-stopped
 

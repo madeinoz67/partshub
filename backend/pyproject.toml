@@ -23,11 +23,12 @@ dependencies = [
     "python-dateutil==2.8.2",
     "requests==2.31.0",
     "pyzbar==0.1.9",
-    "Pillow==10.1.0",
+    "pillow==10.1.0",
     "aiofiles==23.2.1",
     "aiohttp>=3.12.15",
     "faker==22.0.0",
     "email-validator>=2.3.0",
+    "python-magic>=0.4.27",
 ]
 
 [project.optional-dependencies]

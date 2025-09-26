@@ -12,6 +12,7 @@ from ..services.import_service import ImportService
 from ..services.barcode_service import BarcodeService
 from ..services.kicad_service import KiCadExportService
 from ..services.kicad_library import KiCadLibraryManager
+from ..services.provider_attachment_service import provider_attachment_service
 # from ..auth import require_auth
 # Mock auth for MVP - remove in production
 def require_auth():
@@ -37,6 +38,7 @@ class ComponentSearchRequest(BaseModel):
 class ComponentImportRequest(BaseModel):
     components: List[Dict[str, Any]]
     default_location_id: Optional[str] = None
+    download_attachments: Optional[Dict[str, bool]] = None  # {'datasheet': True, 'image': True}
 
 
 class BarcodeProcessRequest(BaseModel):
@@ -83,9 +85,10 @@ async def search_components_from_providers(
 async def import_from_search(
     request: ComponentSearchRequest,
     default_location_id: Optional[str] = None,
-    
+    download_attachments: Optional[Dict[str, bool]] = None,
+
 ):
-    """Search and import components from external providers"""
+    """Search and import components from external providers with optional attachment downloads"""
     try:
         result = await import_service.import_from_search(
             query=request.query,
@@ -93,6 +96,36 @@ async def import_from_search(
             default_location_id=default_location_id,
             providers=request.providers
         )
+
+        # Download attachments if requested and components were imported
+        if download_attachments and result.get('imported_components'):
+            try:
+                # Get search results from the import result to match with components
+                import_results = result.get('import_details', [])
+                components_with_results = []
+
+                for import_detail in import_results:
+                    if import_detail.get('status') == 'imported' and import_detail.get('search_result'):
+                        component_id = import_detail.get('component_id')
+                        search_result = import_detail.get('search_result')
+                        if component_id and search_result:
+                            # Convert dict back to ComponentSearchResult if needed
+                            from ..providers.base_provider import ComponentSearchResult
+                            if isinstance(search_result, dict):
+                                search_result = ComponentSearchResult(**search_result)
+                            components_with_results.append((component_id, search_result))
+
+                if components_with_results:
+                    attachment_results = await provider_attachment_service.download_attachments_for_components(
+                        components_with_results,
+                        download_attachments
+                    )
+                    result['attachment_downloads'] = attachment_results
+
+            except Exception as e:
+                # Don't fail the import if attachment download fails
+                result['attachment_download_error'] = str(e)
+
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -101,15 +134,107 @@ async def import_from_search(
 @router.post("/import/components")
 async def import_components(
     request: ComponentImportRequest,
-    
+
 ):
-    """Import components from prepared data"""
+    """Import components from prepared data with optional attachment downloads"""
     try:
         result = await import_service.import_components(
             components_data=request.components,
             default_location_id=request.default_location_id
         )
+
+        # Download attachments if requested and components were imported
+        if request.download_attachments and result.get('imported_components'):
+            try:
+                # Match components with their original search results for attachment downloads
+                components_with_results = []
+
+                for component_data in request.components:
+                    if 'search_result' in component_data:
+                        # Find the corresponding imported component
+                        for imported in result.get('import_details', []):
+                            if (imported.get('status') == 'imported' and
+                                imported.get('part_number') == component_data.get('part_number')):
+
+                                component_id = imported.get('component_id')
+                                search_result = component_data['search_result']
+
+                                # Convert dict to ComponentSearchResult if needed
+                                from ..providers.base_provider import ComponentSearchResult
+                                if isinstance(search_result, dict):
+                                    search_result = ComponentSearchResult(**search_result)
+
+                                components_with_results.append((component_id, search_result))
+                                break
+
+                if components_with_results:
+                    attachment_results = await provider_attachment_service.download_attachments_for_components(
+                        components_with_results,
+                        request.download_attachments
+                    )
+                    result['attachment_downloads'] = attachment_results
+
+            except Exception as e:
+                # Don't fail the import if attachment download fails
+                result['attachment_download_error'] = str(e)
+
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/attachments/download")
+async def download_component_attachments(
+    component_id: str,
+    download_options: Optional[Dict[str, bool]] = None,
+
+):
+    """Download attachments for a specific component from its provider data"""
+    try:
+        # Get component's provider data to find URLs
+        from ..models import Component, ComponentProviderData
+        from ..database import get_session
+
+        session = get_session()
+        try:
+            component = session.query(Component).filter(Component.id == component_id).first()
+            if not component:
+                raise HTTPException(status_code=404, detail="Component not found")
+
+            provider_data = session.query(ComponentProviderData).filter(
+                ComponentProviderData.component_id == component_id
+            ).first()
+
+            if not provider_data:
+                raise HTTPException(status_code=400, detail="No provider data available for this component")
+
+            # Create a ComponentSearchResult from the provider data
+            from ..providers.base_provider import ComponentSearchResult
+            search_result = ComponentSearchResult(
+                provider_id=provider_data.provider_id,
+                part_number=component.part_number,
+                manufacturer=component.manufacturer,
+                description=component.description,
+                specifications=provider_data.specifications or {},
+                datasheet_url=provider_data.datasheet_url,
+                image_url=provider_data.image_url,
+                availability=provider_data.availability or {},
+                pricing=provider_data.pricing or {},
+                provider_part_id=provider_data.provider_part_id,
+                provider_url=provider_data.provider_url
+            )
+
+            result = await provider_attachment_service.download_component_attachments(
+                component_id, search_result, download_options
+            )
+
+            return result
+
+        finally:
+            session.close()
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

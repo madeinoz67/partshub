@@ -291,28 +291,15 @@
       </div>
 
       <!-- Attachments -->
-      <div class="col-12 q-mt-md" v-if="component.attachments && component.attachments.length > 0">
+      <div class="col-12 q-mt-md">
         <q-card>
-          <q-card-section>
-            <div class="text-h6 q-mb-md">Attachments</div>
-            <q-list>
-              <q-item
-                v-for="attachment in component.attachments"
-                :key="attachment.id"
-                clickable
-                @click="downloadAttachment(attachment)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="attach_file" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ attachment.filename }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-icon name="download" />
-                </q-item-section>
-              </q-item>
-            </q-list>
+          <q-card-section class="q-pb-none">
+            <AttachmentGallery
+              :component-id="component.id"
+              :show-actions="canPerformCrud()"
+              @attachment-updated="onAttachmentUpdated"
+              @attachment-deleted="onAttachmentDeleted"
+            />
           </q-card-section>
         </q-card>
       </div>
@@ -326,6 +313,7 @@ import { storeToRefs } from 'pinia'
 import { useComponentsStore } from '../stores/components'
 import { useAuth } from '../composables/useAuth'
 import type { Component } from '../services/api'
+import AttachmentGallery from './AttachmentGallery.vue'
 
 interface Props {
   componentId: string
@@ -423,6 +411,16 @@ const formatDate = (dateString: string) => {
 
 const downloadAttachment = (attachment: any) => {
   console.log('Download attachment:', attachment.filename)
+}
+
+const onAttachmentUpdated = (attachment: any) => {
+  // Optionally refresh component data or handle updated attachment
+  console.log('Attachment updated:', attachment)
+}
+
+const onAttachmentDeleted = (attachment: any) => {
+  // Optionally refresh component data or handle deleted attachment
+  console.log('Attachment deleted:', attachment)
 }
 
 const clearError = () => {

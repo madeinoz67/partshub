@@ -1,8 +1,8 @@
 # Multi-service Dockerfile for PartsHub - Frontend (Vue.js dev server) + Backend (FastAPI)
 FROM node:18-alpine
 
-# Install Python and required build tools
-RUN apk add --no-cache python3 py3-pip python3-dev make g++ curl
+# Install Python and required build tools + libmagic for file type detection
+RUN apk add --no-cache python3 py3-pip python3-dev make g++ curl file-dev libmagic
 
 # Set working directory
 WORKDIR /app
@@ -26,9 +26,9 @@ RUN npm install
 # Copy frontend source
 COPY frontend/ ./
 
-# Create directory for SQLite database
+# Create directories for SQLite database and file storage
 WORKDIR /app
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data /app/data/attachments
 
 # Set environment variables
 ENV DATABASE_URL=sqlite:///./data/partshub.db

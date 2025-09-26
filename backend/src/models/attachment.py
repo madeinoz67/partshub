@@ -2,7 +2,7 @@
 Attachment model for component files (datasheets, photos, etc.).
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -31,6 +31,11 @@ class Attachment(Base):
     title = Column(String(200), nullable=True)
     description = Column(Text, nullable=True)
     attachment_type = Column(String(50), nullable=True)  # datasheet, photo, schematic, etc.
+
+    # Image-specific fields
+    is_primary_image = Column(Boolean, nullable=False, default=False)
+    thumbnail_path = Column(String(500), nullable=True)  # Path to generated thumbnail
+    display_order = Column(Integer, nullable=False, default=0)  # For gallery sorting
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -210,6 +210,22 @@
         </q-td>
       </template>
 
+      <template v-slot:body-cell-attachments="props">
+        <q-td :props="props">
+          <div class="row justify-center q-gutter-xs">
+            <q-icon
+              v-for="attachment in getAttachmentIcons(props.row.attachments)"
+              :key="attachment.type"
+              :name="attachment.icon"
+              :color="attachment.color"
+              size="sm"
+              :title="attachment.tooltip"
+            />
+            <span v-if="!props.row.attachments?.length" class="text-caption text-grey">—</span>
+          </div>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-actions="props">
         <q-td :props="props" @click.stop>
           <q-btn-dropdown
@@ -377,6 +393,13 @@ const columns = [
     sortable: true
   },
   {
+    name: 'attachments',
+    label: 'Files',
+    align: 'center' as const,
+    field: (row: Component) => row.attachments?.length || 0,
+    sortable: true
+  },
+  {
     name: 'updated_at',
     label: 'Last Updated',
     align: 'center' as const,
@@ -418,6 +441,56 @@ const getStockStatusColor = (component: Component) => {
   if (component.quantity_on_hand === 0) return 'negative'
   if (component.quantity_on_hand <= component.minimum_stock && component.minimum_stock > 0) return 'warning'
   return 'positive'
+}
+
+const getAttachmentIcons = (attachments: any[] = []) => {
+  if (!attachments || attachments.length === 0) return []
+
+  const icons = []
+
+  // Check for datasheet/PDF files
+  const hasDatasheet = attachments.some(att =>
+    att.filename?.toLowerCase().includes('.pdf') ||
+    att.attachment_type === 'datasheet'
+  )
+  if (hasDatasheet) {
+    icons.push({
+      type: 'datasheet',
+      icon: 'picture_as_pdf',
+      color: 'red',
+      tooltip: 'Has datasheet'
+    })
+  }
+
+  // Check for image files
+  const hasImages = attachments.some(att =>
+    att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i) ||
+    att.attachment_type === 'image'
+  )
+  if (hasImages) {
+    icons.push({
+      type: 'image',
+      icon: 'image',
+      color: 'blue',
+      tooltip: 'Has images'
+    })
+  }
+
+  // Check for other documents
+  const hasDocuments = attachments.some(att =>
+    att.attachment_type === 'document' &&
+    !att.filename?.toLowerCase().includes('.pdf')
+  )
+  if (hasDocuments) {
+    icons.push({
+      type: 'document',
+      icon: 'description',
+      color: 'grey',
+      tooltip: 'Has documents'
+    })
+  }
+
+  return icons
 }
 
 const onSearch = (query: string) => {
