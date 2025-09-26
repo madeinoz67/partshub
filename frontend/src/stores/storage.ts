@@ -69,7 +69,7 @@ export const useStorageStore = defineStore('storage', () => {
     try {
       locations.value = await APIService.getStorageLocations({
         ...params,
-        limit: 1000 // Get all locations for hierarchy
+        limit: 200 // Get all locations for hierarchy
       })
     } catch (err: any) {
       error.value = err.message || 'Failed to fetch storage locations'

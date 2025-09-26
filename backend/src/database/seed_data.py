@@ -18,9 +18,14 @@ fake = Faker()
 # Electronic component data for realistic seeding
 COMPONENT_TYPES = {
     "resistor": {
-        "values": ["10Ω", "100Ω", "1kΩ", "10kΩ", "100kΩ", "1MΩ", "4.7kΩ", "2.2kΩ", "47kΩ"],
-        "packages": ["0603", "0805", "1206", "THT"],
-        "manufacturers": ["Yageo", "Panasonic", "Vishay", "KOA Speer"],
+        "components": [
+            {"name": "10Ω 0805 1%", "part_number": "RC0805FR-0710RL", "manufacturer": "Yageo", "value": "10Ω", "package": "0805"},
+            {"name": "100Ω 0603 5%", "part_number": "RC0603JR-07100RL", "manufacturer": "Yageo", "value": "100Ω", "package": "0603"},
+            {"name": "1kΩ 1206 1%", "part_number": "ERJ-8ENF1001V", "manufacturer": "Panasonic", "value": "1kΩ", "package": "1206"},
+            {"name": "10kΩ 0805 5%", "part_number": "CRCW080510K0JNEA", "manufacturer": "Vishay", "value": "10kΩ", "package": "0805"},
+            {"name": "4.7kΩ THT 5%", "part_number": "CFR-25JB-52-4K7", "manufacturer": "Yageo", "value": "4.7kΩ", "package": "THT"},
+            {"name": "47kΩ 0603 1%", "part_number": "RK73H1JTTD4702F", "manufacturer": "KOA Speer", "value": "47kΩ", "package": "0603"},
+        ],
         "specs": lambda: {
             "tolerance": random.choice(["±1%", "±5%", "±10%"]),
             "power_rating": random.choice(["1/8W", "1/4W", "1/2W", "1W"]),
@@ -28,9 +33,14 @@ COMPONENT_TYPES = {
         }
     },
     "capacitor": {
-        "values": ["1pF", "10pF", "100pF", "1nF", "10nF", "100nF", "1µF", "10µF", "100µF"],
-        "packages": ["0603", "0805", "1206", "THT", "Radial"],
-        "manufacturers": ["Murata", "TDK", "Samsung", "Kemet"],
+        "components": [
+            {"name": "100nF 0805 X7R", "part_number": "GRM21BR71H104KA01L", "manufacturer": "Murata", "value": "100nF", "package": "0805"},
+            {"name": "10µF 1206 X5R", "part_number": "C3216X5R1A106K160AB", "manufacturer": "TDK", "value": "10µF", "package": "1206"},
+            {"name": "1µF 0603 X7R", "part_number": "CL10A105KB8NNNC", "manufacturer": "Samsung", "value": "1µF", "package": "0603"},
+            {"name": "22pF 0603 C0G", "part_number": "C0603C220J5GACTU", "manufacturer": "Kemet", "value": "22pF", "package": "0603"},
+            {"name": "100µF Electrolytic", "part_number": "UWT1V101MCL1GS", "manufacturer": "Nichicon", "value": "100µF", "package": "Radial"},
+            {"name": "1nF 0805 X7R", "part_number": "GRM21BR71H102KA01L", "manufacturer": "Murata", "value": "1nF", "package": "0805"},
+        ],
         "specs": lambda: {
             "voltage_rating": random.choice(["16V", "25V", "50V", "100V", "250V"]),
             "tolerance": random.choice(["±5%", "±10%", "±20%"]),
@@ -68,9 +78,16 @@ COMPONENT_TYPES = {
         }
     },
     "ic": {
-        "values": ["LM358", "74HC595", "ATmega328P", "ESP32", "LM2596", "TL074"],
-        "packages": ["DIP-8", "SOIC-8", "QFP-32", "QFN-32", "TQFP-100"],
-        "manufacturers": ["Texas Instruments", "Microchip", "Espressif", "STMicro"],
+        "components": [
+            {"name": "LM358 Op-Amp", "part_number": "LM358N", "manufacturer": "Texas Instruments", "value": "LM358", "package": "DIP-8"},
+            {"name": "74HC595 Shift Register", "part_number": "SN74HC595N", "manufacturer": "Texas Instruments", "value": "74HC595", "package": "DIP-16"},
+            {"name": "ATmega328P MCU", "part_number": "ATMEGA328P-PU", "manufacturer": "Microchip", "value": "ATmega328P", "package": "DIP-28"},
+            {"name": "ESP32-WROOM-32", "part_number": "ESP32-WROOM-32", "manufacturer": "Espressif", "value": "ESP32", "package": "SMD"},
+            {"name": "LM2596 Buck Converter", "part_number": "LM2596S-ADJ", "manufacturer": "Texas Instruments", "value": "LM2596", "package": "TO-263"},
+            {"name": "555 Timer IC", "part_number": "NE555P", "manufacturer": "Texas Instruments", "value": "NE555", "package": "DIP-8"},
+            {"name": "Arduino Nano MCU", "part_number": "A000005", "manufacturer": "Arduino", "value": "ATmega328P", "package": "Module"},
+            {"name": "STM32F103C8T6", "part_number": "STM32F103C8T6", "manufacturer": "STMicro", "value": "STM32F103", "package": "LQFP-48"},
+        ],
         "specs": lambda: {
             "supply_voltage": random.choice(["3.3V", "5V", "12V", "±15V"]),
             "operating_temp": random.choice(["-40°C to +85°C", "0°C to +70°C"]),
@@ -192,13 +209,22 @@ def create_components(db: Session, category_map: dict, location_map: dict, count
         component_type = random.choice(list(COMPONENT_TYPES.keys()))
         type_data = COMPONENT_TYPES[component_type]
 
-        # Generate component data
-        value = random.choice(type_data["values"])
-        package = random.choice(type_data["packages"])
-        manufacturer = random.choice(type_data["manufacturers"])
-
-        # Generate part number
-        part_number = f"{manufacturer[:3].upper()}-{fake.bothify('###??##')}"
+        # Generate component data - handle new structure
+        if "components" in type_data:
+            # Use real component data
+            component_data = random.choice(type_data["components"])
+            name = component_data["name"]
+            part_number = component_data["part_number"]
+            manufacturer = component_data["manufacturer"]
+            value = component_data["value"]
+            package = component_data["package"]
+        else:
+            # Fallback to old structure
+            value = random.choice(type_data["values"])
+            package = random.choice(type_data["packages"])
+            manufacturer = random.choice(type_data["manufacturers"])
+            name = f"{component_type.title()} {value}"
+            part_number = f"{manufacturer[:3].upper()}-{fake.bothify('###??##')}"
 
         # Generate quantities
         quantity_on_hand = random.randint(0, 500)
@@ -209,7 +235,7 @@ def create_components(db: Session, category_map: dict, location_map: dict, count
         total_value = unit_price * quantity_on_hand if quantity_on_hand > 0 else None
 
         component = Component(
-            name=f"{component_type.title()} {value}",
+            name=name,
             part_number=part_number,
             manufacturer=manufacturer,
             component_type=component_type,

@@ -9,7 +9,7 @@
     </div>
 
     <!-- Quick Stats Cards -->
-    <div class="row q-gutter-md q-mb-lg">
+    <div class="row q-gutter-md q-mb-lg no-wrap">
       <div class="col-md-3 col-sm-6 col-xs-12">
         <q-card>
           <q-card-section>

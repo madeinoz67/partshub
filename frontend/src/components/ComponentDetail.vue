@@ -47,14 +47,15 @@
       </template>
     </q-banner>
 
-    <div v-if="component" class="row q-gutter-md">
+    <!-- Main cards in flexbox for side-by-side layout -->
+    <div v-if="component" class="main-content-flex" data-testid="component-detail-main-row">
       <!-- Basic Information -->
-      <div class="col-md-6 col-xs-12">
+      <div class="info-card-container" data-testid="basic-info-card">
         <q-card>
           <q-card-section>
-            <div class="text-h6 q-mb-md">Basic Information</div>
+            <div class="text-h6 q-mb-md" data-testid="basic-info-title">Basic Information</div>
 
-            <div class="q-gutter-md">
+            <div class="q-gutter-sm">
               <div class="row">
                 <div class="col-4 text-weight-medium">Name:</div>
                 <div class="col-8">{{ component.name }}</div>
@@ -116,12 +117,12 @@
       </div>
 
       <!-- Stock Information -->
-      <div class="col-md-6 col-xs-12">
+      <div class="info-card-container" data-testid="stock-info-card">
         <q-card>
           <q-card-section>
-            <div class="text-h6 q-mb-md">Stock Information</div>
+            <div class="text-h6 q-mb-md" data-testid="stock-info-title">Stock Information</div>
 
-            <div class="q-gutter-md">
+            <div class="q-gutter-sm">
               <div class="row items-center">
                 <div class="col-6 text-weight-medium">Current Stock:</div>
                 <div class="col-6">
@@ -167,9 +168,12 @@
           </q-card-section>
         </q-card>
       </div>
+    </div>
 
+    <!-- Full-width sections below -->
+    <div v-if="component" class="full-width-sections">
       <!-- Specifications -->
-      <div class="col-12" v-if="component.specifications && Object.keys(component.specifications).length > 0">
+      <div class="col-12 q-mt-md" v-if="component.specifications && Object.keys(component.specifications).length > 0">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Specifications</div>
@@ -192,7 +196,7 @@
       </div>
 
       <!-- Custom Fields -->
-      <div class="col-12" v-if="component.custom_fields && Object.keys(component.custom_fields).length > 0">
+      <div class="col-12 q-mt-md" v-if="component.custom_fields && Object.keys(component.custom_fields).length > 0">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Custom Fields</div>
@@ -215,7 +219,7 @@
       </div>
 
       <!-- Tags -->
-      <div class="col-12" v-if="component.tags && component.tags.length > 0">
+      <div class="col-12 q-mt-md" v-if="component.tags && component.tags.length > 0">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Tags</div>
@@ -233,7 +237,7 @@
       </div>
 
       <!-- Notes -->
-      <div class="col-12" v-if="component.notes">
+      <div class="col-12 q-mt-md" v-if="component.notes">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Notes</div>
@@ -243,7 +247,7 @@
       </div>
 
       <!-- Stock History -->
-      <div class="col-12">
+      <div class="col-12 q-mt-md">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Stock History</div>
@@ -287,7 +291,7 @@
       </div>
 
       <!-- Attachments -->
-      <div class="col-12" v-if="component.attachments && component.attachments.length > 0">
+      <div class="col-12 q-mt-md" v-if="component.attachments && component.attachments.length > 0">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Attachments</div>
@@ -453,5 +457,60 @@ onMounted(() => {
 .component-detail {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Explicit flexbox layout for medium and large displays */
+.main-content-flex {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+.info-card-container {
+  flex: 1 1 calc(50% - 8px) !important;
+  min-width: 300px !important;
+  max-width: calc(50% - 8px) !important;
+  box-sizing: border-box !important;
+}
+
+/* Force horizontal layout for medium+ displays */
+@media (min-width: 768px) {
+  .component-detail .main-content-flex {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 16px !important;
+  }
+
+  .component-detail .info-card-container {
+    flex: 1 1 50% !important;
+    max-width: 50% !important;
+    min-width: 400px !important;
+  }
+}
+
+/* Mobile fallback - stack vertically */
+@media (max-width: 767px) {
+  .main-content-flex {
+    flex-direction: column !important;
+  }
+
+  .info-card-container {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+}
+
+/* Full-width sections styling */
+.full-width-sections {
+  width: 100%;
+}
+
+.full-width-sections .col-12 {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 </style>
