@@ -426,7 +426,7 @@ const loadAttachments = async () => {
 
 const getAttachmentUrl = (attachmentId, type = 'download') => {
   const endpoint = type === 'thumbnail' ? 'thumbnail' : 'download'
-  return `/api/v1/components/${props.componentId}/attachments/${attachmentId}/${endpoint}`
+  return `http://localhost:8000/api/v1/components/${props.componentId}/attachments/${attachmentId}/${endpoint}`
 }
 
 const formatFileSize = (bytes) => {

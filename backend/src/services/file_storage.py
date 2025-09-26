@@ -29,7 +29,7 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
 # Thumbnail settings
-THUMBNAIL_SIZE = (64, 64)
+THUMBNAIL_SIZE = (300, 300)
 
 
 class FileStorageService:

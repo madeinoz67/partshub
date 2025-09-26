@@ -404,8 +404,8 @@
                     <div class="text-h6 q-mb-md">{{ props.row.name }}</div>
                     <div class="text-subtitle2 text-grey q-mb-md">{{ props.row.part_number || 'No part number' }}</div>
 
-                    <div class="row q-gutter-md">
-                      <div class="col-md-6 col-xs-12">
+                    <div class="row q-gutter-md no-wrap">
+                      <div class="col-8">
                         <div class="q-gutter-sm">
                           <div class="row" v-if="props.row.manufacturer">
                             <div class="col-4 text-weight-medium">Manufacturer:</div>
@@ -452,10 +452,6 @@
                               <span v-else class="text-grey">No tags</span>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-xs-12">
-                        <div class="q-gutter-sm">
                           <div class="row">
                             <div class="col-4 text-weight-medium">Location:</div>
                             <div class="col-8">
@@ -482,6 +478,46 @@
                           <div class="row">
                             <div class="col-4 text-weight-medium">Min Stock:</div>
                             <div class="col-8">{{ props.row.minimum_stock }}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Primary Image Column -->
+                      <div class="col-4">
+                        <div class="text-center">
+                          <div v-if="getPrimaryImage(props.row.id, props.row.attachments)" class="primary-image-container">
+                            <q-card flat bordered>
+                              <div class="relative-position" style="height: 200px; overflow: hidden;">
+                                <img
+                                  :src="getThumbnailUrl(getPrimaryImage(props.row.id, props.row.attachments).id, props.row.id)"
+                                  :alt="getPrimaryImage(props.row.id, props.row.attachments).filename"
+                                  class="absolute-center"
+                                  style="width: 100%; height: 100%; object-fit: contain; background: #f5f5f5;"
+                                  @click="viewImage(getPrimaryImage(props.row.id, props.row.attachments))"
+                                  @error="() => console.log('Primary image load error:', getPrimaryImage(props.row.id, props.row.attachments), 'URL:', getThumbnailUrl(getPrimaryImage(props.row.id, props.row.attachments).id, props.row.id))"
+                                />
+                              </div>
+                              <q-card-section class="q-pa-xs">
+                                <div class="text-caption text-center text-weight-medium">
+                                  Primary Image
+                                </div>
+                              </q-card-section>
+                            </q-card>
+                          </div>
+                          <div v-else class="primary-image-placeholder">
+                            <q-card flat bordered>
+                              <div class="relative-position" style="height: 200px; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                                <div class="text-center text-grey-5">
+                                  <q-icon name="image" size="3rem" />
+                                  <div class="q-mt-sm">No primary image</div>
+                                </div>
+                              </div>
+                              <q-card-section class="q-pa-xs">
+                                <div class="text-caption text-center text-grey">
+                                  No Image
+                                </div>
+                              </q-card-section>
+                            </q-card>
                           </div>
                         </div>
                       </div>
@@ -1043,6 +1079,39 @@ const getOtherAttachments = (attachments: any[]) => {
   })
 }
 
+const getPrimaryImage = (componentId: string, basicAttachments?: any[]) => {
+  const detailed = getDetailedAttachments(componentId)
+  const attachments = detailed.length > 0 ? detailed : (basicAttachments || [])
+
+  console.log('getPrimaryImage for component', componentId, 'detailed:', detailed, 'basic:', basicAttachments, 'using:', attachments)
+
+  // If we don't have detailed attachments but have basic ones, fetch detailed data
+  if (detailed.length === 0 && basicAttachments && basicAttachments.length > 0) {
+    console.log('No detailed attachments, fetching...')
+    fetchDetailedAttachments(componentId)
+    return null // Return null for now, will update reactively once data loads
+  }
+
+  // First try to find an image marked as primary
+  const primaryImage = attachments.find(att =>
+    att.is_primary_image &&
+    (att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) || att.attachment_type === 'image')
+  )
+
+  if (primaryImage) {
+    console.log('Found primary image:', primaryImage)
+    return primaryImage
+  }
+
+  // If no primary image, return the first available image
+  const firstImage = attachments.find(att =>
+    att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) || att.attachment_type === 'image'
+  )
+
+  console.log('Using first image:', firstImage)
+  return firstImage || null
+}
+
 const getFileDisplayName = (filename: string) => {
   if (!filename) return 'Unnamed file'
   // Remove file extension and clean up the name
@@ -1253,5 +1322,22 @@ onMounted(() => {
 
 .delete-btn {
   background: rgba(244, 67, 54, 0.9) !important;
+}
+
+/* Primary image styling */
+.primary-image-container .q-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.primary-image-container .q-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.primary-image-placeholder .q-card {
+  border-radius: 8px;
+  border: 2px dashed #e0e0e0;
 }
 </style>
