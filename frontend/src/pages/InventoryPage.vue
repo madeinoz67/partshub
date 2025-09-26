@@ -44,6 +44,18 @@
                 <template v-slot:prepend>
                   <q-icon name="search" />
                 </template>
+                <template v-slot:append>
+                  <q-btn
+                    icon="qr_code_scanner"
+                    flat
+                    round
+                    dense
+                    @click="openBarcodeScanner"
+                    color="primary"
+                  >
+                    <q-tooltip>Scan barcode to search components</q-tooltip>
+                  </q-btn>
+                </template>
               </q-input>
             </div>
 
@@ -322,6 +334,33 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Barcode Scanner Dialog -->
+    <q-dialog v-model="showBarcodeDialog" persistent>
+      <q-card style="min-width: 400px; max-width: 600px">
+        <q-card-section>
+          <div class="text-h6">Barcode Scanner</div>
+          <div class="text-body2 text-grey-7">Scan a component barcode to search</div>
+        </q-card-section>
+
+        <q-card-section>
+          <BarcodeScanner
+            v-if="showBarcodeDialog"
+            @scan-success="handleBarcodeScanned"
+            @scan-error="handleBarcodeScanError"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="Cancel"
+            color="grey"
+            @click="closeBarcodeScanner"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -333,6 +372,7 @@ import { api } from '../services/api'
 import ComponentList from '../components/ComponentList.vue'
 import ComponentCard from '../components/ComponentCard.vue'
 import ComponentForm from '../components/ComponentForm.vue'
+import BarcodeScanner from '../components/BarcodeScanner.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -361,6 +401,7 @@ const viewMode = ref('list')
 // Dialog state
 const showAddDialog = ref(false)
 const showImportDialog = ref(false)
+const showBarcodeDialog = ref(false)
 
 // Import state
 const importFile = ref(null)
@@ -477,6 +518,50 @@ const clearFilters = () => {
   showAdvancedFilters.value = false
   currentPage.value = 1
   loadComponents()
+}
+
+// Barcode scanner functions
+const openBarcodeScanner = () => {
+  showBarcodeDialog.value = true
+}
+
+const closeBarcodeScanner = () => {
+  showBarcodeDialog.value = false
+}
+
+const handleBarcodeScanned = (scannedData) => {
+  closeBarcodeScanner()
+
+  // Set the scanned data as search query
+  if (scannedData && scannedData.components && scannedData.components.length > 0) {
+    // If we found components, use the first one's part number
+    const firstComponent = scannedData.components[0]
+    searchQuery.value = firstComponent.part_number
+  } else if (scannedData && scannedData.barcodes && scannedData.barcodes.length > 0) {
+    // If we have barcode data but no components, use the barcode data
+    const firstBarcode = scannedData.barcodes[0]
+    searchQuery.value = firstBarcode.data
+  }
+
+  // Trigger search
+  searchComponents()
+
+  // Show notification
+  $q.notify({
+    type: 'positive',
+    message: 'Barcode scanned successfully',
+    timeout: 2000
+  })
+}
+
+const handleBarcodeScanError = (error) => {
+  console.error('Barcode scan error:', error)
+  $q.notify({
+    type: 'negative',
+    message: 'Barcode scan failed',
+    caption: error.message || 'Please try again',
+    timeout: 3000
+  })
 }
 
 const handleComponentSaved = () => {

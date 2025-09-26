@@ -145,8 +145,8 @@ This task list implements a comprehensive electronic parts inventory management 
 
 ### Dashboard and Reports
 - [x] T075 [P] Dashboard component with statistics cards in frontend/src/components/Dashboard.vue
-- [ ] T076 [P] ReportView component for inventory analytics in frontend/src/components/ReportView.vue
-- [ ] T077 [P] BarcodeScanner component for component input in frontend/src/components/BarcodeScanner.vue
+- [x] T076 [P] ReportView component for inventory analytics in frontend/src/components/ReportView.vue
+- [x] T077 [P] BarcodeScanner component for component input in frontend/src/components/BarcodeScanner.vue
 
 ### Main Pages
 - [x] T078 [P] InventoryPage with component management in frontend/src/pages/InventoryPage.vue
@@ -163,19 +163,19 @@ This task list implements a comprehensive electronic parts inventory management 
 - [x] T085 [P] Component import from provider functionality in backend/src/services/import_service.py
 
 ### Provider SKU Search Enhancement (New Tasks)
-- [ ] T107 [P] Add provider SKU search method to ComponentDataProvider interface in backend/src/providers/base_provider.py
-- [ ] T108 [P] Implement provider SKU search in LCSCProvider with SKU format detection in backend/src/providers/lcsc_provider.py
-- [ ] T109 [P] Enhance ProviderService with unified search (manufacturer PN + provider SKU) in backend/src/services/provider_service.py
-- [ ] T110 [P] Add provider SKU search API endpoint POST /api/v1/providers/search-sku in backend/src/api/integrations.py
-- [ ] T111 [P] Update ComponentSearchResult model to include provider_part_id field in backend/src/providers/base_provider.py
-- [ ] T112 [P] Create provider SKU search frontend component in frontend/src/components/ProviderSkuSearch.vue
-- [ ] T113 [P] Enhance component search UI with search type selection (PN vs SKU) in frontend/src/components/ComponentSearch.vue
-- [ ] T114 [P] Add BOM generation service with provider SKU integration in backend/src/services/bom_service.py
-- [ ] T115 [P] Create BOM export functionality for KiCad integration with provider SKUs in backend/src/api/bom.py
+- [x] T107 [P] Add provider SKU search method to ComponentDataProvider interface in backend/src/providers/base_provider.py
+- [x] T108 [P] Implement provider SKU search in LCSCProvider with SKU format detection in backend/src/providers/lcsc_provider.py
+- [x] T109 [P] Enhance ProviderService with unified search (manufacturer PN + provider SKU) in backend/src/services/provider_service.py
+- [x] T110 [P] Add provider SKU search API endpoint POST /api/v1/providers/search-sku in backend/src/api/integrations.py
+- [x] T111 [P] Update ComponentSearchResult model to include provider_part_id field in backend/src/providers/base_provider.py
+- [x] T112 [P] Create provider SKU search frontend component in frontend/src/components/ProviderSkuSearch.vue
+- [x] T113 [P] Enhance component search UI with search type selection (PN vs SKU) in frontend/src/components/ComponentSearch.vue
+- [x] T114 [P] Add BOM generation service with provider SKU integration in backend/src/services/bom_service.py
+- [x] T115 [P] Create BOM export functionality for KiCad integration with provider SKUs in backend/src/api/bom.py
 
 ### Barcode Processing
-- [ ] T086 [P] Barcode scanning service with pyzbar integration in backend/src/services/barcode_service.py
-- [ ] T087 [P] Frontend barcode capture with camera API in frontend/src/services/barcode.js
+- [x] T086 [P] Barcode scanning service with pyzbar integration in backend/src/services/barcode_service.py
+- [x] T087 [P] Frontend barcode capture with camera API in frontend/src/services/barcode.js
 
 ### KiCad Integration
 - [ ] T088 KiCad library export service in backend/src/services/kicad_service.py

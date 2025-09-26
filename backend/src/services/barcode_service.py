@@ -9,18 +9,22 @@ from typing import Optional, Dict, Any, List
 from PIL import Image
 import logging
 
-# Note: In production, you would install pyzbar with: pip install pyzbar
-# For now, we'll provide a mock implementation
+logger = logging.getLogger(__name__)
+
+# Note: pyzbar installation varies by environment:
+# - macOS: brew install zbar; pip install pyzbar
+# - Docker: apt-get install libzbar0; pip install pyzbar
+# For now, we'll provide a mock implementation with graceful fallback
 try:
     from pyzbar import pyzbar
     PYZBAR_AVAILABLE = True
 except ImportError:
     PYZBAR_AVAILABLE = False
+    # Log the missing dependency for debugging
+    logger.warning("pyzbar not available - using mock barcode scanning. Install with: pip install pyzbar")
 
 from ..models import Component
 from ..database import get_session
-
-logger = logging.getLogger(__name__)
 
 
 class BarcodeResult:
@@ -274,8 +278,53 @@ class BarcodeService:
 
     def get_service_info(self) -> Dict[str, Any]:
         """Get barcode service information"""
+        import platform
+        import os
+
+        # Detect environment and provide installation guidance
+        system = platform.system().lower()
+        is_docker = os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER') == 'true'
+
+        installation_info = {}
+        if not PYZBAR_AVAILABLE:
+            if is_docker:
+                installation_info = {
+                    "environment": "docker",
+                    "install_commands": [
+                        "apt-get update",
+                        "apt-get install -y libzbar0",
+                        "pip install pyzbar"
+                    ]
+                }
+            elif system == "darwin":  # macOS
+                installation_info = {
+                    "environment": "macos",
+                    "install_commands": [
+                        "brew install zbar",
+                        "pip install pyzbar"
+                    ]
+                }
+            elif system == "linux":
+                installation_info = {
+                    "environment": "linux",
+                    "install_commands": [
+                        "sudo apt-get install libzbar0",  # Ubuntu/Debian
+                        "pip install pyzbar"
+                    ]
+                }
+            else:
+                installation_info = {
+                    "environment": system,
+                    "install_commands": ["pip install pyzbar"]
+                }
+
         return {
             "pyzbar_available": PYZBAR_AVAILABLE,
             "supported_formats": self.supported_formats,
-            "mock_mode": not PYZBAR_AVAILABLE
+            "mock_mode": not PYZBAR_AVAILABLE,
+            "environment": {
+                "system": system,
+                "is_docker": is_docker,
+                "installation": installation_info
+            }
         }

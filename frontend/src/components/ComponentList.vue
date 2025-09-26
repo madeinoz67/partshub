@@ -16,8 +16,21 @@
               <template v-slot:prepend>
                 <q-icon name="search" />
               </template>
-              <template v-slot:append v-if="searchQuery">
+              <template v-slot:append>
+                <q-btn
+                  v-if="!searchQuery"
+                  icon="qr_code_scanner"
+                  flat
+                  round
+                  dense
+                  @click="openBarcodeScanner"
+                  color="primary"
+                  class="q-mr-xs"
+                >
+                  <q-tooltip>Scan barcode to search components</q-tooltip>
+                </q-btn>
                 <q-icon
+                  v-if="searchQuery"
                   name="clear"
                   class="cursor-pointer"
                   @click="clearSearch"
@@ -765,6 +778,13 @@
         </div>
       </template>
     </q-table>
+
+    <!-- Barcode Scanner Component -->
+    <BarcodeScanner
+      ref="barcodeScannerRef"
+      @scan-result="handleBarcodeScanned"
+      :search-components="false"
+    />
   </div>
 </template>
 
@@ -775,6 +795,7 @@ import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
 import { useAuth } from '../composables/useAuth'
 import FileUpload from './FileUpload.vue'
+import BarcodeScanner from './BarcodeScanner.vue'
 import { api } from '../boot/axios'
 import type { Component } from '../services/api'
 
@@ -821,6 +842,7 @@ const sortOrder = ref<'asc' | 'desc'>('desc')
 const expanded = ref<string[]>([])
 const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
 const detailedAttachments = ref<Record<string, any[]>>({})
+const barcodeScannerRef = ref()
 
 // Table configuration
 const columns = [
@@ -1134,6 +1156,31 @@ const getThumbnailUrl = (attachmentId: string, componentId: string) => {
 const handleImageError = (image: any) => {
   // Set error flag on the image object to trigger Vue's reactivity
   image.hasError = true
+}
+
+// Barcode scanner functions
+const openBarcodeScanner = () => {
+  if (barcodeScannerRef.value) {
+    barcodeScannerRef.value.startScanning()
+  }
+}
+
+const handleBarcodeScanned = (scanResult: any) => {
+  // Set the scanned data as search query
+  if (scanResult && scanResult.data) {
+    // Use the scanned barcode data directly
+    searchQuery.value = scanResult.data
+  }
+
+  // Trigger search through the store
+  onSearch(searchQuery.value)
+
+  // Show notification
+  $q.notify({
+    type: 'positive',
+    message: `Barcode scanned: ${scanResult.data}`,
+    timeout: 2000
+  })
 }
 
 const toggleExpand = async (props: any) => {

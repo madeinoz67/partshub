@@ -35,6 +35,18 @@ class ComponentSearchRequest(BaseModel):
     providers: Optional[List[str]] = None
 
 
+class ProviderSkuSearchRequest(BaseModel):
+    provider_sku: str
+    providers: Optional[List[str]] = None
+
+
+class UnifiedSearchRequest(BaseModel):
+    query: str
+    search_type: Optional[str] = "auto"  # "auto", "part_number", "provider_sku"
+    limit: Optional[int] = 50
+    providers: Optional[List[str]] = None
+
+
 class ComponentImportRequest(BaseModel):
     components: List[Dict[str, Any]]
     default_location_id: Optional[str] = None
@@ -66,7 +78,7 @@ async def get_provider_status():
 @router.post("/providers/search")
 async def search_components_from_providers(
     request: ComponentSearchRequest,
-    
+
 ):
     """Search for components across external providers"""
     try:
@@ -76,6 +88,47 @@ async def search_components_from_providers(
             providers=request.providers
         )
         return {"results": results, "count": len(results)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/providers/search-sku")
+async def search_components_by_provider_sku(
+    request: ProviderSkuSearchRequest,
+
+):
+    """Search for components by provider-specific SKU"""
+    try:
+        results = await provider_service.search_by_provider_sku(
+            provider_sku=request.provider_sku,
+            providers=request.providers
+        )
+        # Filter out None results and format response
+        found_results = {k: v for k, v in results.items() if v is not None}
+        return {
+            "provider_sku": request.provider_sku,
+            "results": found_results,
+            "total_found": len(found_results),
+            "providers_searched": len(results)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/providers/unified-search")
+async def unified_component_search(
+    request: UnifiedSearchRequest,
+
+):
+    """Unified search combining part number and provider SKU searches"""
+    try:
+        results = await provider_service.unified_search(
+            query=request.query,
+            search_type=request.search_type,
+            limit=request.limit,
+            providers=request.providers
+        )
+        return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

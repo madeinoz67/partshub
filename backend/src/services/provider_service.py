@@ -4,6 +4,7 @@ Handles provider registration, searches across providers, and result aggregation
 """
 
 import asyncio
+import re
 from typing import List, Dict, Optional, Any
 from collections import defaultdict
 import logging
@@ -248,6 +249,148 @@ class ProviderService:
                 logger.info(f"Provider {provider_name} verification: {'OK' if result else 'FAILED'}")
 
         return status
+
+    async def search_by_provider_sku(
+        self,
+        provider_sku: str,
+        providers: Optional[List[str]] = None
+    ) -> Dict[str, Optional[ComponentSearchResult]]:
+        """
+        Search for components by provider-specific SKU across all providers.
+
+        Args:
+            provider_sku: Provider-specific SKU or part identifier
+            providers: Specific providers to search (default: all enabled)
+
+        Returns:
+            Dictionary mapping provider names to their search results
+        """
+        target_providers = providers or self.get_enabled_providers()
+        if not target_providers:
+            logger.warning("No providers available for SKU search")
+            return {}
+
+        # Create search tasks for all providers
+        tasks = []
+        for provider_name in target_providers:
+            if provider_name in self.providers:
+                provider = self.providers[provider_name]
+                task = self._search_provider_sku_safe(provider_name, provider, provider_sku)
+                tasks.append(task)
+
+        if not tasks:
+            return {}
+
+        # Execute searches in parallel
+        logger.info(f"Searching {len(tasks)} providers for SKU '{provider_sku}'")
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Compile results
+        provider_results = {}
+        for i, result in enumerate(results):
+            provider_name = target_providers[i] if i < len(target_providers) else f"provider_{i}"
+            if isinstance(result, Exception):
+                logger.error(f"Provider {provider_name} SKU search failed: {result}")
+                provider_results[provider_name] = None
+            else:
+                provider_results[provider_name] = result
+
+        return provider_results
+
+    async def _search_provider_sku_safe(
+        self,
+        provider_name: str,
+        provider: ComponentDataProvider,
+        provider_sku: str
+    ) -> Optional[ComponentSearchResult]:
+        """Safely search a provider by SKU with error handling"""
+        try:
+            result = await provider.search_by_provider_sku(provider_sku)
+            if result:
+                logger.debug(f"Provider {provider_name} found component for SKU '{provider_sku}'")
+                # Ensure provider info is tagged
+                result.provider_id = f"{provider_name}_{result.provider_id}"
+            return result
+        except Exception as e:
+            logger.error(f"Error searching provider {provider_name} by SKU: {e}")
+            return None
+
+    async def unified_search(
+        self,
+        query: str,
+        search_type: str = "auto",  # "auto", "part_number", "provider_sku"
+        limit: int = 50,
+        providers: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Unified search that combines manufacturer part number and provider SKU searches.
+
+        Args:
+            query: Search term (part number or provider SKU)
+            search_type: Type of search to perform
+            limit: Maximum total results to return
+            providers: Specific providers to search (optional)
+
+        Returns:
+            Combined search results with metadata
+        """
+        results = {
+            "query": query,
+            "search_type": search_type,
+            "part_number_results": [],
+            "provider_sku_results": {},
+            "total_results": 0
+        }
+
+        # Determine search strategy
+        if search_type == "auto":
+            # Auto-detect based on query pattern
+            search_type = self._detect_search_type(query)
+
+        # Perform searches based on type
+        if search_type in ["auto", "part_number"]:
+            # Search by part number/manufacturer
+            pn_results = await self.search_components(query, limit, providers)
+            results["part_number_results"] = pn_results
+            results["total_results"] += len(pn_results)
+
+        if search_type in ["auto", "provider_sku"]:
+            # Search by provider SKU
+            sku_results = await self.search_by_provider_sku(query, providers)
+            # Filter out None results
+            filtered_sku_results = {k: v for k, v in sku_results.items() if v is not None}
+            results["provider_sku_results"] = filtered_sku_results
+            results["total_results"] += len(filtered_sku_results)
+
+        logger.info(f"Unified search for '{query}' ({search_type}) returned {results['total_results']} total results")
+        return results
+
+    def _detect_search_type(self, query: str) -> str:
+        """
+        Auto-detect search type based on query pattern.
+
+        Args:
+            query: Search query
+
+        Returns:
+            Detected search type: "part_number" or "provider_sku"
+        """
+        query = query.strip().upper()
+
+        # Check for common provider SKU patterns
+        sku_patterns = [
+            r'^C\d{5,7}$',  # LCSC: C123456
+            r'^DK\d+$',     # Digi-Key: DK12345
+            r'^M\d+$',      # Mouser: M12345
+            r'^RS\d+$',     # RS Components: RS12345
+        ]
+
+        for pattern in sku_patterns:
+            if re.match(pattern, query):
+                return "provider_sku"
+
+        # Default to part number search
+        return "part_number"
 
     def get_provider_info(self) -> Dict[str, Any]:
         """Get information about all registered providers"""

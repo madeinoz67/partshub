@@ -85,13 +85,157 @@ class LCSCProvider(ComponentDataProvider):
                     ],
                     availability=1250,
                     provider_id=f"LCSC-{part_number}",
-                    provider_url=f"https://lcsc.com/product-detail/{part_number.lower()}.html"
+                    provider_url=f"https://lcsc.com/product-detail/{part_number.lower()}.html",
+                    provider_part_id=f"C{abs(hash(part_number)) % 100000}"
                 )
 
             return None
 
         except Exception as e:
             logger.error(f"LCSC details failed for '{part_number}': {e}")
+            return None
+
+    async def search_by_provider_sku(self, provider_sku: str) -> Optional[ComponentSearchResult]:
+        """
+        Search for a component by LCSC-specific SKU/part ID.
+        LCSC SKUs typically follow patterns like C123456, C12345, etc.
+        """
+        try:
+            # Detect LCSC SKU format
+            if not self._is_lcsc_sku_format(provider_sku):
+                # Not an LCSC SKU format, fall back to regular search
+                return await super().search_by_provider_sku(provider_sku)
+
+            await asyncio.sleep(self.rate_limit_delay)
+
+            # Extract numeric part from LCSC SKU (e.g., "C123456" -> "123456")
+            sku_number = re.sub(r'^C', '', provider_sku.upper())
+
+            # In production, this would make a direct API call to LCSC using the SKU
+            # For now, generate mock result based on SKU
+            mock_result = self._get_mock_result_by_sku(provider_sku, sku_number)
+
+            if mock_result:
+                logger.info(f"Found component for LCSC SKU: {provider_sku}")
+            else:
+                logger.info(f"No component found for LCSC SKU: {provider_sku}")
+
+            return mock_result
+
+        except Exception as e:
+            logger.error(f"LCSC SKU search failed for '{provider_sku}': {e}")
+            return None
+
+    def _is_lcsc_sku_format(self, sku: str) -> bool:
+        """
+        Check if the given string matches LCSC SKU format.
+        LCSC SKUs typically start with 'C' followed by 5-7 digits.
+        """
+        if not sku:
+            return False
+
+        # LCSC SKU patterns: C12345, C123456, C1234567
+        pattern = r'^C\d{5,7}$'
+        return bool(re.match(pattern, sku.upper()))
+
+    def _get_mock_result_by_sku(self, sku: str, sku_number: str) -> Optional[ComponentSearchResult]:
+        """Generate mock component result based on LCSC SKU"""
+        try:
+            # Use SKU number to generate consistent mock data
+            sku_int = int(sku_number) % 1000
+
+            # Map SKU ranges to different component types
+            if sku_int < 100:
+                # Microcontrollers
+                return ComponentSearchResult(
+                    part_number=f"STM32F{sku_int:03d}VGT6",
+                    manufacturer="STMicroelectronics",
+                    description=f"ARM Cortex-M Microcontroller (LCSC: {sku})",
+                    category="Microcontrollers",
+                    datasheet_url=f"https://lcsc.com/datasheet/{sku.lower()}.pdf",
+                    specifications={
+                        "Core": "ARM Cortex-M4",
+                        "Flash": f"{256 + sku_int}KB",
+                        "RAM": f"{64 + sku_int//2}KB",
+                        "Package": "LQFP64"
+                    },
+                    price_breaks=[
+                        {"quantity": 1, "price": 5.50 + sku_int * 0.1, "currency": "USD"},
+                        {"quantity": 10, "price": 4.80 + sku_int * 0.08, "currency": "USD"}
+                    ],
+                    availability=500 + sku_int * 10,
+                    provider_id=sku,
+                    provider_url=f"https://lcsc.com/product-detail/{sku.lower()}.html",
+                    provider_part_id=sku
+                )
+
+            elif sku_int < 300:
+                # Resistors
+                values = ["1K", "2.2K", "4.7K", "10K", "22K", "47K", "100K"]
+                value = values[sku_int % len(values)]
+                return ComponentSearchResult(
+                    part_number=f"RC0603FR-07{value.replace('.', 'R')}L",
+                    manufacturer="Yageo",
+                    description=f"{value}Ω ±1% 1/10W Thick Film Resistor 0603 (LCSC: {sku})",
+                    category="Resistors",
+                    specifications={
+                        "Resistance": f"{value}Ω",
+                        "Tolerance": "±1%",
+                        "Power": "1/10W",
+                        "Package": "0603"
+                    },
+                    price_breaks=[
+                        {"quantity": 1, "price": 0.02, "currency": "USD"},
+                        {"quantity": 100, "price": 0.01, "currency": "USD"}
+                    ],
+                    availability=10000 + sku_int * 100,
+                    provider_id=sku,
+                    provider_url=f"https://lcsc.com/product-detail/{sku.lower()}.html",
+                    provider_part_id=sku
+                )
+
+            elif sku_int < 600:
+                # Capacitors
+                values = ["100nF", "1uF", "10uF", "22uF", "47uF", "100uF"]
+                value = values[sku_int % len(values)]
+                return ComponentSearchResult(
+                    part_number=f"CC0603KRX7R9BB{value.replace('u', 'M').replace('n', 'N')}",
+                    manufacturer="Yageo",
+                    description=f"{value} ±10% 50V X7R Multilayer Ceramic Capacitor 0603 (LCSC: {sku})",
+                    category="Capacitors",
+                    specifications={
+                        "Capacitance": value,
+                        "Tolerance": "±10%",
+                        "Voltage": "50V",
+                        "Package": "0603"
+                    },
+                    price_breaks=[
+                        {"quantity": 1, "price": 0.05 + sku_int * 0.001, "currency": "USD"},
+                        {"quantity": 100, "price": 0.03 + sku_int * 0.0005, "currency": "USD"}
+                    ],
+                    availability=5000 + sku_int * 50,
+                    provider_id=sku,
+                    provider_url=f"https://lcsc.com/product-detail/{sku.lower()}.html",
+                    provider_part_id=sku
+                )
+
+            else:
+                # Generic components
+                return ComponentSearchResult(
+                    part_number=f"GENERIC-{sku}-PART",
+                    manufacturer="Generic Manufacturer",
+                    description=f"Electronic Component (LCSC: {sku})",
+                    category="General Components",
+                    specifications={"LCSC_SKU": sku, "Type": "Generic"},
+                    price_breaks=[{"quantity": 1, "price": 1.00 + sku_int * 0.01, "currency": "USD"}],
+                    availability=100 + sku_int,
+                    provider_id=sku,
+                    provider_url=f"https://lcsc.com/product-detail/{sku.lower()}.html",
+                    provider_part_id=sku
+                )
+
+        except ValueError:
+            # Invalid SKU number
             return None
 
     def _get_mock_stm32_results(self, query: str, limit: int) -> List[ComponentSearchResult]:

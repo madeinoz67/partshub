@@ -1,8 +1,8 @@
 # Multi-service Dockerfile for PartsHub - Frontend (Vue.js dev server) + Backend (FastAPI)
 FROM node:18-alpine
 
-# Install Python and required build tools + libmagic for file type detection
-RUN apk add --no-cache python3 py3-pip python3-dev make g++ curl file-dev libmagic
+# Install Python and required build tools + libmagic for file type detection + zbar for barcode scanning
+RUN apk add --no-cache python3 py3-pip python3-dev make g++ curl file-dev libmagic zbar zbar-dev
 
 # Set working directory
 WORKDIR /app
