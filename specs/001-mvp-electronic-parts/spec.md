@@ -46,6 +46,7 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 3. **Given** I use a component for a project, **When** I update the quantity, **Then** the inventory reflects the new count and alerts me when stock is low
 4. **Given** I have components in different storage locations, **When** I view a component, **Then** I can see exactly which box/drawer/shelf it's stored in
 5. **Given** I want to order more components, **When** I generate a shopping list, **Then** I see parts that are low in stock with supplier information
+6. **Given** I'm browsing the components table, **When** I click the expand arrow on a component row, **Then** I see detailed specifications, stock information, and attachments inline without navigating to a separate page
 
 ### Edge Cases
 
@@ -124,6 +125,14 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-045**: System MUST preview generated storage locations before creation with confirmation warnings
 - **FR-046**: System MUST support single-part-only location restrictions to prevent multiple components per location
 - **FR-047**: System MUST prevent deletion of storage locations once created to maintain data integrity
+
+### User Interface Requirements
+
+- **FR-070**: System MUST provide expandable table rows in the main components list for detailed component preview without full page navigation
+- **FR-071**: System MUST use standard directional expand icons (right arrow for collapsed, down arrow for expanded) following UI conventions
+- **FR-072**: System MUST display attachment type indicators (PDF for datasheets, image thumbnails) in the table Files column for quick visual identification
+- **FR-073**: System MUST show component details including specifications, stock information, storage location, and quick actions in the expanded table row
+- **FR-074**: System MUST maintain expand/collapse state per component allowing multiple rows to be expanded simultaneously for comparison
 
 ### Deployment & Operations Requirements
 

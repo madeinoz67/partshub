@@ -1,5 +1,6 @@
 <template>
   <div class="component-detail">
+    <!-- Header -->
     <q-card class="q-mb-md">
       <q-card-section>
         <div class="row items-center justify-between">
@@ -9,23 +10,13 @@
               Part Number: {{ component.part_number }}
             </div>
           </div>
-          <div class="col-auto" v-if="canPerformCrud()">
-            <q-btn-group>
-              <q-btn
-                color="primary"
-                icon="edit"
-                label="Edit"
-                @click="$emit('edit-component', component)"
-                :disable="!component"
-              />
-              <q-btn
-                color="secondary"
-                icon="inventory"
-                label="Update Stock"
-                @click="$emit('update-stock', component)"
-                :disable="!component"
-              />
-            </q-btn-group>
+          <div class="col-auto">
+            <q-btn
+              flat
+              icon="arrow_back"
+              label="Back to List"
+              @click="$router.push('/components')"
+            />
           </div>
         </div>
       </q-card-section>
@@ -47,8 +38,147 @@
       </template>
     </q-banner>
 
-    <!-- Main cards in flexbox for side-by-side layout -->
-    <div v-if="component" class="main-content-flex" data-testid="component-detail-main-row">
+    <!-- Main layout with sidebar -->
+    <div v-if="component" class="component-layout">
+      <!-- Sidebar -->
+      <div class="component-sidebar">
+        <q-card class="sidebar-card">
+          <q-card-section class="q-pb-none">
+            <div class="text-h6 q-mb-md">Actions</div>
+          </q-card-section>
+
+          <!-- Quick Actions -->
+          <q-list>
+            <template v-if="canPerformCrud()">
+              <q-item clickable @click="$emit('edit-component', component)">
+                <q-item-section avatar>
+                  <q-icon name="edit" color="primary" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Edit Component</q-item-label>
+                  <q-item-label caption>Modify details</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable @click="$emit('update-stock', component)">
+                <q-item-section avatar>
+                  <q-icon name="inventory" color="secondary" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Update Stock</q-item-label>
+                  <q-item-label caption>Adjust quantities</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-separator />
+
+              <q-item clickable @click="duplicateComponent">
+                <q-item-section avatar>
+                  <q-icon name="content_copy" color="accent" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Duplicate</q-item-label>
+                  <q-item-label caption>Create copy</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable @click="moveComponent">
+                <q-item-section avatar>
+                  <q-icon name="drive_file_move" color="info" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Move Location</q-item-label>
+                  <q-item-label caption>Change storage</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-separator />
+            </template>
+
+            <q-item clickable @click="printLabel">
+              <q-item-section avatar>
+                <q-icon name="local_printshop" color="orange" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Print Label</q-item-label>
+                <q-item-label caption>Generate barcode</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable @click="exportData">
+              <q-item-section avatar>
+                <q-icon name="download" color="teal" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Export Data</q-item-label>
+                <q-item-label caption>CSV/JSON export</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <template v-if="canPerformCrud()">
+              <q-separator />
+
+              <q-item clickable @click="deleteComponent" class="text-negative">
+                <q-item-section avatar>
+                  <q-icon name="delete" color="negative" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Delete</q-item-label>
+                  <q-item-label caption>Remove component</q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-list>
+
+          <!-- Stock Status Card -->
+          <q-card-section class="q-pt-lg">
+            <div class="text-subtitle2 q-mb-md">Stock Status</div>
+            <div class="text-center">
+              <q-circular-progress
+                :value="getStockPercentage(component)"
+                size="80px"
+                :color="getStockStatusColor(component)"
+                :thickness="0.15"
+                class="q-mb-md"
+              >
+                <div class="text-h6">{{ component.quantity_on_hand }}</div>
+                <div class="text-caption">in stock</div>
+              </q-circular-progress>
+              <div class="text-caption q-mt-sm">
+                Min: {{ component.minimum_stock }}
+              </div>
+              <q-badge
+                :color="getStockStatusColor(component)"
+                :label="getStockStatusText(component)"
+                class="q-mt-xs"
+              />
+            </div>
+          </q-card-section>
+
+          <!-- Quick Stats -->
+          <q-card-section class="q-pt-none">
+            <div class="text-subtitle2 q-mb-sm">Quick Stats</div>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="text-h6">{{ component.attachments?.length || 0 }}</div>
+                <div class="text-caption">Files</div>
+              </div>
+              <div class="stat-item">
+                <div class="text-h6">{{ stockHistory?.length || 0 }}</div>
+                <div class="text-caption">Transactions</div>
+              </div>
+              <div class="stat-item" v-if="component.total_purchase_value">
+                <div class="text-h6">${{ component.total_purchase_value.toFixed(0) }}</div>
+                <div class="text-caption">Value</div>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Main Content -->
+      <div class="component-main-content">
+        <div class="main-content-flex" data-testid="component-detail-main-row">
       <!-- Basic Information -->
       <div class="info-card-container" data-testid="basic-info-card">
         <q-card>
@@ -303,6 +433,8 @@
           </q-card-section>
         </q-card>
       </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -427,6 +559,38 @@ const clearError = () => {
   componentsStore.clearError()
 }
 
+const getStockPercentage = (component: Component) => {
+  if (!component.minimum_stock || component.minimum_stock <= 0) {
+    return component.quantity_on_hand > 0 ? 100 : 0
+  }
+  return Math.min((component.quantity_on_hand / component.minimum_stock) * 100, 100)
+}
+
+const duplicateComponent = () => {
+  console.log('Duplicate component:', component.value?.name)
+  // TODO: Implement duplicate functionality
+}
+
+const moveComponent = () => {
+  console.log('Move component:', component.value?.name)
+  // TODO: Implement move functionality
+}
+
+const printLabel = () => {
+  console.log('Print label for:', component.value?.name)
+  // TODO: Implement label printing
+}
+
+const exportData = () => {
+  console.log('Export data for:', component.value?.name)
+  // TODO: Implement data export
+}
+
+const deleteComponent = () => {
+  console.log('Delete component:', component.value?.name)
+  // TODO: Implement delete functionality
+}
+
 const loadStockHistory = async () => {
   if (!component.value) return
 
@@ -455,11 +619,47 @@ onMounted(() => {
 
 <style scoped>
 .component-detail {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Explicit flexbox layout for medium and large displays */
+/* Sidebar Layout */
+.component-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.component-sidebar {
+  flex: 0 0 280px;
+  min-width: 280px;
+}
+
+.component-main-content {
+  flex: 1;
+  min-width: 0; /* Allow content to shrink */
+}
+
+.sidebar-card {
+  position: sticky;
+  top: 24px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Existing flexbox layout for main content */
 .main-content-flex {
   display: flex !important;
   flex-direction: row !important;
@@ -491,7 +691,27 @@ onMounted(() => {
   }
 }
 
-/* Mobile fallback - stack vertically */
+/* Mobile responsiveness */
+@media (max-width: 1024px) {
+  .component-layout {
+    flex-direction: column;
+  }
+
+  .component-sidebar {
+    flex: none;
+    width: 100%;
+    order: -1;
+  }
+
+  .sidebar-card {
+    position: static;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 767px) {
   .main-content-flex {
     flex-direction: column !important;
@@ -501,6 +721,10 @@ onMounted(() => {
     flex: 1 1 100% !important;
     max-width: 100% !important;
     min-width: 100% !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

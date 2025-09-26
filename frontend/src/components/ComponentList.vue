@@ -132,162 +132,349 @@
       :loading="loading"
       :pagination="{ sortBy: 'updated_at', descending: true, page: 1, rowsPerPage: 25 }"
       :rows-per-page-options="[25, 50, 100]"
+      v-model:expanded="expanded"
       dense
       @row-click="onRowClick"
       class="compact-table"
     >
-      <!-- Custom body cell rendering -->
-      <template v-slot:body-cell-name="props">
-        <q-td :props="props">
-          <div class="row items-center q-gutter-sm">
-            <div>
-              <div class="text-weight-medium">{{ props.row.name }}</div>
-              <div v-if="props.row.part_number" class="text-caption text-grey">
-                PN: {{ props.row.part_number }}
-              </div>
-            </div>
-          </div>
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-stock="props">
-        <q-td :props="props">
-          <q-chip
-            :color="getStockStatusColor(props.row)"
-            text-color="white"
-            :label="props.row.quantity_on_hand"
-            size="sm"
-          />
-          <div class="text-caption text-grey">
-            Min: {{ props.row.minimum_stock }}
-          </div>
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-location="props">
-        <q-td :props="props">
-          <div v-if="props.row.storage_location">
-            <q-chip
-              outline
-              :label="props.row.storage_location.name"
+      <!-- Use body slot for internal expansion model -->
+      <template v-slot:body="props">
+        <!-- Regular row -->
+        <q-tr :props="props">
+          <!-- Expand button column -->
+          <q-td auto-width>
+            <q-btn
               size="sm"
-              class="q-mb-xs"
+              color="accent"
+              round
+              dense
+              flat
+              @click="props.expand = !props.expand"
+              :icon="props.expand ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
+            />
+          </q-td>
+
+          <!-- Component name column -->
+          <q-td key="name" :props="props">
+            <div class="text-weight-medium">{{ props.row.name }}</div>
+            <div v-if="props.row.part_number" class="text-caption text-grey">
+              PN: {{ props.row.part_number }}
+            </div>
+          </q-td>
+
+          <!-- Stock column -->
+          <q-td key="stock" :props="props">
+            <q-chip
+              :color="getStockStatusColor(props.row)"
+              text-color="white"
+              :label="props.row.quantity_on_hand"
+              size="sm"
             />
             <div class="text-caption text-grey">
-              {{ props.row.storage_location.location_hierarchy }}
+              Min: {{ props.row.minimum_stock }}
             </div>
-          </div>
-          <div v-else class="text-caption text-grey">
-            No location assigned
-          </div>
-        </q-td>
-      </template>
+          </q-td>
 
-      <template v-slot:body-cell-category="props">
-        <q-td :props="props">
-          <q-chip
-            v-if="props.row.category"
-            outline
-            color="primary"
-            :label="props.row.category.name"
-            size="sm"
-          />
-          <span v-else class="text-caption text-grey">Uncategorized</span>
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-value="props">
-        <q-td :props="props">
-          <div v-if="props.row.value || props.row.component_type">
-            <div v-if="props.row.value" class="text-weight-medium">
-              {{ props.row.value }}
+          <!-- Location column -->
+          <q-td key="location" :props="props">
+            <div v-if="props.row.storage_location">
+              <q-chip
+                outline
+                :label="props.row.storage_location.name"
+                size="sm"
+                class="q-mb-xs"
+              />
+              <div class="text-caption text-grey">
+                {{ props.row.storage_location.location_hierarchy }}
+              </div>
             </div>
-            <div v-if="props.row.component_type" class="text-caption text-grey">
-              {{ props.row.component_type }}
+            <div v-else class="text-caption text-grey">
+              No location assigned
             </div>
-          </div>
-          <span v-else class="text-caption text-grey">—</span>
-        </q-td>
-      </template>
+          </q-td>
 
-      <template v-slot:body-cell-attachments="props">
-        <q-td :props="props">
-          <div class="row justify-center q-gutter-xs">
-            <q-icon
-              v-for="attachment in getAttachmentIcons(props.row.attachments)"
-              :key="attachment.type"
-              :name="attachment.icon"
-              :color="attachment.color"
+          <!-- Category column -->
+          <q-td key="category" :props="props">
+            <q-chip
+              v-if="props.row.category"
+              outline
+              color="primary"
+              :label="props.row.category.name"
               size="sm"
-              :title="attachment.tooltip"
             />
-            <span v-if="!props.row.attachments?.length" class="text-caption text-grey">—</span>
-          </div>
-        </q-td>
+            <span v-else class="text-caption text-grey">Uncategorized</span>
+          </q-td>
+
+          <!-- Value column -->
+          <q-td key="value" :props="props">
+            <div v-if="props.row.value || props.row.component_type">
+              <div v-if="props.row.value" class="text-weight-medium">
+                {{ props.row.value }}
+              </div>
+              <div v-if="props.row.component_type" class="text-caption text-grey">
+                {{ props.row.component_type }}
+              </div>
+            </div>
+            <span v-else class="text-caption text-grey">—</span>
+          </q-td>
+
+          <!-- Manufacturer column -->
+          <q-td key="manufacturer" :props="props">
+            {{ props.row.manufacturer || '—' }}
+          </q-td>
+
+          <!-- Attachments column -->
+          <q-td key="attachments" :props="props">
+            <div class="row justify-center q-gutter-xs">
+              <q-icon
+                v-for="attachment in getAttachmentIcons(props.row.attachments)"
+                :key="attachment.type"
+                :name="attachment.icon"
+                :color="attachment.color"
+                size="sm"
+                :title="attachment.tooltip"
+              />
+              <span v-if="!props.row.attachments?.length" class="text-caption text-grey">—</span>
+            </div>
+          </q-td>
+
+          <!-- Updated at column -->
+          <q-td key="updated_at" :props="props">
+            {{ new Date(props.row.updated_at).toLocaleDateString() }}
+          </q-td>
+
+          <!-- Actions column -->
+          <q-td key="actions" :props="props" @click.stop>
+            <q-btn-dropdown
+              flat
+              dense
+              icon="more_vert"
+              size="sm"
+              @click.stop
+            >
+              <q-list>
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="$emit('view-component', props.row)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="visibility" />
+                  </q-item-section>
+                  <q-item-section>View Details</q-item-section>
+                </q-item>
+
+                <template v-if="canPerformCrud()">
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="$emit('edit-component', props.row)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="edit" />
+                    </q-item-section>
+                    <q-item-section>Edit</q-item-section>
+                  </q-item>
+
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="$emit('update-stock', props.row)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="inventory" />
+                    </q-item-section>
+                    <q-item-section>Update Stock</q-item-section>
+                  </q-item>
+
+                  <q-separator />
+
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="$emit('delete-component', props.row)"
+                    class="text-negative"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="delete" />
+                    </q-item-section>
+                    <q-item-section>Delete</q-item-section>
+                  </q-item>
+                </template>
+              </q-list>
+            </q-btn-dropdown>
+          </q-td>
+        </q-tr>
+
+        <!-- Expansion row -->
+        <q-tr v-if="props.expand" :props="props">
+          <q-td colspan="100%" style="padding: 0;">
+            <div style="background: #f0f8ff; border-left: 4px solid #1976d2; padding: 16px; margin: 0;">
+              <!-- Component Detail Preview -->
+              <div class="row q-gutter-md">
+                <!-- Basic Info -->
+                <div class="col-md-4 col-xs-12">
+                  <q-card flat bordered>
+                    <q-card-section>
+                      <div class="text-h6 q-mb-md">Basic Information</div>
+                      <div class="q-gutter-sm">
+                        <div class="row">
+                          <div class="col-4 text-weight-medium">Name:</div>
+                          <div class="col-8">{{ props.row.name }}</div>
+                        </div>
+                        <div v-if="props.row.part_number" class="row">
+                          <div class="col-4 text-weight-medium">Part Number:</div>
+                          <div class="col-8">{{ props.row.part_number }}</div>
+                        </div>
+                        <div v-if="props.row.manufacturer" class="row">
+                          <div class="col-4 text-weight-medium">Manufacturer:</div>
+                          <div class="col-8">{{ props.row.manufacturer }}</div>
+                        </div>
+                        <div v-if="props.row.component_type" class="row">
+                          <div class="col-4 text-weight-medium">Type:</div>
+                          <div class="col-8">{{ props.row.component_type }}</div>
+                        </div>
+                        <div v-if="props.row.value" class="row">
+                          <div class="col-4 text-weight-medium">Value:</div>
+                          <div class="col-8">{{ props.row.value }}</div>
+                        </div>
+                        <div v-if="props.row.package" class="row">
+                          <div class="col-4 text-weight-medium">Package:</div>
+                          <div class="col-8">{{ props.row.package }}</div>
+                        </div>
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+
+                <!-- Stock & Location -->
+                <div class="col-md-4 col-xs-12">
+                  <q-card flat bordered>
+                    <q-card-section>
+                      <div class="text-h6 q-mb-md">Stock & Location</div>
+                      <div class="q-gutter-sm">
+                        <div class="row items-center">
+                          <div class="col-6 text-weight-medium">Current Stock:</div>
+                          <div class="col-6">
+                            <q-chip
+                              :color="getStockStatusColor(props.row)"
+                              text-color="white"
+                              :label="props.row.quantity_on_hand"
+                              size="md"
+                            />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-6 text-weight-medium">Minimum Stock:</div>
+                          <div class="col-6">{{ props.row.minimum_stock }}</div>
+                        </div>
+                        <div class="row">
+                          <div class="col-6 text-weight-medium">Location:</div>
+                          <div class="col-6">
+                            <div v-if="props.row.storage_location">
+                              <q-chip outline :label="props.row.storage_location.name" size="sm" />
+                              <div class="text-caption text-grey">
+                                {{ props.row.storage_location.location_hierarchy }}
+                              </div>
+                            </div>
+                            <span v-else class="text-grey">No location assigned</span>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-6 text-weight-medium">Category:</div>
+                          <div class="col-6">
+                            <q-chip
+                              v-if="props.row.category"
+                              outline
+                              color="primary"
+                              :label="props.row.category.name"
+                              size="sm"
+                            />
+                            <span v-else class="text-grey">Uncategorized</span>
+                          </div>
+                        </div>
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+
+                <!-- Files & Actions -->
+                <div class="col-md-4 col-xs-12">
+                  <q-card flat bordered>
+                    <q-card-section>
+                      <div class="text-h6 q-mb-md">Files & Actions</div>
+
+                      <!-- Attachments -->
+                      <div v-if="props.row.attachments && props.row.attachments.length > 0" class="q-mb-md">
+                        <div class="text-weight-medium q-mb-sm">Attachments ({{ props.row.attachments.length }})</div>
+                        <div class="row q-gutter-xs">
+                          <q-chip
+                            v-for="attachment in props.row.attachments"
+                            :key="attachment.id"
+                            outline
+                            :icon="getAttachmentIcon(attachment)"
+                            :label="attachment.filename"
+                            size="sm"
+                            clickable
+                            @click="downloadAttachment(attachment)"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Action Buttons -->
+                      <div class="column q-gutter-sm">
+                        <q-btn
+                          outline
+                          color="primary"
+                          icon="visibility"
+                          label="View Full Details"
+                          @click="$emit('view-component', props.row)"
+                          size="sm"
+                        />
+                        <template v-if="canPerformCrud()">
+                          <q-btn
+                            outline
+                            color="secondary"
+                            icon="edit"
+                            label="Edit"
+                            @click="$emit('edit-component', props.row)"
+                            size="sm"
+                          />
+                          <q-btn
+                            outline
+                            color="accent"
+                            icon="inventory"
+                            label="Update Stock"
+                            @click="$emit('update-stock', props.row)"
+                            size="sm"
+                          />
+                        </template>
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
+
+              <!-- Description & Notes -->
+              <div v-if="props.row.description || props.row.notes" class="q-mt-md">
+                <q-card flat bordered>
+                  <q-card-section>
+                    <div v-if="props.row.description">
+                      <div class="text-h6 q-mb-sm">Description</div>
+                      <div class="text-body2 q-mb-md">{{ props.row.description }}</div>
+                    </div>
+                    <div v-if="props.row.notes">
+                      <div class="text-h6 q-mb-sm">Notes</div>
+                      <div class="text-body2" style="white-space: pre-wrap;">{{ props.row.notes }}</div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+          </q-td>
+        </q-tr>
       </template>
 
-      <template v-slot:body-cell-actions="props">
-        <q-td :props="props" @click.stop>
-          <q-btn-dropdown
-            flat
-            dense
-            icon="more_vert"
-            size="sm"
-            @click.stop
-          >
-            <q-list>
-              <q-item
-                clickable
-                v-close-popup
-                @click="$emit('view-component', props.row)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="visibility" />
-                </q-item-section>
-                <q-item-section>View Details</q-item-section>
-              </q-item>
-
-              <template v-if="canPerformCrud()">
-                <q-item
-                  clickable
-                  v-close-popup
-                  @click="$emit('edit-component', props.row)"
-                >
-                  <q-item-section avatar>
-                    <q-icon name="edit" />
-                  </q-item-section>
-                  <q-item-section>Edit</q-item-section>
-                </q-item>
-
-                <q-item
-                  clickable
-                  v-close-popup
-                  @click="$emit('update-stock', props.row)"
-                >
-                  <q-item-section avatar>
-                    <q-icon name="inventory" />
-                  </q-item-section>
-                  <q-item-section>Update Stock</q-item-section>
-                </q-item>
-
-                <q-separator />
-
-                <q-item
-                  clickable
-                  v-close-popup
-                  @click="$emit('delete-component', props.row)"
-                  class="text-negative"
-                >
-                  <q-item-section avatar>
-                    <q-icon name="delete" />
-                  </q-item-section>
-                  <q-item-section>Delete</q-item-section>
-                </q-item>
-              </template>
-            </q-list>
-          </q-btn-dropdown>
-        </q-td>
-      </template>
 
       <!-- No data message -->
       <template v-slot:no-data="{ message }">
@@ -346,9 +533,20 @@ const selectedCategory = ref('')
 const selectedStockStatus = ref('')
 const sortBy = ref('updated_at')
 const sortOrder = ref<'asc' | 'desc'>('desc')
+const expanded = ref<string[]>([])
 
 // Table configuration
 const columns = [
+  {
+    name: 'expand',
+    label: '',
+    field: 'expand',
+    sortable: false,
+    required: true,
+    align: 'left' as const,
+    style: 'width: 40px',
+    headerStyle: 'width: 40px'
+  },
   {
     name: 'name',
     required: true,
@@ -512,8 +710,27 @@ const onStockFilter = (status: 'low' | 'out' | 'available' | undefined) => {
 
 // Client-side table with no server-side requests needed for sorting
 
+const getAttachmentIcon = (attachment: any) => {
+  const filename = attachment.filename?.toLowerCase() || ''
+  if (filename.includes('.pdf') || attachment.attachment_type === 'datasheet') {
+    return 'picture_as_pdf'
+  }
+  if (filename.match(/\.(jpg|jpeg|png|gif|webp)$/i) || attachment.attachment_type === 'image') {
+    return 'image'
+  }
+  return 'description'
+}
+
+const downloadAttachment = (attachment: any) => {
+  // This would typically trigger a download
+  console.log('Download attachment:', attachment.filename)
+  // emit('download-attachment', attachment) // Could emit to parent if needed
+}
+
+
 const onRowClick = (evt: Event, row: Component) => {
-  emit('view-component', row)
+  // Don't navigate to detail page on row click when we have expandable rows
+  // User can click "View Full Details" button instead
 }
 
 const clearError = () => {
