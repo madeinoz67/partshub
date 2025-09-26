@@ -89,6 +89,9 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-064**: System MUST provide image gallery view in component details with click-to-expand full-size viewing capability
 - **FR-065**: System MUST expose file storage through Docker volume mount for persistent data across container restarts
 - **FR-066**: System MUST integrate with component data providers to automatically download datasheets and images with user selection interface
+- **FR-067**: System MUST implement rate limiting for provider API requests with token bucket algorithm (1 request/second per domain) to avoid hitting API limits and be respectful to external services
+- **FR-068**: System MUST implement download caching (1 hour duration) to prevent duplicate downloads of the same URLs within short time periods
+- **FR-069**: System MUST limit concurrent provider downloads (maximum 2 simultaneous requests) to avoid overloading external services and maintain good API citizenship
 - **FR-023**: System MUST track ordered stock quantities separate from actual stock on hand
 - **FR-024**: System MUST provide a comprehensive dashboard with parts, storage, and project statistics
 - **FR-025**: System MUST calculate and display total inventory value across all components

@@ -157,10 +157,21 @@ This task list implements a comprehensive electronic parts inventory management 
 ## Phase 3.7: External Integrations
 
 ### Component Data Providers
-- [ ] T082 [P] Abstract ComponentDataProvider interface in backend/src/providers/base_provider.py
-- [ ] T083 [P] LCSC provider implementation with API integration in backend/src/providers/lcsc_provider.py
-- [ ] T084 [P] Provider service for managing multiple providers in backend/src/services/provider_service.py
-- [ ] T085 [P] Component import from provider functionality in backend/src/services/import_service.py
+- [x] T082 [P] Abstract ComponentDataProvider interface in backend/src/providers/base_provider.py
+- [x] T083 [P] LCSC provider implementation with API integration in backend/src/providers/lcsc_provider.py
+- [x] T084 [P] Provider service for managing multiple providers in backend/src/services/provider_service.py
+- [x] T085 [P] Component import from provider functionality in backend/src/services/import_service.py
+
+### Provider SKU Search Enhancement (New Tasks)
+- [ ] T107 [P] Add provider SKU search method to ComponentDataProvider interface in backend/src/providers/base_provider.py
+- [ ] T108 [P] Implement provider SKU search in LCSCProvider with SKU format detection in backend/src/providers/lcsc_provider.py
+- [ ] T109 [P] Enhance ProviderService with unified search (manufacturer PN + provider SKU) in backend/src/services/provider_service.py
+- [ ] T110 [P] Add provider SKU search API endpoint POST /api/v1/providers/search-sku in backend/src/api/integrations.py
+- [ ] T111 [P] Update ComponentSearchResult model to include provider_part_id field in backend/src/providers/base_provider.py
+- [ ] T112 [P] Create provider SKU search frontend component in frontend/src/components/ProviderSkuSearch.vue
+- [ ] T113 [P] Enhance component search UI with search type selection (PN vs SKU) in frontend/src/components/ComponentSearch.vue
+- [ ] T114 [P] Add BOM generation service with provider SKU integration in backend/src/services/bom_service.py
+- [ ] T115 [P] Create BOM export functionality for KiCad integration with provider SKUs in backend/src/api/bom.py
 
 ### Barcode Processing
 - [ ] T086 [P] Barcode scanning service with pyzbar integration in backend/src/services/barcode_service.py
@@ -312,11 +323,23 @@ This task list implements the complete PartsHub MVP with 106 specific, executabl
    - No MetaPart/BOM management
    - No full-text search optimization
 
+#### 🔗 **FILE ATTACHMENT SYSTEM (T064-T072)** - **HIGH PRIORITY**
+   - **T064**: Create FileStorageService with hashed directory structure (FR-058)
+   - **T065**: Write comprehensive tests for FileStorageService using TDD
+   - **T066**: Implement thumbnail generation service for images (FR-061)
+   - **T067**: Create nested API endpoints for component attachments (FR-060)
+   - **T068**: Add file upload validation and security checks (FR-059)
+   - **T069**: Implement provider auto-download functionality (FR-066)
+   - **T070**: Create drag-and-drop frontend upload component (FR-022)
+   - **T071**: Add primary image selection and gallery UI (FR-062, FR-064)
+   - **T072**: Configure Docker volumes for persistent file storage (FR-065)
+
 #### 🎯 **IMMEDIATE NEXT STEPS**
 1. ✅ **Authentication System Complete (T043-T045, T057-T063)** - Production ready with enhanced UX
-2. **Add Purchase Tracking (T031-T032)** - Core inventory functionality
-3. **Complete Provider Integration (T036-T037)** - Automated component data
-4. **Enhance Dashboard Services (T048-T050)** - Better user experience
+2. **🔗 File Attachment System (T064-T072)** - Core datasheet/image functionality
+3. **Add Purchase Tracking (T031-T032)** - Core inventory functionality
+4. **Complete Provider Integration (T036-T037)** - Automated component data
+5. **Enhance Dashboard Services (T048-T050)** - Better user experience
 
 #### 💪 **CURRENT STRENGTHS**
 - Solid Vue.js + FastAPI architecture
