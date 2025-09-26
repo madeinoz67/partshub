@@ -6,11 +6,16 @@ Main FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Import for startup events
+from .database import get_db
+from .auth.admin import ensure_admin_exists
+
 # Import API routers
 from .api.components import router as components_router
 from .api.storage import router as storage_router
 from .api.integrations import router as integrations_router
 from .api.tags import router as tags_router
+from .api.auth import router as auth_router
 
 app = FastAPI(
     title="PartsHub API",
@@ -35,10 +40,30 @@ app.add_middleware(
 )
 
 # Include API routers
+app.include_router(auth_router)
 app.include_router(components_router)
 app.include_router(storage_router)
 app.include_router(integrations_router)
 app.include_router(tags_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize application on startup."""
+    # Ensure default admin user exists
+    db = next(get_db())
+    try:
+        result = ensure_admin_exists(db)
+        if result:
+            user, password = result
+            print(f"\n🔑 DEFAULT ADMIN CREATED:")
+            print(f"   Username: {user.username}")
+            print(f"   Password: {password}")
+            print(f"   ⚠️  Please change this password after first login!\n")
+    except Exception as e:
+        print(f"Error creating default admin user: {e}")
+    finally:
+        db.close()
 
 
 @app.get("/")

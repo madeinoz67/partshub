@@ -62,6 +62,8 @@ class Component(Base):
     custom_field_values = relationship("CustomFieldValue", back_populates="component", cascade="all, delete-orphan")
     substitute_for = relationship("Substitute", foreign_keys="Substitute.component_id", back_populates="component")
     substitute_options = relationship("Substitute", foreign_keys="Substitute.substitute_component_id", back_populates="substitute_component")
+    purchase_items = relationship("PurchaseItem", back_populates="component", cascade="all, delete-orphan")
+    provider_data = relationship("ComponentProviderData", back_populates="component", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Component(id='{self.id}', name='{self.name}', part_number='{self.part_number}')>"

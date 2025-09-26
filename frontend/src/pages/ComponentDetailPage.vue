@@ -42,11 +42,13 @@ import ComponentDetail from '../components/ComponentDetail.vue'
 import ComponentForm from '../components/ComponentForm.vue'
 import StockUpdateDialog from '../components/StockUpdateDialog.vue'
 import { useComponentsStore } from '../stores/components'
+import { useAuth } from '../composables/useAuth'
 import type { Component } from '../services/api'
 
 const route = useRoute()
 const $q = useQuasar()
 const componentsStore = useComponentsStore()
+const { requireAuth } = useAuth()
 
 const { currentComponent: component } = storeToRefs(componentsStore)
 
@@ -55,10 +57,14 @@ const showEditDialog = ref(false)
 const showStockDialog = ref(false)
 
 const editComponent = (component: Component) => {
+  if (!requireAuth('edit components')) return
+
   showEditDialog.value = true
 }
 
 const updateStock = (component: Component) => {
+  if (!requireAuth('update stock quantities')) return
+
   showStockDialog.value = true
 }
 

@@ -27,6 +27,7 @@ dependencies = [
     "aiofiles==23.2.1",
     "aiohttp>=3.12.15",
     "faker==22.0.0",
+    "email-validator>=2.3.0",
 ]
 
 [project.optional-dependencies]

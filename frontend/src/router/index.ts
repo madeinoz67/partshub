@@ -8,6 +8,11 @@ import {
 
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('../pages/LoginPage.vue')
+  },
+  {
     path: '/',
     component: () => import('../layouts/MainLayout.vue'),
     children: [
@@ -35,6 +40,12 @@ const routes = [
         path: 'storage',
         name: 'storage',
         component: () => import('../pages/StorageLocationsPage.vue')
+      },
+      {
+        path: 'api-tokens',
+        name: 'api-tokens',
+        component: () => import('../pages/ApiTokensPage.vue'),
+        meta: { requiresAdmin: true }
       }
     ]
   },
@@ -54,6 +65,37 @@ export default route(function (/* { store, ssrContext } */) {
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
     history: createHistory(process.env.VUE_ROUTER_BASE)
+  })
+
+  // Navigation guard for authentication
+  Router.beforeEach(async (to) => {
+    // Import auth store dynamically to avoid circular dependency
+    const { useAuthStore } = await import('../stores/auth')
+    const authStore = useAuthStore()
+
+    // Initialize auth store if not already done
+    if (!authStore.user && authStore.token) {
+      await authStore.initialize()
+    }
+
+    // Allow access to login page without authentication
+    if (to.name === 'login') {
+      return true
+    }
+
+    // Check admin-only routes - redirect to login if not authenticated as admin
+    if (to.meta?.requiresAdmin) {
+      if (!authStore.isAuthenticated) {
+        return { name: 'login' }
+      }
+      if (!authStore.isAdmin) {
+        return { name: 'home' } // Redirect non-admin users to home
+      }
+    }
+
+    // For all other routes, allow anonymous access (tiered access model)
+    // Authentication will be checked at the component/API level for CRUD operations
+    return true
   })
 
   return Router

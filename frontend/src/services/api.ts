@@ -36,12 +36,22 @@ api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response
   },
-  (error) => {
+  async (error) => {
     // Handle common errors
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
+      // Clear token if it exists
+      const hadToken = localStorage.getItem('auth_token')
       localStorage.removeItem('auth_token')
-      // Router redirect would go here
+
+      // Only redirect to login if the user had a token (was authenticated)
+      // Anonymous users browsing should not be automatically redirected
+      if (hadToken && typeof window !== 'undefined') {
+        const { useRouter } = await import('vue-router')
+        const router = useRouter()
+        if (router.currentRoute.value.name !== 'login') {
+          router.push('/login')
+        }
+      }
     }
     return Promise.reject(error)
   }
@@ -324,6 +334,82 @@ export class APIService {
 
   static async deleteTag(id: string): Promise<void> {
     await api.delete(`/api/v1/tags/${id}`)
+  }
+
+  // Authentication API
+  static async login(username: string, password: string): Promise<{
+    access_token: string
+    token_type: string
+    expires_in: number
+  }> {
+    const formData = new FormData()
+    formData.append('username', username)
+    formData.append('password', password)
+
+    const response = await api.post('/api/v1/auth/token', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    return response.data
+  }
+
+  static async getCurrentUser(): Promise<{
+    id: string
+    username: string
+    full_name: string | null
+    is_active: boolean
+    is_admin: boolean
+    must_change_password: boolean
+    created_at: string
+  }> {
+    const response = await api.get('/api/v1/auth/me')
+    return response.data
+  }
+
+  static async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await api.post('/api/v1/auth/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    })
+  }
+
+  // API Token Management
+  static async getAPITokens(): Promise<Array<{
+    id: string
+    name: string
+    description: string | null
+    prefix: string
+    is_active: boolean
+    expires_at: string | null
+    last_used_at: string | null
+    created_at: string
+  }>> {
+    const response = await api.get('/api/v1/auth/api-tokens')
+    return response.data
+  }
+
+  static async createAPIToken(data: {
+    name: string
+    description?: string
+    expires_in_days?: number
+  }): Promise<{
+    id: string
+    name: string
+    description: string | null
+    prefix: string
+    is_active: boolean
+    expires_at: string | null
+    last_used_at: string | null
+    created_at: string
+    token: string
+  }> {
+    const response = await api.post('/api/v1/auth/api-tokens', data)
+    return response.data
+  }
+
+  static async revokeAPIToken(tokenId: string): Promise<void> {
+    await api.delete(`/api/v1/auth/api-tokens/${tokenId}`)
   }
 }
 

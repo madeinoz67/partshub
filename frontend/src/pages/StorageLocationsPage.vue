@@ -36,7 +36,7 @@
                   <div class="text-h6">{{ selectedLocation.name }}</div>
                   <div class="text-caption text-grey">{{ selectedLocation.location_hierarchy }}</div>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto" v-if="canPerformCrud()">
                   <q-btn-group>
                     <q-btn
                       color="primary"
@@ -192,10 +192,12 @@ import { storeToRefs } from 'pinia'
 import StorageLocationTree from '../components/StorageLocationTree.vue'
 import StorageLocationForm from '../components/StorageLocationForm.vue'
 import { useStorageStore } from '../stores/storage'
+import { useAuth } from '../composables/useAuth'
 import type { StorageLocation, Component } from '../services/api'
 
 const $q = useQuasar()
 const storageStore = useStorageStore()
+const { requireAuth, canPerformCrud } = useAuth()
 
 const {
   currentLocation: selectedLocation,
@@ -284,6 +286,8 @@ const onLocationSelected = (location: StorageLocation | null) => {
 }
 
 const createLocation = () => {
+  if (!requireAuth('create storage locations')) return
+
   selectedLocationForEdit.value = null
   parentLocationForCreate.value = null
   isEditMode.value = false
@@ -295,6 +299,8 @@ const viewLocation = (location: StorageLocation) => {
 }
 
 const editLocation = (location: StorageLocation) => {
+  if (!requireAuth('edit storage locations')) return
+
   selectedLocationForEdit.value = location
   parentLocationForCreate.value = null
   isEditMode.value = true
@@ -302,6 +308,8 @@ const editLocation = (location: StorageLocation) => {
 }
 
 const addChildLocation = (parentLocation: StorageLocation) => {
+  if (!requireAuth('create child storage locations')) return
+
   selectedLocationForEdit.value = null
   parentLocationForCreate.value = parentLocation
   isEditMode.value = false
@@ -309,6 +317,8 @@ const addChildLocation = (parentLocation: StorageLocation) => {
 }
 
 const deleteLocation = (location: StorageLocation) => {
+  if (!requireAuth('delete storage locations')) return
+
   selectedLocationForEdit.value = location
   showDeleteDialog.value = true
 }

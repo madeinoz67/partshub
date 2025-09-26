@@ -55,7 +55,7 @@
           </div>
 
 
-          <div class="col-md-1 col-xs-12">
+          <div class="col-md-1 col-xs-12" v-if="canPerformCrud()">
             <q-btn
               color="primary"
               icon="add"
@@ -231,41 +231,43 @@
                 <q-item-section>View Details</q-item-section>
               </q-item>
 
-              <q-item
-                clickable
-                v-close-popup
-                @click="$emit('edit-component', props.row)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="edit" />
-                </q-item-section>
-                <q-item-section>Edit</q-item-section>
-              </q-item>
+              <template v-if="canPerformCrud()">
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="$emit('edit-component', props.row)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="edit" />
+                  </q-item-section>
+                  <q-item-section>Edit</q-item-section>
+                </q-item>
 
-              <q-item
-                clickable
-                v-close-popup
-                @click="$emit('update-stock', props.row)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="inventory" />
-                </q-item-section>
-                <q-item-section>Update Stock</q-item-section>
-              </q-item>
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="$emit('update-stock', props.row)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="inventory" />
+                  </q-item-section>
+                  <q-item-section>Update Stock</q-item-section>
+                </q-item>
 
-              <q-separator />
+                <q-separator />
 
-              <q-item
-                clickable
-                v-close-popup
-                @click="$emit('delete-component', props.row)"
-                class="text-negative"
-              >
-                <q-item-section avatar>
-                  <q-icon name="delete" />
-                </q-item-section>
-                <q-item-section>Delete</q-item-section>
-              </q-item>
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="$emit('delete-component', props.row)"
+                  class="text-negative"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="delete" />
+                  </q-item-section>
+                  <q-item-section>Delete</q-item-section>
+                </q-item>
+              </template>
             </q-list>
           </q-btn-dropdown>
         </q-td>
@@ -286,6 +288,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useComponentsStore } from '../stores/components'
+import { useAuth } from '../composables/useAuth'
 import type { Component } from '../services/api'
 
 // Component props
@@ -308,6 +311,7 @@ const emit = defineEmits<{
 
 // Store
 const componentsStore = useComponentsStore()
+const { canPerformCrud } = useAuth()
 const {
   components,
   loading,

@@ -9,7 +9,7 @@
               Part Number: {{ component.part_number }}
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-auto" v-if="canPerformCrud()">
             <q-btn-group>
               <q-btn
                 color="primary"
@@ -324,6 +324,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useComponentsStore } from '../stores/components'
+import { useAuth } from '../composables/useAuth'
 import type { Component } from '../services/api'
 
 interface Props {
@@ -338,6 +339,7 @@ const emit = defineEmits<{
 }>()
 
 const componentsStore = useComponentsStore()
+const { canPerformCrud } = useAuth()
 const {
   currentComponent: component,
   stockHistory,

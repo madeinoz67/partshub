@@ -17,6 +17,12 @@ from .tag import Tag, component_tags
 from .attachment import Attachment
 from .custom_field import CustomField, CustomFieldValue, FieldType
 from .substitute import Substitute
+from .user import User
+from .api_token import APIToken
+from .supplier import Supplier
+from .purchase import Purchase, PurchaseItem
+from .provider import ComponentDataProvider
+from .provider_data import ComponentProviderData
 
 # Export all models
 __all__ = [
@@ -36,4 +42,11 @@ __all__ = [
     "CustomFieldValue",
     "FieldType",
     "Substitute",
+    "User",
+    "APIToken",
+    "Supplier",
+    "Purchase",
+    "PurchaseItem",
+    "ComponentDataProvider",
+    "ComponentProviderData",
 ]

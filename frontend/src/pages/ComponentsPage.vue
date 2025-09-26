@@ -10,7 +10,7 @@
 
     <!-- Component List -->
     <ComponentList
-      @create-component="showCreateDialog = true"
+      @create-component="handleCreateComponent"
       @view-component="viewComponent"
       @edit-component="editComponent"
       @update-stock="updateStock"
@@ -65,11 +65,13 @@ import ComponentList from '../components/ComponentList.vue'
 import ComponentForm from '../components/ComponentForm.vue'
 import StockUpdateDialog from '../components/StockUpdateDialog.vue'
 import { useComponentsStore } from '../stores/components'
+import { useAuth } from '../composables/useAuth'
 import type { Component } from '../services/api'
 
 const router = useRouter()
 const $q = useQuasar()
 const componentsStore = useComponentsStore()
+const { requireAuth } = useAuth()
 
 const selectedComponent = ref<Component | null>(null)
 const showCreateDialog = ref(false)
@@ -82,18 +84,32 @@ const viewComponent = (component: Component) => {
   router.push(`/components/${component.id}`)
 }
 
+const handleCreateComponent = () => {
+  if (!requireAuth('create components')) return
+
+  selectedComponent.value = null
+  isEditMode.value = false
+  showCreateDialog.value = true
+}
+
 const editComponent = (component: Component) => {
+  if (!requireAuth('edit components')) return
+
   selectedComponent.value = component
   isEditMode.value = true
   showCreateDialog.value = true
 }
 
 const updateStock = (component: Component) => {
+  if (!requireAuth('update stock quantities')) return
+
   selectedComponent.value = component
   showStockDialog.value = true
 }
 
 const deleteComponent = (component: Component) => {
+  if (!requireAuth('delete components')) return
+
   selectedComponent.value = component
   showDeleteDialog.value = true
 }
