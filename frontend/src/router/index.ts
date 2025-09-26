@@ -42,11 +42,21 @@ const routes = [
         component: () => import('../pages/StorageLocationsPage.vue')
       },
       {
-        path: 'api-tokens',
-        name: 'api-tokens',
-        component: () => import('../pages/ApiTokensPage.vue'),
+        path: 'projects',
+        name: 'projects',
+        component: () => import('../pages/ProjectsPage.vue')
+      },
+      {
+        path: 'inventory',
+        name: 'inventory',
+        component: () => import('../pages/InventoryPage.vue')
+      },
+      {
+        path: 'admin',
+        name: 'admin',
+        component: () => import('../pages/AdminPage.vue'),
         meta: { requiresAdmin: true }
-      }
+      },
     ]
   },
   // Catch all 404s
