@@ -193,6 +193,8 @@ logs
 *.sqlite
 *.sqlite3
 *.db
+*.db-shm
+*.db-wal
 
 # Temporary files
 tmp/
@@ -215,3 +217,4 @@ dist/
 *.zip
 exports/
 .claude/settings.local.json
+
