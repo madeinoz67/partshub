@@ -130,7 +130,8 @@ class ComponentService:
                     Component.name.ilike(search_term),
                     Component.part_number.ilike(search_term),
                     Component.manufacturer.ilike(search_term),
-                    Component.notes.ilike(search_term)
+                    Component.notes.ilike(search_term),
+                    Component.tags.any(Tag.name.ilike(search_term))
                 )
             )
 
@@ -197,7 +198,8 @@ class ComponentService:
                     Component.name.ilike(search_term),
                     Component.part_number.ilike(search_term),
                     Component.manufacturer.ilike(search_term),
-                    Component.notes.ilike(search_term)
+                    Component.notes.ilike(search_term),
+                    Component.tags.any(Tag.name.ilike(search_term))
                 )
             )
 
