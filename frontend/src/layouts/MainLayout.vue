@@ -64,12 +64,12 @@
                 v-if="authStore.isAdmin"
                 clickable
                 v-close-popup
-                @click="$router.push('/api-tokens')"
+                @click="$router.push('/admin')"
               >
                 <q-item-section avatar>
-                  <q-icon name="key" />
+                  <q-icon name="admin_panel_settings" />
                 </q-item-section>
-                <q-item-section>API Tokens</q-item-section>
+                <q-item-section>Admin Panel</q-item-section>
               </q-item>
 
               <q-item
@@ -153,10 +153,10 @@ const essentialLinks: EssentialLink[] = [
     link: '/dashboard'
   },
   {
-    title: 'API Tokens',
-    caption: 'Manage API access tokens',
-    icon: 'key',
-    link: '/api-tokens',
+    title: 'Admin',
+    caption: 'System administration',
+    icon: 'admin_panel_settings',
+    link: '/admin',
     adminOnly: true
   }
 ]

@@ -1117,7 +1117,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { api } from '../services/api'
+import api, { APIService } from '../services/api'
 import UserForm from '../components/UserForm.vue'
 
 const $q = useQuasar()
@@ -1293,7 +1293,7 @@ const getDataQualityScore = () => {
 // Methods
 const loadDashboardData = async () => {
   try {
-    const response = await api.get('/reports/dashboard')
+    const response = await api.get('/api/v1/reports/dashboard')
     dashboardData.value = response.data
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
@@ -1302,7 +1302,7 @@ const loadDashboardData = async () => {
 
 const loadSystemHealth = async () => {
   try {
-    const response = await api.get('/reports/system-health')
+    const response = await api.get('/api/v1/reports/system-health')
     systemHealth.value = response.data
   } catch (error) {
     console.error('Failed to load system health:', error)
@@ -1311,7 +1311,7 @@ const loadSystemHealth = async () => {
 
 const loadInventoryBreakdown = async () => {
   try {
-    const response = await api.get('/reports/inventory-breakdown')
+    const response = await api.get('/api/v1/reports/inventory-breakdown')
     inventoryBreakdown.value = response.data
   } catch (error) {
     console.error('Failed to load inventory breakdown:', error)
@@ -1320,7 +1320,7 @@ const loadInventoryBreakdown = async () => {
 
 const loadUsageAnalytics = async () => {
   try {
-    const response = await api.get('/reports/usage-analytics')
+    const response = await api.get('/api/v1/reports/usage-analytics')
     usageAnalytics.value = response.data
   } catch (error) {
     console.error('Failed to load usage analytics:', error)
@@ -1329,7 +1329,7 @@ const loadUsageAnalytics = async () => {
 
 const loadProjectAnalytics = async () => {
   try {
-    const response = await api.get('/reports/project-analytics')
+    const response = await api.get('/api/v1/reports/project-analytics')
     projectAnalytics.value = response.data
   } catch (error) {
     console.error('Failed to load project analytics:', error)
@@ -1338,7 +1338,7 @@ const loadProjectAnalytics = async () => {
 
 const loadSearchAnalytics = async () => {
   try {
-    const response = await api.get('/reports/search-analytics')
+    const response = await api.get('/api/v1/reports/search-analytics')
     searchAnalytics.value = response.data
   } catch (error) {
     console.error('Failed to load search analytics:', error)
@@ -1348,7 +1348,7 @@ const loadSearchAnalytics = async () => {
 const loadUsers = async () => {
   loadingUsers.value = true
   try {
-    const response = await api.get('/users')
+    const response = await api.get('/api/v1/auth/users')
     users.value = response.data
   } catch (error) {
     $q.notify({
@@ -1392,7 +1392,7 @@ const editUser = (user) => {
 
 const resetPassword = async (user) => {
   try {
-    await api.post(`/auth/users/${user.id}/reset-password`)
+    await api.post(`/api/v1/auth/users/${user.id}/reset-password`)
     $q.notify({
       type: 'positive',
       message: 'Password reset successfully'
@@ -1408,7 +1408,7 @@ const resetPassword = async (user) => {
 
 const toggleUserStatus = async (user) => {
   try {
-    await api.patch(`/auth/users/${user.id}`, {
+    await api.patch(`/api/v1/auth/users/${user.id}`, {
       is_active: !user.is_active
     })
     await loadUsers()
@@ -1439,7 +1439,7 @@ const handleUserSaved = () => {
 // Report generation methods
 const exportComprehensiveReport = async () => {
   try {
-    const response = await api.get('/reports/comprehensive', { responseType: 'blob' })
+    const response = await api.get('/api/v1/reports/comprehensive', { responseType: 'blob' })
     const blob = new Blob([response.data], { type: 'application/json' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -1458,7 +1458,7 @@ const exportComprehensiveReport = async () => {
 
 const generateInventoryReport = async () => {
   try {
-    const response = await api.get('/reports/inventory-breakdown', { responseType: 'blob' })
+    const response = await api.get('/api/v1/reports/export/inventory', { responseType: 'blob' })
     downloadReport(response.data, 'inventory-report')
   } catch (error) {
     $q.notify({
@@ -1470,7 +1470,7 @@ const generateInventoryReport = async () => {
 
 const generateUsageReport = async () => {
   try {
-    const response = await api.get('/reports/usage-analytics', { responseType: 'blob' })
+    const response = await api.get('/api/v1/reports/export/usage', { responseType: 'blob' })
     downloadReport(response.data, 'usage-report')
   } catch (error) {
     $q.notify({
@@ -1482,7 +1482,7 @@ const generateUsageReport = async () => {
 
 const generateProjectReport = async () => {
   try {
-    const response = await api.get('/reports/project-analytics', { responseType: 'blob' })
+    const response = await api.get('/api/v1/reports/export/projects', { responseType: 'blob' })
     downloadReport(response.data, 'project-report')
   } catch (error) {
     $q.notify({
@@ -1494,7 +1494,7 @@ const generateProjectReport = async () => {
 
 const generateFinancialReport = async () => {
   try {
-    const response = await api.get('/reports/financial-summary', { responseType: 'blob' })
+    const response = await api.get('/api/v1/reports/export/financial', { responseType: 'blob' })
     downloadReport(response.data, 'financial-report')
   } catch (error) {
     $q.notify({
@@ -1506,7 +1506,7 @@ const generateFinancialReport = async () => {
 
 const generateSystemReport = async () => {
   try {
-    const response = await api.get('/reports/system-health', { responseType: 'blob' })
+    const response = await api.get('/api/v1/reports/export/system-health', { responseType: 'blob' })
     downloadReport(response.data, 'system-health-report')
   } catch (error) {
     $q.notify({
