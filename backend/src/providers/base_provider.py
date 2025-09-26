@@ -21,6 +21,7 @@ class ComponentSearchResult(BaseModel):
     availability: Optional[int] = None
     provider_id: str
     provider_url: Optional[str] = None
+    provider_part_id: Optional[str] = None  # Provider-specific SKU/part ID
 
 
 class ComponentDataProvider(ABC):
@@ -59,6 +60,23 @@ class ComponentDataProvider(ABC):
             Detailed component information or None if not found
         """
         pass
+
+    async def search_by_provider_sku(self, provider_sku: str) -> Optional[ComponentSearchResult]:
+        """
+        Search for a component by provider-specific SKU/part ID.
+
+        Args:
+            provider_sku: Provider-specific SKU or part identifier
+
+        Returns:
+            Component information or None if not found
+        """
+        # Default implementation falls back to regular search
+        # Providers can override this for more efficient SKU-based lookups
+        results = await self.search_components(provider_sku, limit=1)
+        if results and results[0].provider_part_id == provider_sku:
+            return results[0]
+        return None
 
     async def verify_connection(self) -> bool:
         """

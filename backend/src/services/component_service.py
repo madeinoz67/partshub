@@ -333,9 +333,6 @@ class ComponentService:
             "available_components": total_components - out_of_stock_count
         }
 
-    def count_components(self) -> int:
-        """Count total number of components."""
-        return self.db.query(Component).count()
 
     def count_components_with_kicad_data(self) -> int:
         """Count components that have KiCad data."""

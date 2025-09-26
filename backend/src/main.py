@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import get_db
 from .auth.admin import ensure_admin_exists
 
+# Import all models to ensure SQLAlchemy relationships are configured
+from . import models
+
 # Import API routers
 from .api.components import router as components_router
 from .api.storage import router as storage_router
@@ -56,6 +59,13 @@ app.include_router(kicad_router)
 @app.on_event("startup")
 async def startup_event():
     """Initialize application on startup."""
+    # Configure SQLAlchemy registry to ensure all relationships are properly initialized
+    from sqlalchemy.orm import configure_mappers
+    try:
+        configure_mappers()
+    except Exception as e:
+        print(f"Warning: SQLAlchemy mapper configuration issue: {e}")
+
     # Ensure default admin user exists
     db = next(get_db())
     try:
