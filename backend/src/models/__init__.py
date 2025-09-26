@@ -23,6 +23,8 @@ from .supplier import Supplier
 from .purchase import Purchase, PurchaseItem
 from .provider import ComponentDataProvider
 from .provider_data import ComponentProviderData
+from .kicad_data import KiCadLibraryData
+from .meta_part import MetaPart, MetaPartComponent
 
 # Export all models
 __all__ = [
@@ -49,4 +51,7 @@ __all__ = [
     "PurchaseItem",
     "ComponentDataProvider",
     "ComponentProviderData",
+    "KiCadLibraryData",
+    "MetaPart",
+    "MetaPartComponent",
 ]

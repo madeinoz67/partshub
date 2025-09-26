@@ -64,6 +64,7 @@ class Component(Base):
     substitute_options = relationship("Substitute", foreign_keys="Substitute.substitute_component_id", back_populates="substitute_component")
     purchase_items = relationship("PurchaseItem", back_populates="component", cascade="all, delete-orphan")
     provider_data = relationship("ComponentProviderData", back_populates="component", cascade="all, delete-orphan")
+    kicad_data = relationship("KiCadLibraryData", back_populates="component", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Component(id='{self.id}', name='{self.name}', part_number='{self.part_number}')>"
