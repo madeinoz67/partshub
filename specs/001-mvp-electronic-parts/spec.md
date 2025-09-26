@@ -22,6 +22,16 @@
   - Admin users: Full CRUD + administrative features
   - Login only required for data modifications
 - Fixed navigation order: Components → Storage Locations → Dashboard
+- **Enhanced API Token Management**:
+  - Added industry-standard expiry presets (24h, 1 week, 1 month, 3 months, 6 months, 1 year)
+  - Added "Never expires" option with security warning
+  - Improved UX with descriptive dropdown options and contextual hints
+- **Improved Logout UX**: Logout now redirects to main landing page instead of login screen
+- **Authentication System Refinements**:
+  - Fixed Pydantic serialization issues for datetime fields
+  - Implemented forced password change dialog for first-time admin users
+  - Added comprehensive user profile management with anytime password changes
+  - Enhanced authentication state management and UI responsiveness
 
 ## User Scenarios & Testing
 
@@ -69,7 +79,16 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-019**: System MUST support custom data fields for component-specific attributes
 - **FR-020**: System MUST track component usage in meta-parts (assemblies/BOMs)
 - **FR-021**: System MUST provide detailed component view with all specifications, stock operations, and relationships
-- **FR-022**: System MUST support file attachments (datasheets, images, documents) per component
+- **FR-022**: System MUST support file attachments (datasheets, images, documents) per component with drag-and-drop upload interface
+- **FR-058**: System MUST store files in local filesystem using hashed directory structure based on component ID for organized storage
+- **FR-059**: System MUST support PDF and standard image formats (JPEG, PNG) with file type validation and size limits
+- **FR-060**: System MUST provide nested API endpoints for component attachments supporting multiple file uploads per request
+- **FR-061**: System MUST automatically generate 64x64 pixel thumbnails for images to display as primary component images in table views
+- **FR-062**: System MUST allow users to select a primary image from multiple uploaded images for component identification
+- **FR-063**: System MUST display primary image thumbnails and datasheet icons in component table for quick visual identification
+- **FR-064**: System MUST provide image gallery view in component details with click-to-expand full-size viewing capability
+- **FR-065**: System MUST expose file storage through Docker volume mount for persistent data across container restarts
+- **FR-066**: System MUST integrate with component data providers to automatically download datasheets and images with user selection interface
 - **FR-023**: System MUST track ordered stock quantities separate from actual stock on hand
 - **FR-024**: System MUST provide a comprehensive dashboard with parts, storage, and project statistics
 - **FR-025**: System MUST calculate and display total inventory value across all components
@@ -80,6 +99,10 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-029**: System MUST support tiered authentication: anonymous access for search/view operations, JWT-based admin login for CRUD operations via web interface, and API token authentication for CRUD API endpoints
 - **FR-030**: System MUST create a default admin user on first run requiring password change on initial login
 - **FR-031**: System MUST provide admin dashboard for managing API tokens with individual tokens per application requiring CRUD access
+- **FR-054**: System MUST provide industry-standard API token expiry options (24h, 1 week, 1 month, 3 months, 6 months, 1 year) with "never expires" option including security warnings
+- **FR-055**: System MUST redirect users to main landing page after logout instead of login screen to maintain continuity with anonymous browsing capability
+- **FR-056**: System MUST display contextual hints and security warnings in API token creation interface to guide users toward secure choices
+- **FR-057**: System MUST provide dedicated logout route that clears authentication state and redirects to root path (/) for seamless transition from authenticated to anonymous browsing
 
 - **FR-032**: System MUST retain component data indefinitely with no automatic deletion or expiration policies
 
