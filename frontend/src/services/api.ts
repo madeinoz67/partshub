@@ -101,6 +101,22 @@ export interface StorageLocation {
   full_hierarchy_path?: Array<{ id: string; name: string }>
 }
 
+export interface Tag {
+  id: string
+  name: string
+  description: string | null
+  color: string | null
+  is_system_tag: boolean
+  component_count: number
+  created_at: string
+  updated_at: string
+}
+
+export interface TagsListResponse {
+  tags: Tag[]
+  total: number
+}
+
 export interface StockTransaction {
   id: string
   component_id: string
@@ -263,6 +279,51 @@ export class APIService {
 
     const response = await api.get(`/api/v1/storage-locations/${id}/components?${query}`)
     return response.data
+  }
+
+  // Tags API
+  static async getTags(params: {
+    search?: string
+    limit?: number
+    offset?: number
+  } = {}): Promise<TagsListResponse> {
+    const query = new URLSearchParams()
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString())
+      }
+    })
+
+    const response = await api.get(`/api/v1/tags?${query}`)
+    return response.data
+  }
+
+  static async getTag(id: string): Promise<Tag> {
+    const response = await api.get(`/api/v1/tags/${id}`)
+    return response.data
+  }
+
+  static async createTag(data: {
+    name: string
+    description?: string
+    color?: string
+  }): Promise<Tag> {
+    const response = await api.post('/api/v1/tags', data)
+    return response.data
+  }
+
+  static async updateTag(id: string, data: {
+    name?: string
+    description?: string
+    color?: string
+  }): Promise<Tag> {
+    const response = await api.put(`/api/v1/tags/${id}`, data)
+    return response.data
+  }
+
+  static async deleteTag(id: string): Promise<void> {
+    await api.delete(`/api/v1/tags/${id}`)
   }
 }
 

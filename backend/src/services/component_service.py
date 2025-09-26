@@ -21,10 +21,20 @@ class ComponentService:
         if "id" not in component_data:
             component_data["id"] = str(uuid.uuid4())
 
+        # Extract tags before creating component
+        tag_ids = component_data.pop("tags", [])
+
         # Create component instance
         component = Component(**component_data)
 
         self.db.add(component)
+        self.db.flush()  # Flush to get component ID
+
+        # Handle tag associations
+        if tag_ids:
+            tags = self.db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+            component.tags = tags
+
         self.db.commit()
         self.db.refresh(component)
 
@@ -62,10 +72,21 @@ class ComponentService:
         if not component:
             return None
 
+        # Extract tags before updating component
+        tag_ids = update_data.pop("tags", None)
+
         # Update fields
         for field, value in update_data.items():
             if hasattr(component, field):
                 setattr(component, field, value)
+
+        # Handle tag associations if provided
+        if tag_ids is not None:
+            if tag_ids:
+                tags = self.db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+                component.tags = tags
+            else:
+                component.tags = []
 
         self.db.commit()
         self.db.refresh(component)

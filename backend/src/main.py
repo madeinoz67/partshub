@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .api.components import router as components_router
 from .api.storage import router as storage_router
 from .api.integrations import router as integrations_router
+from .api.tags import router as tags_router
 
 app = FastAPI(
     title="PartsHub API",
@@ -37,6 +38,7 @@ app.add_middleware(
 app.include_router(components_router)
 app.include_router(storage_router)
 app.include_router(integrations_router)
+app.include_router(tags_router)
 
 
 @app.get("/")

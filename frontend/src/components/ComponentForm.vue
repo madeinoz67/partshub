@@ -278,6 +278,13 @@
             type="textarea"
             rows="3"
           />
+
+          <!-- Tags -->
+          <div class="text-h6 q-mt-lg q-mb-sm">Tags</div>
+          <TagSelector
+            v-model="form.tags"
+            class="q-mb-md"
+          />
         </q-form>
       </q-card-section>
 
@@ -307,6 +314,7 @@ import { storeToRefs } from 'pinia'
 import { useComponentsStore } from '../stores/components'
 import { useStorageStore } from '../stores/storage'
 import type { Component } from '../services/api'
+import TagSelector from './TagSelector.vue'
 import { QForm } from 'quasar'
 
 interface Props {
@@ -354,7 +362,8 @@ const form = ref({
   minimum_stock: 0,
   average_purchase_price: 0,
   total_purchase_value: 0,
-  notes: ''
+  notes: '',
+  tags: [] as string[]
 })
 
 const specifications = ref<KeyValuePair[]>([])
@@ -415,7 +424,8 @@ const resetForm = () => {
     minimum_stock: 0,
     average_purchase_price: 0,
     total_purchase_value: 0,
-    notes: ''
+    notes: '',
+    tags: []
   }
   specifications.value = []
   customFields.value = []
@@ -436,7 +446,8 @@ const populateForm = (component: Component) => {
     minimum_stock: component.minimum_stock,
     average_purchase_price: component.average_purchase_price || 0,
     total_purchase_value: component.total_purchase_value || 0,
-    notes: component.notes || ''
+    notes: component.notes || '',
+    tags: component.tags ? component.tags.map(tag => tag.id) : []
   }
 
   specifications.value = component.specifications

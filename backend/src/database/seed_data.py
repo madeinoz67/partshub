@@ -267,6 +267,87 @@ def create_components(db: Session, category_map: dict, location_map: dict, count
     print(f"✓ Created {count} components")
 
 
+def create_tags(db: Session) -> dict:
+    """Create realistic electronic component tags."""
+    print("Creating tags...")
+
+    # Define system and user tags
+    tag_data = [
+        {"name": "SMD", "description": "Surface Mount Device", "color": "#4CAF50", "is_system": True},
+        {"name": "Through-Hole", "description": "Through-hole component", "color": "#2196F3", "is_system": True},
+        {"name": "High-Power", "description": "High power rating components", "color": "#FF5722", "is_system": False},
+        {"name": "Precision", "description": "High precision components", "color": "#9C27B0", "is_system": False},
+        {"name": "Automotive", "description": "Automotive grade components", "color": "#FF9800", "is_system": False},
+        {"name": "Low-ESR", "description": "Low Equivalent Series Resistance", "color": "#00BCD4", "is_system": False},
+        {"name": "Military-Grade", "description": "Military specification components", "color": "#795548", "is_system": False},
+        {"name": "RoHS", "description": "RoHS compliant", "color": "#8BC34A", "is_system": True},
+        {"name": "Lead-Free", "description": "Lead-free soldering", "color": "#4CAF50", "is_system": True},
+        {"name": "Temperature-Stable", "description": "Temperature stable components", "color": "#607D8B", "is_system": False},
+        {"name": "Low-Noise", "description": "Low noise characteristics", "color": "#9E9E9E", "is_system": False},
+        {"name": "Fast-Switching", "description": "Fast switching components", "color": "#E91E63", "is_system": False},
+    ]
+
+    tag_map = {}
+    for tag_info in tag_data:
+        tag = Tag(
+            name=tag_info["name"],
+            description=tag_info["description"],
+            color=tag_info["color"],
+            is_system_tag=tag_info["is_system"]
+        )
+        db.add(tag)
+        db.flush()  # Get the ID
+        tag_map[tag.name] = tag
+
+    db.commit()
+    print(f"✓ Created {len(tag_map)} tags")
+    return tag_map
+
+
+def assign_tags_to_components(db: Session, tag_map: dict):
+    """Assign random tags to existing components."""
+    print("Assigning tags to components...")
+
+    components = db.query(Component).all()
+    tags = list(tag_map.values())
+
+    # Define component type to likely tags mapping
+    component_tag_mapping = {
+        "resistor": ["SMD", "Through-Hole", "Precision", "Temperature-Stable"],
+        "capacitor": ["SMD", "Through-Hole", "Low-ESR", "Temperature-Stable", "Automotive"],
+        "inductor": ["SMD", "Through-Hole", "High-Power", "Low-Noise"],
+        "diode": ["SMD", "Through-Hole", "Fast-Switching", "Automotive"],
+        "transistor": ["SMD", "Through-Hole", "Fast-Switching", "Low-Noise"],
+        "ic": ["SMD", "Military-Grade", "Automotive", "Low-Noise"],
+        "connector": ["Through-Hole", "Military-Grade", "Automotive"],
+    }
+
+    for component in components:
+        # Get likely tags for this component type
+        likely_tags = component_tag_mapping.get(component.component_type, [])
+
+        # Add some system tags
+        component_tags = ["RoHS", "Lead-Free"]
+
+        # Add type-specific tags with probability
+        for tag_name in likely_tags:
+            if random.random() < 0.6:  # 60% chance
+                component_tags.append(tag_name)
+
+        # Add some random tags
+        if random.random() < 0.3:  # 30% chance to add extra random tag
+            extra_tag = random.choice([tag.name for tag in tags if tag.name not in component_tags])
+            component_tags.append(extra_tag)
+
+        # Assign tags to component
+        for tag_name in component_tags:
+            if tag_name in tag_map:
+                component.tags.append(tag_map[tag_name])
+
+    db.commit()
+    print(f"✓ Assigned tags to {len(components)} components")
+
+
 def seed_database(component_count: int = 100):
     """Main seeding function."""
     print("🌱 Seeding PartsHub database with mock data...")
@@ -282,12 +363,19 @@ def seed_database(component_count: int = 100):
         category_map = create_categories(db)
         location_map = create_storage_locations(db)
 
+        # Create tags
+        tag_map = create_tags(db)
+
         # Create components
         create_components(db, category_map, location_map, component_count)
+
+        # Assign tags to components
+        assign_tags_to_components(db, tag_map)
 
         print("✅ Database seeding completed successfully!")
         print(f"   - Categories: {len(category_map)}")
         print(f"   - Storage Locations: {len(location_map)}")
+        print(f"   - Tags: {len(tag_map)}")
         print(f"   - Components: {component_count}")
 
     except Exception as e:

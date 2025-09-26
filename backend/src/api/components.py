@@ -31,6 +31,7 @@ class ComponentBase(BaseModel):
     notes: Optional[str] = None
     specifications: Optional[dict] = None
     custom_fields: Optional[dict] = None
+    tags: Optional[List[str]] = None  # List of tag IDs
 
 class ComponentCreate(ComponentBase):
     pass
@@ -277,8 +278,8 @@ def get_component(
             "name": component.storage_location.name,
             "location_hierarchy": component.storage_location.location_hierarchy
         } if component.storage_location else None,
-        "tags": [],
-        "attachments": [],
+        "tags": [{"id": tag.id, "name": tag.name} for tag in component.tags],
+        "attachments": [{"id": att.id, "filename": att.filename} for att in component.attachments],
         "created_at": component.created_at.isoformat() if component.created_at else "",
         "updated_at": component.updated_at.isoformat() if component.updated_at else ""
     }
