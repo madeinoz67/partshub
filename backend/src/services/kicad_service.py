@@ -87,7 +87,7 @@ class KiCadExportService:
         """Generate KiCad symbol for a single component"""
 
         # Sanitize symbol name for KiCad
-        symbol_name = self._sanitize_name(f"{component.part_number}_{component.manufacturer.name if component.manufacturer else 'Unknown'}")
+        symbol_name = self._sanitize_name(f"{component.part_number}_{component.manufacturer if component.manufacturer else 'Unknown'}")
 
         # Basic symbol template - in production, this would be more sophisticated
         symbol = [
@@ -163,8 +163,8 @@ class KiCadExportService:
         footprint_content = [
             f'(footprint "{footprint_name}" (version {self.library_version}) (generator "{self.creator}")',
             f'  (layer "F.Cu")',
-            f'  (descr "{component.description or component.part_number}")',
-            f'  (tags "{package} {component.manufacturer.name if component.manufacturer else ""}")',
+            f'  (descr "{component.notes or component.part_number}")',
+            f'  (tags "{package} {component.manufacturer if component.manufacturer else ""}")',
             ''
         ]
 
@@ -314,4 +314,112 @@ class KiCadExportService:
             "creator": self.creator,
             "supported_formats": ["symbols", "footprints"],
             "package_types": ["SMD", "Through-hole", "LQFP", "Generic"]
+        }
+
+    def format_component_for_kicad(self, component: Component, include_full_specs: bool = False) -> Dict[str, Any]:
+        """Format component data for KiCad API responses"""
+
+        # Determine reference designator based on component type
+        reference_map = {
+            'resistor': 'R',
+            'capacitor': 'C',
+            'inductor': 'L',
+            'ic': 'U',
+            'microcontroller': 'U',
+            'diode': 'D',
+            'transistor': 'Q',
+            'connector': 'J',
+            'crystal': 'Y'
+        }
+
+        reference = reference_map.get(component.component_type.lower() if component.component_type else '', 'U')
+
+        # Build footprint reference
+        footprint = ""
+        if component.kicad_data and component.kicad_data.has_footprint:
+            footprint = component.kicad_data.get_footprint_reference()
+        elif component.package:
+            # Generate standard footprint name
+            footprint = f"Resistors:{component.component_type}_{component.package}"
+
+        # Prepare fields from specifications
+        fields = {}
+        if component.specifications:
+            for key, value in component.specifications.items():
+                # Convert specification keys to KiCad-friendly field names
+                field_name = key.replace('_', ' ').title()
+                fields[field_name] = str(value)
+
+        # Add standard fields
+        if component.manufacturer:
+            fields["Manufacturer"] = component.manufacturer
+        if component.part_number:
+            fields["MPN"] = component.part_number
+
+        # Get datasheet URL from attachments
+        datasheet_url = None
+        for attachment in component.attachments:
+            if 'datasheet' in attachment.filename.lower() or attachment.attachment_type == 'datasheet':
+                datasheet_url = f"http://localhost:8000/api/v1/components/{component.id}/attachments/{attachment.id}/download"
+                break
+
+        return {
+            "component_id": component.id,
+            "reference": reference,
+            "value": component.value or component.name,
+            "footprint": footprint,
+            "symbol_library": component.kicad_data.symbol_library if component.kicad_data else None,
+            "symbol_name": component.kicad_data.symbol_name if component.kicad_data else None,
+            "footprint_library": component.kicad_data.footprint_library if component.kicad_data else None,
+            "footprint_name": component.kicad_data.footprint_name if component.kicad_data else None,
+            "model_3d_path": component.kicad_data.model_3d_path if component.kicad_data else None,
+            "fields": fields,
+            "specifications": component.specifications or {},
+            "manufacturer": component.manufacturer,
+            "part_number": component.part_number,
+            "datasheet_url": datasheet_url
+        }
+
+    def get_symbol_data(self, component: Component) -> Dict[str, Any]:
+        """Get KiCad symbol data for a component"""
+
+        if not component.kicad_data or not component.kicad_data.has_symbol:
+            raise ValueError("Component has no KiCad symbol data")
+
+        return {
+            "symbol_library": component.kicad_data.symbol_library,
+            "symbol_name": component.kicad_data.symbol_name,
+            "symbol_reference": component.kicad_data.get_symbol_reference(),
+            "pin_count": None,  # Could be extracted from specifications
+            "symbol_data": component.kicad_data.kicad_fields_json
+        }
+
+    def get_footprint_data(self, component: Component) -> Dict[str, Any]:
+        """Get KiCad footprint data for a component"""
+
+        if not component.kicad_data or not component.kicad_data.has_footprint:
+            raise ValueError("Component has no KiCad footprint data")
+
+        return {
+            "footprint_library": component.kicad_data.footprint_library,
+            "footprint_name": component.kicad_data.footprint_name,
+            "footprint_reference": component.kicad_data.get_footprint_reference(),
+            "pad_count": None,  # Could be extracted from specifications
+            "footprint_data": component.kicad_data.kicad_fields_json
+        }
+
+    def get_standard_field_mappings(self) -> Dict[str, str]:
+        """Get standard KiCad field mappings used by PartsHub"""
+        return {
+            "Reference": "Component reference designator",
+            "Value": "Component value or part name",
+            "Footprint": "PCB footprint reference",
+            "Datasheet": "Component datasheet URL",
+            "Manufacturer": "Component manufacturer",
+            "MPN": "Manufacturer part number",
+            "Tolerance": "Component tolerance specification",
+            "Voltage": "Voltage rating",
+            "Power": "Power rating",
+            "Package": "Physical package type",
+            "TempRange": "Operating temperature range"
         }

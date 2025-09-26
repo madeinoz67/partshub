@@ -214,7 +214,7 @@ async def download_component_attachments(
                 provider_id=provider_data.provider_id,
                 part_number=component.part_number,
                 manufacturer=component.manufacturer,
-                description=component.description,
+                description=component.notes,
                 specifications=provider_data.specifications or {},
                 datasheet_url=provider_data.datasheet_url,
                 image_url=provider_data.image_url,
@@ -383,11 +383,11 @@ async def search_kicad_components(
             if search:
                 query = query.filter(
                     (Component.part_number.ilike(f'%{search}%')) |
-                    (Component.description.ilike(f'%{search}%'))
+                    (Component.notes.ilike(f'%{search}%'))
                 )
 
             if keywords:
-                query = query.filter(Component.description.ilike(f'%{keywords}%'))
+                query = query.filter(Component.notes.ilike(f'%{keywords}%'))
 
             # Get total count
             total = query.count()
@@ -403,7 +403,7 @@ async def search_kicad_components(
                     "part_number": component.part_number,
                     "manufacturer": component.manufacturer if component.manufacturer else None,
                     "category": component.category.name if component.category else None,
-                    "description": component.description,
+                    "description": component.notes,
                     "specifications": component.specifications or {},
                     "library": "PartsHub",  # Default library name
                     "symbol": f"{component.part_number}_symbol",

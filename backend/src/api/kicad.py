@@ -219,8 +219,7 @@ def sync_kicad_libraries(
             category_filters=request.categories,
             include_symbols=request.include_symbols,
             include_footprints=request.include_footprints,
-            include_3d_models=request.include_3d_models,
-            db=db
+            include_3d_models=request.include_3d_models
         )
 
         return LibrarySyncResponse(

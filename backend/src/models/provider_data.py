@@ -41,7 +41,7 @@ class ComponentProviderData(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
-    component = relationship("Component", back_populates="provider_data")
+    component = relationship("Component", back_populates="provider_data_cache")
     provider = relationship("ComponentDataProvider", back_populates="provider_data")
 
     # Constraints

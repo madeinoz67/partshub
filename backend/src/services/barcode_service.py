@@ -176,15 +176,15 @@ class BarcodeService:
             if not component:
                 component = session.query(Component).filter(
                     (Component.part_number.ilike(f'%{barcode_data}%')) |
-                    (Component.description.ilike(f'%{barcode_data}%'))
+                    (Component.notes.ilike(f'%{barcode_data}%'))
                 ).first()
 
             if component:
                 component_data = {
                     "id": component.id,
                     "part_number": component.part_number,
-                    "manufacturer": component.manufacturer.name if component.manufacturer else None,
-                    "description": component.description,
+                    "manufacturer": component.manufacturer,
+                    "description": component.notes,
                     "category": component.category.name if component.category else None,
                     "quantity_on_hand": component.quantity_on_hand,
                     "minimum_stock": component.minimum_stock,

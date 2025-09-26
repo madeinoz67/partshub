@@ -248,14 +248,14 @@ class KiCadLibraryManager:
             )
 
             # Add component properties
-            if component.datasheet_url:
-                symbol.add_property("Datasheet", component.datasheet_url)
+            # Note: datasheet_url would come from attachments relationship
+            # For now, we'll leave Datasheet empty or get from specifications
 
             if component.manufacturer:
                 symbol.add_property("Manufacturer", component.manufacturer)
 
-            if component.description:
-                symbol.add_property("Description", component.description)
+            if component.notes:
+                symbol.add_property("Description", component.notes)
 
             # Add specifications as properties
             if component.specifications:
@@ -282,7 +282,7 @@ class KiCadLibraryManager:
             footprint_name = f"{component.part_number}_{package}"
             footprint = KiCadFootprint(
                 name=footprint_name,
-                description=f"{component.description or component.part_number} - {package}",
+                description=f"{component.notes or component.part_number} - {package}",
                 tags=[package, component.manufacturer if component.manufacturer else ""]
             )
 
@@ -390,3 +390,115 @@ class KiCadLibraryManager:
             "symbols": list(self.symbol_templates.keys()),
             "footprints": list(self.footprint_templates.keys())
         }
+
+    def sync_libraries(
+        self,
+        library_path: str,
+        category_filters: Optional[List[str]] = None,
+        include_symbols: bool = True,
+        include_footprints: bool = True,
+        include_3d_models: bool = False,
+        limit: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """Synchronize components to KiCad library files"""
+        import os
+        from sqlalchemy.orm import selectinload
+
+        session = get_session()
+        try:
+            # Query components with filters
+            query = session.query(Component).options(
+                selectinload(Component.category),
+                selectinload(Component.kicad_data)
+            )
+
+            if category_filters:
+                from ..models import Category
+                query = query.join(Category).filter(Category.name.in_(category_filters))
+
+            if limit:
+                query = query.limit(limit)
+
+            components = query.all()
+
+            # Create library directory
+            os.makedirs(library_path, exist_ok=True)
+
+            # Generate library files
+            symbols_generated = 0
+            footprints_generated = 0
+
+            if include_symbols:
+                symbol_lib_path = os.path.join(library_path, "PartsHub.kicad_sym")
+                symbols_generated = self._generate_symbol_library_file(components, symbol_lib_path)
+
+            if include_footprints:
+                footprint_lib_path = os.path.join(library_path, "PartsHub.pretty")
+                os.makedirs(footprint_lib_path, exist_ok=True)
+                footprints_generated = self._generate_footprint_library_files(components, footprint_lib_path)
+
+            logger.info(f"Synchronized {len(components)} components to {library_path}")
+
+            return {
+                "success": True,
+                "components_exported": len(components),
+                "symbols_created": symbols_generated,
+                "footprints_created": footprints_generated,
+                "library_path": library_path,
+                "message": f"Successfully synchronized {len(components)} components to KiCad libraries"
+            }
+
+        except Exception as e:
+            logger.error(f"Error synchronizing libraries: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": f"Library synchronization failed: {e}"
+            }
+        finally:
+            session.close()
+
+    def _generate_symbol_library_file(self, components: List[Component], output_path: str) -> int:
+        """Generate KiCad symbol library file"""
+        symbol_content = [
+            '(kicad_symbol_lib (version 20231120) (generator "PartsHub")',
+            ""
+        ]
+
+        symbols_created = 0
+        for component in components:
+            try:
+                symbol = self.create_symbol_for_component(component)
+                symbol_content.append(symbol.to_kicad_format())
+                symbol_content.append("")
+                symbols_created += 1
+            except Exception as e:
+                logger.warning(f"Failed to generate symbol for {component.part_number}: {e}")
+                continue
+
+        symbol_content.append(")")
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(symbol_content))
+
+        return symbols_created
+
+    def _generate_footprint_library_files(self, components: List[Component], output_dir: str) -> int:
+        """Generate KiCad footprint library files"""
+        footprints_created = 0
+
+        for component in components:
+            try:
+                footprint = self.create_footprint_for_component(component)
+                footprint_filename = f"{footprint.name}.kicad_mod"
+                footprint_path = os.path.join(output_dir, footprint_filename)
+
+                with open(footprint_path, 'w', encoding='utf-8') as f:
+                    f.write(footprint.to_kicad_format())
+
+                footprints_created += 1
+            except Exception as e:
+                logger.warning(f"Failed to generate footprint for {component.part_number}: {e}")
+                continue
+
+        return footprints_created
