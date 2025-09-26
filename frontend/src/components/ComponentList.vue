@@ -309,166 +309,347 @@
         <!-- Expansion row -->
         <q-tr v-if="props.expand" :props="props">
           <q-td colspan="100%" style="padding: 0;">
-            <div style="background: #f0f8ff; border-left: 4px solid #1976d2; padding: 16px; margin: 0;">
-              <!-- Component Detail Preview -->
-              <div class="row q-gutter-md">
-                <!-- Basic Info -->
-                <div class="col-md-4 col-xs-12">
-                  <q-card flat bordered>
-                    <q-card-section>
-                      <div class="text-h6 q-mb-md">Basic Information</div>
-                      <div class="q-gutter-sm">
-                        <div class="row">
-                          <div class="col-4 text-weight-medium">Name:</div>
-                          <div class="col-8">{{ props.row.name }}</div>
-                        </div>
-                        <div v-if="props.row.part_number" class="row">
-                          <div class="col-4 text-weight-medium">Part Number:</div>
-                          <div class="col-8">{{ props.row.part_number }}</div>
-                        </div>
-                        <div v-if="props.row.manufacturer" class="row">
-                          <div class="col-4 text-weight-medium">Manufacturer:</div>
-                          <div class="col-8">{{ props.row.manufacturer }}</div>
-                        </div>
-                        <div v-if="props.row.component_type" class="row">
-                          <div class="col-4 text-weight-medium">Type:</div>
-                          <div class="col-8">{{ props.row.component_type }}</div>
-                        </div>
-                        <div v-if="props.row.value" class="row">
-                          <div class="col-4 text-weight-medium">Value:</div>
-                          <div class="col-8">{{ props.row.value }}</div>
-                        </div>
-                        <div v-if="props.row.package" class="row">
-                          <div class="col-4 text-weight-medium">Package:</div>
-                          <div class="col-8">{{ props.row.package }}</div>
-                        </div>
-                      </div>
-                    </q-card-section>
-                  </q-card>
+            <div style="background: #f8f9fa; border-left: 4px solid #1976d2; margin: 0;">
+              <div class="row no-wrap" style="min-height: 400px;">
+                <!-- PartsBox-style Menu -->
+                <div class="col-auto" style="width: 200px; background: #ffffff; border-right: 1px solid #e0e0e0;">
+                  <q-list separator>
+                    <q-item clickable v-ripple @click="setActiveTab('info')" :class="{ 'bg-blue-1': activeTab === 'info' }">
+                      <q-item-section avatar>
+                        <q-icon name="info" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Part info</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('images')" :class="{ 'bg-blue-1': activeTab === 'images' }">
+                      <q-item-section avatar>
+                        <q-icon name="image" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Images</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('datasheets')" :class="{ 'bg-blue-1': activeTab === 'datasheets' }">
+                      <q-item-section avatar>
+                        <q-icon name="picture_as_pdf" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Datasheets</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('stock')" :class="{ 'bg-blue-1': activeTab === 'stock' }">
+                      <q-item-section avatar>
+                        <q-icon name="inventory_2" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Stock</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('add-stock')" :class="{ 'bg-blue-1': activeTab === 'add-stock' }">
+                      <q-item-section avatar>
+                        <q-icon name="add_box" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Add Stock</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('remove-stock')" :class="{ 'bg-blue-1': activeTab === 'remove-stock' }">
+                      <q-item-section avatar>
+                        <q-icon name="remove_circle" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Remove Stock</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('move-stock')" :class="{ 'bg-blue-1': activeTab === 'move-stock' }">
+                      <q-item-section avatar>
+                        <q-icon name="move_up" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Move Stock</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('history')" :class="{ 'bg-blue-1': activeTab === 'history' }">
+                      <q-item-section avatar>
+                        <q-icon name="history" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Stock History</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item clickable v-ripple @click="setActiveTab('purchasing')" :class="{ 'bg-blue-1': activeTab === 'purchasing' }">
+                      <q-item-section avatar>
+                        <q-icon name="shopping_cart" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Purchasing</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
                 </div>
 
-                <!-- Stock & Location -->
-                <div class="col-md-4 col-xs-12">
-                  <q-card flat bordered>
-                    <q-card-section>
-                      <div class="text-h6 q-mb-md">Stock & Location</div>
-                      <div class="q-gutter-sm">
-                        <div class="row items-center">
-                          <div class="col-6 text-weight-medium">Current Stock:</div>
-                          <div class="col-6">
-                            <q-chip
-                              :color="getStockStatusColor(props.row)"
-                              text-color="white"
-                              :label="props.row.quantity_on_hand"
-                              size="md"
-                            />
+                <!-- Content Area -->
+                <div class="col" style="padding: 16px; background: #ffffff;">
+                  <!-- Part Info Tab -->
+                  <div v-if="activeTab === 'info'">
+                    <div class="text-h6 q-mb-md">{{ props.row.name }}</div>
+                    <div class="text-subtitle2 text-grey q-mb-md">{{ props.row.part_number || 'No part number' }}</div>
+
+                    <div class="row q-gutter-md">
+                      <div class="col-md-6 col-xs-12">
+                        <div class="q-gutter-sm">
+                          <div class="row" v-if="props.row.manufacturer">
+                            <div class="col-4 text-weight-medium">Manufacturer:</div>
+                            <div class="col-8">{{ props.row.manufacturer }}</div>
                           </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-6 text-weight-medium">Minimum Stock:</div>
-                          <div class="col-6">{{ props.row.minimum_stock }}</div>
-                        </div>
-                        <div class="row">
-                          <div class="col-6 text-weight-medium">Location:</div>
-                          <div class="col-6">
-                            <div v-if="props.row.storage_location">
-                              <q-chip outline :label="props.row.storage_location.name" size="sm" />
-                              <div class="text-caption text-grey">
-                                {{ props.row.storage_location.location_hierarchy }}
-                              </div>
+                          <div class="row" v-if="props.row.component_type">
+                            <div class="col-4 text-weight-medium">Type:</div>
+                            <div class="col-8">{{ props.row.component_type }}</div>
+                          </div>
+                          <div class="row" v-if="props.row.value">
+                            <div class="col-4 text-weight-medium">Value:</div>
+                            <div class="col-8">{{ props.row.value }}</div>
+                          </div>
+                          <div class="row" v-if="props.row.package">
+                            <div class="col-4 text-weight-medium">Package:</div>
+                            <div class="col-8">{{ props.row.package }}</div>
+                          </div>
+                          <div class="row">
+                            <div class="col-4 text-weight-medium">Category:</div>
+                            <div class="col-8">
+                              <q-chip
+                                v-if="props.row.category"
+                                outline
+                                color="primary"
+                                :label="props.row.category.name"
+                                size="sm"
+                              />
+                              <span v-else class="text-grey">Uncategorized</span>
                             </div>
-                            <span v-else class="text-grey">No location assigned</span>
+                          </div>
+                          <div class="row">
+                            <div class="col-4 text-weight-medium">Tags:</div>
+                            <div class="col-8">
+                              <div v-if="props.row.tags && props.row.tags.length > 0" class="q-gutter-xs">
+                                <q-chip
+                                  v-for="tag in props.row.tags"
+                                  :key="tag.id"
+                                  outline
+                                  color="secondary"
+                                  :label="tag.name"
+                                  size="sm"
+                                />
+                              </div>
+                              <span v-else class="text-grey">No tags</span>
+                            </div>
                           </div>
                         </div>
-                        <div class="row">
-                          <div class="col-6 text-weight-medium">Category:</div>
-                          <div class="col-6">
-                            <q-chip
-                              v-if="props.row.category"
-                              outline
+                      </div>
+                      <div class="col-md-6 col-xs-12">
+                        <div class="q-gutter-sm">
+                          <div class="row">
+                            <div class="col-4 text-weight-medium">Location:</div>
+                            <div class="col-8">
+                              <div v-if="props.row.storage_location">
+                                <q-chip outline :label="props.row.storage_location.name" size="sm" />
+                                <div class="text-caption text-grey">
+                                  {{ props.row.storage_location.location_hierarchy }}
+                                </div>
+                              </div>
+                              <span v-else class="text-grey">No location assigned</span>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-4 text-weight-medium">Total Stock:</div>
+                            <div class="col-8">
+                              <q-chip
+                                :color="getStockStatusColor(props.row)"
+                                text-color="white"
+                                :label="props.row.quantity_on_hand"
+                                size="md"
+                              />
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-4 text-weight-medium">Min Stock:</div>
+                            <div class="col-8">{{ props.row.minimum_stock }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="props.row.description || props.row.notes" class="q-mt-md">
+                      <div v-if="props.row.description">
+                        <div class="text-h6 q-mb-sm">Description</div>
+                        <div class="text-body2 q-mb-md">{{ props.row.description }}</div>
+                      </div>
+                      <div v-if="props.row.notes">
+                        <div class="text-h6 q-mb-sm">Notes</div>
+                        <div class="text-body2" style="white-space: pre-wrap;">{{ props.row.notes }}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Images Tab -->
+                  <div v-else-if="activeTab === 'images'">
+                    <div class="text-h6 text-weight-medium q-mb-md">Images</div>
+                    <div v-if="props.row.attachments && getImageAttachments(props.row.attachments).length > 0">
+                      <div class="row q-gutter-md">
+                        <div
+                          v-for="image in getImageAttachments(props.row.attachments)"
+                          :key="image.id"
+                          class="col-md-3 col-xs-6"
+                        >
+                          <q-card flat bordered class="cursor-pointer" @click="viewImage(image)">
+                            <div class="relative-position" style="height: 150px; overflow: hidden;">
+                              <!-- Thumbnail placeholder - in real implementation this would be the actual image -->
+                              <div class="absolute-center text-center">
+                                <q-icon name="image" size="4rem" color="blue" />
+                              </div>
+                              <q-tooltip>{{ image.filename }}</q-tooltip>
+                            </div>
+                            <q-card-section class="q-pa-xs">
+                              <div class="text-caption text-center text-weight-medium">
+                                {{ getFileDisplayName(image.filename) }}
+                              </div>
+                              <div class="text-caption text-center text-grey">
+                                {{ formatFileSize(image.size || 0) }}
+                              </div>
+                            </q-card-section>
+                          </q-card>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="text-grey text-center q-pa-lg">
+                      <q-icon name="image" size="3rem" color="grey-4" />
+                      <div class="q-mt-md">No images</div>
+                    </div>
+                  </div>
+
+                  <!-- Datasheets Tab -->
+                  <div v-else-if="activeTab === 'datasheets'">
+                    <div class="text-h6 text-weight-medium q-mb-md">Data sheets</div>
+                    <div v-if="props.row.attachments && getDatasheetAttachments(props.row.attachments).length > 0">
+                      <q-list bordered separator>
+                        <q-item
+                          v-for="datasheet in getDatasheetAttachments(props.row.attachments)"
+                          :key="datasheet.id"
+                          clickable
+                          @click="downloadAttachment(datasheet)"
+                        >
+                          <q-item-section avatar>
+                            <q-avatar color="red" text-color="white">
+                              <q-icon name="picture_as_pdf" />
+                            </q-avatar>
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ getFileDisplayName(datasheet.filename) }}</q-item-label>
+                            <q-item-label caption>
+                              {{ datasheet.title || 'Datasheet' }} • {{ formatFileSize(datasheet.size || 0) }}
+                            </q-item-label>
+                          </q-item-section>
+                          <q-item-section side>
+                            <q-btn
+                              flat
+                              round
+                              icon="download"
                               color="primary"
-                              :label="props.row.category.name"
                               size="sm"
-                            />
-                            <span v-else class="text-grey">Uncategorized</span>
-                          </div>
-                        </div>
-                      </div>
-                    </q-card-section>
-                  </q-card>
-                </div>
-
-                <!-- Files & Actions -->
-                <div class="col-md-4 col-xs-12">
-                  <q-card flat bordered>
-                    <q-card-section>
-                      <div class="text-h6 q-mb-md">Files & Actions</div>
-
-                      <!-- Attachments -->
-                      <div v-if="props.row.attachments && props.row.attachments.length > 0" class="q-mb-md">
-                        <div class="text-weight-medium q-mb-sm">Attachments ({{ props.row.attachments.length }})</div>
-                        <div class="row q-gutter-xs">
-                          <q-chip
-                            v-for="attachment in props.row.attachments"
-                            :key="attachment.id"
-                            outline
-                            :icon="getAttachmentIcon(attachment)"
-                            :label="attachment.filename"
-                            size="sm"
-                            clickable
-                            @click="downloadAttachment(attachment)"
-                          />
-                        </div>
-                      </div>
-
-                      <!-- Action Buttons -->
-                      <div class="column q-gutter-sm">
-                        <q-btn
-                          outline
-                          color="primary"
-                          icon="visibility"
-                          label="View Full Details"
-                          @click="$emit('view-component', props.row)"
-                          size="sm"
-                        />
-                        <template v-if="canPerformCrud()">
-                          <q-btn
-                            outline
-                            color="secondary"
-                            icon="edit"
-                            label="Edit"
-                            @click="$emit('edit-component', props.row)"
-                            size="sm"
-                          />
-                          <q-btn
-                            outline
-                            color="accent"
-                            icon="inventory"
-                            label="Update Stock"
-                            @click="$emit('update-stock', props.row)"
-                            size="sm"
-                          />
-                        </template>
-                      </div>
-                    </q-card-section>
-                  </q-card>
-                </div>
-              </div>
-
-              <!-- Description & Notes -->
-              <div v-if="props.row.description || props.row.notes" class="q-mt-md">
-                <q-card flat bordered>
-                  <q-card-section>
-                    <div v-if="props.row.description">
-                      <div class="text-h6 q-mb-sm">Description</div>
-                      <div class="text-body2 q-mb-md">{{ props.row.description }}</div>
+                              @click.stop="downloadAttachment(datasheet)"
+                            >
+                              <q-tooltip>Download</q-tooltip>
+                            </q-btn>
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
                     </div>
-                    <div v-if="props.row.notes">
-                      <div class="text-h6 q-mb-sm">Notes</div>
-                      <div class="text-body2" style="white-space: pre-wrap;">{{ props.row.notes }}</div>
+                    <div v-else class="text-grey text-center q-pa-lg">
+                      <q-icon name="picture_as_pdf" size="3rem" color="grey-4" />
+                      <div class="q-mt-md">No data sheets</div>
                     </div>
-                  </q-card-section>
-                </q-card>
+
+                    <!-- Other Documents Section - Only Show in Datasheets tab if Files Exist -->
+                    <div v-if="props.row.attachments && getOtherAttachments(props.row.attachments).length > 0" class="q-mt-lg">
+                      <div class="text-h6 text-weight-medium q-mb-md">Other Documents</div>
+                      <q-list bordered separator>
+                        <q-item
+                          v-for="document in getOtherAttachments(props.row.attachments)"
+                          :key="document.id"
+                          clickable
+                          @click="downloadAttachment(document)"
+                        >
+                          <q-item-section avatar>
+                            <q-avatar color="grey" text-color="white">
+                              <q-icon name="description" />
+                            </q-avatar>
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ getFileDisplayName(document.filename) }}</q-item-label>
+                            <q-item-label caption>
+                              {{ document.title || 'Document' }} • {{ formatFileSize(document.size || 0) }}
+                            </q-item-label>
+                          </q-item-section>
+                          <q-item-section side>
+                            <q-btn
+                              flat
+                              round
+                              icon="download"
+                              color="primary"
+                              size="sm"
+                              @click.stop="downloadAttachment(document)"
+                            >
+                              <q-tooltip>Download</q-tooltip>
+                            </q-btn>
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                    </div>
+                  </div>
+
+                  <!-- Stock Tab -->
+                  <div v-else-if="activeTab === 'stock'">
+                    <div class="text-h6 q-mb-md">Current Stock</div>
+                    <div class="row q-gutter-md">
+                      <div class="col-md-6 col-xs-12">
+                        <q-card flat bordered>
+                          <q-card-section>
+                            <div class="text-center">
+                              <div class="text-h3" :class="getStockStatusColor(props.row) === 'negative' ? 'text-red' : getStockStatusColor(props.row) === 'warning' ? 'text-orange' : 'text-green'">
+                                {{ props.row.quantity_on_hand }}
+                              </div>
+                              <div class="text-caption text-grey">Total Stock</div>
+                            </div>
+                          </q-card-section>
+                        </q-card>
+                      </div>
+                      <div class="col-md-6 col-xs-12">
+                        <q-card flat bordered>
+                          <q-card-section>
+                            <div class="text-center">
+                              <div class="text-h4 text-grey">{{ props.row.minimum_stock }}</div>
+                              <div class="text-caption text-grey">Minimum Stock</div>
+                            </div>
+                          </q-card-section>
+                        </q-card>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Other tabs placeholder -->
+                  <div v-else>
+                    <div class="text-h6 q-mb-md">{{ activeTab.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}</div>
+                    <div class="text-grey">This feature is coming soon...</div>
+                  </div>
+                </div>
               </div>
             </div>
           </q-td>
@@ -534,6 +715,7 @@ const selectedStockStatus = ref('')
 const sortBy = ref('updated_at')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const expanded = ref<string[]>([])
+const activeTab = ref('info')
 
 // Table configuration
 const columns = [
@@ -725,6 +907,54 @@ const downloadAttachment = (attachment: any) => {
   // This would typically trigger a download
   console.log('Download attachment:', attachment.filename)
   // emit('download-attachment', attachment) // Could emit to parent if needed
+}
+
+const setActiveTab = (tab: string) => {
+  activeTab.value = tab
+}
+
+const getImageAttachments = (attachments: any[]) => {
+  return attachments.filter(att =>
+    att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) ||
+    att.attachment_type === 'image'
+  )
+}
+
+const getDatasheetAttachments = (attachments: any[]) => {
+  return attachments.filter(att =>
+    att.filename?.toLowerCase().includes('.pdf') ||
+    att.attachment_type === 'datasheet'
+  )
+}
+
+const getOtherAttachments = (attachments: any[]) => {
+  return attachments.filter(att => {
+    const isImage = att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) || att.attachment_type === 'image'
+    const isDatasheet = att.filename?.toLowerCase().includes('.pdf') || att.attachment_type === 'datasheet'
+    return !isImage && !isDatasheet
+  })
+}
+
+const getFileDisplayName = (filename: string) => {
+  if (!filename) return 'Unnamed file'
+  // Remove file extension and clean up the name
+  const nameWithoutExt = filename.replace(/\.[^/.]+$/, '')
+  return nameWithoutExt.length > 20 ? nameWithoutExt.substring(0, 20) + '...' : nameWithoutExt
+}
+
+const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+}
+
+const viewImage = (image: any) => {
+  // This would typically open an image viewer/lightbox
+  console.log('View image:', image.filename)
+  // For now, just download it
+  downloadAttachment(image)
 }
 
 
