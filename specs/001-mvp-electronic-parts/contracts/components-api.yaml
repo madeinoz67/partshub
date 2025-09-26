@@ -1,0 +1,525 @@
+openapi: 3.0.3
+info:
+  title: PartsHub Components API
+  description: Electronic component inventory management API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - {}  # Anonymous for read operations
+
+paths:
+  /components:
+    get:
+      summary: List and search components
+      description: Retrieve components with filtering, search, and pagination
+      security:
+        - {}  # Anonymous access allowed
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search across name, part number, manufacturer
+        - in: query
+          name: category_id
+          schema:
+            type: string
+            format: uuid
+          description: Filter by category ID
+        - in: query
+          name: manufacturer
+          schema:
+            type: string
+          description: Filter by manufacturer
+        - in: query
+          name: component_type
+          schema:
+            type: string
+          description: Filter by component type
+        - in: query
+          name: storage_location_id
+          schema:
+            type: string
+            format: uuid
+          description: Filter by storage location
+        - in: query
+          name: low_stock
+          schema:
+            type: boolean
+          description: Show only low stock items
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Items per page
+      responses:
+        '200':
+          description: List of components
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  components:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ComponentSummary'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  total_pages:
+                    type: integer
+
+    post:
+      summary: Create new component
+      description: Add a new component to inventory
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentCreate'
+      responses:
+        '201':
+          description: Component created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+        '400':
+          description: Validation error
+        '401':
+          description: Authentication required
+
+  /components/{component_id}:
+    get:
+      summary: Get component details
+      description: Retrieve detailed component information
+      security:
+        - {}  # Anonymous access allowed
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Component details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+        '404':
+          description: Component not found
+
+    put:
+      summary: Update component
+      description: Update component information
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentUpdate'
+      responses:
+        '200':
+          description: Component updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+        '400':
+          description: Validation error
+        '401':
+          description: Authentication required
+        '404':
+          description: Component not found
+
+    delete:
+      summary: Delete component
+      description: Remove component from inventory
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Component deleted successfully
+        '401':
+          description: Authentication required
+        '404':
+          description: Component not found
+
+  /components/{component_id}/stock:
+    post:
+      summary: Update component stock
+      description: Add, remove, or adjust component quantity
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockUpdate'
+      responses:
+        '200':
+          description: Stock updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockTransaction'
+        '400':
+          description: Validation error
+        '401':
+          description: Authentication required
+        '404':
+          description: Component not found
+
+  /components/{component_id}/history:
+    get:
+      summary: Get component stock history
+      description: Retrieve stock transaction history for component
+      security:
+        - {}  # Anonymous access allowed
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Number of transactions to retrieve
+      responses:
+        '200':
+          description: Stock transaction history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockTransaction'
+        '404':
+          description: Component not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    ComponentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        component_type:
+          type: string
+        value:
+          type: string
+        package:
+          type: string
+        quantity_on_hand:
+          type: integer
+        minimum_stock:
+          type: integer
+        is_low_stock:
+          type: boolean
+        storage_location:
+          $ref: '#/components/schemas/StorageLocationSummary'
+        category:
+          $ref: '#/components/schemas/CategorySummary'
+
+    Component:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        category:
+          $ref: '#/components/schemas/CategorySummary'
+        storage_location:
+          $ref: '#/components/schemas/StorageLocationSummary'
+        component_type:
+          type: string
+        value:
+          type: string
+        voltage_rating:
+          type: number
+          format: decimal
+        tolerance:
+          type: string
+        package:
+          type: string
+        quantity_on_hand:
+          type: integer
+        quantity_ordered:
+          type: integer
+        minimum_stock:
+          type: integer
+        average_purchase_price:
+          type: number
+          format: decimal
+        total_purchase_value:
+          type: number
+          format: decimal
+        notes:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ComponentCreate:
+      type: object
+      required:
+        - name
+        - category_id
+        - storage_location_id
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        category_id:
+          type: string
+          format: uuid
+        storage_location_id:
+          type: string
+          format: uuid
+        component_type:
+          type: string
+        value:
+          type: string
+        voltage_rating:
+          type: number
+          format: decimal
+        tolerance:
+          type: string
+        package:
+          type: string
+        quantity_on_hand:
+          type: integer
+          minimum: 0
+          default: 0
+        quantity_ordered:
+          type: integer
+          minimum: 0
+          default: 0
+        minimum_stock:
+          type: integer
+          minimum: 0
+          default: 0
+        notes:
+          type: string
+
+    ComponentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        category_id:
+          type: string
+          format: uuid
+        storage_location_id:
+          type: string
+          format: uuid
+        component_type:
+          type: string
+        value:
+          type: string
+        voltage_rating:
+          type: number
+          format: decimal
+        tolerance:
+          type: string
+        package:
+          type: string
+        minimum_stock:
+          type: integer
+          minimum: 0
+        notes:
+          type: string
+
+    StockUpdate:
+      type: object
+      required:
+        - transaction_type
+        - quantity_change
+      properties:
+        transaction_type:
+          type: string
+          enum: [add, remove, move, adjust]
+        quantity_change:
+          type: integer
+        reason:
+          type: string
+        reference_id:
+          type: string
+          format: uuid
+
+    StockTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        component_id:
+          type: string
+          format: uuid
+        transaction_type:
+          type: string
+          enum: [add, remove, move, adjust]
+        quantity_change:
+          type: integer
+        previous_quantity:
+          type: integer
+        new_quantity:
+          type: integer
+        reason:
+          type: string
+        reference_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    StorageLocationSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+
+    CategorySummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        file_type:
+          type: string
+        file_size:
+          type: integer
+        description:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time

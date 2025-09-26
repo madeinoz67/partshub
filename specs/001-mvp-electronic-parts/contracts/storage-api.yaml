@@ -1,0 +1,374 @@
+openapi: 3.0.3
+info:
+  title: PartsHub Storage Locations API
+  description: Storage location management API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - {}  # Anonymous for read operations
+
+paths:
+  /storage-locations:
+    get:
+      summary: List storage locations
+      description: Retrieve storage locations with hierarchy
+      security:
+        - {}  # Anonymous access allowed
+      parameters:
+        - in: query
+          name: parent_id
+          schema:
+            type: string
+            format: uuid
+          description: Filter by parent location (null for root locations)
+        - in: query
+          name: include_hierarchy
+          schema:
+            type: boolean
+            default: false
+          description: Include full hierarchy in response
+      responses:
+        '200':
+          description: List of storage locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StorageLocation'
+
+    post:
+      summary: Create storage location
+      description: Create a new storage location
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageLocationCreate'
+      responses:
+        '201':
+          description: Storage location created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocation'
+        '400':
+          description: Validation error
+        '401':
+          description: Authentication required
+
+  /storage-locations/bulk-create:
+    post:
+      summary: Bulk create storage locations
+      description: Create multiple storage locations with patterns
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkLocationCreate'
+      responses:
+        '201':
+          description: Storage locations created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created_locations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StorageLocation'
+                  count:
+                    type: integer
+        '400':
+          description: Validation error
+        '401':
+          description: Authentication required
+
+  /storage-locations/{location_id}:
+    get:
+      summary: Get storage location details
+      description: Retrieve detailed storage location information
+      security:
+        - {}  # Anonymous access allowed
+      parameters:
+        - in: path
+          name: location_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Storage location details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocationDetails'
+        '404':
+          description: Storage location not found
+
+    put:
+      summary: Update storage location
+      description: Update storage location information
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: location_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageLocationUpdate'
+      responses:
+        '200':
+          description: Storage location updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocation'
+        '400':
+          description: Validation error
+        '401':
+          description: Authentication required
+        '404':
+          description: Storage location not found
+
+  /storage-locations/{location_id}/components:
+    get:
+      summary: Get components in storage location
+      description: List all components stored in this location
+      security:
+        - {}  # Anonymous access allowed
+      parameters:
+        - in: path
+          name: location_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: include_children
+          schema:
+            type: boolean
+            default: false
+          description: Include components from child locations
+      responses:
+        '200':
+          description: Components in storage location
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComponentSummary'
+        '404':
+          description: Storage location not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    StorageLocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        parent_location_id:
+          type: string
+          format: uuid
+          nullable: true
+        location_type:
+          type: string
+          enum: [cabinet, shelf, drawer, box, compartment]
+        is_single_part_only:
+          type: boolean
+        component_count:
+          type: integer
+          description: Number of components in this location
+        created_at:
+          type: string
+          format: date-time
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageLocation'
+
+    StorageLocationDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        parent_location:
+          $ref: '#/components/schemas/StorageLocationSummary'
+        location_type:
+          type: string
+          enum: [cabinet, shelf, drawer, box, compartment]
+        is_single_part_only:
+          type: boolean
+        component_count:
+          type: integer
+        hierarchy_path:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageLocationSummary'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageLocation'
+        created_at:
+          type: string
+          format: date-time
+
+    StorageLocationSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+
+    StorageLocationCreate:
+      type: object
+      required:
+        - name
+        - location_type
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        parent_location_id:
+          type: string
+          format: uuid
+        location_type:
+          type: string
+          enum: [cabinet, shelf, drawer, box, compartment]
+        is_single_part_only:
+          type: boolean
+          default: false
+
+    StorageLocationUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        is_single_part_only:
+          type: boolean
+
+    BulkLocationCreate:
+      type: object
+      required:
+        - prefix
+        - layout_type
+      properties:
+        prefix:
+          type: string
+          description: Base name prefix (e.g., "box1-")
+        layout_type:
+          type: string
+          enum: [single, row, grid, grid_3d]
+        parent_location_id:
+          type: string
+          format: uuid
+        location_type:
+          type: string
+          enum: [cabinet, shelf, drawer, box, compartment]
+          default: box
+        is_single_part_only:
+          type: boolean
+          default: false
+        range_1:
+          $ref: '#/components/schemas/NamingRange'
+        range_2:
+          $ref: '#/components/schemas/NamingRange'
+        separator:
+          type: string
+          default: ""
+          description: Separator between ranges
+
+    NamingRange:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [letters, numbers]
+        start:
+          type: string
+          description: Starting value (letter or number)
+        end:
+          type: string
+          description: Ending value (letter or number)
+        capitalize:
+          type: boolean
+          default: false
+          description: Capitalize letters (for letter ranges)
+        pad_zeros:
+          type: boolean
+          default: false
+          description: Pad with leading zeros (for number ranges)
+
+    ComponentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        component_type:
+          type: string
+        quantity_on_hand:
+          type: integer

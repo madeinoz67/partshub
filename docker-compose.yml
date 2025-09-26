@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  partshub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Frontend (Vue.js dev server)
+      - "8000:8000"  # Backend (FastAPI)
+    volumes:
+      - partshub_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/partshub.db
+      - SEED_DB=true
+    restart: unless-stopped
+
+volumes:
+  partshub_data:
+    driver: local

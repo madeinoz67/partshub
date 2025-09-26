@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "partshub-backend"
+version = "0.1.0"
+description = "Electronic parts inventory management system backend"
+authors = [
+    {name = "PartsHub Team"}
+]
+readme = {text = "PartsHub Backend - Electronic parts inventory management system", content-type = "text/plain"}
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.104.1",
+    "uvicorn[standard]==0.24.0",
+    "sqlalchemy==2.0.23",
+    "alembic==1.12.1",
+    "python-multipart==0.0.6",
+    "pydantic==2.4.2",
+    "passlib[bcrypt]==1.7.4",
+    "python-jose[cryptography]==3.3.0",
+    "python-dateutil==2.8.2",
+    "requests==2.31.0",
+    "pyzbar==0.1.9",
+    "Pillow==10.1.0",
+    "aiofiles==23.2.1",
+    "aiohttp>=3.12.15",
+    "faker==22.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.3",
+    "pytest-asyncio==0.21.1",
+    "httpx==0.25.2",
+    "ruff==0.1.6",
+    "black==23.11.0",
+    "mypy==1.7.1",
+    "pre-commit==3.5.0",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
+
+[tool.black]
+target-version = ['py311']
+line-length = 88
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "contract: Contract tests",
+]

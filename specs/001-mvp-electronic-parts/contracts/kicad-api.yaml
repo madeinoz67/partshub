@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: PartsHub KiCad Integration API
+  description: KiCad integration for component library synchronization
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v1/kicad
+    description: Development server
+
+security:
+  - {}  # Anonymous access for KiCad integration
+
+paths:
+  /components:
+    get:
+      summary: Search components for KiCad
+      description: Search inventory components with KiCad-specific formatting
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search across name, part number, value
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Component category filter
+        - in: query
+          name: package
+          schema:
+            type: string
+          description: Package/footprint filter
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Components formatted for KiCad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  components:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KiCadComponent'
+                  total:
+                    type: integer
+
+  /components/{component_id}:
+    get:
+      summary: Get component for KiCad
+      description: Retrieve detailed component information for KiCad integration
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Component details for KiCad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KiCadComponentDetails'
+        '404':
+          description: Component not found
+
+  /components/{component_id}/symbol:
+    get:
+      summary: Get KiCad symbol data
+      description: Retrieve KiCad symbol library information
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: KiCad symbol information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KiCadSymbol'
+        '404':
+          description: Component or symbol not found
+
+  /components/{component_id}/footprint:
+    get:
+      summary: Get KiCad footprint data
+      description: Retrieve KiCad footprint library information
+      parameters:
+        - in: path
+          name: component_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: KiCad footprint information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KiCadFootprint'
+        '404':
+          description: Component or footprint not found
+
+  /libraries/sync:
+    post:
+      summary: Synchronize component libraries
+      description: Update KiCad libraries with current component data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                library_path:
+                  type: string
+                  description: Target library directory path
+                categories:
+                  type: array
+                  items:
+                    type: string
+                  description: Categories to include (empty = all)
+                include_symbols:
+                  type: boolean
+                  default: true
+                include_footprints:
+                  type: boolean
+                  default: true
+                include_3d_models:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Library synchronization completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResult'
+        '400':
+          description: Invalid synchronization parameters
+
+  /libraries/export:
+    get:
+      summary: Export component library
+      description: Export components as KiCad library files
+      parameters:
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [kicad_sym, kicad_mod, csv]
+            default: kicad_sym
+        - in: query
+          name: categories
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Categories to export
+      responses:
+        '200':
+          description: Library export file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+
+components:
+  schemas:
+    KiCadComponent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        value:
+          type: string
+        package:
+          type: string
+        description:
+          type: string
+        quantity_available:
+          type: integer
+        datasheet_url:
+          type: string
+        kicad_reference:
+          type: string
+          description: KiCad reference designator (R, C, U, etc.)
+        kicad_value:
+          type: string
+          description: Value formatted for KiCad
+        kicad_footprint:
+          type: string
+          description: Footprint library reference
+
+    KiCadComponentDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        part_number:
+          type: string
+        manufacturer:
+          type: string
+        value:
+          type: string
+        package:
+          type: string
+        description:
+          type: string
+        specifications:
+          type: object
+          description: Key-value pairs of electrical specifications
+        quantity_available:
+          type: integer
+        datasheet_url:
+          type: string
+        symbol:
+          $ref: '#/components/schemas/KiCadSymbol'
+        footprint:
+          $ref: '#/components/schemas/KiCadFootprint'
+        model_3d:
+          $ref: '#/components/schemas/KiCad3DModel'
+        kicad_fields:
+          type: object
+          description: Additional KiCad-specific fields
+
+    KiCadSymbol:
+      type: object
+      properties:
+        library_name:
+          type: string
+          description: Symbol library name
+        symbol_name:
+          type: string
+          description: Symbol identifier within library
+        symbol_data:
+          type: string
+          description: KiCad symbol definition (S-expression format)
+        pin_count:
+          type: integer
+        reference_designator:
+          type: string
+          description: Default reference prefix (R, C, U, etc.)
+
+    KiCadFootprint:
+      type: object
+      properties:
+        library_name:
+          type: string
+          description: Footprint library name
+        footprint_name:
+          type: string
+          description: Footprint identifier within library
+        footprint_data:
+          type: string
+          description: KiCad footprint definition (S-expression format)
+        pad_count:
+          type: integer
+        dimensions:
+          type: object
+          properties:
+            length:
+              type: number
+            width:
+              type: number
+            height:
+              type: number
+
+    KiCad3DModel:
+      type: object
+      properties:
+        model_path:
+          type: string
+          description: Relative path to 3D model file
+        model_format:
+          type: string
+          enum: [step, wrl]
+        offset:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+            z:
+              type: number
+        scale:
+          type: object
+          properties:
+            x:
+              type: number
+              default: 1.0
+            y:
+              type: number
+              default: 1.0
+            z:
+              type: number
+              default: 1.0
+        rotation:
+          type: object
+          properties:
+            x:
+              type: number
+              default: 0.0
+            y:
+              type: number
+              default: 0.0
+            z:
+              type: number
+              default: 0.0
+
+    SyncResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        components_processed:
+          type: integer
+        symbols_updated:
+          type: integer
+        footprints_updated:
+          type: integer
+        models_3d_updated:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              component_id:
+                type: string
+                format: uuid
+              error_message:
+                type: string
+        library_path:
+          type: string
+        sync_timestamp:
+          type: string
+          format: date-time
