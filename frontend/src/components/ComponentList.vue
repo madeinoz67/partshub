@@ -149,7 +149,7 @@
               round
               dense
               flat
-              @click="props.expand = !props.expand"
+              @click="toggleExpand(props)"
               :icon="props.expand ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
             />
           </q-td>
@@ -314,7 +314,7 @@
                 <!-- PartsBox-style Menu -->
                 <div class="col-auto" style="width: 200px; background: #ffffff; border-right: 1px solid #e0e0e0;">
                   <q-list separator>
-                    <q-item clickable v-ripple @click="setActiveTab('info')" :class="{ 'bg-blue-1': activeTab === 'info' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'info')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'info' }">
                       <q-item-section avatar>
                         <q-icon name="info" color="primary" />
                       </q-item-section>
@@ -323,7 +323,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('images')" :class="{ 'bg-blue-1': activeTab === 'images' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'images')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'images' }">
                       <q-item-section avatar>
                         <q-icon name="image" color="primary" />
                       </q-item-section>
@@ -332,16 +332,16 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('datasheets')" :class="{ 'bg-blue-1': activeTab === 'datasheets' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'datasheets')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'datasheets' }">
                       <q-item-section avatar>
-                        <q-icon name="picture_as_pdf" color="primary" />
+                        <q-icon name="description" color="primary" />
                       </q-item-section>
                       <q-item-section>
-                        <q-item-label>Datasheets</q-item-label>
+                        <q-item-label>Files</q-item-label>
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('stock')" :class="{ 'bg-blue-1': activeTab === 'stock' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'stock' }">
                       <q-item-section avatar>
                         <q-icon name="inventory_2" color="primary" />
                       </q-item-section>
@@ -350,7 +350,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('add-stock')" :class="{ 'bg-blue-1': activeTab === 'add-stock' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'add-stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'add-stock' }">
                       <q-item-section avatar>
                         <q-icon name="add_box" color="primary" />
                       </q-item-section>
@@ -359,7 +359,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('remove-stock')" :class="{ 'bg-blue-1': activeTab === 'remove-stock' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'remove-stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'remove-stock' }">
                       <q-item-section avatar>
                         <q-icon name="remove_circle" color="primary" />
                       </q-item-section>
@@ -368,7 +368,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('move-stock')" :class="{ 'bg-blue-1': activeTab === 'move-stock' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'move-stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'move-stock' }">
                       <q-item-section avatar>
                         <q-icon name="move_up" color="primary" />
                       </q-item-section>
@@ -377,7 +377,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('history')" :class="{ 'bg-blue-1': activeTab === 'history' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'history')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'history' }">
                       <q-item-section avatar>
                         <q-icon name="history" color="primary" />
                       </q-item-section>
@@ -386,7 +386,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab('purchasing')" :class="{ 'bg-blue-1': activeTab === 'purchasing' }">
+                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'purchasing')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'purchasing' }">
                       <q-item-section avatar>
                         <q-icon name="shopping_cart" color="primary" />
                       </q-item-section>
@@ -400,7 +400,7 @@
                 <!-- Content Area -->
                 <div class="col" style="padding: 16px; background: #ffffff;">
                   <!-- Part Info Tab -->
-                  <div v-if="activeTab === 'info'">
+                  <div v-if="getActiveTab(props.row.id) === 'info'">
                     <div class="text-h6 q-mb-md">{{ props.row.name }}</div>
                     <div class="text-subtitle2 text-grey q-mb-md">{{ props.row.part_number || 'No part number' }}</div>
 
@@ -500,21 +500,24 @@
                   </div>
 
                   <!-- Images Tab -->
-                  <div v-else-if="activeTab === 'images'">
+                  <div v-else-if="getActiveTab(props.row.id) === 'images'">
                     <div class="text-h6 text-weight-medium q-mb-md">Images</div>
-                    <div v-if="props.row.attachments && getImageAttachments(props.row.attachments).length > 0">
+                    <div v-if="getImageAttachments(props.row.id, props.row.attachments).length > 0">
                       <div class="row q-gutter-md">
                         <div
-                          v-for="image in getImageAttachments(props.row.attachments)"
+                          v-for="image in getImageAttachments(props.row.id, props.row.attachments)"
                           :key="image.id"
                           class="col-md-3 col-xs-6"
                         >
                           <q-card flat bordered class="cursor-pointer" @click="viewImage(image)">
                             <div class="relative-position" style="height: 150px; overflow: hidden;">
-                              <!-- Thumbnail placeholder - in real implementation this would be the actual image -->
-                              <div class="absolute-center text-center">
-                                <q-icon name="image" size="4rem" color="blue" />
-                              </div>
+                              <img
+                                :src="getThumbnailUrl(image.id, props.row.id)"
+                                :alt="image.filename"
+                                class="absolute-center"
+                                style="width: 100%; height: 100%; object-fit: cover;"
+                                @error="onImageError($event, image)"
+                              />
                               <q-tooltip>{{ image.filename }}</q-tooltip>
                             </div>
                             <q-card-section class="q-pa-xs">
@@ -533,15 +536,25 @@
                       <q-icon name="image" size="3rem" color="grey-4" />
                       <div class="q-mt-md">No images</div>
                     </div>
+
+                    <!-- File Upload for Images - Admin Only -->
+                    <div v-if="canPerformCrud()" class="q-mt-lg">
+                      <FileUpload
+                        :component-id="props.row.id"
+                        title="Upload Images"
+                        accepted-types="image/*"
+                        @upload-success="() => handleUploadSuccess({ componentId: props.row.id })"
+                      />
+                    </div>
                   </div>
 
                   <!-- Datasheets Tab -->
-                  <div v-else-if="activeTab === 'datasheets'">
+                  <div v-else-if="getActiveTab(props.row.id) === 'datasheets'">
                     <div class="text-h6 text-weight-medium q-mb-md">Data sheets</div>
-                    <div v-if="props.row.attachments && getDatasheetAttachments(props.row.attachments).length > 0">
+                    <div v-if="getDatasheetAttachments(props.row.id, props.row.attachments).length > 0">
                       <q-list bordered separator>
                         <q-item
-                          v-for="datasheet in getDatasheetAttachments(props.row.attachments)"
+                          v-for="datasheet in getDatasheetAttachments(props.row.id, props.row.attachments)"
                           :key="datasheet.id"
                           clickable
                           @click="downloadAttachment(datasheet)"
@@ -554,7 +567,7 @@
                           <q-item-section>
                             <q-item-label>{{ getFileDisplayName(datasheet.filename) }}</q-item-label>
                             <q-item-label caption>
-                              {{ datasheet.title || 'Datasheet' }} • {{ formatFileSize(datasheet.size || 0) }}
+                              {{ datasheet.title || 'Datasheet' }} • {{ formatFileSize(datasheet.file_size || 0) }}
                             </q-item-label>
                           </q-item-section>
                           <q-item-section side>
@@ -613,10 +626,20 @@
                         </q-item>
                       </q-list>
                     </div>
+
+                    <!-- File Upload for Files - Admin Only -->
+                    <div v-if="canPerformCrud()" class="q-mt-lg">
+                      <FileUpload
+                        :component-id="props.row.id"
+                        title="Upload Files"
+                        accepted-types="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        @upload-success="() => handleUploadSuccess({ componentId: props.row.id })"
+                      />
+                    </div>
                   </div>
 
                   <!-- Stock Tab -->
-                  <div v-else-if="activeTab === 'stock'">
+                  <div v-else-if="getActiveTab(props.row.id) === 'stock'">
                     <div class="text-h6 q-mb-md">Current Stock</div>
                     <div class="row q-gutter-md">
                       <div class="col-md-6 col-xs-12">
@@ -646,7 +669,7 @@
 
                   <!-- Other tabs placeholder -->
                   <div v-else>
-                    <div class="text-h6 q-mb-md">{{ activeTab.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}</div>
+                    <div class="text-h6 q-mb-md">{{ getActiveTab(props.row.id).replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}</div>
                     <div class="text-grey">This feature is coming soon...</div>
                   </div>
                 </div>
@@ -673,6 +696,7 @@ import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useComponentsStore } from '../stores/components'
 import { useAuth } from '../composables/useAuth'
+import FileUpload from './FileUpload.vue'
 import type { Component } from '../services/api'
 
 // Component props
@@ -715,7 +739,8 @@ const selectedStockStatus = ref('')
 const sortBy = ref('updated_at')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const expanded = ref<string[]>([])
-const activeTab = ref('info')
+const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
+const detailedAttachments = ref<Record<string, any[]>>({})
 
 // Table configuration
 const columns = [
@@ -909,18 +934,30 @@ const downloadAttachment = (attachment: any) => {
   // emit('download-attachment', attachment) // Could emit to parent if needed
 }
 
-const setActiveTab = (tab: string) => {
-  activeTab.value = tab
+const setActiveTab = (componentId: string, tab: string) => {
+  activeTab.value[componentId] = tab
 }
 
-const getImageAttachments = (attachments: any[]) => {
+const getActiveTab = (componentId: string) => {
+  return activeTab.value[componentId] || 'info'
+}
+
+const getDetailedAttachments = (componentId: string) => {
+  return detailedAttachments.value[componentId] || []
+}
+
+const getImageAttachments = (componentId: string, basicAttachments?: any[]) => {
+  const detailed = getDetailedAttachments(componentId)
+  const attachments = detailed.length > 0 ? detailed : (basicAttachments || [])
   return attachments.filter(att =>
     att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) ||
     att.attachment_type === 'image'
   )
 }
 
-const getDatasheetAttachments = (attachments: any[]) => {
+const getDatasheetAttachments = (componentId: string, basicAttachments?: any[]) => {
+  const detailed = getDetailedAttachments(componentId)
+  const attachments = detailed.length > 0 ? detailed : (basicAttachments || [])
   return attachments.filter(att =>
     att.filename?.toLowerCase().includes('.pdf') ||
     att.attachment_type === 'datasheet'
@@ -950,6 +987,41 @@ const formatFileSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
 
+const getThumbnailUrl = (attachmentId: string, componentId: string) => {
+  return `/api/v1/components/${componentId}/attachments/${attachmentId}/thumbnail`
+}
+
+const onImageError = (event: Event, image: any) => {
+  // If thumbnail fails to load, show a placeholder icon
+  const target = event.target as HTMLImageElement
+  const parent = target.parentElement
+  if (parent) {
+    parent.innerHTML = `
+      <div class="absolute-center text-center">
+        <q-icon name="image" size="4rem" color="blue" />
+      </div>
+    `
+  }
+}
+
+const toggleExpand = async (props: any) => {
+  props.expand = !props.expand
+
+  // If expanding and we don't have detailed attachments, fetch them
+  if (props.expand && !detailedAttachments.value[props.row.id]) {
+    await fetchDetailedAttachments(props.row.id)
+  }
+}
+
+const fetchDetailedAttachments = async (componentId: string) => {
+  try {
+    const response = await api.get(`/api/v1/components/${componentId}/attachments`)
+    detailedAttachments.value[componentId] = response.data.attachments
+  } catch (error) {
+    console.error('Failed to fetch detailed attachments:', error)
+  }
+}
+
 const viewImage = (image: any) => {
   // This would typically open an image viewer/lightbox
   console.log('View image:', image.filename)
@@ -965,6 +1037,16 @@ const onRowClick = (evt: Event, row: Component) => {
 
 const clearError = () => {
   componentsStore.clearError()
+}
+
+const handleUploadSuccess = async (data: any) => {
+  // Refresh the component data to show newly uploaded files
+  await componentsStore.fetchComponents()
+
+  // Also refresh detailed attachments for the specific component if it's currently expanded
+  if (data && data.componentId) {
+    await fetchDetailedAttachments(data.componentId)
+  }
 }
 
 // Lifecycle
