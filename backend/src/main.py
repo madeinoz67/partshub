@@ -87,6 +87,25 @@ async def startup_event():
     finally:
         db.close()
 
+    # Optimize database with search indexes
+    db = next(get_db())
+    try:
+        from .database.indexes import optimize_database_for_search
+        results = optimize_database_for_search(db)
+        if results.get("indexes_created"):
+            print("📊 Database search indexes optimized for performance")
+            optimized_count = sum(1 for q in results.get("performance_analysis", {}).values()
+                                if q.get("optimized", False))
+            total_count = len(results.get("performance_analysis", {}))
+            print(f"   {optimized_count}/{total_count} search queries optimized")
+        if results.get("errors"):
+            for error in results["errors"]:
+                print(f"   ⚠️  {error}")
+    except Exception as e:
+        print(f"Warning: Database optimization failed: {e}")
+    finally:
+        db.close()
+
 
 @app.get("/")
 async def root():

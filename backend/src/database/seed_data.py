@@ -237,17 +237,17 @@ def create_components(db: Session, category_map: dict, location_map: dict, count
         component = Component(
             name=name,
             part_number=part_number,
+            local_part_id=f"{component_type[:3].upper()}-{fake.bothify('###')}" if random.random() < 0.7 else None,
+            barcode_id=fake.bothify('PH######') if random.random() < 0.5 else None,
+            manufacturer_part_number=part_number if random.random() < 0.8 else None,
+            provider_sku=fake.bothify('SK-######') if random.random() < 0.6 else None,
             manufacturer=manufacturer,
             component_type=component_type,
             value=value,
             package=package,
-            quantity_on_hand=quantity_on_hand,
-            quantity_ordered=random.randint(0, 100),
-            minimum_stock=minimum_stock,
             average_purchase_price=unit_price,
             total_purchase_value=total_value,
             category_id=random.choice(categories).id,
-            storage_location_id=random.choice(locations).id,
             specifications=type_data["specs"](),
             notes=fake.sentence() if random.random() < 0.3 else None,
             custom_fields={
@@ -258,6 +258,18 @@ def create_components(db: Session, category_map: dict, location_map: dict, count
         )
 
         db.add(component)
+        db.flush()  # Ensure component has an ID
+
+        # Create ComponentLocation record with the quantity data
+        from ..models.component_location import ComponentLocation
+        location = ComponentLocation(
+            component_id=component.id,
+            storage_location_id=random.choice(locations).id,
+            quantity_on_hand=quantity_on_hand,
+            quantity_ordered=random.randint(0, 100),
+            minimum_stock=minimum_stock
+        )
+        db.add(location)
 
         if (i + 1) % 20 == 0:
             print(f"  Created {i + 1} components...")

@@ -37,7 +37,7 @@ class StorageLocation(Base):
     # Relationships
     parent = relationship("StorageLocation", remote_side=[id], back_populates="children")
     children = relationship("StorageLocation", back_populates="parent", cascade="all, delete-orphan")
-    components = relationship("Component", back_populates="storage_location")
+    component_locations = relationship("ComponentLocation", back_populates="storage_location", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<StorageLocation(id='{self.id}', name='{self.name}', hierarchy='{self.location_hierarchy}')>"
@@ -67,11 +67,20 @@ class StorageLocation(Base):
 
     def get_component_count(self, include_children=False):
         """Get count of components in this location (optionally including children)."""
-        count = len(self.components)
+        count = len(self.component_locations)
         if include_children:
             for child in self.children:
                 count += child.get_component_count(include_children=True)
         return count
+
+    @property
+    def components(self):
+        """Get all components stored in this location."""
+        return [location.component for location in self.component_locations]
+
+    def get_total_quantity(self):
+        """Get total quantity of all components in this location."""
+        return sum(location.quantity_on_hand for location in self.component_locations)
 
 
 # Event listener to automatically update location_hierarchy

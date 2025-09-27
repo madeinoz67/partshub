@@ -41,9 +41,46 @@
 
             <div class="col-md-6 col-xs-12">
               <q-input
-                v-model="form.part_number"
-                label="Part Number"
+                v-model="form.local_part_id"
+                label="Local Part ID"
                 outlined
+                hint="User-friendly local identifier (recommended)"
+              />
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+              <q-input
+                v-model="form.manufacturer_part_number"
+                label="Manufacturer Part Number"
+                outlined
+                hint="Official manufacturer part number"
+              />
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+              <q-input
+                v-model="form.part_number"
+                label="Part Number (Legacy)"
+                outlined
+                hint="Legacy part number field"
+              />
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+              <q-input
+                v-model="form.barcode_id"
+                label="Barcode/QR ID"
+                outlined
+                hint="Auto-generated or scanned barcode ID"
+              />
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+              <q-input
+                v-model="form.provider_sku"
+                label="Provider SKU"
+                outlined
+                hint="Provider-specific SKU or catalog number"
               />
             </div>
 
@@ -350,6 +387,10 @@ const locationsLoading = ref(false)
 
 const form = ref({
   name: '',
+  local_part_id: '',
+  barcode_id: '',
+  manufacturer_part_number: '',
+  provider_sku: '',
   part_number: '',
   manufacturer: '',
   category_id: '',
@@ -412,6 +453,10 @@ const removeCustomField = (index: number) => {
 const resetForm = () => {
   form.value = {
     name: '',
+    local_part_id: '',
+    barcode_id: '',
+    manufacturer_part_number: '',
+    provider_sku: '',
     part_number: '',
     manufacturer: '',
     category_id: '',
@@ -434,6 +479,10 @@ const resetForm = () => {
 const populateForm = (component: Component) => {
   form.value = {
     name: component.name,
+    local_part_id: component.local_part_id || '',
+    barcode_id: component.barcode_id || '',
+    manufacturer_part_number: component.manufacturer_part_number || '',
+    provider_sku: component.provider_sku || '',
     part_number: component.part_number || '',
     manufacturer: component.manufacturer || '',
     category_id: component.category_id || '',

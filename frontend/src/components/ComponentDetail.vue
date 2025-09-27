@@ -230,12 +230,37 @@
               </div>
 
               <div class="row">
-                <div class="col-4 text-weight-medium">Location:</div>
+                <div class="col-4 text-weight-medium">Locations:</div>
                 <div class="col-8">
-                  <div v-if="component.storage_location">
-                    <q-chip outline :label="component.storage_location.name" />
-                    <div class="text-caption text-grey">
-                      {{ component.storage_location.location_hierarchy }}
+                  <div v-if="component.storage_locations && component.storage_locations.length > 0">
+                    <div class="storage-locations-compact">
+                      <div
+                        v-for="storageLocation in component.storage_locations"
+                        :key="storageLocation.location.id"
+                        class="location-row"
+                      >
+                        <div class="location-info">
+                          <router-link
+                            :to="`/storage-locations/${storageLocation.location.id}`"
+                            class="location-name location-link"
+                            :title="storageLocation.location.location_hierarchy"
+                          >
+                            {{ storageLocation.location.name }}
+                          </router-link>
+                          <span class="quantity-info">
+                            <strong>{{ storageLocation.quantity_on_hand }}</strong>
+                            <span v-if="storageLocation.minimum_stock > 0" class="text-grey">
+                              /{{ storageLocation.minimum_stock }}
+                            </span>
+                            <span v-if="storageLocation.quantity_ordered > 0" class="text-info">
+                              (+{{ storageLocation.quantity_ordered }})
+                            </span>
+                          </span>
+                        </div>
+                        <div v-if="storageLocation.location_notes" class="location-notes">
+                          {{ storageLocation.location_notes }}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <span v-else class="text-grey">No location assigned</span>
@@ -736,5 +761,43 @@ onMounted(() => {
 .full-width-sections .col-12 {
   width: 100% !important;
   max-width: 100% !important;
+}
+
+/* Storage Locations Compact Layout */
+.storage-locations-compact {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.location-row {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.location-row:last-child {
+  border-bottom: none;
+}
+
+.location-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location-name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.quantity-info {
+  font-size: 14px;
+}
+
+.location-notes {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+  font-style: italic;
 }
 </style>

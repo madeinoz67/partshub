@@ -320,10 +320,10 @@ def get_location_components(
             "quantity_on_hand": component.quantity_on_hand,
             "minimum_stock": component.minimum_stock,
             "storage_location": {
-                "id": component.storage_location.id,
-                "name": component.storage_location.name,
-                "location_hierarchy": component.storage_location.location_hierarchy
-            } if component.storage_location else None,
+                "id": component.primary_location.id,
+                "name": component.primary_location.name,
+                "location_hierarchy": component.primary_location.location_hierarchy
+            } if component.primary_location else None,
             "category": {
                 "id": component.category.id,
                 "name": component.category.name

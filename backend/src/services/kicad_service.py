@@ -87,7 +87,9 @@ class KiCadExportService:
         """Generate KiCad symbol for a single component"""
 
         # Sanitize symbol name for KiCad
-        symbol_name = self._sanitize_name(f"{component.part_number}_{component.manufacturer if component.manufacturer else 'Unknown'}")
+        # Use manufacturer_part_number for symbol generation, fallback to part_number for backward compatibility
+        mpn = component.manufacturer_part_number or component.part_number
+        symbol_name = self._sanitize_name(f"{mpn}_{component.manufacturer if component.manufacturer else 'Unknown'}")
 
         # Basic symbol template - in production, this would be more sophisticated
         symbol = [
@@ -95,7 +97,7 @@ class KiCadExportService:
             f'    (property "Reference" "U" (at 0 3.81 0)',
             '      (effects (font (size 1.27 1.27)))',
             '    )',
-            f'    (property "Value" "{component.part_number}" (at 0 -3.81 0)',
+            f'    (property "Value" "{mpn}" (at 0 -3.81 0)',
             '      (effects (font (size 1.27 1.27)))',
             '    )',
             f'    (property "Footprint" "" (at 0 0 0)',
@@ -156,14 +158,15 @@ class KiCadExportService:
             package = component.specifications['Package']
 
         # Sanitize footprint name
-        footprint_name = self._sanitize_name(f"{component.part_number}_{package}")
+        mpn = component.manufacturer_part_number or component.part_number
+        footprint_name = self._sanitize_name(f"{mpn}_{package}")
         footprint_path = os.path.join(output_dir, f"{footprint_name}.kicad_mod")
 
         # Basic footprint template
         footprint_content = [
             f'(footprint "{footprint_name}" (version {self.library_version}) (generator "{self.creator}")',
             f'  (layer "F.Cu")',
-            f'  (descr "{component.notes or component.part_number}")',
+            f'  (descr "{component.notes or mpn}")',
             f'  (tags "{package} {component.manufacturer if component.manufacturer else ""}")',
             ''
         ]
@@ -353,8 +356,16 @@ class KiCadExportService:
         # Add standard fields
         if component.manufacturer:
             fields["Manufacturer"] = component.manufacturer
-        if component.part_number:
-            fields["MPN"] = component.part_number
+        # Use manufacturer_part_number if available, fallback to part_number
+        mpn = component.manufacturer_part_number or component.part_number
+        if mpn:
+            fields["MPN"] = mpn
+        if component.local_part_id:
+            fields["Local Part ID"] = component.local_part_id
+        if component.barcode_id:
+            fields["Barcode ID"] = component.barcode_id
+        if component.provider_sku:
+            fields["Provider SKU"] = component.provider_sku
 
         # Get datasheet URL from attachments
         datasheet_url = None
@@ -398,7 +409,11 @@ class KiCadExportService:
             "model_3d_path": component.kicad_data.model_3d_path if component.kicad_data else None,
             "specifications": component.specifications or {},
             "manufacturer": component.manufacturer,
-            "part_number": component.part_number
+            "part_number": component.part_number,  # Maintain for backward compatibility
+            "manufacturer_part_number": component.manufacturer_part_number,
+            "local_part_id": component.local_part_id,
+            "barcode_id": component.barcode_id,
+            "provider_sku": component.provider_sku
         }
 
     def get_symbol_data(self, component: Component) -> Dict[str, Any]:

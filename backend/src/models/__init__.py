@@ -9,6 +9,7 @@ from ..database import Base
 
 # Import all models to ensure they are registered with SQLAlchemy
 from .component import Component
+from .component_location import ComponentLocation
 from .storage_location import StorageLocation
 from .category import Category
 from .project import Project, ProjectComponent, ProjectStatus
@@ -30,6 +31,7 @@ from .meta_part import MetaPart, MetaPartComponent
 __all__ = [
     "Base",
     "Component",
+    "ComponentLocation",
     "StorageLocation",
     "Category",
     "Project",

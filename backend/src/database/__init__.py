@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-DATABASE_URL = "sqlite:///./partshub.db"
+DATABASE_URL = "sqlite:///./data/partshub.db"
 
 # SQLite specific configuration for concurrent access and foreign keys
 engine = create_engine(

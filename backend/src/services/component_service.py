@@ -5,7 +5,7 @@ ComponentService with CRUD and search operations for components.
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import and_, or_, func, desc
-from ..models import Component, StockTransaction, TransactionType, Category, StorageLocation, Tag
+from ..models import Component, StockTransaction, TransactionType, Category, StorageLocation, Tag, ComponentLocation
 import uuid
 
 
@@ -57,7 +57,7 @@ class ComponentService:
             self.db.query(Component)
             .options(
                 selectinload(Component.category),
-                selectinload(Component.storage_location),
+                selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
                 selectinload(Component.tags),
                 selectinload(Component.attachments),
                 selectinload(Component.custom_field_values).selectinload(Component.custom_field_values.property.mapper.class_.field)
@@ -115,10 +115,27 @@ class ComponentService:
         limit: int = 50,
         offset: int = 0
     ) -> List[Component]:
-        """List components with filtering and pagination."""
+        """
+        List components with filtering and pagination.
+
+        Search functionality includes intelligent ranking that prioritizes results by field relevance:
+        1. Component name matches (highest priority)
+        2. Component type matches
+        3. Part number matches
+        4. Value matches
+        5. Package matches
+        6. Manufacturer matches
+        7. Tag matches
+        8. Notes matches (lowest priority)
+
+        When using default sorting (sort_by="name", sort_order="asc") with a search term,
+        results are automatically ranked by field priority to ensure the most relevant
+        components appear first (e.g., searching "cap" returns capacitors before components
+        that only mention "capital" in their notes).
+        """
         query = self.db.query(Component).options(
             selectinload(Component.category),
-            selectinload(Component.storage_location),
+            selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
             selectinload(Component.tags)
         )
 
@@ -129,9 +146,16 @@ class ComponentService:
                 or_(
                     Component.name.ilike(search_term),
                     Component.part_number.ilike(search_term),
+                    Component.local_part_id.ilike(search_term),
+                    Component.barcode_id.ilike(search_term),
+                    Component.manufacturer_part_number.ilike(search_term),
+                    Component.provider_sku.ilike(search_term),
                     Component.manufacturer.ilike(search_term),
-                    Component.notes.ilike(search_term),
-                    Component.tags.any(Tag.name.ilike(search_term))
+                    Component.component_type.ilike(search_term),
+                    Component.value.ilike(search_term),
+                    Component.package.ilike(search_term),
+                    Component.tags.any(Tag.name.ilike(search_term)),
+                    Component.notes.ilike(search_term)
                 )
             )
 
@@ -146,13 +170,49 @@ class ComponentService:
         if component_type:
             query = query.filter(Component.component_type.ilike(f"%{component_type}%"))
 
-        if stock_status:
-            if stock_status == "low":
-                query = query.filter(Component.quantity_on_hand <= Component.minimum_stock)
-            elif stock_status == "out":
-                query = query.filter(Component.quantity_on_hand == 0)
-            elif stock_status == "available":
-                query = query.filter(Component.quantity_on_hand > 0)
+        # Stock status filtering with proper multi-location support
+        if stock_status == "out":
+            # Components with zero total quantity across all locations
+            quantity_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            query = query.filter(quantity_subquery == 0)
+
+        elif stock_status == "low":
+            # Components with quantity > 0 but <= total minimum stock across all locations
+            quantity_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            min_stock_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            query = query.filter(
+                and_(
+                    quantity_subquery > 0,
+                    quantity_subquery <= min_stock_subquery,
+                    min_stock_subquery > 0
+                )
+            )
+
+        elif stock_status == "available":
+            # Components with quantity > total minimum stock across all locations
+            quantity_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            min_stock_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            query = query.filter(quantity_subquery > min_stock_subquery)
 
         if tags:
             query = query.join(Component.tags).filter(Tag.name.in_(tags))
@@ -173,10 +233,17 @@ class ComponentService:
             elif sort_by == "created_at":
                 query = query.order_by(Component.created_at)
 
-        # Apply pagination
-        query = query.offset(offset).limit(limit)
-
-        return query.all()
+        # Get results before pagination for search ranking
+        if search and sort_by == "name" and sort_order == "asc":
+            # Get all matching results for ranking, then apply pagination
+            all_results = query.all()
+            ranked_results = self._rank_search_results(all_results, search.lower())
+            # Apply pagination to ranked results
+            return ranked_results[offset:offset + limit]
+        else:
+            # Apply pagination
+            query = query.offset(offset).limit(limit)
+            return query.all()
 
     def count_components(
         self,
@@ -197,9 +264,16 @@ class ComponentService:
                 or_(
                     Component.name.ilike(search_term),
                     Component.part_number.ilike(search_term),
+                    Component.local_part_id.ilike(search_term),
+                    Component.barcode_id.ilike(search_term),
+                    Component.manufacturer_part_number.ilike(search_term),
+                    Component.provider_sku.ilike(search_term),
                     Component.manufacturer.ilike(search_term),
-                    Component.notes.ilike(search_term),
-                    Component.tags.any(Tag.name.ilike(search_term))
+                    Component.component_type.ilike(search_term),
+                    Component.value.ilike(search_term),
+                    Component.package.ilike(search_term),
+                    Component.tags.any(Tag.name.ilike(search_term)),
+                    Component.notes.ilike(search_term)
                 )
             )
 
@@ -214,13 +288,49 @@ class ComponentService:
         if component_type:
             query = query.filter(Component.component_type.ilike(f"%{component_type}%"))
 
-        if stock_status:
-            if stock_status == "low":
-                query = query.filter(Component.quantity_on_hand <= Component.minimum_stock)
-            elif stock_status == "out":
-                query = query.filter(Component.quantity_on_hand == 0)
-            elif stock_status == "available":
-                query = query.filter(Component.quantity_on_hand > 0)
+        # Stock status filtering with proper multi-location support
+        if stock_status == "out":
+            # Components with zero total quantity across all locations
+            quantity_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            query = query.filter(quantity_subquery == 0)
+
+        elif stock_status == "low":
+            # Components with quantity > 0 but <= total minimum stock across all locations
+            quantity_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            min_stock_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            query = query.filter(
+                and_(
+                    quantity_subquery > 0,
+                    quantity_subquery <= min_stock_subquery,
+                    min_stock_subquery > 0
+                )
+            )
+
+        elif stock_status == "available":
+            # Components with quantity > total minimum stock across all locations
+            quantity_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            min_stock_subquery = (
+                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                .filter(ComponentLocation.component_id == Component.id)
+                .scalar_subquery()
+            )
+            query = query.filter(quantity_subquery > min_stock_subquery)
 
         if tags:
             query = query.join(Component.tags).filter(Tag.name.in_(tags))
@@ -270,21 +380,40 @@ class ComponentService:
         # Build additional search constraints for manufacturer
         components_query = self.db.query(Component).options(
             selectinload(Component.category),
-            selectinload(Component.storage_location),
+            selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
             selectinload(Component.tags),
             selectinload(Component.kicad_data)
         )
 
-        # Apply search term filter
+        # Apply search term filter with weighted ranking
         if search_term:
             search_term_like = f"%{search_term}%"
             components_query = components_query.filter(
                 or_(
                     Component.name.ilike(search_term_like),
                     Component.part_number.ilike(search_term_like),
+                    Component.local_part_id.ilike(search_term_like),
+                    Component.barcode_id.ilike(search_term_like),
+                    Component.manufacturer_part_number.ilike(search_term_like),
+                    Component.provider_sku.ilike(search_term_like),
                     Component.manufacturer.ilike(search_term_like),
+                    Component.component_type.ilike(search_term_like),
+                    Component.value.ilike(search_term_like),
+                    Component.package.ilike(search_term_like),
                     Component.notes.ilike(search_term_like)
                 )
+            ).order_by(
+                # Prioritize exact matches first, then partial matches by field importance
+                func.case(
+                    (Component.name.ilike(search_term_like), 1),
+                    (Component.component_type.ilike(search_term_like), 2),
+                    (Component.part_number.ilike(search_term_like), 3),
+                    (Component.value.ilike(search_term_like), 4),
+                    (Component.package.ilike(search_term_like), 5),
+                    (Component.manufacturer.ilike(search_term_like), 6),
+                    else_=7  # notes get lowest priority
+                ),
+                Component.name
             )
 
         # Apply category filter
@@ -310,6 +439,46 @@ class ComponentService:
         components_query = components_query.offset(offset).limit(limit)
 
         return components_query.all()
+
+    def _rank_search_results(self, components: List[Component], search_term: str) -> List[Component]:
+        """
+        Rank search results by field relevance priority.
+        Higher priority fields get ranked first.
+        """
+        def get_search_score(component: Component) -> int:
+            """Calculate search score based on field matches. Lower score = higher priority."""
+            search_lower = search_term.lower()
+
+            # Check each field and return priority score (lower = better)
+            if component.name and search_lower in component.name.lower():
+                return 1  # Highest priority: name match
+            elif component.local_part_id and search_lower in component.local_part_id.lower():
+                return 2  # Local part ID match (user-friendly identifier)
+            elif component.component_type and search_lower in component.component_type.lower():
+                return 3  # Component type match
+            elif component.manufacturer_part_number and search_lower in component.manufacturer_part_number.lower():
+                return 4  # Manufacturer part number match
+            elif component.part_number and search_lower in component.part_number.lower():
+                return 5  # Legacy part number match
+            elif component.barcode_id and search_lower in component.barcode_id.lower():
+                return 6  # Barcode ID match
+            elif component.value and search_lower in component.value.lower():
+                return 7  # Value match
+            elif component.package and search_lower in component.package.lower():
+                return 8  # Package match
+            elif component.manufacturer and search_lower in component.manufacturer.lower():
+                return 9  # Manufacturer match
+            elif component.provider_sku and search_lower in component.provider_sku.lower():
+                return 10  # Provider SKU match
+            elif component.tags and any(search_lower in tag.name.lower() for tag in component.tags):
+                return 11  # Tag match
+            elif component.notes and search_lower in component.notes.lower():
+                return 12  # Lowest priority: notes match
+            else:
+                return 13  # No direct match (shouldn't happen given the filter)
+
+        # Sort by search score (priority), then by name
+        return sorted(components, key=lambda c: (get_search_score(c), c.name.lower() if c.name else ''))
 
     def update_stock(
         self,
@@ -390,10 +559,10 @@ class ComponentService:
         return (
             self.db.query(Component)
             .options(selectinload(Component.storage_location))
-            .filter(Component.quantity_on_hand <= Component.minimum_stock)
-            .filter(Component.minimum_stock > 0)  # Only components with minimum stock set
+            .filter(Component.quantity_on_hand <= min_stock_subquery)
+            .filter(min_stock_subquery > 0)  # Only components with minimum stock set
             .order_by(
-                (Component.quantity_on_hand / func.nullif(Component.minimum_stock, 0))
+                (Component.quantity_on_hand / func.nullif(min_stock_subquery, 0))
             )
             .limit(limit)
             .all()
@@ -404,8 +573,8 @@ class ComponentService:
         total_components = self.db.query(Component).count()
         low_stock_count = (
             self.db.query(Component)
-            .filter(Component.quantity_on_hand <= Component.minimum_stock)
-            .filter(Component.minimum_stock > 0)
+            .filter(Component.quantity_on_hand <= min_stock_subquery)
+            .filter(min_stock_subquery > 0)
             .count()
         )
         out_of_stock_count = self.db.query(Component).filter(Component.quantity_on_hand == 0).count()

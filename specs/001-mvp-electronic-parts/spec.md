@@ -111,6 +111,14 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-056**: System MUST display contextual hints and security warnings in API token creation interface to guide users toward secure choices
 - **FR-057**: System MUST provide dedicated logout route that clears authentication state and redirects to root path (/) for seamless transition from authenticated to anonymous browsing
 
+- **FR-078**: System MUST enforce unique part numbers across all components to prevent duplicate entries and maintain data integrity
+- **FR-079**: System MUST support intelligent search ranking that prioritizes results by field relevance (component name > type > part number > value > package > manufacturer > tags > notes)
+- **FR-080**: System MUST support multiple storage locations per component with per-location quantity tracking for flexible inventory distribution
+- **FR-081**: System MUST track quantity on hand, quantity ordered, and minimum stock levels separately for each storage location
+- **FR-082**: System MUST calculate total component quantities by aggregating values across all storage locations where the component is stored
+- **FR-083**: System MUST provide a primary storage location property based on the location with the highest quantity on hand
+- **FR-084**: System MUST support location-specific notes and unit costs for components stored in multiple locations
+
 - **FR-032**: System MUST retain component data indefinitely with no automatic deletion or expiration policies
 
 - **FR-033**: System MUST support hobbyist/maker scale inventory (10-10,000 components) as a self-contained application with architecture allowing future scaling
@@ -156,7 +164,8 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 
 ### Key Entities
 
-- **Component**: Represents an electronic part with specifications, quantities (on-hand and ordered), storage location, purchase history, and relationships to projects and meta-parts
+- **Component**: Represents an electronic part with specifications, unique part numbers, and relationships to projects and meta-parts (quantities now tracked per location)
+- **ComponentLocation**: Junction entity tracking component quantities, costs, and notes for specific storage locations, enabling multiple locations per component
 - **Storage Location**: Hierarchical storage system (cabinet/room > shelf/drawer > container/box) where components are physically stored with location codes
 - **Category**: Component classification system (passive components, active components, connectors, mechanical, etc.)
 - **Supplier**: Vendor information including name, part numbers, pricing, and ordering details

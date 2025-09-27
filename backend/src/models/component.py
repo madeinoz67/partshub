@@ -23,20 +23,25 @@ class Component(Base):
     # Primary identification
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False, index=True)
-    part_number = Column(String(100), nullable=True, index=True)
+
+    # Multiple identification fields for different purposes
+    local_part_id = Column(String(50), nullable=True, unique=True, index=True)  # User-friendly local identifier (CAP-001, RES-047)
+    barcode_id = Column(String(50), nullable=True, unique=True, index=True)  # Auto-generated for QR/barcode scanning
+    manufacturer_part_number = Column(String(100), nullable=True, index=True)  # Official manufacturer part number
+    provider_sku = Column(String(100), nullable=True, index=True)  # Provider-specific SKU (LCSC, Mouser, etc.)
+
+    # Legacy field - maintained for backward compatibility, maps to manufacturer_part_number
+    part_number = Column(String(100), nullable=True, index=True, unique=True)
     manufacturer = Column(String(100), nullable=True, index=True)
 
-    # Classification and location
+    # Classification (location now handled via ComponentLocation relationship)
     category_id = Column(String, ForeignKey("categories.id"), nullable=True)
-    storage_location_id = Column(String, ForeignKey("storage_locations.id"), nullable=True)
     component_type = Column(String(50), nullable=True, index=True)  # resistor, capacitor, IC, etc.
     value = Column(String(50), nullable=True)  # 10kΩ, 100μF, etc.
     package = Column(String(50), nullable=True)  # 0805, DIP8, SOT-23, etc.
 
-    # Inventory quantities
-    quantity_on_hand = Column(Integer, nullable=False, default=0)
-    quantity_ordered = Column(Integer, nullable=False, default=0)
-    minimum_stock = Column(Integer, nullable=False, default=0)
+    # Inventory quantities (aggregated from all locations)
+    # Note: These will be calculated properties from ComponentLocation records
 
     # Financial tracking
     average_purchase_price = Column(Numeric(10, 4), nullable=True)
@@ -54,7 +59,7 @@ class Component(Base):
 
     # Relationships
     category = relationship("Category", back_populates="components")
-    storage_location = relationship("StorageLocation", back_populates="components")
+    locations = relationship("ComponentLocation", back_populates="component", cascade="all, delete-orphan")
     stock_transactions = relationship("StockTransaction", back_populates="component", cascade="all, delete-orphan")
     project_components = relationship("ProjectComponent", back_populates="component", cascade="all, delete-orphan")
     tags = relationship("Tag", secondary="component_tags", back_populates="components")
@@ -77,11 +82,82 @@ class Component(Base):
         return self.name
 
     @property
+    def quantity_on_hand(self):
+        """Calculate total quantity across all storage locations."""
+        return sum(location.quantity_on_hand for location in self.locations)
+
+    @property
+    def quantity_ordered(self):
+        """Calculate total ordered quantity across all storage locations."""
+        return sum(location.quantity_ordered for location in self.locations)
+
+    @property
+    def minimum_stock(self):
+        """Calculate total minimum stock across all storage locations."""
+        return sum(location.minimum_stock for location in self.locations)
+
+    @property
+    def primary_location(self):
+        """Get the storage location with the highest quantity (primary location)."""
+        if not self.locations:
+            return None
+        return max(self.locations, key=lambda loc: loc.quantity_on_hand).storage_location
+
+    @property
+    def storage_locations(self):
+        """Get all storage locations where this component is stored."""
+        return [location.storage_location for location in self.locations]
+
+    @property
     def is_low_stock(self):
-        """Check if component is below minimum stock threshold."""
-        return self.quantity_on_hand <= self.minimum_stock
+        """Check if component is below minimum stock threshold (any location)."""
+        return any(location.is_low_stock for location in self.locations)
 
     @property
     def is_out_of_stock(self):
-        """Check if component is completely out of stock."""
+        """Check if component is completely out of stock (all locations)."""
         return self.quantity_on_hand == 0
+
+    @property
+    def effective_part_number(self):
+        """Get the effective part number (manufacturer_part_number or legacy part_number)."""
+        return self.manufacturer_part_number or self.part_number
+
+    @property
+    def primary_identifier(self):
+        """Get the primary identifier for display (local_part_id or name)."""
+        return self.local_part_id or self.name
+
+    @property
+    def scannable_id(self):
+        """Get the scannable identifier (barcode_id or fallback to other IDs)."""
+        return self.barcode_id or self.local_part_id or self.id
+
+    def generate_barcode_id(self):
+        """Generate a unique barcode ID similar to PartsBox format."""
+        import secrets
+        import string
+        # Generate 26-character alphanumeric string (lowercase)
+        chars = string.ascii_lowercase + string.digits
+        return ''.join(secrets.choice(chars) for _ in range(26))
+
+    def generate_local_part_id(self, prefix=None):
+        """Generate a local part ID based on component type and sequence."""
+        if prefix is None:
+            # Generate prefix from component type
+            type_prefixes = {
+                'resistor': 'RES',
+                'capacitor': 'CAP',
+                'inductor': 'IND',
+                'ic': 'IC',
+                'microcontroller': 'MCU',
+                'diode': 'D',
+                'transistor': 'Q',
+                'connector': 'CONN',
+                'crystal': 'XTAL'
+            }
+            prefix = type_prefixes.get(self.component_type.lower() if self.component_type else '', 'PART')
+
+        # This would need to be implemented with sequence logic from the database
+        # For now, return a placeholder that should be handled by the service layer
+        return f"{prefix}-{self.id[:8].upper()}"

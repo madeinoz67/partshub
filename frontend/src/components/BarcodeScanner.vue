@@ -12,7 +12,7 @@
         <q-card-section>
           <div class="scanner-container">
             <!-- Camera Feed -->
-            <div class="camera-wrapper" :style="{ display: cameraActive ? 'block' : 'none' }">
+            <div v-if="cameraActive" class="camera-wrapper">
               <video
                 ref="videoElement"
                 autoplay
@@ -44,7 +44,7 @@
             </div>
 
             <!-- Camera Error/Loading State -->
-            <div v-if="!cameraActive" class="camera-placeholder">
+            <div v-else class="camera-placeholder">
               <div v-if="cameraError" class="text-center">
                 <q-icon name="videocam_off" size="4em" color="grey-5" />
                 <div class="text-h6 q-mt-md text-grey-6">Camera Error</div>

@@ -16,7 +16,11 @@ from ..models import Component, StockTransaction
 # Pydantic schemas
 class ComponentBase(BaseModel):
     name: str
-    part_number: Optional[str] = None
+    part_number: Optional[str] = None  # Legacy field maintained for backward compatibility
+    local_part_id: Optional[str] = None  # User-friendly local identifier
+    barcode_id: Optional[str] = None  # Auto-generated barcode/QR code ID
+    manufacturer_part_number: Optional[str] = None  # Official manufacturer part number
+    provider_sku: Optional[str] = None  # Provider-specific SKU
     manufacturer: Optional[str] = None
     category_id: Optional[str] = None
     storage_location_id: Optional[str] = None
@@ -38,7 +42,11 @@ class ComponentCreate(ComponentBase):
 
 class ComponentUpdate(BaseModel):
     name: Optional[str] = None
-    part_number: Optional[str] = None
+    part_number: Optional[str] = None  # Legacy field maintained for backward compatibility
+    local_part_id: Optional[str] = None  # User-friendly local identifier
+    barcode_id: Optional[str] = None  # Auto-generated barcode/QR code ID
+    manufacturer_part_number: Optional[str] = None  # Official manufacturer part number
+    provider_sku: Optional[str] = None  # Provider-specific SKU
     manufacturer: Optional[str] = None
     category_id: Optional[str] = None
     storage_location_id: Optional[str] = None
@@ -53,6 +61,7 @@ class ComponentResponse(ComponentBase):
     id: str
     category: Optional[dict] = None
     storage_location: Optional[dict] = None
+    storage_locations: List[dict] = []
     tags: List[dict] = []
     attachments: List[dict] = []
     created_at: str
@@ -145,9 +154,13 @@ def list_components(
             "id": component.id,
             "name": component.name,
             "part_number": component.part_number,
+            "local_part_id": component.local_part_id,
+            "barcode_id": component.barcode_id,
+            "manufacturer_part_number": component.manufacturer_part_number,
+            "provider_sku": component.provider_sku,
             "manufacturer": component.manufacturer,
             "category_id": component.category_id,
-            "storage_location_id": component.storage_location_id,
+            "storage_location_id": component.storage_locations[0].id if component.storage_locations else None,
             "component_type": component.component_type,
             "value": component.value,
             "package": component.package,
@@ -161,10 +174,25 @@ def list_components(
             "custom_fields": component.custom_fields,
             "category": {"id": component.category.id, "name": component.category.name} if component.category else None,
             "storage_location": {
-                "id": component.storage_location.id,
-                "name": component.storage_location.name,
-                "location_hierarchy": component.storage_location.location_hierarchy
-            } if component.storage_location else None,
+                "id": component.primary_location.id,
+                "name": component.primary_location.name,
+                "location_hierarchy": component.primary_location.location_hierarchy
+            } if component.primary_location else None,
+            "storage_locations": [
+                {
+                    "location": {
+                        "id": loc.storage_location.id,
+                        "name": loc.storage_location.name,
+                        "location_hierarchy": loc.storage_location.location_hierarchy
+                    },
+                    "quantity_on_hand": loc.quantity_on_hand,
+                    "quantity_ordered": loc.quantity_ordered,
+                    "minimum_stock": loc.minimum_stock,
+                    "location_notes": loc.location_notes,
+                    "unit_cost_at_location": float(loc.unit_cost_at_location) if loc.unit_cost_at_location else None
+                }
+                for loc in component.locations
+            ],
             "tags": [{"id": tag.id, "name": tag.name} for tag in component.tags],
             "attachments": [{"id": att.id, "filename": att.filename} for att in component.attachments],
             "created_at": component.created_at.isoformat(),
@@ -207,9 +235,13 @@ def create_component(
             "id": created_component.id,
             "name": created_component.name,
             "part_number": created_component.part_number,
+            "local_part_id": created_component.local_part_id,
+            "barcode_id": created_component.barcode_id,
+            "manufacturer_part_number": created_component.manufacturer_part_number,
+            "provider_sku": created_component.provider_sku,
             "manufacturer": created_component.manufacturer,
             "category_id": created_component.category_id,
-            "storage_location_id": created_component.storage_location_id,
+            "storage_location_id": created_component.storage_locations[0].id if created_component.storage_locations else None,
             "component_type": created_component.component_type,
             "value": created_component.value,
             "package": created_component.package,
@@ -223,10 +255,10 @@ def create_component(
             "custom_fields": created_component.custom_fields,
             "category": {"id": created_component.category.id, "name": created_component.category.name} if created_component.category else None,
             "storage_location": {
-                "id": created_component.storage_location.id,
-                "name": created_component.storage_location.name,
-                "location_hierarchy": created_component.storage_location.location_hierarchy
-            } if created_component.storage_location else None,
+                "id": created_component.primary_location.id,
+                "name": created_component.primary_location.name,
+                "location_hierarchy": created_component.primary_location.location_hierarchy
+            } if created_component.primary_location else None,
             "tags": [{"id": tag.id, "name": tag.name} for tag in created_component.tags],
             "attachments": [{"id": att.id, "filename": att.filename} for att in created_component.attachments],
             "created_at": created_component.created_at.isoformat(),
@@ -258,9 +290,13 @@ def get_component(
         "id": component.id,
         "name": component.name,
         "part_number": component.part_number,
+        "local_part_id": component.local_part_id,
+        "barcode_id": component.barcode_id,
+        "manufacturer_part_number": component.manufacturer_part_number,
+        "provider_sku": component.provider_sku,
         "manufacturer": component.manufacturer,
         "category_id": component.category_id,
-        "storage_location_id": component.storage_location_id,
+        "storage_location_id": component.storage_locations[0].id if component.storage_locations else None,
         "component_type": component.component_type,
         "value": component.value,
         "package": component.package,
@@ -274,10 +310,25 @@ def get_component(
         "custom_fields": component.custom_fields,
         "category": {"id": component.category.id, "name": component.category.name} if component.category else None,
         "storage_location": {
-            "id": component.storage_location.id,
-            "name": component.storage_location.name,
-            "location_hierarchy": component.storage_location.location_hierarchy
-        } if component.storage_location else None,
+            "id": component.primary_location.id,
+            "name": component.primary_location.name,
+            "location_hierarchy": component.primary_location.location_hierarchy
+        } if component.primary_location else None,
+        "storage_locations": [
+            {
+                "location": {
+                    "id": loc.storage_location.id,
+                    "name": loc.storage_location.name,
+                    "location_hierarchy": loc.storage_location.location_hierarchy
+                },
+                "quantity_on_hand": loc.quantity_on_hand,
+                "quantity_ordered": loc.quantity_ordered,
+                "minimum_stock": loc.minimum_stock,
+                "location_notes": loc.location_notes,
+                "unit_cost_at_location": float(loc.unit_cost_at_location) if loc.unit_cost_at_location else None
+            }
+            for loc in component.locations
+        ],
         "tags": [{"id": tag.id, "name": tag.name} for tag in component.tags],
         "attachments": [{"id": att.id, "filename": att.filename} for att in component.attachments],
         "created_at": component.created_at.isoformat() if component.created_at else "",

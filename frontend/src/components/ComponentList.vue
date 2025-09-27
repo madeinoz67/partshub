@@ -175,8 +175,11 @@
           <!-- Component name column -->
           <q-td key="name" :props="props">
             <div class="text-weight-medium">{{ props.row.name }}</div>
-            <div v-if="props.row.part_number" class="text-caption text-grey">
-              PN: {{ props.row.part_number }}
+            <div class="text-caption text-grey">
+              <div v-if="props.row.local_part_id">ID: {{ props.row.local_part_id }}</div>
+              <div v-else-if="props.row.manufacturer_part_number">MPN: {{ props.row.manufacturer_part_number }}</div>
+              <div v-else-if="props.row.part_number">PN: {{ props.row.part_number }}</div>
+              <div v-else class="text-grey-5">No part number</div>
             </div>
           </q-td>
 
@@ -420,11 +423,37 @@
                   <!-- Part Info Tab -->
                   <div v-if="getActiveTab(props.row.id) === 'info'">
                     <div class="text-h6 q-mb-md">{{ props.row.name }}</div>
-                    <div class="text-subtitle2 text-grey q-mb-md">{{ props.row.part_number || 'No part number' }}</div>
+                    <div class="text-subtitle2 text-grey q-mb-md">
+                      <span v-if="props.row.local_part_id">ID: {{ props.row.local_part_id }}</span>
+                      <span v-else-if="props.row.manufacturer_part_number">MPN: {{ props.row.manufacturer_part_number }}</span>
+                      <span v-else-if="props.row.part_number">PN: {{ props.row.part_number }}</span>
+                      <span v-else>No part number</span>
+                    </div>
 
                     <div class="row q-gutter-md no-wrap">
                       <div class="col-8">
                         <div class="q-gutter-sm">
+                          <!-- Identification Fields -->
+                          <div class="row" v-if="props.row.local_part_id">
+                            <div class="col-4 text-weight-medium">Local Part ID:</div>
+                            <div class="col-8">{{ props.row.local_part_id }}</div>
+                          </div>
+                          <div class="row" v-if="props.row.manufacturer_part_number">
+                            <div class="col-4 text-weight-medium">Manufacturer PN:</div>
+                            <div class="col-8">{{ props.row.manufacturer_part_number }}</div>
+                          </div>
+                          <div class="row" v-if="props.row.part_number">
+                            <div class="col-4 text-weight-medium">Part Number:</div>
+                            <div class="col-8">{{ props.row.part_number }}</div>
+                          </div>
+                          <div class="row" v-if="props.row.barcode_id">
+                            <div class="col-4 text-weight-medium">Barcode/QR ID:</div>
+                            <div class="col-8">{{ props.row.barcode_id }}</div>
+                          </div>
+                          <div class="row" v-if="props.row.provider_sku">
+                            <div class="col-4 text-weight-medium">Provider SKU:</div>
+                            <div class="col-8">{{ props.row.provider_sku }}</div>
+                          </div>
                           <div class="row" v-if="props.row.manufacturer">
                             <div class="col-4 text-weight-medium">Manufacturer:</div>
                             <div class="col-8">{{ props.row.manufacturer }}</div>
@@ -783,8 +812,11 @@
               <div class="row items-center no-wrap">
                 <div class="col">
                   <div class="text-weight-medium">{{ props.row.name }}</div>
-                  <div v-if="props.row.part_number" class="text-caption text-grey">
-                    PN: {{ props.row.part_number }}
+                  <div class="text-caption text-grey">
+                    <div v-if="props.row.local_part_id">ID: {{ props.row.local_part_id }}</div>
+                    <div v-else-if="props.row.manufacturer_part_number">MPN: {{ props.row.manufacturer_part_number }}</div>
+                    <div v-else-if="props.row.part_number">PN: {{ props.row.part_number }}</div>
+                    <div v-else class="text-grey-5">No part number</div>
                   </div>
                 </div>
                 <div class="col-auto">
@@ -799,6 +831,22 @@
 
               <!-- Component details -->
               <div class="q-mt-sm">
+                <!-- Identification section -->
+                <div class="q-mb-xs">
+                  <div v-if="props.row.manufacturer_part_number && props.row.manufacturer_part_number !== props.row.local_part_id" class="text-caption">
+                    <strong>MPN:</strong> {{ props.row.manufacturer_part_number }}
+                  </div>
+                  <div v-if="props.row.part_number && props.row.part_number !== props.row.local_part_id && props.row.part_number !== props.row.manufacturer_part_number" class="text-caption">
+                    <strong>Legacy PN:</strong> {{ props.row.part_number }}
+                  </div>
+                  <div v-if="props.row.barcode_id" class="text-caption">
+                    <strong>Barcode:</strong> {{ props.row.barcode_id }}
+                  </div>
+                  <div v-if="props.row.provider_sku" class="text-caption">
+                    <strong>SKU:</strong> {{ props.row.provider_sku }}
+                  </div>
+                </div>
+
                 <div v-if="props.row.value || props.row.component_type" class="q-mb-xs">
                   <div v-if="props.row.value" class="text-body2">
                     <strong>Value:</strong> {{ props.row.value }}

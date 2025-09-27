@@ -61,7 +61,11 @@ api.interceptors.response.use(
 export interface Component {
   id: string
   name: string
-  part_number: string | null
+  part_number: string | null // Legacy field maintained for backward compatibility
+  local_part_id: string | null // User-friendly local identifier
+  barcode_id: string | null // Auto-generated barcode/QR code ID
+  manufacturer_part_number: string | null // Official manufacturer part number
+  provider_sku: string | null // Provider-specific SKU
   manufacturer: string | null
   category_id: string | null
   storage_location_id: string | null

@@ -222,7 +222,7 @@ class ReportService:
             ],
             "daily_activity": [
                 {
-                    "date": date.isoformat() if date else None,
+                    "date": str(date) if date else None,
                     "transaction_count": int(count)
                 }
                 for date, count in daily_activity

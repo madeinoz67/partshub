@@ -1,0 +1,16 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE users (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    hashed_password TEXT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT 1,
+    is_admin BOOLEAN NOT NULL DEFAULT 0,
+    must_change_password BOOLEAN NOT NULL DEFAULT 0,
+    last_login DATETIME,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO users VALUES('8468874a-aab3-4efe-9c84-bb9362e783e6','admin','Default Administrator','$2b$12$X5dPBQButkLNI590LdflT.a3qRhwyIC/5sGHpBStEWhjYqPpocsS2',1,1,0,'2025-09-27 03:00:09.007415','2025-09-26 03:48:56.464250','2025-09-27 03:00:09.007637');
+COMMIT;

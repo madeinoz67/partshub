@@ -74,7 +74,11 @@ class KiCadComponentResponse(BaseModel):
     model_3d_path: Optional[str] = None
     specifications: Dict[str, Any] = {}
     manufacturer: Optional[str] = None
-    part_number: Optional[str] = None
+    part_number: Optional[str] = None  # Maintained for backward compatibility
+    manufacturer_part_number: Optional[str] = None
+    local_part_id: Optional[str] = None
+    barcode_id: Optional[str] = None
+    provider_sku: Optional[str] = None
 
 
 class KiCadSymbolResponse(BaseModel):
@@ -98,7 +102,7 @@ class KiCadFootprintResponse(BaseModel):
 class LibrarySyncRequest(BaseModel):
     """Library synchronization request."""
     libraries: List[str]
-    sync_mode: str = "incremental"  # "incremental" or "full"
+    sync_mode: str  # "incremental" or "full" - REQUIRED field
     force_update: bool = False
     kicad_path: Optional[str] = None
 
@@ -150,7 +154,7 @@ def search_kicad_components(
     symbol: Optional[str] = Query(None, description="Filter by symbol name"),
     footprint: Optional[str] = Query(None, description="Filter by footprint name"),
     keywords: Optional[str] = Query(None, description="Filter by keywords"),
-    sort: Optional[str] = Query("name", description="Sort by field (name, part_number, created_at)"),
+    sort: Optional[str] = Query("name", description="Sort by field (name, part_number, manufacturer_part_number, local_part_id, created_at)"),
     limit: int = Query(50, le=200, description="Maximum number of results"),
     offset: int = Query(0, ge=0, description="Result offset for pagination"),
     db: Session = Depends(get_db)
@@ -208,6 +212,10 @@ def search_kicad_components(
         kicad_components.sort(key=lambda x: x.name.lower())
     elif sort == "part_number":
         kicad_components.sort(key=lambda x: x.part_number or "")
+    elif sort == "manufacturer_part_number":
+        kicad_components.sort(key=lambda x: x.manufacturer_part_number or "")
+    elif sort == "local_part_id":
+        kicad_components.sort(key=lambda x: x.local_part_id or "")
     elif sort == "created_at":
         kicad_components.sort(key=lambda x: x.created_at)
 

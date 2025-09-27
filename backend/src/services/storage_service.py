@@ -185,6 +185,8 @@ class StorageLocationService:
 
         component_service = ComponentService(self.db)
 
+        from ..models import ComponentLocation
+
         if include_children:
             # Get location and all its descendants
             location = self.db.query(StorageLocation).filter(StorageLocation.id == location_id).first()
@@ -194,19 +196,19 @@ class StorageLocationService:
             descendant_locations = location.get_all_descendants()
             location_ids = [location.id] + [loc.id for loc in descendant_locations]
 
-            # Filter components by multiple locations
+            # Filter components by multiple locations via ComponentLocation
             query = self.db.query(Component).options(
                 selectinload(Component.category),
-                selectinload(Component.storage_location),
+                selectinload(Component.locations),
                 selectinload(Component.tags)
-            ).filter(Component.storage_location_id.in_(location_ids))
+            ).join(ComponentLocation).filter(ComponentLocation.storage_location_id.in_(location_ids))
         else:
             # Just this location
             query = self.db.query(Component).options(
                 selectinload(Component.category),
-                selectinload(Component.storage_location),
+                selectinload(Component.locations),
                 selectinload(Component.tags)
-            ).filter(Component.storage_location_id == location_id)
+            ).join(ComponentLocation).filter(ComponentLocation.storage_location_id == location_id)
 
         # Apply additional filters (reuse logic from ComponentService)
         if search:
@@ -227,22 +229,72 @@ class StorageLocationService:
             query = query.filter(Component.component_type.ilike(f"%{component_type}%"))
 
         if stock_status:
-            if stock_status == "low":
-                query = query.filter(Component.quantity_on_hand <= Component.minimum_stock)
-            elif stock_status == "out":
-                query = query.filter(Component.quantity_on_hand == 0)
+            from sqlalchemy import func, and_
+            # Apply the same multi-location stock filtering logic as ComponentService
+            if stock_status == "out":
+                # Components with zero total quantity across all locations
+                quantity_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                query = query.filter(quantity_subquery == 0)
+            elif stock_status == "low":
+                # Components with quantity > 0 but <= total minimum stock across all locations
+                quantity_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                min_stock_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                query = query.filter(
+                    and_(
+                        quantity_subquery > 0,
+                        quantity_subquery <= min_stock_subquery,
+                        min_stock_subquery > 0
+                    )
+                )
+            elif stock_status == "available":
+                # Components with quantity > total minimum stock across all locations
+                quantity_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                min_stock_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                query = query.filter(quantity_subquery > min_stock_subquery)
 
         # Apply sorting
         if sort_order.lower() == "desc":
             if sort_by == "name":
                 query = query.order_by(Component.name.desc())
             elif sort_by == "quantity":
-                query = query.order_by(Component.quantity_on_hand.desc())
+                # For multi-location model, we need to sort by calculated total quantity
+                quantity_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                query = query.order_by(quantity_subquery.desc())
         else:
             if sort_by == "name":
                 query = query.order_by(Component.name)
             elif sort_by == "quantity":
-                query = query.order_by(Component.quantity_on_hand)
+                # For multi-location model, we need to sort by calculated total quantity
+                quantity_subquery = (
+                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    .filter(ComponentLocation.component_id == Component.id)
+                    .scalar_subquery()
+                )
+                query = query.order_by(quantity_subquery)
 
         # Apply pagination
         return query.offset(offset).limit(limit).all()
