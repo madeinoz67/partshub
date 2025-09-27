@@ -144,7 +144,7 @@
       side="left"
       overlay
       behavior="mobile"
-      width="250"
+      :width="250"
     >
       <q-list>
         <q-item-label header>Navigation</q-item-label>
@@ -175,7 +175,7 @@
       side="right"
       overlay
       behavior="mobile"
-      width="250"
+      :width="250"
     >
       <q-list>
         <q-item>

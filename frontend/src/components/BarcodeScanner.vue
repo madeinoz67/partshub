@@ -1,8 +1,8 @@
 <template>
   <div class="barcode-scanner">
     <!-- Scanner Dialog -->
-    <q-dialog v-model="showScanner" persistent>
-      <q-card style="width: 600px; max-width: 90vw;">
+    <q-dialog v-model="showScanner" persistent position="right">
+      <q-card style="width: 400px; max-width: 50vw; height: 100vh; max-height: 100vh;" class="scanner-card">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Barcode Scanner</div>
           <q-space />
@@ -12,12 +12,13 @@
         <q-card-section>
           <div class="scanner-container">
             <!-- Camera Feed -->
-            <div v-if="cameraActive" class="camera-wrapper">
+            <div v-if="showScanner" class="camera-wrapper">
               <video
                 ref="videoElement"
                 autoplay
                 playsinline
                 class="camera-video"
+                :style="{ display: cameraActive ? 'block' : 'none' }"
               ></video>
               <canvas
                 ref="canvasElement"
@@ -281,9 +282,12 @@ onMounted(() => {
       barcodeDetector = new (window as any).BarcodeDetector({
         formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix']
       })
+      console.log('✅ BarcodeDetector initialized successfully')
     } catch (error) {
-      console.warn('BarcodeDetector not supported:', error)
+      console.warn('❌ BarcodeDetector not supported:', error)
     }
+  } else {
+    console.warn('❌ BarcodeDetector API not available in this browser')
   }
 
   if (props.autoStart) {
@@ -295,9 +299,14 @@ onUnmounted(() => {
   stopScanning()
 })
 
-function startScanning() {
+async function startScanning() {
   showScanner.value = true
   clearResult()
+
+  // Wait for dialog to render before starting camera
+  await nextTick()
+  await new Promise(resolve => setTimeout(resolve, 500))
+
   startCamera()
 }
 
@@ -329,8 +338,19 @@ async function startCamera() {
 
     await nextTick()
 
-    // Small delay to ensure video element is fully rendered
-    await new Promise(resolve => setTimeout(resolve, 100))
+    // Wait for dialog and video element to be fully rendered
+    let retries = 0
+    while (!videoElement.value && retries < 10) {
+      console.log(`⏳ Waiting for video element... attempt ${retries + 1}/10`)
+      await new Promise(resolve => setTimeout(resolve, 100))
+      retries++
+    }
+
+    if (!videoElement.value) {
+      console.error('❌ Video element still not found after retries')
+    } else {
+      console.log('✅ Video element found after', retries, 'retries')
+    }
 
     if (videoElement.value) {
       console.log('Setting video srcObject...', mediaStream)
@@ -564,11 +584,19 @@ async function copyToClipboard(text: string) {
 </script>
 
 <style scoped>
+.scanner-card {
+  display: flex;
+  flex-direction: column;
+}
+
 .scanner-container {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: 350px;
   margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .camera-wrapper {
