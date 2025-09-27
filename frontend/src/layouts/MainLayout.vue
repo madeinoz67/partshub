@@ -2,17 +2,29 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
+        <!-- Mobile menu button -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+        />
+
         <q-toolbar-title>
           <div class="cursor-pointer" @click="$router.push('/components')">
             <q-avatar>
               <q-icon name="inventory" />
             </q-avatar>
-            PartsHub
+            <span class="q-ml-sm">PartsHub</span>
           </div>
         </q-toolbar-title>
 
-        <!-- Top Navigation Links -->
+        <!-- Desktop Navigation Links -->
         <q-tabs
+          v-if="$q.screen.gt.sm"
           v-model="currentTab"
           align="center"
           class="q-mx-lg"
@@ -29,8 +41,8 @@
 
         <q-space />
 
-        <!-- User menu for authenticated users -->
-        <div class="q-mr-md" v-if="authStore.isAuthenticated">
+        <!-- Desktop User menu for authenticated users -->
+        <div class="q-mr-md" v-if="authStore.isAuthenticated && $q.screen.gt.sm">
           <q-btn-dropdown
             flat
             :label="authStore.user?.username || 'User'"
@@ -86,8 +98,19 @@
           </q-btn-dropdown>
         </div>
 
-        <!-- Login button for anonymous users -->
-        <div class="q-mr-md" v-else>
+        <!-- Mobile User menu - just icon -->
+        <div v-else-if="authStore.isAuthenticated" class="q-mr-sm">
+          <q-btn
+            flat
+            round
+            dense
+            icon="person"
+            @click="rightDrawerOpen = !rightDrawerOpen"
+          />
+        </div>
+
+        <!-- Desktop Login button for anonymous users -->
+        <div class="q-mr-md" v-if="!authStore.isAuthenticated && $q.screen.gt.sm">
           <q-btn
             flat
             icon="login"
@@ -96,9 +119,111 @@
           />
         </div>
 
-        <div class="text-caption">v1.0.0</div>
+        <!-- Mobile Login button - just icon -->
+        <div v-else-if="!authStore.isAuthenticated" class="q-mr-sm">
+          <q-btn
+            flat
+            round
+            dense
+            icon="login"
+            @click="$router.push('/login')"
+          />
+        </div>
+
+        <!-- Version - hide on mobile -->
+        <div class="text-caption" v-if="$q.screen.gt.xs">v1.0.0</div>
       </q-toolbar>
     </q-header>
+
+    <!-- Mobile Left Drawer for Navigation -->
+    <q-drawer
+      v-if="$q.screen.lt.md"
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      side="left"
+      overlay
+      behavior="mobile"
+      width="250"
+    >
+      <q-list>
+        <q-item-label header>Navigation</q-item-label>
+
+        <q-item
+          v-for="link in visibleLinks"
+          :key="link.title"
+          clickable
+          v-ripple
+          @click="navigateAndCloseDrawer(link.link)"
+          :active="currentTab === link.link"
+        >
+          <q-item-section avatar>
+            <q-icon :name="link.icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ link.title }}</q-item-label>
+            <q-item-label caption>{{ link.caption }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-drawer>
+
+    <!-- Mobile Right Drawer for User Menu -->
+    <q-drawer
+      v-if="$q.screen.lt.md && authStore.isAuthenticated"
+      v-model="rightDrawerOpen"
+      side="right"
+      overlay
+      behavior="mobile"
+      width="250"
+    >
+      <q-list>
+        <q-item>
+          <q-item-section>
+            <q-item-label>{{ authStore.user?.full_name || authStore.user?.username }}</q-item-label>
+            <q-item-label caption>
+              {{ authStore.isAdmin ? 'Administrator' : 'User' }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator />
+
+        <q-item
+          clickable
+          v-ripple
+          @click="showPasswordChangeDialog = true; rightDrawerOpen = false"
+        >
+          <q-item-section avatar>
+            <q-icon name="lock" />
+          </q-item-section>
+          <q-item-section>Change Password</q-item-section>
+        </q-item>
+
+        <q-item
+          v-if="authStore.isAdmin"
+          clickable
+          v-ripple
+          @click="navigateAndCloseDrawer('/admin')"
+        >
+          <q-item-section avatar>
+            <q-icon name="admin_panel_settings" />
+          </q-item-section>
+          <q-item-section>Admin Panel</q-item-section>
+        </q-item>
+
+        <q-item
+          clickable
+          v-ripple
+          @click="logout; rightDrawerOpen = false"
+        >
+          <q-item-section avatar>
+            <q-icon name="logout" />
+          </q-item-section>
+          <q-item-section>Logout</q-item-section>
+        </q-item>
+      </q-list>
+    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -130,8 +255,10 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
-// Password change dialog state
+// Dialog and drawer state
 const showPasswordChangeDialog = ref(false)
+const leftDrawerOpen = ref(false)
+const rightDrawerOpen = ref(false)
 
 const essentialLinks: EssentialLink[] = [
   {
@@ -174,6 +301,12 @@ async function logout() {
 
 const onPasswordChanged = () => {
   showPasswordChangeDialog.value = false
+}
+
+const navigateAndCloseDrawer = (path: string) => {
+  router.push(path)
+  leftDrawerOpen.value = false
+  rightDrawerOpen.value = false
 }
 
 // Initialize auth store and check for password change requirement
