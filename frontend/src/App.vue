@@ -48,4 +48,42 @@ body {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   }
 }
+
+// Global button styles
+.add-button {
+  // Standard sizing to match Quasar default
+  min-height: 32px;
+  padding: 8px 16px;
+
+  // Responsive text behavior
+  .add-text-full {
+    display: inline;
+  }
+
+  .add-text-short {
+    display: none;
+  }
+
+  // Mobile responsive
+  @media (max-width: 599px) {
+    .add-text-full {
+      display: none;
+    }
+
+    .add-text-short {
+      display: inline;
+    }
+  }
+}
+
+// Primary add button variant
+.add-button-primary {
+  @extend .add-button;
+  background-color: #1976d2;
+  color: white;
+
+  &:hover {
+    background-color: #1565c0;
+  }
+}
 </style>

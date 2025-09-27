@@ -55,12 +55,12 @@
 
             <div class="col-md-1 col-xs-12">
               <q-btn
-                color="primary"
+                class="add-button-primary"
                 icon="add"
-                dense
                 @click="showCreateDialog = true"
               >
-                New Project
+                <span class="add-text-full">New Project</span>
+                <span class="add-text-short">New</span>
               </q-btn>
             </div>
 

@@ -3,7 +3,7 @@
     <!-- Header with search and filters -->
     <q-card class="q-mb-sm">
       <q-card-section class="q-pa-sm">
-        <div class="row q-gutter-md items-center">
+        <div class="row q-gutter-sm items-center">
           <div class="col-md-4 col-xs-12">
             <q-input
               v-model="searchQuery"
@@ -39,7 +39,7 @@
             </q-input>
           </div>
 
-          <div class="col-md-2 col-xs-12">
+          <div class="col-md-2 col-xs-6">
             <q-select
               v-model="selectedCategory"
               outlined
@@ -53,22 +53,22 @@
             />
           </div>
 
-          <div class="col-md-1 col-xs-12" v-if="canPerformCrud()">
+          <div class="col-md-1 col-xs-6" v-if="canPerformCrud()">
             <q-btn
-              color="primary"
+              class="add-button-primary"
               icon="add"
-              dense
               @click="$emit('create-component')"
             >
-              Add Component
+              <span class="add-text-full">Add Component</span>
+              <span class="add-text-short">Add</span>
             </q-btn>
           </div>
         </div>
       </q-card-section>
     </q-card>
 
-    <!-- Statistics Cards - Desktop -->
-    <div class="row q-gutter-xs q-mb-sm no-wrap gt-sm">
+    <!-- Statistics Cards -->
+    <div class="row q-gutter-xs q-mb-md no-wrap" style="margin-top: 8px;">
       <div class="col">
         <q-card
           class="mini-stats clickable-metric"
@@ -122,28 +122,6 @@
       </div>
     </div>
 
-    <!-- Stock Filter Dropdown - Mobile -->
-    <div class="row q-mb-sm lt-md">
-      <div class="col-12">
-        <q-select
-          :model-value="activeFilter"
-          :options="stockDropdownOptions"
-          option-label="label"
-          option-value="value"
-          emit-value
-          map-options
-          label="Filter by Stock Status"
-          outlined
-          dense
-          clearable
-          @update:model-value="onStockFilterChange"
-        >
-          <template v-slot:prepend>
-            <q-icon name="filter_list" />
-          </template>
-        </q-select>
-      </div>
-    </div>
 
     <!-- Loading state -->
     <q-inner-loading :showing="loading">
@@ -796,6 +774,143 @@
         </q-tr>
       </template>
 
+
+      <!-- Custom grid template for mobile -->
+      <template v-slot:item="props">
+        <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
+          <q-card>
+            <q-card-section>
+              <div class="row items-center no-wrap">
+                <div class="col">
+                  <div class="text-weight-medium">{{ props.row.name }}</div>
+                  <div v-if="props.row.part_number" class="text-caption text-grey">
+                    PN: {{ props.row.part_number }}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <q-chip
+                    :color="getStockStatusColor(props.row)"
+                    text-color="white"
+                    :label="props.row.quantity_on_hand"
+                    size="sm"
+                  />
+                </div>
+              </div>
+
+              <!-- Component details -->
+              <div class="q-mt-sm">
+                <div v-if="props.row.value || props.row.component_type" class="q-mb-xs">
+                  <div v-if="props.row.value" class="text-body2">
+                    <strong>Value:</strong> {{ props.row.value }}
+                  </div>
+                  <div v-if="props.row.component_type" class="text-caption text-grey">
+                    Type: {{ props.row.component_type }}
+                  </div>
+                </div>
+
+                <div v-if="props.row.manufacturer" class="q-mb-xs">
+                  <div class="text-caption text-grey-6">Manufacturer</div>
+                  <div class="text-body2">{{ props.row.manufacturer }}</div>
+                </div>
+
+                <div v-if="props.row.category" class="q-mb-xs">
+                  <div class="text-caption text-grey-6">Category</div>
+                  <q-chip
+                    outline
+                    color="primary"
+                    :label="props.row.category.name"
+                    size="sm"
+                  />
+                </div>
+
+                <div v-if="props.row.storage_location" class="q-mb-xs">
+                  <div class="text-caption text-grey-6">Location</div>
+                  <q-chip
+                    outline
+                    :label="props.row.storage_location.name"
+                    size="sm"
+                  />
+                  <div class="text-caption text-grey">
+                    {{ props.row.storage_location.location_hierarchy }}
+                  </div>
+                </div>
+
+                <!-- Stock info -->
+                <div class="q-mb-xs">
+                  <div class="text-caption text-grey-6">Stock Status</div>
+                  <div class="text-body2">
+                    <strong>On Hand:</strong> {{ props.row.quantity_on_hand }}
+                    <span class="text-grey-6 q-ml-sm">Min: {{ props.row.minimum_stock }}</span>
+                  </div>
+                </div>
+
+                <!-- File attachments indicator -->
+                <div v-if="props.row.attachments?.length" class="q-mb-xs">
+                  <div class="text-caption text-grey-6">Files</div>
+                  <div class="row q-gutter-xs">
+                    <q-icon
+                      v-for="attachment in getAttachmentIcons(props.row.attachments)"
+                      :key="attachment.type"
+                      :name="attachment.icon"
+                      :color="attachment.color"
+                      size="sm"
+                      :title="attachment.tooltip"
+                    />
+                  </div>
+                </div>
+
+                <!-- Last updated -->
+                <div class="text-caption text-grey">
+                  Updated: {{ new Date(props.row.updated_at).toLocaleDateString() }}
+                </div>
+              </div>
+            </q-card-section>
+
+            <!-- Actions section -->
+            <q-card-actions align="right">
+              <q-btn
+                flat
+                dense
+                icon="visibility"
+                color="primary"
+                @click="$emit('view-component', props.row)"
+              >
+                <q-tooltip>View Details</q-tooltip>
+              </q-btn>
+              <q-btn
+                v-if="canPerformCrud()"
+                flat
+                dense
+                icon="edit"
+                color="secondary"
+                @click="$emit('edit-component', props.row)"
+              >
+                <q-tooltip>Edit</q-tooltip>
+              </q-btn>
+              <q-btn
+                v-if="canPerformCrud()"
+                flat
+                dense
+                icon="inventory"
+                color="accent"
+                @click="$emit('update-stock', props.row)"
+              >
+                <q-tooltip>Update Stock</q-tooltip>
+              </q-btn>
+              <q-btn
+                v-if="canPerformCrud()"
+                flat
+                dense
+                icon="delete"
+                color="negative"
+                @click="$emit('delete-component', props.row)"
+              >
+                <q-tooltip>Delete</q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+      </template>
 
       <!-- No data message -->
       <template v-slot:no-data="{ message }">
@@ -1456,6 +1571,27 @@ onMounted(() => {
   overflow-x: auto;
 }
 
+/* Mobile layout spacing fixes */
+@media (max-width: 599px) {
+  .mini-stats {
+    margin: 2px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  .mini-stats .q-card__section {
+    padding: 4px 8px !important;
+  }
+
+  .mini-stats .text-subtitle2 {
+    font-size: 0.9rem !important;
+  }
+
+  .mini-stats .text-overline {
+    font-size: 0.65rem !important;
+  }
+}
+
 /* Mobile responsive adjustments */
 @media (max-width: 599px) {
   .responsive-table :deep(.q-table__container) {
@@ -1489,6 +1625,25 @@ onMounted(() => {
   .responsive-table :deep(.q-th:first-child) {
     min-width: 120px;
   }
+}
+
+/* Grid mode card styling */
+.compact-table :deep(.q-table__grid-content) {
+  flex-wrap: wrap;
+}
+
+.compact-table :deep(.q-table__grid-item) {
+  padding: 4px;
+}
+
+.compact-table :deep(.q-table__grid-item .q-card) {
+  height: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.compact-table :deep(.q-table__grid-item .q-card:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Tablet adjustments */
