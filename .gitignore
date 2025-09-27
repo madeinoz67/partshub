@@ -204,6 +204,9 @@ temp/
 build/
 dist/
 
+# Documentation build
+site/
+
 # Development
 .env.development
 .env.production
@@ -216,5 +219,6 @@ dist/
 # KiCad export files (if generated during development)
 *.zip
 exports/
-.claude/settings.local.json
+
+*/settings.local.json
 

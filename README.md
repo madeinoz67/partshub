@@ -58,17 +58,40 @@ A modern, web-based inventory management system designed specifically for electr
 
 ### Installation
 
+#### Option 1: Using Makefile (Recommended)
 ```bash
+# Install all dependencies
+make install
+
+# Start all development servers
+make dev
+```
+
+#### Option 2: Manual Setup
+```bash
+# Install Python dependencies (from project root)
+uv sync --extra dev --extra docs
+
 # Backend
 cd backend
-uv sync
-uv run alembic upgrade head
-uv run python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+uv run --project .. alembic upgrade head
+uv run --project .. python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Frontend (in new terminal)
-cd ../frontend
+cd frontend
 npm install
 npm run dev
+```
+
+#### Available Make Commands
+```bash
+make help          # Show all available commands
+make install       # Install all dependencies
+make dev           # Start all development servers
+make test          # Run all tests
+make build         # Build all components
+make docs          # Start documentation server
+make clean         # Clean build artifacts
 ```
 
 ### First Login
@@ -94,7 +117,10 @@ npm run dev
 
 ```
 partshub/
-├── backend/           # FastAPI backend application
+├── pyproject.toml     # Consolidated Python project configuration
+├── uv.lock           # Dependency lock file
+├── Makefile          # Development workflow commands
+├── backend/          # FastAPI backend application
 │   ├── src/          # Application source code
 │   ├── migrations/   # Database migrations
 │   └── tests/        # Backend tests

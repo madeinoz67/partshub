@@ -10,13 +10,12 @@ WORKDIR /app
 # Install Python uv (bypass externally managed environment)
 RUN pip3 install uv --break-system-packages
 
-# Copy and install backend dependencies
-COPY backend/pyproject.toml backend/uv.lock* ./backend/
-WORKDIR /app/backend
+# Copy and install Python dependencies (consolidated)
+COPY pyproject.toml uv.lock* ./
 RUN uv pip install --system --break-system-packages -r pyproject.toml
 
 # Copy backend source
-COPY backend/ ./
+COPY backend/ ./backend/
 
 # Switch to frontend directory and install dependencies
 WORKDIR /app/frontend

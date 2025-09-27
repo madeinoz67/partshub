@@ -1,25 +1,41 @@
 # partshub Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2025-09-25
+Auto-generated from all feature plans. Last updated: 2025-09-27
 
 ## Active Technologies
-- (001-mvp-electronic-parts)
+- Python 3.11+ with FastAPI backend
+- Vue.js 3 with Quasar Framework frontend
+- SQLite database with SQLAlchemy ORM
+- UV for Python package management
+- Consolidated pyproject.toml structure
 
 ## Project Structure
 ```
-backend/
-frontend/
-tests/
+pyproject.toml     # Consolidated Python dependencies and configuration
+backend/           # FastAPI backend with src/models/, src/api/, src/services/
+frontend/          # Vue.js frontend with components/, pages/, services/
+docs/              # MkDocs documentation
+Makefile           # Development workflow commands
 ```
 
 ## Commands
-# Add commands for 
+```bash
+make install       # Install all dependencies (Python + Node.js)
+make dev          # Start backend + frontend + docs servers
+make test         # Run backend tests with pytest
+make lint         # Run ruff on backend code
+make docs         # Start documentation server
+```
 
 ## Code Style
-: Follow standard conventions
+- Use `uv run` commands from project root for Python tools
+- Backend commands: `cd backend && uv run --project .. <command>`
+- Follow ruff and black formatting standards
+- Use consolidated dependency management
 
 ## Recent Changes
-- 001-mvp-electronic-parts: Added
+- 2025-09-27: Consolidated pyproject.toml structure for unified version management
+- 001-mvp-electronic-parts: Core MVP implementation completed (~98%)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

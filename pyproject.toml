@@ -3,15 +3,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "partshub-backend"
+name = "partshub"
 version = "0.1.0"
-description = "Electronic parts inventory management system backend"
+description = "Electronic parts inventory management system"
 authors = [
     {name = "PartsHub Team"}
 ]
-readme = {text = "PartsHub Backend - Electronic parts inventory management system", content-type = "text/plain"}
+readme = {text = "PartsHub - Electronic parts inventory management system", content-type = "text/plain"}
 requires-python = ">=3.11"
 dependencies = [
+    # Core backend dependencies
     "fastapi==0.104.1",
     "uvicorn[standard]==0.24.0",
     "sqlalchemy==2.0.23",
@@ -33,6 +34,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+docs = [
+    "mkdocs-material>=9.4.0",
+]
 dev = [
     "pytest==7.4.3",
     "pytest-asyncio==0.21.1",
@@ -48,6 +52,7 @@ target-version = "py311"
 line-length = 88
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501"]
+extend-exclude = ["frontend/", "site/", "docs/"]
 
 [tool.black]
 target-version = ['py311']
@@ -60,10 +65,10 @@ warn_return_any = true
 warn_unused_configs = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["backend/src"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["backend/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -73,3 +78,6 @@ markers = [
     "integration: Integration tests",
     "contract: Contract tests",
 ]
+
+[tool.uv]
+dev-dependencies = []
