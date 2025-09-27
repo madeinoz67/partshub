@@ -13,6 +13,14 @@ from .base_provider import ComponentDataProvider, ComponentSearchResult
 
 logger = logging.getLogger(__name__)
 
+# Import EasyEDA service for KiCad conversion
+try:
+    from ..services.easyeda_service import EasyEDAService
+    EASYEDA_SERVICE_AVAILABLE = True
+except ImportError:
+    EASYEDA_SERVICE_AVAILABLE = False
+    logger.warning("EasyEDA service not available for LCSC provider")
+
 
 class LCSCProvider(ComponentDataProvider):
     """LCSC component data provider"""
@@ -21,6 +29,9 @@ class LCSCProvider(ComponentDataProvider):
         super().__init__("LCSC", api_key)
         self.base_url = "https://wmsc.lcsc.com/wmsc"
         self.rate_limit_delay = 0.5  # LCSC allows higher rates
+
+        # Initialize EasyEDA service for KiCad data
+        self.easyeda_service = EasyEDAService() if EASYEDA_SERVICE_AVAILABLE else None
 
     async def search_components(self, query: str, limit: int = 10) -> List[ComponentSearchResult]:
         """
@@ -345,3 +356,141 @@ class LCSCProvider(ComponentDataProvider):
             )
             for i in range(min(limit, 3))
         ]
+
+    async def get_easyeda_data(self, lcsc_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get EasyEDA component data for KiCad conversion.
+
+        Args:
+            lcsc_id: LCSC component ID (e.g., "C123456")
+
+        Returns:
+            EasyEDA component data or None if not available
+        """
+        if not self.easyeda_service:
+            logger.warning("EasyEDA service not available for component data")
+            return None
+
+        try:
+            # Clean LCSC ID format
+            clean_lcsc_id = lcsc_id.upper()
+            if not clean_lcsc_id.startswith('C'):
+                clean_lcsc_id = f"C{clean_lcsc_id}"
+
+            logger.info(f"Fetching EasyEDA data for LCSC component: {clean_lcsc_id}")
+
+            # Get EasyEDA component information
+            easyeda_info = await self.easyeda_service.get_easyeda_component_info(clean_lcsc_id)
+
+            if easyeda_info:
+                logger.info(f"Successfully retrieved EasyEDA data for {clean_lcsc_id}")
+                return easyeda_info
+            else:
+                logger.info(f"No EasyEDA data found for {clean_lcsc_id}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Failed to get EasyEDA data for {lcsc_id}: {e}")
+            return None
+
+    async def convert_to_kicad(self, lcsc_id: str, output_dir: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Convert LCSC component to KiCad format using EasyEDA data.
+
+        Args:
+            lcsc_id: LCSC component ID (e.g., "C123456")
+            output_dir: Directory to save converted files (optional)
+
+        Returns:
+            Conversion results or None if failed
+        """
+        if not self.easyeda_service:
+            logger.warning("EasyEDA service not available for KiCad conversion")
+            return None
+
+        try:
+            # Clean LCSC ID format
+            clean_lcsc_id = lcsc_id.upper()
+            if not clean_lcsc_id.startswith('C'):
+                clean_lcsc_id = f"C{clean_lcsc_id}"
+
+            logger.info(f"Converting LCSC component to KiCad: {clean_lcsc_id}")
+
+            # Convert using EasyEDA service
+            conversion_result = await self.easyeda_service.convert_lcsc_component(
+                clean_lcsc_id, output_dir
+            )
+
+            if conversion_result:
+                logger.info(f"Successfully converted {clean_lcsc_id} to KiCad format")
+                return conversion_result
+            else:
+                logger.info(f"No conversion possible for {clean_lcsc_id}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Failed to convert {lcsc_id} to KiCad: {e}")
+            return None
+
+    def get_provider_info(self) -> Dict[str, Any]:
+        """
+        Get provider information and capabilities including EasyEDA support.
+
+        Returns:
+            Dictionary with provider details
+        """
+        base_info = super().get_provider_info()
+
+        # Add EasyEDA capability information
+        base_info.update({
+            "supports_easyeda": EASYEDA_SERVICE_AVAILABLE and self.easyeda_service is not None,
+            "supports_kicad_conversion": EASYEDA_SERVICE_AVAILABLE and self.easyeda_service is not None,
+            "easyeda_service_status": self.easyeda_service.get_conversion_status() if self.easyeda_service else None
+        })
+
+        return base_info
+
+    async def get_component_with_kicad_data(
+        self,
+        lcsc_id: str,
+        include_conversion: bool = False
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Get component details with EasyEDA/KiCad data.
+
+        Args:
+            lcsc_id: LCSC component ID
+            include_conversion: Whether to include converted KiCad files
+
+        Returns:
+            Component data with KiCad information
+        """
+        try:
+            # Get basic component details
+            component = await self.search_by_provider_sku(lcsc_id)
+            if not component:
+                logger.info(f"Component {lcsc_id} not found")
+                return None
+
+            result = {
+                'component': component,
+                'easyeda_data': None,
+                'kicad_conversion': None
+            }
+
+            # Get EasyEDA data
+            easyeda_data = await self.get_easyeda_data(lcsc_id)
+            if easyeda_data:
+                result['easyeda_data'] = easyeda_data
+
+                # Optionally include KiCad conversion
+                if include_conversion:
+                    conversion_result = await self.convert_to_kicad(lcsc_id)
+                    if conversion_result:
+                        result['kicad_conversion'] = conversion_result
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Failed to get component with KiCad data for {lcsc_id}: {e}")
+            return None

@@ -29,6 +29,7 @@ dependencies = [
     "faker==22.0.0",
     "email-validator>=2.3.0",
     "python-magic>=0.4.27",
+    "easyeda2kicad>=0.8.0",
 ]
 
 [project.optional-dependencies]

@@ -155,12 +155,12 @@ This task list implements a comprehensive electronic parts inventory management 
 - [x] T081 [P] AdminPage with system settings in frontend/src/pages/AdminPage.vue
 
 ### KiCad Visualization Enhancement (Phase 3.6.5)
-- [ ] T137 [P] Create KiCadSymbolViewer component for displaying component symbols in frontend/src/components/KiCadSymbolViewer.vue
-- [ ] T138 [P] Create KiCadFootprintViewer component for displaying footprint graphics in frontend/src/components/KiCadFootprintViewer.vue
-- [ ] T139 [P] Add KiCad tab to ComponentDetail with symbol and footprint visualization
-- [ ] T140 [P] Implement SVG rendering for KiCad symbol graphics with pin layouts and properties
-- [ ] T141 [P] Implement footprint pad layout visualization with dimensions and drill information
-- [ ] T142 [P] Add KiCad data availability indicators and fallback messages for components without KiCad data
+- [x] T137 [P] Create KiCadSymbolViewer component for displaying component symbols in frontend/src/components/KiCadSymbolViewer.vue
+- [x] T138 [P] Create KiCadFootprintViewer component for displaying footprint graphics in frontend/src/components/KiCadFootprintViewer.vue
+- [x] T139 [P] Add KiCad tab to ComponentDetail with symbol and footprint visualization
+- [x] T140 [P] Implement SVG rendering for KiCad symbol graphics with pin layouts and properties
+- [x] T141 [P] Implement footprint pad layout visualization with dimensions and drill information
+- [x] T142 [P] Add KiCad data availability indicators and fallback messages for components without KiCad data
 
 ### KiCad Custom Symbol/Footprint Management (Phase 3.6.6)
 - [ ] T143 [P] Extend KiCadData model to support custom symbol/footprint file storage with source tracking

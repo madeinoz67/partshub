@@ -5,8 +5,16 @@ ComponentService with CRUD and search operations for components.
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import and_, or_, func, desc
-from ..models import Component, StockTransaction, TransactionType, Category, StorageLocation, Tag, ComponentLocation
+from ..models import Component, StockTransaction, TransactionType, Category, StorageLocation, Tag, ComponentLocation, KiCadLibraryData
 import uuid
+
+# Import EasyEDA service for LCSC KiCad conversion
+try:
+    from .easyeda_service import EasyEDAService
+    from ..providers.lcsc_provider import LCSCProvider
+    EASYEDA_INTEGRATION_AVAILABLE = True
+except ImportError:
+    EASYEDA_INTEGRATION_AVAILABLE = False
 
 
 class ComponentService:
@@ -49,7 +57,319 @@ class ComponentService:
             self.db.add(initial_transaction)
             self.db.commit()
 
+        # Auto-generate KiCad data for imported components
+        if component_data.get("import_source") == "external_provider":
+            self._auto_generate_kicad_data(component)
+
         return component
+
+    def _auto_generate_kicad_data(self, component: Component) -> Optional[KiCadLibraryData]:
+        """
+        Automatically generate KiCad data for a component if it has sufficient information.
+
+        Args:
+            component: Component instance to generate KiCad data for
+
+        Returns:
+            KiCadLibraryData instance if generated, None otherwise
+        """
+        # Check if component has part number or manufacturer part number
+        if not (component.part_number or component.manufacturer_part_number):
+            return None
+
+        # Check if KiCad data already exists
+        existing_kicad_data = self.db.query(KiCadLibraryData).filter_by(component_id=component.id).first()
+        if existing_kicad_data:
+            return existing_kicad_data
+
+        try:
+            # Note: EasyEDA conversion removed from auto-generation due to async requirements
+            # EasyEDA conversion will be handled via API endpoints for on-demand conversion
+
+            # Generate basic KiCad data
+            kicad_data = self._generate_provider_kicad_data(component)
+
+            if kicad_data:
+                self.db.add(kicad_data)
+                self.db.commit()
+                return kicad_data
+
+        except Exception as e:
+            # Log error but don't fail component creation
+            print(f"Failed to auto-generate KiCad data for component {component.id}: {e}")
+
+        return None
+
+    async def _try_easyeda_conversion(self, component: Component) -> Optional[KiCadLibraryData]:
+        """
+        Try to convert component using EasyEDA for LCSC components.
+
+        Args:
+            component: Component to convert
+
+        Returns:
+            KiCadLibraryData instance with converted files or None
+        """
+        if not EASYEDA_INTEGRATION_AVAILABLE:
+            return None
+
+        # Check if this is an LCSC component
+        lcsc_id = self._extract_lcsc_id(component)
+        if not lcsc_id:
+            return None
+
+        try:
+            # Initialize EasyEDA service
+            easyeda_service = EasyEDAService()
+
+            # Convert component using EasyEDA
+            # Note: This would require an async context, so it's commented out for now
+            # conversion_result = await easyeda_service.convert_lcsc_component(lcsc_id)
+            return None  # Temporarily disabled until proper async handling is implemented
+
+            if not conversion_result or 'conversions' not in conversion_result:
+                return None
+
+            # Create KiCad data from conversion results
+            kicad_data = KiCadLibraryData(component_id=component.id)
+
+            conversions = conversion_result['conversions']
+
+            # Set symbol data if available
+            if 'symbol' in conversions:
+                symbol_info = conversions['symbol']
+                kicad_data.custom_symbol_file_path = symbol_info.get('file_path')
+                kicad_data.symbol_library = symbol_info.get('library_name', 'EasyEDA_Symbols')
+                kicad_data.symbol_name = symbol_info.get('symbol_name', component.name or 'EasyEDA_Component')
+                kicad_data.symbol_source = kicad_data.symbol_source.PROVIDER
+                kicad_data.symbol_updated_at = kicad_data.symbol_updated_at
+
+            # Set footprint data if available
+            if 'footprint' in conversions:
+                footprint_info = conversions['footprint']
+                kicad_data.custom_footprint_file_path = footprint_info.get('file_path')
+                kicad_data.footprint_library = footprint_info.get('library_name', 'EasyEDA_Footprints')
+                kicad_data.footprint_name = footprint_info.get('footprint_name', component.name or 'EasyEDA_Component')
+                kicad_data.footprint_source = kicad_data.footprint_source.PROVIDER
+                kicad_data.footprint_updated_at = kicad_data.footprint_updated_at
+
+            # Set 3D model data if available
+            if 'model_3d' in conversions:
+                model_info = conversions['model_3d']
+                kicad_data.custom_3d_model_file_path = model_info.get('file_path')
+                kicad_data.model_3d_path = model_info.get('file_path')
+                kicad_data.model_3d_source = kicad_data.model_3d_source.PROVIDER
+                kicad_data.model_3d_updated_at = kicad_data.model_3d_updated_at
+
+            # Set provider data using the set_provider_data method
+            kicad_data.set_provider_data(
+                symbol_lib=kicad_data.symbol_library,
+                symbol_name=kicad_data.symbol_name,
+                footprint_lib=kicad_data.footprint_library,
+                footprint_name=kicad_data.footprint_name,
+                model_3d_path=kicad_data.model_3d_path
+            )
+
+            print(f"Successfully converted LCSC component {lcsc_id} using EasyEDA")
+            return kicad_data
+
+        except Exception as e:
+            print(f"EasyEDA conversion failed for {lcsc_id}: {e}")
+            return None
+
+    def _extract_lcsc_id(self, component: Component) -> Optional[str]:
+        """
+        Extract LCSC component ID from component data.
+
+        Args:
+            component: Component to check
+
+        Returns:
+            LCSC ID string or None if not found
+        """
+        # Check provider info for LCSC ID
+        provider_info = getattr(component, 'provider_info', {})
+        if isinstance(provider_info, dict):
+            provider_id = provider_info.get('provider_id', '')
+            if provider_id and provider_id.startswith('LCSC-C'):
+                return provider_id.replace('LCSC-', '')
+
+        # Check part numbers for LCSC format
+        for field in ['part_number', 'manufacturer_part_number', 'provider_sku']:
+            value = getattr(component, field, '')
+            if value and isinstance(value, str):
+                value = value.upper().strip()
+                if value.startswith('C') and len(value) >= 6 and value[1:].isdigit():
+                    return value
+
+        # Check notes for LCSC ID
+        notes = getattr(component, 'notes', '')
+        if notes and 'LCSC:' in notes.upper():
+            import re
+            match = re.search(r'LCSC:\s*(C\d+)', notes.upper())
+            if match:
+                return match.group(1)
+
+        return None
+
+    def _generate_provider_kicad_data(self, component: Component) -> Optional[KiCadLibraryData]:
+        """
+        Generate KiCad data based on provider component information.
+
+        Args:
+            component: Component to generate KiCad data for
+
+        Returns:
+            KiCadLibraryData instance or None if generation failed
+        """
+        # Generate symbol library and name based on component type
+        symbol_library = self._determine_symbol_library(component)
+        symbol_name = self._determine_symbol_name(component)
+
+        # Generate footprint library and name based on package
+        footprint_library = self._determine_footprint_library(component)
+        footprint_name = self._determine_footprint_name(component)
+
+        # Create KiCad data with provider source
+        kicad_data = KiCadLibraryData(
+            component_id=component.id,
+            symbol_library=symbol_library,
+            symbol_name=symbol_name,
+            footprint_library=footprint_library,
+            footprint_name=footprint_name
+        )
+
+        # Set as provider data if we have any data from provider
+        if symbol_library and symbol_name:
+            kicad_data.set_provider_data(
+                symbol_lib=symbol_library,
+                symbol_name=symbol_name,
+                footprint_lib=footprint_library,
+                footprint_name=footprint_name
+            )
+
+        return kicad_data
+
+    def _determine_symbol_library(self, component: Component) -> Optional[str]:
+        """Determine appropriate symbol library based on component type."""
+        if not component.component_type:
+            return None
+
+        component_type = component.component_type.lower()
+
+        # Map component types to symbol libraries
+        symbol_library_map = {
+            'resistor': 'Device',
+            'capacitor': 'Device',
+            'inductor': 'Device',
+            'diode': 'Diode',
+            'transistor': 'Transistor',
+            'ic': 'Analog',
+            'microcontroller': 'MCU',
+            'connector': 'Connector',
+            'crystal': 'Device',
+            'switch': 'Switch',
+            'relay': 'Relay'
+        }
+
+        for key, library in symbol_library_map.items():
+            if key in component_type:
+                return library
+
+        # Default fallback
+        return 'Device'
+
+    def _determine_symbol_name(self, component: Component) -> Optional[str]:
+        """Determine appropriate symbol name based on component characteristics."""
+        if not component.component_type:
+            return None
+
+        component_type = component.component_type.lower()
+
+        # Basic symbol mapping
+        if 'resistor' in component_type:
+            return 'R'
+        elif 'capacitor' in component_type:
+            return 'C'
+        elif 'inductor' in component_type:
+            return 'L'
+        elif 'diode' in component_type:
+            return 'D'
+        elif 'transistor' in component_type:
+            if 'npn' in component_type.lower():
+                return 'Q_NPN_BCE'
+            elif 'pnp' in component_type.lower():
+                return 'Q_PNP_BCE'
+            else:
+                return 'Q_NPN_BCE'  # Default
+
+        # For complex components, use manufacturer part number or generic name
+        if component.manufacturer_part_number:
+            return component.manufacturer_part_number.replace('-', '_').replace(' ', '_')
+        elif component.part_number:
+            return component.part_number.replace('-', '_').replace(' ', '_')
+
+        return 'Generic'
+
+    def _determine_footprint_library(self, component: Component) -> Optional[str]:
+        """Determine appropriate footprint library based on package."""
+        package = None
+
+        # Try to get package from component package field first
+        if component.package:
+            package = component.package.lower()
+        # Try to get package from specifications
+        elif component.specifications and 'package' in component.specifications:
+            package = str(component.specifications['package']).lower()
+        elif component.specifications and 'Package' in component.specifications:
+            package = str(component.specifications['Package']).lower()
+
+        if not package:
+            return None
+
+        # Map package types to footprint libraries
+        if any(term in package for term in ['0402', '0603', '0805', '1206', 'smd', 'chip']):
+            return 'Resistor_SMD'
+        elif any(term in package for term in ['sot', 'sc70', 'sot23']):
+            return 'Package_TO_SOT_SMD'
+        elif any(term in package for term in ['qfp', 'lqfp']):
+            return 'Package_QFP'
+        elif any(term in package for term in ['bga']):
+            return 'Package_BGA'
+        elif any(term in package for term in ['dip', 'pdip']):
+            return 'Package_DIP'
+        elif any(term in package for term in ['soic', 'so']):
+            return 'Package_SO'
+
+        # Default fallback
+        return 'Package_SMD'
+
+    def _determine_footprint_name(self, component: Component) -> Optional[str]:
+        """Determine appropriate footprint name based on package."""
+        package = None
+
+        # Try to get package from component package field first
+        if component.package:
+            package = component.package
+        # Try to get package from specifications
+        elif component.specifications and 'package' in component.specifications:
+            package = str(component.specifications['package'])
+        elif component.specifications and 'Package' in component.specifications:
+            package = str(component.specifications['Package'])
+
+        if not package:
+            return None
+
+        # Clean up package name for footprint
+        footprint_name = package.upper().replace(' ', '_').replace('-', '_')
+
+        # Add standard prefixes based on component type
+        if component.component_type:
+            component_type = component.component_type.lower()
+            if any(term in component_type for term in ['resistor', 'capacitor', 'inductor']):
+                return f"R_{footprint_name}"
+
+        return footprint_name
 
     def get_component(self, component_id: str) -> Optional[Component]:
         """Get a component by ID with all relationships loaded."""
@@ -60,6 +380,7 @@ class ComponentService:
                 selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
                 selectinload(Component.tags),
                 selectinload(Component.attachments),
+                selectinload(Component.kicad_data),
                 selectinload(Component.custom_field_values).selectinload(Component.custom_field_values.property.mapper.class_.field)
             )
             .filter(Component.id == component_id)

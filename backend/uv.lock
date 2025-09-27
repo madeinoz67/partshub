@@ -463,6 +463,19 @@ wheels = [
 ]
 
 [[package]]
+name = "easyeda2kicad"
+version = "0.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f1/78/fde265892294c733590a9089f37cc8ea1478b9c632d76c0a11b8f20fe6f3/easyeda2kicad-0.8.0.tar.gz", hash = "sha256:a781be6d1076f6e06886a4292373eb930c9921de4c709d6dd91bb6ea104f4a4b", size = 41934, upload-time = "2024-06-17T18:33:03.032Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/79/18/12bb560cfb0d8795f06057617f2df300a7a9c64fe1f7048c2662f26c5489/easyeda2kicad-0.8.0-py3-none-any.whl", hash = "sha256:9e13757f9bd93752064cb28b85d844113711c31b664cb1df1a60a9ae59599aa8", size = 43443, upload-time = "2024-06-17T18:32:56.562Z" },
+]
+
+[[package]]
 name = "ecdsa"
 version = "0.19.1"
 source = { registry = "https://pypi.org/simple" }
@@ -935,6 +948,7 @@ dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
     { name = "alembic" },
+    { name = "easyeda2kicad" },
     { name = "email-validator" },
     { name = "faker" },
     { name = "fastapi" },
@@ -968,6 +982,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.15" },
     { name = "alembic", specifier = "==1.12.1" },
     { name = "black", marker = "extra == 'dev'", specifier = "==23.11.0" },
+    { name = "easyeda2kicad", specifier = ">=0.8.0" },
     { name = "email-validator", specifier = ">=2.3.0" },
     { name = "faker", specifier = "==22.0.0" },
     { name = "fastapi", specifier = "==0.104.1" },

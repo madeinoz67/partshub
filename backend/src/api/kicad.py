@@ -4,16 +4,27 @@ Provides KiCad-specific endpoints for component search, symbol/footprint data, a
 """
 
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends, Query, Response, Header
+from fastapi import APIRouter, HTTPException, Depends, Query, Response, Header, UploadFile, File
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import uuid
+import os
+import shutil
+from pathlib import Path
 
 from ..database import get_db
 from ..services.kicad_service import KiCadExportService
 from ..services.kicad_library import KiCadLibraryManager
 from ..services.component_service import ComponentService
 from ..auth.dependencies import get_current_user, require_auth, require_auth_legacy
+
+# Import EasyEDA services
+try:
+    from ..services.easyeda_service import EasyEDAService
+    from ..providers.lcsc_provider import LCSCProvider
+    EASYEDA_API_AVAILABLE = True
+except ImportError:
+    EASYEDA_API_AVAILABLE = False
 
 router = APIRouter(prefix="/api/v1/kicad", tags=["kicad"])
 
@@ -417,3 +428,614 @@ def get_library_status(db: Session = Depends(get_db)):
 def get_kicad_field_mappings():
     """Get standard KiCad field mappings used by PartsHub."""
     return kicad_service.get_standard_field_mappings()
+
+
+# T144: Custom KiCad File Upload Endpoints
+# Configuration for custom file storage
+KICAD_CUSTOM_FILES_DIR = Path("custom_kicad_files")
+KICAD_CUSTOM_FILES_DIR.mkdir(exist_ok=True)
+
+
+def validate_kicad_file(file: UploadFile, expected_extension: str) -> bool:
+    """Validate KiCad file format and content."""
+    # Check file extension
+    if not file.filename.endswith(expected_extension):
+        return False
+
+    # Basic content validation - check for KiCad file signatures
+    try:
+        content = file.file.read(1024).decode('utf-8')
+        file.file.seek(0)  # Reset file pointer
+
+        if expected_extension == '.kicad_sym':
+            return '(kicad_symbol_lib' in content or '(symbol' in content
+        elif expected_extension == '.kicad_mod':
+            return '(footprint' in content or '(module' in content
+        elif expected_extension in ['.step', '.wrl', '.3dshapes']:
+            return True  # Basic validation for 3D models
+
+    except Exception:
+        return False
+
+    return True
+
+
+def save_custom_kicad_file(component_id: str, file: UploadFile, file_type: str) -> str:
+    """Save custom KiCad file and return the storage path."""
+    # Create component-specific directory
+    component_dir = KICAD_CUSTOM_FILES_DIR / component_id
+    component_dir.mkdir(exist_ok=True)
+
+    # Generate unique filename with timestamp
+    timestamp = str(int(uuid.uuid4().time_low))
+    file_extension = Path(file.filename).suffix
+    filename = f"{file_type}_{timestamp}{file_extension}"
+    file_path = component_dir / filename
+
+    # Save file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return str(file_path)
+
+
+class CustomFileUploadResponse(BaseModel):
+    """Response model for custom file uploads."""
+    success: bool
+    message: str
+    file_path: Optional[str] = None
+    source_info: Optional[Dict[str, Any]] = None
+
+
+@router.post("/components/{component_id}/upload-symbol", response_model=CustomFileUploadResponse)
+def upload_custom_symbol(
+    component_id: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Upload custom KiCad symbol file (.kicad_sym) for a component.
+
+    This will override any existing symbol data with custom user-provided symbol.
+    The custom symbol takes highest priority over provider or auto-generated symbols.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Validate file
+    if not validate_kicad_file(file, '.kicad_sym'):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid KiCad symbol file. Must be a .kicad_sym file with valid KiCad symbol format."
+        )
+
+    # Get component and ensure KiCad data exists
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component:
+        raise HTTPException(status_code=404, detail="Component not found")
+
+    # Ensure component has KiCad data record
+    if not component.kicad_data:
+        # Create new KiCad data record
+        from ..models.kicad_data import KiCadLibraryData
+        kicad_data = KiCadLibraryData(component_id=component_id)
+        db.add(kicad_data)
+        db.flush()
+        component.kicad_data = kicad_data
+
+    # Save custom file
+    try:
+        file_path = save_custom_kicad_file(component_id, file, "symbol")
+
+        # Update KiCad data with custom symbol
+        component.kicad_data.set_custom_symbol(file_path)
+        db.commit()
+
+        return CustomFileUploadResponse(
+            success=True,
+            message=f"Custom symbol uploaded successfully: {file.filename}",
+            file_path=file_path,
+            source_info=component.kicad_data.get_source_info()
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to upload symbol: {str(e)}")
+
+
+@router.post("/components/{component_id}/upload-footprint", response_model=CustomFileUploadResponse)
+def upload_custom_footprint(
+    component_id: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Upload custom KiCad footprint file (.kicad_mod) for a component.
+
+    This will override any existing footprint data with custom user-provided footprint.
+    The custom footprint takes highest priority over provider or auto-generated footprints.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Validate file
+    if not validate_kicad_file(file, '.kicad_mod'):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid KiCad footprint file. Must be a .kicad_mod file with valid KiCad footprint format."
+        )
+
+    # Get component and ensure KiCad data exists
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component:
+        raise HTTPException(status_code=404, detail="Component not found")
+
+    # Ensure component has KiCad data record
+    if not component.kicad_data:
+        # Create new KiCad data record
+        from ..models.kicad_data import KiCadLibraryData
+        kicad_data = KiCadLibraryData(component_id=component_id)
+        db.add(kicad_data)
+        db.flush()
+        component.kicad_data = kicad_data
+
+    # Save custom file
+    try:
+        file_path = save_custom_kicad_file(component_id, file, "footprint")
+
+        # Update KiCad data with custom footprint
+        component.kicad_data.set_custom_footprint(file_path)
+        db.commit()
+
+        return CustomFileUploadResponse(
+            success=True,
+            message=f"Custom footprint uploaded successfully: {file.filename}",
+            file_path=file_path,
+            source_info=component.kicad_data.get_source_info()
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to upload footprint: {str(e)}")
+
+
+@router.post("/components/{component_id}/upload-3d-model", response_model=CustomFileUploadResponse)
+def upload_custom_3d_model(
+    component_id: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Upload custom 3D model file (.step, .wrl, etc.) for a component.
+
+    This will override any existing 3D model data with custom user-provided model.
+    The custom 3D model takes highest priority over provider or auto-generated models.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Validate file (accept common 3D model formats)
+    valid_extensions = ['.step', '.stp', '.wrl', '.3dshapes']
+    if not any(file.filename.endswith(ext) for ext in valid_extensions):
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid 3D model file. Must be one of: {', '.join(valid_extensions)}"
+        )
+
+    # Get component and ensure KiCad data exists
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component:
+        raise HTTPException(status_code=404, detail="Component not found")
+
+    # Ensure component has KiCad data record
+    if not component.kicad_data:
+        # Create new KiCad data record
+        from ..models.kicad_data import KiCadLibraryData
+        kicad_data = KiCadLibraryData(component_id=component_id)
+        db.add(kicad_data)
+        db.flush()
+        component.kicad_data = kicad_data
+
+    # Save custom file
+    try:
+        file_path = save_custom_kicad_file(component_id, file, "3d_model")
+
+        # Update KiCad data with custom 3D model
+        component.kicad_data.set_custom_3d_model(file_path)
+        db.commit()
+
+        return CustomFileUploadResponse(
+            success=True,
+            message=f"Custom 3D model uploaded successfully: {file.filename}",
+            file_path=file_path,
+            source_info=component.kicad_data.get_source_info()
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to upload 3D model: {str(e)}")
+
+
+@router.delete("/components/{component_id}/reset-symbol")
+def reset_symbol_to_auto(
+    component_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Reset component symbol to auto-generated, removing custom override.
+
+    This will revert to provider data if available, or auto-generated symbol.
+    The custom symbol file will be kept but no longer used.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Get component
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component or not component.kicad_data:
+        raise HTTPException(status_code=404, detail="Component or KiCad data not found")
+
+    try:
+        component.kicad_data.reset_symbol_to_auto()
+        db.commit()
+
+        return {
+            "success": True,
+            "message": "Symbol reset to auto-generated successfully",
+            "source_info": component.kicad_data.get_source_info()
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to reset symbol: {str(e)}")
+
+
+@router.delete("/components/{component_id}/reset-footprint")
+def reset_footprint_to_auto(
+    component_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Reset component footprint to auto-generated, removing custom override.
+
+    This will revert to provider data if available, or auto-generated footprint.
+    The custom footprint file will be kept but no longer used.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Get component
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component or not component.kicad_data:
+        raise HTTPException(status_code=404, detail="Component or KiCad data not found")
+
+    try:
+        component.kicad_data.reset_footprint_to_auto()
+        db.commit()
+
+        return {
+            "success": True,
+            "message": "Footprint reset to auto-generated successfully",
+            "source_info": component.kicad_data.get_source_info()
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to reset footprint: {str(e)}")
+
+
+@router.delete("/components/{component_id}/reset-3d-model")
+def reset_3d_model_to_auto(
+    component_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Reset component 3D model to auto-generated, removing custom override.
+
+    This will revert to provider data if available, or auto-generated 3D model.
+    The custom 3D model file will be kept but no longer used.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Get component
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component or not component.kicad_data:
+        raise HTTPException(status_code=404, detail="Component or KiCad data not found")
+
+    try:
+        component.kicad_data.reset_3d_model_to_auto()
+        db.commit()
+
+        return {
+            "success": True,
+            "message": "3D model reset to auto-generated successfully",
+            "source_info": component.kicad_data.get_source_info()
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to reset 3D model: {str(e)}")
+
+
+@router.get("/components/{component_id}/source-info")
+def get_kicad_source_info(
+    component_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive source information for component's KiCad data.
+
+    Returns detailed information about the source of symbol, footprint, and 3D model data,
+    including whether custom files are being used and when they were last updated.
+    """
+    # Validate UUID format
+    validate_uuid(component_id)
+
+    # Get component
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component:
+        raise HTTPException(status_code=404, detail="Component not found")
+
+    if not component.kicad_data:
+        return {
+            "has_kicad_data": False,
+            "message": "No KiCad data available for this component"
+        }
+
+    return {
+        "has_kicad_data": True,
+        "component_id": component_id,
+        "component_name": component.name,
+        "source_info": component.kicad_data.get_source_info()
+    }
+
+
+# EasyEDA Conversion Endpoints
+
+class LCSCConversionRequest(BaseModel):
+    lcsc_id: str
+    include_files: bool = False
+
+
+class LCSCConversionResponse(BaseModel):
+    success: bool
+    lcsc_id: str
+    message: str
+    easyeda_data: Optional[Dict[str, Any]] = None
+    conversion_result: Optional[Dict[str, Any]] = None
+
+
+@router.post("/lcsc/{lcsc_id}/convert", response_model=LCSCConversionResponse)
+async def convert_lcsc_component(
+    lcsc_id: str,
+    include_files: bool = Query(False, description="Include converted KiCad files in response"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Convert an LCSC component to KiCad format using EasyEDA data.
+
+    This endpoint fetches component data from EasyEDA and converts symbols,
+    footprints, and 3D models to KiCad format.
+    """
+    if not EASYEDA_API_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="EasyEDA conversion service not available"
+        )
+
+    # Clean LCSC ID format
+    clean_lcsc_id = lcsc_id.upper()
+    if not clean_lcsc_id.startswith('C'):
+        clean_lcsc_id = f"C{clean_lcsc_id}"
+
+    try:
+        # Initialize services
+        easyeda_service = EasyEDAService()
+        lcsc_provider = LCSCProvider()
+
+        # Get EasyEDA component data
+        easyeda_data = await easyeda_service.get_easyeda_component_info(clean_lcsc_id)
+
+        if not easyeda_data:
+            return LCSCConversionResponse(
+                success=False,
+                lcsc_id=clean_lcsc_id,
+                message=f"No EasyEDA data found for component {clean_lcsc_id}",
+                easyeda_data=None,
+                conversion_result=None
+            )
+
+        # Convert to KiCad format if requested
+        conversion_result = None
+        if include_files:
+            conversion_result = await easyeda_service.convert_lcsc_component(clean_lcsc_id)
+
+        return LCSCConversionResponse(
+            success=True,
+            lcsc_id=clean_lcsc_id,
+            message=f"Successfully processed component {clean_lcsc_id}",
+            easyeda_data=easyeda_data,
+            conversion_result=conversion_result
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Conversion failed: {str(e)}"
+        )
+
+
+@router.get("/lcsc/{lcsc_id}/info")
+async def get_lcsc_component_info(
+    lcsc_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Get LCSC component information including EasyEDA data.
+
+    Returns component details, EasyEDA availability, and conversion status.
+    """
+    if not EASYEDA_API_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="EasyEDA service not available"
+        )
+
+    # Clean LCSC ID format
+    clean_lcsc_id = lcsc_id.upper()
+    if not clean_lcsc_id.startswith('C'):
+        clean_lcsc_id = f"C{clean_lcsc_id}"
+
+    try:
+        # Initialize LCSC provider
+        lcsc_provider = LCSCProvider()
+
+        # Get component info with KiCad data
+        component_info = await lcsc_provider.get_component_with_kicad_data(
+            clean_lcsc_id,
+            include_conversion=False
+        )
+
+        if not component_info:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Component {clean_lcsc_id} not found"
+            )
+
+        return {
+            "lcsc_id": clean_lcsc_id,
+            "component_info": component_info,
+            "easyeda_available": component_info.get('easyeda_data') is not None,
+            "conversion_available": EASYEDA_API_AVAILABLE
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get component info: {str(e)}"
+        )
+
+
+@router.post("/components/{component_id}/convert-from-lcsc")
+async def convert_component_from_lcsc(
+    component_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Convert an existing component using LCSC/EasyEDA data.
+
+    This endpoint attempts to find LCSC data for an existing component
+    and convert it to KiCad format using EasyEDA.
+    """
+    if not EASYEDA_API_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="EasyEDA conversion service not available"
+        )
+
+    validate_uuid(component_id)
+
+    # Get component
+    component_service = ComponentService(db)
+    component = component_service.get_component(component_id)
+
+    if not component:
+        raise HTTPException(status_code=404, detail="Component not found")
+
+    try:
+        # Try to extract LCSC ID from component
+        lcsc_id = component_service._extract_lcsc_id(component)
+
+        if not lcsc_id:
+            return {
+                "success": False,
+                "message": "No LCSC ID found for this component",
+                "component_id": component_id,
+                "component_name": component.name
+            }
+
+        # Convert using EasyEDA
+        easyeda_kicad_data = await component_service._try_easyeda_conversion(component)
+
+        if easyeda_kicad_data:
+            # Save the converted data
+            db.add(easyeda_kicad_data)
+            db.commit()
+
+            return {
+                "success": True,
+                "message": f"Successfully converted component using LCSC data {lcsc_id}",
+                "component_id": component_id,
+                "component_name": component.name,
+                "lcsc_id": lcsc_id,
+                "kicad_data_created": True
+            }
+        else:
+            return {
+                "success": False,
+                "message": f"Conversion failed for LCSC component {lcsc_id}",
+                "component_id": component_id,
+                "component_name": component.name,
+                "lcsc_id": lcsc_id
+            }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Conversion failed: {str(e)}"
+        )
+
+
+@router.get("/easyeda/status")
+async def get_easyeda_status(
+    current_user: dict = Depends(require_auth)
+):
+    """
+    Get EasyEDA conversion service status and capabilities.
+    """
+    status = {
+        "service_available": EASYEDA_API_AVAILABLE,
+        "capabilities": []
+    }
+
+    if EASYEDA_API_AVAILABLE:
+        try:
+            easyeda_service = EasyEDAService()
+            conversion_status = easyeda_service.get_conversion_status()
+            status.update(conversion_status)
+            status["capabilities"] = [
+                "lcsc_component_conversion",
+                "easyeda_symbol_conversion",
+                "easyeda_footprint_conversion",
+                "easyeda_3d_model_conversion"
+            ]
+        except Exception as e:
+            status["error"] = f"Service initialization failed: {str(e)}"
+
+    return status

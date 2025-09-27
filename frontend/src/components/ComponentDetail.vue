@@ -636,8 +636,17 @@
                 />
               </div>
 
+              <!-- KiCad File Upload -->
+              <div v-if="canPerformCrud()" class="q-mb-lg">
+                <KiCadFileUpload
+                  :component-id="component.id"
+                  @upload-success="onKiCadFileUploadSuccess"
+                  @source-updated="onKiCadSourceUpdated"
+                />
+              </div>
+
               <!-- KiCad Viewers -->
-              <div v-else-if="hasKiCadData" class="row q-gutter-md">
+              <div v-if="hasKiCadData" class="row q-gutter-md">
                 <!-- Symbol Viewer -->
                 <div class="col-md-6 col-xs-12">
                   <q-card flat bordered class="q-mb-xs">
@@ -711,6 +720,7 @@ import type { Component } from '../services/api'
 import AttachmentGallery from './AttachmentGallery.vue'
 import KiCadSymbolViewer from './KiCadSymbolViewer.vue'
 import KiCadFootprintViewer from './KiCadFootprintViewer.vue'
+import KiCadFileUpload from './KiCadFileUpload.vue'
 import { api } from '../boot/axios'
 
 interface Props {
@@ -880,6 +890,20 @@ const generateKiCadData = async () => {
     console.error('Failed to generate KiCad data:', error)
   } finally {
     generatingKiCad.value = false
+  }
+}
+
+const onKiCadFileUploadSuccess = async (data: any) => {
+  // Refresh component data to show updated KiCad information
+  if (component.value) {
+    await componentsStore.fetchComponent(component.value.id)
+  }
+}
+
+const onKiCadSourceUpdated = async () => {
+  // Refresh component data when source is updated (e.g., reset operations)
+  if (component.value) {
+    await componentsStore.fetchComponent(component.value.id)
   }
 }
 

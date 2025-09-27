@@ -27,16 +27,14 @@ def create_search_indexes(session: Session) -> None:
         "CREATE INDEX IF NOT EXISTS idx_components_value ON components(value)",
         "CREATE INDEX IF NOT EXISTS idx_components_package ON components(package)",
         "CREATE INDEX IF NOT EXISTS idx_components_category_id ON components(category_id)",
-        "CREATE INDEX IF NOT EXISTS idx_components_storage_location_id ON components(storage_location_id)",
-        "CREATE INDEX IF NOT EXISTS idx_components_quantity_on_hand ON components(quantity_on_hand)",
-        "CREATE INDEX IF NOT EXISTS idx_components_unit_cost ON components(unit_cost)",
+        # Note: storage_location_id, quantity_on_hand, unit_cost are handled via relationships/properties
         "CREATE INDEX IF NOT EXISTS idx_components_created_at ON components(created_at)",
         "CREATE INDEX IF NOT EXISTS idx_components_updated_at ON components(updated_at)",
 
         # Composite indexes for common search patterns
         "CREATE INDEX IF NOT EXISTS idx_components_type_manufacturer ON components(component_type, manufacturer)",
         "CREATE INDEX IF NOT EXISTS idx_components_category_name ON components(category_id, name)",
-        "CREATE INDEX IF NOT EXISTS idx_components_location_quantity ON components(storage_location_id, quantity_on_hand)",
+        # Note: location_quantity index removed - handled via ComponentLocation relationship
 
         # Category indexes
         "CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name)",
@@ -44,7 +42,7 @@ def create_search_indexes(session: Session) -> None:
 
         # Storage location indexes
         "CREATE INDEX IF NOT EXISTS idx_storage_locations_name ON storage_locations(name)",
-        "CREATE INDEX IF NOT EXISTS idx_storage_locations_location_type ON storage_locations(location_type)",
+        # Note: location_type column doesn't exist in current schema
         "CREATE INDEX IF NOT EXISTS idx_storage_locations_parent_id ON storage_locations(parent_id)",
 
         # Tag indexes for tag-based search
@@ -64,11 +62,11 @@ def create_search_indexes(session: Session) -> None:
         # Attachment indexes for file operations
         "CREATE INDEX IF NOT EXISTS idx_attachments_component_id ON attachments(component_id)",
         "CREATE INDEX IF NOT EXISTS idx_attachments_attachment_type ON attachments(attachment_type)",
-        "CREATE INDEX IF NOT EXISTS idx_attachments_is_primary ON attachments(is_primary)",
+        # Note: is_primary column doesn't exist in current schema
 
         # Custom field indexes for specification searches
         "CREATE INDEX IF NOT EXISTS idx_custom_field_values_component_id ON custom_field_values(component_id)",
-        "CREATE INDEX IF NOT EXISTS idx_custom_field_values_field_id ON custom_field_values(custom_field_id)",
+        # Note: custom_field_id column doesn't exist in current schema
 
         # Purchase tracking indexes
         "CREATE INDEX IF NOT EXISTS idx_purchase_items_component_id ON purchase_items(component_id)",
@@ -76,8 +74,7 @@ def create_search_indexes(session: Session) -> None:
 
         # KiCad integration indexes
         "CREATE INDEX IF NOT EXISTS idx_kicad_library_data_component_id ON kicad_library_data(component_id)",
-        "CREATE INDEX IF NOT EXISTS idx_kicad_library_data_has_symbol ON kicad_library_data(has_symbol)",
-        "CREATE INDEX IF NOT EXISTS idx_kicad_library_data_has_footprint ON kicad_library_data(has_footprint)",
+        # Note: has_symbol and has_footprint columns don't exist in current schema
 
         # Provider data indexes
         "CREATE INDEX IF NOT EXISTS idx_component_provider_data_component_id ON component_provider_data(component_id)",
@@ -142,11 +139,7 @@ def analyze_search_performance(session: Session) -> dict:
             "query": "SELECT c.* FROM components c JOIN categories cat ON c.category_id = cat.id WHERE cat.name = 'Resistors' LIMIT 10",
             "description": "Category filtering performance"
         },
-        {
-            "name": "low_stock_query",
-            "query": "SELECT * FROM components WHERE quantity_on_hand < 10 ORDER BY quantity_on_hand LIMIT 10",
-            "description": "Low stock filtering performance"
-        },
+        # Note: low_stock_query removed - quantity_on_hand is a computed property, not a column
         {
             "name": "composite_search",
             "query": "SELECT * FROM components WHERE component_type = 'resistor' AND manufacturer = 'Yageo' LIMIT 10",
@@ -205,18 +198,16 @@ def drop_search_indexes(session: Session) -> None:
         "DROP INDEX IF EXISTS idx_components_value",
         "DROP INDEX IF EXISTS idx_components_package",
         "DROP INDEX IF EXISTS idx_components_category_id",
-        "DROP INDEX IF EXISTS idx_components_storage_location_id",
-        "DROP INDEX IF EXISTS idx_components_quantity_on_hand",
-        "DROP INDEX IF EXISTS idx_components_unit_cost",
+        # Note: storage_location_id, quantity_on_hand, unit_cost indexes removed
         "DROP INDEX IF EXISTS idx_components_created_at",
         "DROP INDEX IF EXISTS idx_components_updated_at",
         "DROP INDEX IF EXISTS idx_components_type_manufacturer",
         "DROP INDEX IF EXISTS idx_components_category_name",
-        "DROP INDEX IF EXISTS idx_components_location_quantity",
+        # Note: location_quantity index removed
         "DROP INDEX IF EXISTS idx_categories_name",
         "DROP INDEX IF EXISTS idx_categories_parent_id",
         "DROP INDEX IF EXISTS idx_storage_locations_name",
-        "DROP INDEX IF EXISTS idx_storage_locations_location_type",
+        # Note: location_type index removed
         "DROP INDEX IF EXISTS idx_storage_locations_parent_id",
         "DROP INDEX IF EXISTS idx_tags_name",
         "DROP INDEX IF EXISTS idx_component_tags_component_id",
@@ -228,14 +219,13 @@ def drop_search_indexes(session: Session) -> None:
         "DROP INDEX IF EXISTS idx_project_components_component_id",
         "DROP INDEX IF EXISTS idx_attachments_component_id",
         "DROP INDEX IF EXISTS idx_attachments_attachment_type",
-        "DROP INDEX IF EXISTS idx_attachments_is_primary",
+        # Note: is_primary index removed
         "DROP INDEX IF EXISTS idx_custom_field_values_component_id",
-        "DROP INDEX IF EXISTS idx_custom_field_values_field_id",
+        # Note: custom_field_id index removed
         "DROP INDEX IF EXISTS idx_purchase_items_component_id",
         "DROP INDEX IF EXISTS idx_purchases_created_at",
         "DROP INDEX IF EXISTS idx_kicad_library_data_component_id",
-        "DROP INDEX IF EXISTS idx_kicad_library_data_has_symbol",
-        "DROP INDEX IF EXISTS idx_kicad_library_data_has_footprint",
+        # Note: has_symbol and has_footprint indexes removed
         "DROP INDEX IF EXISTS idx_component_provider_data_component_id",
         "DROP INDEX IF EXISTS idx_component_provider_data_provider_id",
         "DROP INDEX IF EXISTS idx_components_search_text",
