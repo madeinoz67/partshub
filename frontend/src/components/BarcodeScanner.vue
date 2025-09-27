@@ -1,8 +1,16 @@
 <template>
   <div class="barcode-scanner">
     <!-- Scanner Dialog -->
-    <q-dialog v-model="showScanner" persistent position="right">
-      <q-card style="width: 400px; max-width: 50vw; height: 100vh; max-height: 100vh;" class="scanner-card">
+    <q-dialog
+      v-model="showScanner"
+      persistent
+      :position="$q.screen.lt.md ? 'bottom' : 'right'"
+      :maximized="$q.screen.lt.md"
+    >
+      <q-card
+        :style="$q.screen.lt.md ? 'height: 70vh; width: 100vw;' : 'width: 400px; max-width: 50vw; height: 100vh; max-height: 100vh;'"
+        class="scanner-card"
+      >
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Barcode Scanner</div>
           <q-space />
@@ -305,7 +313,11 @@ async function startScanning() {
 
   // Wait for dialog to render before starting camera
   await nextTick()
-  await new Promise(resolve => setTimeout(resolve, 500))
+
+  // Give more time for mobile layouts and different screen sizes
+  const isMobile = window.innerWidth < 768
+  const delay = isMobile ? 800 : 500
+  await new Promise(resolve => setTimeout(resolve, delay))
 
   startCamera()
 }
@@ -338,37 +350,50 @@ async function startCamera() {
 
     await nextTick()
 
-    // Wait for dialog and video element to be fully rendered
+    // More robust video element detection
     let retries = 0
-    while (!videoElement.value && retries < 10) {
-      console.log(`⏳ Waiting for video element... attempt ${retries + 1}/10`)
-      await new Promise(resolve => setTimeout(resolve, 100))
-      retries++
-    }
+    let videoEl = null
 
-    if (!videoElement.value) {
-      console.error('❌ Video element still not found after retries')
-    } else {
-      console.log('✅ Video element found after', retries, 'retries')
-    }
+    while (!videoEl && retries < 20) {
+      // Try multiple methods to find the video element
+      videoEl = videoElement.value ||
+                document.querySelector('.barcode-scanner video') ||
+                document.querySelector('[ref="videoElement"]') ||
+                document.querySelector('.camera-video')
 
-    if (videoElement.value) {
-      console.log('Setting video srcObject...', mediaStream)
-      videoElement.value.srcObject = mediaStream
-
-      try {
-        console.log('Starting video play...')
-        await videoElement.value.play()
-        console.log('Video playing successfully, setting cameraActive to true')
-        cameraActive.value = true
-        startBarcodeDetection()
-      } catch (playError) {
-        console.error('Video play error:', playError)
-        cameraError.value = `Failed to start video: ${playError.message}`
+      if (!videoEl) {
+        console.log(`⏳ Waiting for video element... attempt ${retries + 1}/20`)
+        await new Promise(resolve => setTimeout(resolve, 150))
+        retries++
       }
-    } else {
-      console.error('Video element not found')
+    }
+
+    if (!videoEl) {
+      console.error('❌ Video element still not found after retries')
       cameraError.value = 'Video element not available'
+      return
+    }
+
+    console.log('✅ Video element found after', retries, 'retries')
+
+    console.log('Setting video srcObject...', mediaStream)
+    videoEl.srcObject = mediaStream
+
+    try {
+      console.log('Starting video play...')
+      await videoEl.play()
+      console.log('Video playing successfully, setting cameraActive to true')
+      cameraActive.value = true
+
+      // Update ref if we found element via DOM query
+      if (!videoElement.value && videoEl) {
+        videoElement.value = videoEl as HTMLVideoElement
+      }
+
+      startBarcodeDetection()
+    } catch (playError) {
+      console.error('Video play error:', playError)
+      cameraError.value = `Failed to start video: ${playError.message}`
     }
   } catch (error: any) {
     console.error('Camera access error:', error)
@@ -597,6 +622,23 @@ async function copyToClipboard(text: string) {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .scanner-container {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .camera-wrapper {
+    margin: 0 -16px; /* Extend to edges on mobile */
+    border-radius: 0;
+  }
+
+  .scanner-frame {
+    width: 250px;
+    height: 150px;
+  }
 }
 
 .camera-wrapper {
