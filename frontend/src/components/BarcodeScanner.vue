@@ -1,22 +1,26 @@
 <template>
   <div class="barcode-scanner">
-    <!-- Scanner Dialog -->
-    <q-dialog
+    <!-- Inline Scanner Expansion -->
+    <q-expansion-item
       v-model="showScanner"
-      persistent
-      :position="$q.screen.lt.md ? 'bottom' : 'right'"
-      :maximized="$q.screen.lt.md"
+      :label="scannerLabel"
+      :icon="scannerIcon"
+      expand-separator
+      header-class="scanner-header"
+      @show="onScannerShow"
+      @hide="onScannerHide"
     >
-      <q-card
-        :style="$q.screen.lt.md ? 'height: 70vh; width: 100vw;' : 'width: 400px; max-width: 50vw; height: 100vh; max-height: 100vh;'"
-        class="scanner-card"
-      >
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Barcode Scanner</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
+      <template v-slot:header>
+        <q-item-section avatar>
+          <q-icon :name="scannerIcon" :color="scannerIconColor" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>{{ scannerLabel }}</q-item-label>
+          <q-item-label caption>{{ scannerCaption }}</q-item-label>
+        </q-item-section>
+      </template>
 
+      <q-card flat class="scanner-card">
         <q-card-section>
           <div class="scanner-container">
             <!-- Camera Feed -->
@@ -131,10 +135,10 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Manual Input" @click="showManualInput = !showManualInput" />
-          <q-btn flat label="Cancel" v-close-popup @click="stopScanning" />
+          <q-btn flat label="Close Scanner" @click="stopScanning" />
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-expansion-item>
 
     <!-- Component Search Results (if enabled) -->
     <q-dialog v-model="showSearchResults" v-if="searchComponents">
@@ -197,7 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import api from '../services/api'
 
@@ -241,6 +245,35 @@ const cameraActive = ref(false)
 const cameraError = ref<string | null>(null)
 const isScanning = ref(false)
 const scanResult = ref<ScanResult | null>(null)
+
+// Scanner UI labels
+const scannerLabel = computed(() => {
+  if (scanResult.value) return 'Barcode Found!'
+  if (cameraActive.value) return 'Scanning...'
+  if (cameraError.value) return 'Scanner Error'
+  return 'Barcode Scanner'
+})
+
+const scannerCaption = computed(() => {
+  if (scanResult.value) return `Found: ${scanResult.value.data}`
+  if (cameraActive.value) return 'Position barcode in view'
+  if (cameraError.value) return 'Click to retry'
+  return 'Click to start scanning'
+})
+
+const scannerIcon = computed(() => {
+  if (scanResult.value) return 'check_circle'
+  if (cameraActive.value) return 'videocam'
+  if (cameraError.value) return 'error'
+  return 'qr_code_scanner'
+})
+
+const scannerIconColor = computed(() => {
+  if (scanResult.value) return 'positive'
+  if (cameraActive.value) return 'primary'
+  if (cameraError.value) return 'negative'
+  return 'grey-7'
+})
 
 // Manual input
 const showManualInput = ref(false)
@@ -310,20 +343,34 @@ onUnmounted(() => {
 async function startScanning() {
   showScanner.value = true
   clearResult()
+}
 
-  // Wait for dialog to render before starting camera
+function stopScanning() {
+  showScanner.value = false
+  stopCamera()
+  if (scanningInterval) {
+    clearInterval(scanningInterval)
+    scanningInterval = null
+  }
+  isScanning.value = false
+}
+
+// Expansion event handlers
+async function onScannerShow() {
+  clearResult()
+
+  // Wait for expansion animation before starting camera
   await nextTick()
 
-  // Give more time for mobile layouts and different screen sizes
+  // Give time for DOM to render
   const isMobile = window.innerWidth < 768
-  const delay = isMobile ? 800 : 500
+  const delay = isMobile ? 600 : 400
   await new Promise(resolve => setTimeout(resolve, delay))
 
   startCamera()
 }
 
-function stopScanning() {
-  showScanner.value = false
+function onScannerHide() {
   stopCamera()
   if (scanningInterval) {
     clearInterval(scanningInterval)
@@ -609,36 +656,23 @@ async function copyToClipboard(text: string) {
 </script>
 
 <style scoped>
+.scanner-header {
+  transition: all 0.3s ease;
+}
+
 .scanner-card {
-  display: flex;
-  flex-direction: column;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
 }
 
 .scanner-container {
   position: relative;
   width: 100%;
-  max-width: 350px;
-  margin: 0 auto;
-  flex: 1;
+  max-width: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
-}
-
-@media (max-width: 768px) {
-  .scanner-container {
-    max-width: 100%;
-    margin: 0;
-  }
-
-  .camera-wrapper {
-    margin: 0 -16px; /* Extend to edges on mobile */
-    border-radius: 0;
-  }
-
-  .scanner-frame {
-    width: 250px;
-    height: 150px;
-  }
 }
 
 .camera-wrapper {

@@ -1,5 +1,13 @@
 <template>
   <div class="component-list">
+    <!-- Barcode Scanner Component -->
+    <BarcodeScanner
+      ref="barcodeScannerRef"
+      @scan-result="handleBarcodeScanned"
+      :search-components="false"
+      class="q-mb-sm"
+    />
+
     <!-- Header with search and filters -->
     <q-card class="q-mb-sm">
       <q-card-section class="q-pa-sm">
@@ -1071,13 +1079,6 @@
         </div>
       </template>
     </q-table>
-
-    <!-- Barcode Scanner Component -->
-    <BarcodeScanner
-      ref="barcodeScannerRef"
-      @scan-result="handleBarcodeScanned"
-      :search-components="false"
-    />
   </div>
 </template>
 
