@@ -135,7 +135,7 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Manual Input" @click="showManualInput = !showManualInput" />
-          <q-btn flat label="Close Scanner" @click="stopScanning" />
+          <q-btn flat label="Close Scanner" @click="closeAndSearch" />
         </q-card-actions>
       </q-card>
     </q-expansion-item>
@@ -355,6 +355,21 @@ function stopScanning() {
   isScanning.value = false
 }
 
+function closeAndSearch() {
+  // If there's manual input, use it as scan result
+  if (manualBarcode.value.trim()) {
+    handleScanSuccess({
+      data: manualBarcode.value.trim(),
+      format: 'manual',
+      timestamp: new Date()
+    })
+  } else {
+    // Just close the scanner and tell parent to hide completely
+    stopScanning()
+    emit('close-scanner')
+  }
+}
+
 // Expansion event handlers
 async function onScannerShow() {
   clearResult()
@@ -405,6 +420,7 @@ async function startCamera() {
       // Try multiple methods to find the video element
       videoEl = videoElement.value ||
                 document.querySelector('.barcode-scanner video') ||
+                document.querySelector('.barcode-scanner-compact video') ||
                 document.querySelector('[ref="videoElement"]') ||
                 document.querySelector('.camera-video')
 
@@ -563,10 +579,7 @@ function handleScanSuccess(result: ScanResult) {
     scanningInterval = null
   }
 
-  // Auto-close scanner after successful scan
-  setTimeout(() => {
-    stopScanning()
-  }, 1000)
+  // Let parent component handle closing after scan
 
   // Search for components if enabled
   if (props.searchComponents) {

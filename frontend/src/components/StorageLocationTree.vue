@@ -13,6 +13,17 @@
       />
     </div>
 
+    <!-- Barcode Scanner Component -->
+    <div v-if="showBarcodeScanner" class="q-mb-sm">
+      <BarcodeScanner
+        ref="barcodeScannerRef"
+        @scan-result="handleBarcodeScanned"
+        @close-scanner="closeBarcodeScanner"
+        :search-components="false"
+        class="barcode-scanner-compact"
+      />
+    </div>
+
     <!-- Search -->
     <q-input
       v-model="searchQuery"
@@ -26,8 +37,21 @@
       <template v-slot:prepend>
         <q-icon name="search" />
       </template>
-      <template v-slot:append v-if="searchQuery">
+      <template v-slot:append>
+        <q-btn
+          v-if="!searchQuery"
+          icon="qr_code_scanner"
+          flat
+          round
+          dense
+          @click="openBarcodeScanner"
+          color="primary"
+          class="q-mr-xs"
+        >
+          <q-tooltip>Scan barcode to search locations</q-tooltip>
+        </q-btn>
         <q-icon
+          v-if="searchQuery"
           name="clear"
           class="cursor-pointer"
           @click="clearSearch"
@@ -209,9 +233,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useQuasar } from 'quasar'
 import { useStorageStore } from '../stores/storage'
+import BarcodeScanner from './BarcodeScanner.vue'
 import type { StorageLocation } from '../services/api'
 
 interface TreeNode {
@@ -233,6 +259,7 @@ const emit = defineEmits<{
   'location-selected': [location: StorageLocation | null]
 }>()
 
+const $q = useQuasar()
 const storageStore = useStorageStore()
 const {
   locations,
@@ -245,6 +272,8 @@ const {
 const searchQuery = ref('')
 const expanded = ref<string[]>([])
 const selectedLocationId = ref<string | null>(null)
+const showBarcodeScanner = ref(false)
+const barcodeScannerRef = ref()
 
 const treeNodes = computed<TreeNode[]>(() => {
   const buildTreeNodes = (locations: (StorageLocation & { children?: StorageLocation[] })[]): TreeNode[] => {
@@ -318,10 +347,52 @@ const clearError = () => {
   storageStore.clearError()
 }
 
+const openBarcodeScanner = () => {
+  showBarcodeScanner.value = true
+  // Give Vue time to render the component before starting scanner
+  nextTick(() => {
+    if (barcodeScannerRef.value) {
+      barcodeScannerRef.value.startScanning()
+    }
+  })
+}
+
+const closeBarcodeScanner = () => {
+  if (barcodeScannerRef.value) {
+    barcodeScannerRef.value.stopScanning()
+  }
+  // Completely hide the scanner component
+  showBarcodeScanner.value = false
+}
+
+const handleBarcodeScanned = (scanResult: any) => {
+  if (scanResult && scanResult.data) {
+    // Set the search query from barcode
+    searchQuery.value = scanResult.data
+    // Completely close the scanner
+    closeBarcodeScanner()
+  }
+  $q.notify({
+    type: 'positive',
+    message: `Barcode scanned: ${scanResult.data}`,
+    timeout: 2000
+  })
+}
+
 onMounted(() => {
   storageStore.fetchLocations({
     include_component_count: true
   })
+})
+
+// Expose functions and refs to parent component
+defineExpose({
+  setSearchQuery: (query: string) => {
+    searchQuery.value = query
+  },
+  clearSearch,
+  openBarcodeScanner,
+  closeBarcodeScanner
 })
 </script>
 
@@ -341,5 +412,23 @@ onMounted(() => {
 .q-tree .q-tree__node--selected > .q-tree__node-header {
   background-color: rgba(25, 118, 210, 0.1);
   color: #1976d2;
+}
+
+/* Responsive barcode scanner sizing */
+.barcode-scanner-compact {
+  max-width: 100%;
+}
+
+/* Make scanner more compact on medium and larger screens */
+@media (min-width: 768px) {
+  .barcode-scanner-compact :deep(.scanner-container) {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .barcode-scanner-compact :deep(.camera-video) {
+    max-height: 300px;
+    object-fit: cover;
+  }
 }
 </style>

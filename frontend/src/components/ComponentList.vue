@@ -1,12 +1,15 @@
 <template>
   <div class="component-list">
     <!-- Barcode Scanner Component -->
-    <BarcodeScanner
-      ref="barcodeScannerRef"
-      @scan-result="handleBarcodeScanned"
-      :search-components="false"
-      class="q-mb-sm"
-    />
+    <div v-if="showBarcodeScanner" class="q-mb-sm">
+      <BarcodeScanner
+        ref="barcodeScannerRef"
+        @scan-result="handleBarcodeScanned"
+        @close-scanner="closeBarcodeScanner"
+        :search-components="false"
+        class="barcode-scanner-compact"
+      />
+    </div>
 
     <!-- Header with search and filters -->
     <q-card class="q-mb-sm">
@@ -1083,7 +1086,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
@@ -1140,6 +1143,7 @@ const expanded = ref<string[]>([])
 const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
 const detailedAttachments = ref<Record<string, any[]>>({})
 const barcodeScannerRef = ref()
+const showBarcodeScanner = ref(false)
 
 // Table configuration
 const columns = [
@@ -1467,22 +1471,33 @@ const handleImageError = (image: any) => {
 
 // Barcode scanner functions
 const openBarcodeScanner = () => {
+  showBarcodeScanner.value = true
+  // Give Vue time to render the component before starting scanner
+  nextTick(() => {
+    if (barcodeScannerRef.value) {
+      barcodeScannerRef.value.startScanning()
+    }
+  })
+}
+
+const closeBarcodeScanner = () => {
   if (barcodeScannerRef.value) {
-    barcodeScannerRef.value.startScanning()
+    barcodeScannerRef.value.stopScanning()
   }
+  // Completely hide the scanner component
+  showBarcodeScanner.value = false
 }
 
 const handleBarcodeScanned = (scanResult: any) => {
-  // Set the scanned data as search query
   if (scanResult && scanResult.data) {
-    // Use the scanned barcode data directly
+    // Set the search query from barcode
     searchQuery.value = scanResult.data
+    // Completely close the scanner
+    closeBarcodeScanner()
   }
-
   // Trigger search through the store
   onSearch(searchQuery.value)
 
-  // Show notification
   $q.notify({
     type: 'positive',
     message: `Barcode scanned: ${scanResult.data}`,
@@ -1881,5 +1896,23 @@ onMounted(() => {
   color: rgba(0, 0, 0, 0.6);
   margin-top: 4px;
   font-style: italic;
+}
+
+/* Responsive barcode scanner sizing */
+.barcode-scanner-compact {
+  max-width: 100%;
+}
+
+/* Make scanner more compact on medium and larger screens */
+@media (min-width: 768px) {
+  .barcode-scanner-compact :deep(.scanner-container) {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .barcode-scanner-compact :deep(.camera-video) {
+    max-height: 300px;
+    object-fit: cover;
+  }
 }
 </style>
