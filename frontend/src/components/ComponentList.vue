@@ -500,12 +500,43 @@
                             </div>
                           </div>
                           <div class="row">
-                            <div class="col-4 text-weight-medium">Location:</div>
+                            <div class="col-4 text-weight-medium">Location{{ props.row.storage_locations && props.row.storage_locations.length > 1 ? 's' : '' }}:</div>
                             <div class="col-8">
-                              <div v-if="props.row.storage_location">
-                                <q-chip outline :label="props.row.storage_location.name" size="sm" />
-                                <div class="text-caption text-grey">
-                                  {{ props.row.storage_location.location_hierarchy }}
+                              <div v-if="props.row.storage_locations && props.row.storage_locations.length > 0">
+                                <div class="storage-locations-compact">
+                                  <div
+                                    v-for="storageLocation in props.row.storage_locations"
+                                    :key="storageLocation.location.id"
+                                    class="location-row"
+                                    :class="{ 'depleted-location': storageLocation.quantity_on_hand === 0 }"
+                                  >
+                                    <div class="location-info">
+                                      <q-icon
+                                        v-if="storageLocation.quantity_on_hand === 0"
+                                        name="warning"
+                                        color="orange"
+                                        size="18px"
+                                        class="q-mr-xs"
+                                        :title="'Depleted location'"
+                                      />
+                                      <router-link
+                                        :to="`/storage/${storageLocation.location.id}`"
+                                        class="location-name location-link"
+                                        :title="storageLocation.location.location_hierarchy"
+                                      >
+                                        {{ storageLocation.location.name }}
+                                      </router-link>
+                                      <div class="quantity-info">
+                                        <span class="text-weight-medium">{{ storageLocation.quantity_on_hand }}</span>
+                                        <span class="text-grey"> | Min: {{ storageLocation.minimum_stock }}</span>
+                                        <span v-if="storageLocation.quantity_ordered > 0" class="text-blue"> | Ordered: {{ storageLocation.quantity_ordered }}</span>
+                                        <span v-if="storageLocation.unit_cost_at_location" class="text-green"> | ${{ storageLocation.unit_cost_at_location.toFixed(2) }}</span>
+                                      </div>
+                                    </div>
+                                    <div v-if="storageLocation.location_notes" class="location-notes">
+                                      {{ storageLocation.location_notes }}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                               <span v-else class="text-grey">No location assigned</span>
@@ -764,8 +795,10 @@
 
                   <!-- Stock Tab -->
                   <div v-else-if="getActiveTab(props.row.id) === 'stock'">
-                    <div class="text-h6 q-mb-md">Current Stock</div>
-                    <div class="row q-gutter-md">
+                    <div class="text-h6 q-mb-md">Stock Overview</div>
+
+                    <!-- Summary Cards -->
+                    <div class="row q-gutter-md q-mb-lg">
                       <div class="col-md-6 col-xs-12">
                         <q-card flat bordered>
                           <q-card-section>
@@ -788,6 +821,76 @@
                           </q-card-section>
                         </q-card>
                       </div>
+                    </div>
+
+                    <!-- Location-Specific Stock -->
+                    <div v-if="props.row.storage_locations && props.row.storage_locations.length > 1">
+                      <div class="text-h6 q-mb-md">Stock by Location</div>
+                      <div class="storage-locations-compact">
+                        <div
+                          v-for="storageLocation in props.row.storage_locations"
+                          :key="storageLocation.location.id"
+                          class="location-row"
+                          :class="{ 'depleted-location': storageLocation.quantity_on_hand === 0 }"
+                        >
+                          <div class="location-info">
+                            <q-icon
+                              v-if="storageLocation.quantity_on_hand === 0"
+                              name="warning"
+                              color="orange"
+                              size="18px"
+                              class="q-mr-xs"
+                              :title="'Depleted location'"
+                            />
+                            <router-link
+                              :to="`/storage/${storageLocation.location.id}`"
+                              class="location-name location-link"
+                              :title="storageLocation.location.location_hierarchy"
+                            >
+                              {{ storageLocation.location.name }}
+                            </router-link>
+                            <div class="quantity-info">
+                              <span class="text-weight-medium">{{ storageLocation.quantity_on_hand }}</span>
+                              <span class="text-grey"> | Min: {{ storageLocation.minimum_stock }}</span>
+                              <span v-if="storageLocation.quantity_ordered > 0" class="text-blue"> | Ordered: {{ storageLocation.quantity_ordered }}</span>
+                              <span v-if="storageLocation.unit_cost_at_location" class="text-green"> | ${{ storageLocation.unit_cost_at_location.toFixed(2) }}</span>
+                            </div>
+                          </div>
+                          <div v-if="storageLocation.location_notes" class="location-notes">
+                            {{ storageLocation.location_notes }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else-if="props.row.storage_locations && props.row.storage_locations.length === 1">
+                      <div class="text-h6 q-mb-md">Storage Location</div>
+                      <q-card flat bordered>
+                        <q-card-section>
+                          <div class="row items-center">
+                            <div class="col">
+                              <div class="text-weight-medium">{{ props.row.storage_locations[0].location.name }}</div>
+                              <div class="text-caption text-grey">{{ props.row.storage_locations[0].location.location_hierarchy }}</div>
+                              <div v-if="props.row.storage_locations[0].location_notes" class="text-caption text-grey text-italic">
+                                {{ props.row.storage_locations[0].location_notes }}
+                              </div>
+                            </div>
+                            <div class="col-auto text-right">
+                              <div class="text-body1 text-weight-medium">{{ props.row.storage_locations[0].quantity_on_hand }}</div>
+                              <div class="text-caption text-grey">Min: {{ props.row.storage_locations[0].minimum_stock }}</div>
+                              <div v-if="props.row.storage_locations[0].quantity_ordered > 0" class="text-caption text-blue">
+                                Ordered: {{ props.row.storage_locations[0].quantity_ordered }}
+                              </div>
+                              <div v-if="props.row.storage_locations[0].unit_cost_at_location" class="text-caption text-green">
+                                ${{ props.row.storage_locations[0].unit_cost_at_location.toFixed(2) }}
+                              </div>
+                            </div>
+                          </div>
+                        </q-card-section>
+                      </q-card>
+                    </div>
+                    <div v-else class="text-center text-grey q-pa-lg">
+                      <q-icon name="location_off" size="3rem" color="grey-4" />
+                      <div class="q-mt-md">No storage locations assigned</div>
                     </div>
                   </div>
 
@@ -1705,5 +1808,77 @@ onMounted(() => {
     padding: 3px 4px;
     font-size: 0.8rem;
   }
+}
+
+/* Location Link Styling */
+.location-link {
+  color: #1976d2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.location-link:hover {
+  color: #1565c0;
+  text-decoration: none;
+  border-bottom-color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.04);
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 4px;
+}
+
+.location-link:focus {
+  outline: 2px solid rgba(25, 118, 210, 0.2);
+  outline-offset: 2px;
+}
+
+.location-link:active {
+  color: #0d47a1;
+  background-color: rgba(25, 118, 210, 0.08);
+}
+
+/* Storage Locations Compact Layout */
+.storage-locations-compact {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.location-row {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.location-row:last-child {
+  border-bottom: none;
+}
+
+.depleted-location {
+  background-color: rgba(255, 152, 0, 0.08);
+  border-left: 3px solid #ff9800;
+}
+
+.location-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location-name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.quantity-info {
+  font-size: 14px;
+}
+
+.location-notes {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+  font-style: italic;
 }
 </style>

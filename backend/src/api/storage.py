@@ -311,14 +311,25 @@ def get_location_components(
     # Convert to response format (similar to components API)
     result = []
     for component in components:
+        # Get the ComponentLocation record for this specific location
+        from ..models import ComponentLocation
+        component_location = db.query(ComponentLocation).filter(
+            ComponentLocation.component_id == component.id,
+            ComponentLocation.storage_location_id == location_id
+        ).first()
+
+        # Use location-specific quantities if available, otherwise use component totals
+        location_quantity = component_location.quantity_on_hand if component_location else 0
+        location_minimum = component_location.minimum_stock if component_location else 0
+
         component_dict = {
             "id": component.id,
             "name": component.name,
             "part_number": component.part_number,
             "manufacturer": component.manufacturer,
             "component_type": component.component_type,
-            "quantity_on_hand": component.quantity_on_hand,
-            "minimum_stock": component.minimum_stock,
+            "quantity_on_hand": location_quantity,
+            "minimum_stock": location_minimum,
             "storage_location": {
                 "id": component.primary_location.id,
                 "name": component.primary_location.name,

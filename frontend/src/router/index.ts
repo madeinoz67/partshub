@@ -42,6 +42,11 @@ const routes = [
         component: () => import('../pages/StorageLocationsPage.vue')
       },
       {
+        path: 'storage/:id',
+        name: 'storage-location-detail',
+        component: () => import('../pages/StorageLocationDetailPage.vue')
+      },
+      {
         path: 'projects',
         name: 'projects',
         component: () => import('../pages/ProjectsPage.vue')

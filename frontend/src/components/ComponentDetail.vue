@@ -238,10 +238,19 @@
                         v-for="storageLocation in component.storage_locations"
                         :key="storageLocation.location.id"
                         class="location-row"
+                        :class="{ 'depleted-location': storageLocation.quantity_on_hand === 0 }"
                       >
                         <div class="location-info">
+                          <q-icon
+                            v-if="storageLocation.quantity_on_hand === 0"
+                            name="warning"
+                            color="orange"
+                            size="18px"
+                            class="q-mr-xs"
+                            :title="'Depleted location'"
+                          />
                           <router-link
-                            :to="`/storage-locations/${storageLocation.location.id}`"
+                            :to="`/storage/${storageLocation.location.id}`"
                             class="location-name location-link"
                             :title="storageLocation.location.location_hierarchy"
                           >
@@ -779,6 +788,11 @@ onMounted(() => {
   border-bottom: none;
 }
 
+.depleted-location {
+  background-color: rgba(255, 152, 0, 0.08);
+  border-left: 3px solid #ff9800;
+}
+
 .location-info {
   display: flex;
   justify-content: space-between;
@@ -799,5 +813,34 @@ onMounted(() => {
   color: rgba(0, 0, 0, 0.6);
   margin-top: 4px;
   font-style: italic;
+}
+
+/* Location Link Styling */
+.location-link {
+  color: #1976d2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.location-link:hover {
+  color: #1565c0;
+  text-decoration: none;
+  border-bottom-color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.04);
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 4px;
+}
+
+.location-link:focus {
+  outline: 2px solid rgba(25, 118, 210, 0.2);
+  outline-offset: 2px;
+}
+
+.location-link:active {
+  color: #0d47a1;
+  background-color: rgba(25, 118, 210, 0.08);
 }
 </style>
