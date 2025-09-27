@@ -178,7 +178,39 @@
 
       <!-- Main Content -->
       <div class="component-main-content">
-        <div class="main-content-flex" data-testid="component-detail-main-row">
+        <!-- Tab Navigation -->
+        <q-tabs
+          v-model="activeTab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="details" label="Details" icon="info" />
+          <q-tab name="attachments" label="Attachments" icon="attach_file" />
+          <q-tab name="history" label="History" icon="history" />
+          <q-tab
+            name="kicad"
+            label="KiCad"
+            icon="memory"
+            :disable="!hasKiCadData && !kicadDataStatus.canGenerate"
+            :class="{
+              'text-grey-5': !hasKiCadData && !kicadDataStatus.canGenerate,
+              'text-amber-6': kicadDataStatus.completeness === 'partial',
+              'text-green-6': kicadDataStatus.completeness === 'complete'
+            }"
+          />
+        </q-tabs>
+
+        <q-separator />
+
+        <!-- Tab Panels -->
+        <q-tab-panels v-model="activeTab" animated>
+          <!-- Details Tab -->
+          <q-tab-panel name="details">
+            <div class="main-content-flex" data-testid="component-detail-main-row">
       <!-- Basic Information -->
       <div class="info-card-container" data-testid="basic-info-card">
         <q-card>
@@ -467,7 +499,204 @@
           </q-card-section>
         </q-card>
       </div>
-        </div>
+            </div>
+          </q-tab-panel>
+
+          <!-- Attachments Tab -->
+          <q-tab-panel name="attachments">
+            <div class="attachments-panel">
+              <AttachmentGallery
+                :component-id="component.id"
+                :show-actions="canPerformCrud()"
+                @attachment-updated="onAttachmentUpdated"
+                @attachment-deleted="onAttachmentDeleted"
+              />
+            </div>
+          </q-tab-panel>
+
+          <!-- History Tab -->
+          <q-tab-panel name="history">
+            <div class="history-panel">
+              <q-card flat>
+                <q-card-section>
+                  <div class="text-h6 q-mb-md">Stock Transaction History</div>
+                  <q-table
+                    :rows="stockHistory"
+                    :columns="historyColumns"
+                    row-key="id"
+                    :loading="historyLoading"
+                    :pagination="{ rowsPerPage: 10 }"
+                    dense
+                  >
+                    <template v-slot:body-cell-quantity_change="props">
+                      <q-td :props="props">
+                        <q-chip
+                          :color="props.value > 0 ? 'positive' : 'negative'"
+                          text-color="white"
+                          :label="props.value > 0 ? `+${props.value}` : props.value"
+                          size="sm"
+                        />
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-created_at="props">
+                      <q-td :props="props">
+                        {{ formatDate(props.value) }}
+                      </q-td>
+                    </template>
+                  </q-table>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-tab-panel>
+
+          <!-- KiCad Tab -->
+          <q-tab-panel name="kicad">
+            <div class="kicad-panel">
+              <!-- KiCad Data Status Banner -->
+              <q-card v-if="kicadDataStatus.available" flat bordered class="q-mb-md">
+                <q-card-section class="q-py-sm">
+                  <div class="row items-center q-gutter-md">
+                    <div class="col-auto">
+                      <q-icon
+                        :name="kicadDataStatus.completeness === 'complete' ? 'check_circle' : 'warning'"
+                        :color="kicadDataStatus.completeness === 'complete' ? 'green' : 'amber'"
+                        size="md"
+                      />
+                    </div>
+                    <div class="col">
+                      <div class="text-subtitle2">
+                        KiCad Data Status:
+                        <span :class="{
+                          'text-green': kicadDataStatus.completeness === 'complete',
+                          'text-amber': kicadDataStatus.completeness === 'partial'
+                        }">
+                          {{ kicadDataStatus.completeness === 'complete' ? 'Complete' : 'Partial' }}
+                        </span>
+                      </div>
+                      <div class="text-caption text-grey">
+                        Symbol: {{ kicadDataStatus.hasSymbol ? '✓ Available' : '✗ Missing' }} •
+                        Footprint: {{ kicadDataStatus.hasFootprint ? '✓ Available' : '✗ Missing' }}
+                      </div>
+                    </div>
+                    <div class="col-auto" v-if="canPerformCrud() && kicadDataStatus.completeness !== 'complete'">
+                      <q-btn
+                        size="sm"
+                        color="primary"
+                        :label="kicadDataStatus.completeness === 'partial' ? 'Complete Data' : 'Generate Data'"
+                        @click="generateKiCadData"
+                        :loading="generatingKiCad"
+                      />
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- No KiCad Data State -->
+              <div v-if="!hasKiCadData && !kicadDataStatus.generating" class="no-kicad-data text-center q-pa-xl">
+                <q-icon name="memory" size="4em" color="grey-4" />
+                <div class="text-h6 text-grey q-mt-md">No KiCad Data Available</div>
+                <div class="text-grey q-mb-md">
+                  This component doesn't have KiCad symbol or footprint data yet.
+                  <template v-if="kicadDataStatus.canGenerate">
+                    Generate KiCad data to enable circuit design integration.
+                  </template>
+                  <template v-else>
+                    Add a part number or manufacturer part number to enable data generation.
+                  </template>
+                </div>
+                <q-btn
+                  v-if="canPerformCrud() && kicadDataStatus.canGenerate"
+                  color="primary"
+                  label="Generate KiCad Data"
+                  icon="auto_fix_high"
+                  @click="generateKiCadData"
+                  :loading="generatingKiCad"
+                />
+                <q-btn
+                  v-else-if="canPerformCrud()"
+                  color="grey"
+                  label="Edit Component"
+                  icon="edit"
+                  @click="$emit('edit-component', component)"
+                />
+              </div>
+
+              <!-- Generating State -->
+              <div v-else-if="generatingKiCad" class="generating-kicad text-center q-pa-xl">
+                <q-spinner color="primary" size="3em" />
+                <div class="text-h6 text-grey q-mt-md">Generating KiCad Data...</div>
+                <div class="text-grey">
+                  Please wait while we create symbol and footprint data for this component.
+                </div>
+                <q-linear-progress
+                  indeterminate
+                  color="primary"
+                  class="q-mt-md"
+                  style="max-width: 300px; margin: 0 auto;"
+                />
+              </div>
+
+              <!-- KiCad Viewers -->
+              <div v-else-if="hasKiCadData" class="row q-gutter-md">
+                <!-- Symbol Viewer -->
+                <div class="col-md-6 col-xs-12">
+                  <q-card flat bordered class="q-mb-xs">
+                    <q-card-section class="q-py-sm">
+                      <div class="row items-center q-gutter-sm">
+                        <q-icon name="memory" color="primary" />
+                        <div class="text-subtitle2">Symbol Viewer</div>
+                        <q-space />
+                        <q-chip
+                          v-if="kicadDataStatus.hasSymbol"
+                          size="sm"
+                          color="green"
+                          text-color="white"
+                          label="Available"
+                        />
+                        <q-chip
+                          v-else
+                          size="sm"
+                          color="grey"
+                          text-color="white"
+                          label="Not Available"
+                        />
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                  <KiCadSymbolViewer :component-id="component.id" />
+                </div>
+
+                <!-- Footprint Viewer -->
+                <div class="col-md-6 col-xs-12">
+                  <q-card flat bordered class="q-mb-xs">
+                    <q-card-section class="q-py-sm">
+                      <div class="row items-center q-gutter-sm">
+                        <q-icon name="developer_board" color="primary" />
+                        <div class="text-subtitle2">Footprint Viewer</div>
+                        <q-space />
+                        <q-chip
+                          v-if="kicadDataStatus.hasFootprint"
+                          size="sm"
+                          color="green"
+                          text-color="white"
+                          label="Available"
+                        />
+                        <q-chip
+                          v-else
+                          size="sm"
+                          color="grey"
+                          text-color="white"
+                          label="Not Available"
+                        />
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                  <KiCadFootprintViewer :component-id="component.id" />
+                </div>
+              </div>
+            </div>
+          </q-tab-panel>
+        </q-tab-panels>
       </div>
     </div>
   </div>
@@ -480,6 +709,9 @@ import { useComponentsStore } from '../stores/components'
 import { useAuth } from '../composables/useAuth'
 import type { Component } from '../services/api'
 import AttachmentGallery from './AttachmentGallery.vue'
+import KiCadSymbolViewer from './KiCadSymbolViewer.vue'
+import KiCadFootprintViewer from './KiCadFootprintViewer.vue'
+import { api } from '../boot/axios'
 
 interface Props {
   componentId: string
@@ -502,6 +734,13 @@ const {
 } = storeToRefs(componentsStore)
 
 const stockHistoryLoading = ref(false)
+
+// Tab management
+const activeTab = ref('details')
+
+// KiCad functionality
+const generatingKiCad = ref(false)
+const historyLoading = ref(false)
 
 const stockHistoryColumns = [
   {
@@ -573,6 +812,75 @@ const formatSpecValue = (value: any) => {
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString()
+}
+
+// Computed properties
+const hasKiCadData = computed(() => {
+  return component.value?.kicad_data !== null && component.value?.kicad_data !== undefined
+})
+
+const kicadDataStatus = computed(() => {
+  if (!component.value) return { available: false, generating: false, error: null }
+
+  const kicadData = component.value.kicad_data
+  const hasSymbol = !!(kicadData?.symbol_library || kicadData?.symbol_name)
+  const hasFootprint = !!(kicadData?.footprint_library || kicadData?.footprint_name)
+  const isGenerating = generatingKiCad.value
+
+  return {
+    available: hasSymbol || hasFootprint,
+    hasSymbol,
+    hasFootprint,
+    generating: isGenerating,
+    error: null,
+    canGenerate: !!(component.value.part_number || component.value.manufacturer_part_number),
+    completeness: hasSymbol && hasFootprint ? 'complete' :
+                  hasSymbol || hasFootprint ? 'partial' : 'none'
+  }
+})
+
+const historyColumns = [
+  {
+    name: 'transaction_type',
+    label: 'Type',
+    align: 'left' as const,
+    field: 'transaction_type'
+  },
+  {
+    name: 'quantity_change',
+    label: 'Change',
+    align: 'center' as const,
+    field: 'quantity_change'
+  },
+  {
+    name: 'reason',
+    label: 'Reason',
+    align: 'left' as const,
+    field: 'reason'
+  },
+  {
+    name: 'created_at',
+    label: 'Date',
+    align: 'left' as const,
+    field: 'created_at'
+  }
+]
+
+// KiCad methods
+const generateKiCadData = async () => {
+  if (!component.value) return
+
+  generatingKiCad.value = true
+  try {
+    await api.post(`/api/v1/kicad/components/${component.value.id}/generate`)
+    // Refresh component data to get the new KiCad data
+    await componentsStore.fetchComponent(component.value.id)
+    activeTab.value = 'kicad' // Switch to KiCad tab to show the new data
+  } catch (error) {
+    console.error('Failed to generate KiCad data:', error)
+  } finally {
+    generatingKiCad.value = false
+  }
 }
 
 const downloadAttachment = (attachment: any) => {
@@ -842,5 +1150,66 @@ onMounted(() => {
 .location-link:active {
   color: #0d47a1;
   background-color: rgba(25, 118, 210, 0.08);
+}
+
+/* KiCad Tab Styling */
+.kicad-panel {
+  padding: 16px 0;
+}
+
+.kicad-viewers-container {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.kicad-viewer-section {
+  flex: 1;
+  min-width: 350px;
+}
+
+.no-kicad-data {
+  text-align: center;
+  padding: 48px 24px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.no-kicad-data .q-icon {
+  margin-bottom: 16px;
+}
+
+.generating-kicad {
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.generating-kicad .q-spinner {
+  margin-bottom: 16px;
+}
+
+/* Responsive KiCad Layout */
+@media (max-width: 1024px) {
+  .kicad-viewers-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .kicad-viewer-section {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .kicad-panel {
+    padding: 8px 0;
+  }
+
+  .no-kicad-data {
+    padding: 32px 16px;
+  }
+
+  .generating-kicad {
+    padding: 24px 16px;
+  }
 }
 </style>
