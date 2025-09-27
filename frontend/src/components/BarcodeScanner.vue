@@ -554,7 +554,7 @@ function handleScanSuccess(result: ScanResult) {
   // Save to localStorage
   localStorage.setItem('barcode-scan-history', JSON.stringify(scanHistory.value))
 
-  // Emit result
+  // Emit result immediately for automatic search
   emit('scan-result', result)
 
   // Stop scanning
@@ -562,6 +562,11 @@ function handleScanSuccess(result: ScanResult) {
     clearInterval(scanningInterval)
     scanningInterval = null
   }
+
+  // Auto-close scanner after successful scan
+  setTimeout(() => {
+    stopScanning()
+  }, 1000)
 
   // Search for components if enabled
   if (props.searchComponents) {
