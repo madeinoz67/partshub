@@ -25,11 +25,14 @@ RUN uv pip install --system -e .
 # Create data directory for SQLite database
 RUN mkdir -p /app/data
 
+# Set default port (can be overridden)
+ENV PORT=8000
+
 # Expose port
-EXPOSE 8000
+EXPOSE $PORT
 
 # Set Python path
 ENV PYTHONPATH=/app/src
 
 # Run migrations and start server
-CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port $PORT"]

@@ -17,13 +17,15 @@ class TestComponentsCreateContract:
         # This should fail with 401 until auth is implemented
         assert response.status_code == 401
 
-    def test_create_component_with_jwt_token(self, client: TestClient, sample_component_data):
+    def test_create_component_with_jwt_token(self, client: TestClient, sample_component_data, auth_headers):
         """Test component creation with JWT token"""
-        # Mock JWT token (will fail until auth is implemented)
-        headers = {"Authorization": "Bearer mock_jwt_token"}
-        response = client.post("/api/v1/components", json=sample_component_data, headers=headers)
+        response = client.post("/api/v1/components", json=sample_component_data, headers=auth_headers)
 
-        # This will fail until endpoint is implemented
+        # Debug: Print response details if authentication fails
+        if response.status_code != 201:
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.text}")
+
         assert response.status_code == 201
 
         data = response.json()
@@ -33,46 +35,36 @@ class TestComponentsCreateContract:
         assert "id" in data
         assert "created_at" in data
 
-    def test_create_component_with_api_key(self, client: TestClient, sample_component_data):
+    def test_create_component_with_api_key(self, client: TestClient, sample_component_data, api_token_headers):
         """Test component creation with API key"""
-        headers = {"X-API-Key": "mock_api_key"}
-        response = client.post("/api/v1/components", json=sample_component_data, headers=headers)
+        response = client.post("/api/v1/components", json=sample_component_data, headers=api_token_headers)
 
-        # This will fail until endpoint is implemented
         assert response.status_code == 201
 
-    def test_create_component_validation_errors(self, client: TestClient):
+    def test_create_component_validation_errors(self, client: TestClient, auth_headers):
         """Test validation errors for invalid component data"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
-
         # Missing required fields
         invalid_data = {"name": "Test Component"}
-        response = client.post("/api/v1/components", json=invalid_data, headers=headers)
+        response = client.post("/api/v1/components", json=invalid_data, headers=auth_headers)
 
-        # This will fail until validation is implemented
         assert response.status_code == 422
 
         data = response.json()
         assert "detail" in data
 
-    def test_create_component_with_negative_quantity(self, client: TestClient, sample_component_data):
+    def test_create_component_with_negative_quantity(self, client: TestClient, sample_component_data, auth_headers):
         """Test that negative quantities are rejected"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
-
         invalid_data = sample_component_data.copy()
         invalid_data["quantity_on_hand"] = -10
 
-        response = client.post("/api/v1/components", json=invalid_data, headers=headers)
+        response = client.post("/api/v1/components", json=invalid_data, headers=auth_headers)
 
-        # This will fail until validation is implemented
         assert response.status_code == 422
 
-    def test_create_component_response_structure(self, client: TestClient, sample_component_data):
+    def test_create_component_response_structure(self, client: TestClient, sample_component_data, auth_headers):
         """Test response structure matches OpenAPI spec"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
-        response = client.post("/api/v1/components", json=sample_component_data, headers=headers)
+        response = client.post("/api/v1/components", json=sample_component_data, headers=auth_headers)
 
-        # This will fail until endpoint is implemented
         assert response.status_code == 201
 
         data = response.json()
@@ -89,9 +81,8 @@ class TestComponentsCreateContract:
         for field in required_fields:
             assert field in data
 
-    def test_create_component_with_json_specifications(self, client: TestClient):
+    def test_create_component_with_json_specifications(self, client: TestClient, auth_headers):
         """Test component creation with JSON specifications field"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         component_data = {
             "name": "STM32F103C8T6 Microcontroller",
@@ -115,7 +106,7 @@ class TestComponentsCreateContract:
             "minimum_stock": 2
         }
 
-        response = client.post("/api/v1/components", json=component_data, headers=headers)
+        response = client.post("/api/v1/components", json=component_data, headers=auth_headers)
 
         # This will fail until endpoint is implemented
         assert response.status_code == 201

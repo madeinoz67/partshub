@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "Starting FastAPI backend on port 8000..."
+echo "Starting FastAPI backend on port ${PORT:-8000}..."
 cd /app/backend
 
 # Run database migrations
@@ -14,13 +14,13 @@ if [ "$SEED_DB" = "true" ]; then
 fi
 
 # Start backend in background
-uv run python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 &
+uv run python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000} &
 BACKEND_PID=$!
 
 # Start frontend
-echo "Starting Vue.js frontend on port 3000..."
+echo "Starting Vue.js frontend on port ${FRONTEND_PORT:-3000}..."
 cd /app/frontend
-npm run dev -- --host 0.0.0.0 --port 3000 &
+npm run dev -- --host 0.0.0.0 --port ${FRONTEND_PORT:-3000} &
 FRONTEND_PID=$!
 
 # Wait for both processes

@@ -36,11 +36,11 @@ class StorageLocation(Base):
 
     # Relationships
     parent = relationship("StorageLocation", remote_side=[id], back_populates="children")
-    children = relationship("StorageLocation", back_populates="parent", cascade="all, delete-orphan")
-    component_locations = relationship("ComponentLocation", back_populates="storage_location", cascade="all, delete-orphan")
+    children = relationship("StorageLocation", back_populates="parent", cascade="save-update, merge")
+    component_locations = relationship("ComponentLocation", back_populates="storage_location", cascade="save-update, merge")
 
     def __repr__(self):
-        return f"<StorageLocation(id='{self.id}', name='{self.name}', hierarchy='{self.location_hierarchy}')>"
+        return f"<StorageLocation(id='{self.id}', name='{self.name}', type='{self.type}', hierarchy='{self.location_hierarchy}')>"
 
     @property
     def full_path(self):
@@ -81,6 +81,37 @@ class StorageLocation(Base):
     def get_total_quantity(self):
         """Get total quantity of all components in this location."""
         return sum(location.quantity_on_hand for location in self.component_locations)
+
+    def can_be_deleted(self):
+        """Check if this storage location can be safely deleted."""
+        # Cannot delete if it has components assigned
+        if self.component_locations:
+            return False, "Cannot delete storage location with assigned components"
+
+        # Cannot delete if it has child locations with components
+        for child in self.children:
+            can_delete, reason = child.can_be_deleted()
+            if not can_delete:
+                return False, f"Cannot delete storage location: child '{child.name}' {reason}"
+
+        return True, "Can be safely deleted"
+
+    def get_deletion_blockers(self):
+        """Get detailed list of what prevents deletion of this location."""
+        blockers = []
+
+        # Check for assigned components
+        if self.component_locations:
+            component_names = [cl.component.name for cl in self.component_locations]
+            blockers.append(f"Contains {len(component_names)} component(s): {', '.join(component_names[:3])}{'...' if len(component_names) > 3 else ''}")
+
+        # Check child locations recursively
+        for child in self.children:
+            child_blockers = child.get_deletion_blockers()
+            if child_blockers:
+                blockers.append(f"Child '{child.name}': {'; '.join(child_blockers)}")
+
+        return blockers
 
 
 # Event listener to automatically update location_hierarchy

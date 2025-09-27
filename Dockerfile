@@ -34,9 +34,11 @@ RUN mkdir -p /app/data /app/data/attachments
 ENV DATABASE_URL=sqlite:///./data/partshub.db
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PORT=8000
+ENV FRONTEND_PORT=3000
 
 # Expose both ports
-EXPOSE 3000 8000
+EXPOSE $FRONTEND_PORT $PORT
 
 # Copy startup script
 COPY startup.sh /app/startup.sh
@@ -44,7 +46,7 @@ RUN chmod +x /app/startup.sh
 
 # Health check for backend
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 
 # Override node entrypoint and run the application
 ENTRYPOINT ["/app/startup.sh"]

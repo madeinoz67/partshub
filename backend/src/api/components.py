@@ -12,6 +12,7 @@ import math
 from ..database import get_db
 from ..services.component_service import ComponentService
 from ..models import Component, StockTransaction
+from ..auth import require_auth, get_optional_user
 
 # Pydantic schemas
 class ComponentBase(BaseModel):
@@ -99,16 +100,7 @@ class ComponentsListResponse(BaseModel):
 
 router = APIRouter(prefix="/api/v1/components", tags=["components"])
 
-# Mock authentication dependency (to be implemented properly later)
-def get_current_user():
-    """Mock authentication - always returns None for anonymous access."""
-    return None
-
-def require_auth():
-    """Mock authentication requirement - allows mock tokens for testing."""
-    # For MVP testing, allow mock JWT tokens and API keys
-    # In production, this would validate real tokens
-    return {"user_id": "test_user", "username": "test"}  # Mock user
+# Authentication implemented - using real auth system
 
 @router.get("", response_model=ComponentsListResponse)
 def list_components(

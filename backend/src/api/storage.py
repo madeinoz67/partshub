@@ -10,6 +10,7 @@ import uuid
 
 from ..database import get_db
 from ..services.storage_service import StorageLocationService
+from ..auth import require_auth, get_optional_user
 
 # Pydantic schemas
 class StorageLocationBase(BaseModel):
@@ -53,11 +54,7 @@ class BulkCreateRequest(BaseModel):
 
 router = APIRouter(prefix="/api/v1/storage-locations", tags=["storage"])
 
-def require_auth():
-    """Mock authentication requirement - allows mock tokens for testing."""
-    # For MVP testing, allow mock JWT tokens and API keys
-    # In production, this would validate real tokens
-    return {"user_id": "test_user", "username": "test"}  # Mock user
+# Authentication implemented - using real auth system
 
 @router.get("", response_model=List[StorageLocationResponse])
 def list_storage_locations(

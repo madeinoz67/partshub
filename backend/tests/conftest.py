@@ -3,19 +3,31 @@ Pytest configuration and shared fixtures
 """
 
 import pytest
+import os
+
+# Set testing environment variables to ensure complete isolation
+os.environ["TESTING"] = "1"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
+os.environ["PORT"] = "8001"  # Use different port for tests (production uses 8000)
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from alembic.config import Config
+from alembic import command
 
 from src.database.connection import Base, get_db
 from src.main import app
+from src.auth.jwt_auth import create_access_token
+# Import all models to ensure they're registered with Base
+import src.models
+from src.models import User, APIToken
 
-# Test database URL - in-memory SQLite
+# Test database URL - in-memory database for complete isolation
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
 # Create test engine
-engine = create_engine(
+test_engine = create_engine(
     TEST_DATABASE_URL,
     poolclass=StaticPool,
     connect_args={"check_same_thread": False},
@@ -23,38 +35,64 @@ engine = create_engine(
 )
 
 # Create test session
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+def apply_migrations():
+    """Apply all Alembic migrations to the test database"""
+    # Set environment variable for test database
+    os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+
+    # Load Alembic configuration
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
+
+    # Run migrations
+    command.upgrade(alembic_cfg, "head")
+
+
+@pytest.fixture(scope="function", autouse=True)
+def setup_test_database():
+    """
+    Set up fresh in-memory test database for each test
+    """
+    # Use the correct Base from models package to create all tables
+    from src.models import Base as ModelsBase
+    ModelsBase.metadata.create_all(bind=test_engine)
+
+    yield
+
+    # Drop all tables after test for clean state
+    ModelsBase.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Create a fresh database session for each test
+    Create a database session for each test
     """
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
-
-    # Create session
     session = TestingSessionLocal()
-
     try:
         yield session
     finally:
         session.close()
-        # Drop all tables after test
-        Base.metadata.drop_all(bind=engine)
+
+
+# Remove global_test_users fixture to avoid duplicate user creation
+# Individual test fixtures will create users as needed
 
 
 @pytest.fixture(scope="function")
-def client(db_session):
+def client():
     """
-    Create a test client with overridden database dependency
+    Create a test client with test database injection
     """
     def override_get_db():
+        session = TestingSessionLocal()
         try:
-            yield db_session
+            yield session
         finally:
-            pass
+            session.close()
 
     app.dependency_overrides[get_db] = override_get_db
 
@@ -100,3 +138,87 @@ def sample_storage_location_data():
         "location_type": "drawer",
         "is_single_part_only": False
     }
+
+
+# Remove test_user fixtures that depend on global_test_users
+# Individual tests will create users as needed
+
+
+@pytest.fixture
+def auth_headers(client, db_session):
+    """
+    Create valid JWT token headers for authenticated requests (admin)
+    Creates a fresh test user in the isolated test database
+    """
+    # Create a test admin user directly in the test database session
+    admin_user = User(
+        username="testadmin",
+        full_name="Test Admin",
+        is_admin=True,
+        is_active=True
+    )
+    admin_user.set_password("testpassword")
+
+    db_session.add(admin_user)
+    db_session.commit()
+    db_session.refresh(admin_user)
+
+    # Create JWT token for this user
+    token = create_access_token({
+        "sub": admin_user.id,  # Use 'sub' as standard JWT claim for user ID
+        "user_id": admin_user.id,  # Keep for backward compatibility
+        "username": admin_user.username,
+        "is_admin": admin_user.is_admin
+    })
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def user_auth_headers(client, db_session):
+    """
+    Create valid JWT token headers for regular user requests
+    Creates a fresh regular test user in the isolated test database
+    """
+    # Create a test regular user directly in the test database session
+    regular_user = User(
+        username="testuser",
+        full_name="Test User",
+        is_admin=False,
+        is_active=True
+    )
+    regular_user.set_password("testpassword")
+
+    db_session.add(regular_user)
+    db_session.commit()
+    db_session.refresh(regular_user)
+
+    # Create JWT token for this user
+    token = create_access_token({
+        "sub": regular_user.id,  # Use 'sub' as standard JWT claim for user ID
+        "user_id": regular_user.id,  # Keep for backward compatibility
+        "username": regular_user.username,
+        "is_admin": regular_user.is_admin
+    })
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def api_token_headers(auth_headers, db_session):
+    """
+    Create valid API token headers for authenticated requests
+    Uses the same admin user created by auth_headers fixture
+    """
+    # Get the admin user that was created by auth_headers
+    admin_user = db_session.query(User).filter(User.username == "testadmin").first()
+
+    api_token = APIToken(
+        user_id=admin_user.id,
+        name="Test API Token",
+        description="Token for testing",
+        scopes=["components:read", "components:write", "storage:read", "storage:write"]
+    )
+    api_token.generate_token()
+    db_session.add(api_token)
+    db_session.commit()
+
+    return {"X-API-Key": api_token.token}

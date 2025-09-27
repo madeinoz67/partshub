@@ -72,20 +72,22 @@ async def startup_event():
     except Exception as e:
         print(f"Warning: SQLAlchemy mapper configuration issue: {e}")
 
-    # Ensure default admin user exists
-    db = next(get_db())
-    try:
-        result = ensure_admin_exists(db)
-        if result:
-            user, password = result
-            print(f"\n🔑 DEFAULT ADMIN CREATED:")
-            print(f"   Username: {user.username}")
-            print(f"   Password: {password}")
-            print(f"   ⚠️  Please change this password after first login!\n")
-    except Exception as e:
-        print(f"Error creating default admin user: {e}")
-    finally:
-        db.close()
+    # Ensure default admin user exists (skip during tests)
+    import os
+    if not os.getenv("TESTING"):
+        db = next(get_db())
+        try:
+            result = ensure_admin_exists(db)
+            if result:
+                user, password = result
+                print(f"\n🔑 DEFAULT ADMIN CREATED:")
+                print(f"   Username: {user.username}")
+                print(f"   Password: {password}")
+                print(f"   ⚠️  Please change this password after first login!\n")
+        except Exception as e:
+            print(f"Error creating default admin user: {e}")
+        finally:
+            db.close()
 
     # Optimize database with search indexes
     db = next(get_db())
@@ -125,4 +127,6 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    import os
+    port = int(os.getenv("PORT", 8000))  # Use PORT env var, default to 8000
+    uvicorn.run(app, host="0.0.0.0", port=port, reload=True)

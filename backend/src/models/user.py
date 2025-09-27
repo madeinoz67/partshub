@@ -4,6 +4,7 @@ User model for authentication and authorization.
 
 from datetime import datetime, timezone
 from typing import List, TYPE_CHECKING
+import uuid
 
 from sqlalchemy import Boolean, Column, DateTime, String, Text
 from sqlalchemy.orm import relationship
@@ -23,7 +24,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     username = Column(String(50), unique=True, nullable=False, index=True)
     full_name = Column(String(255), nullable=True)
     hashed_password = Column(Text, nullable=False)
