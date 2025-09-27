@@ -53,21 +53,6 @@
             />
           </div>
 
-          <div class="col-md-2 col-xs-12">
-            <q-select
-              v-model="selectedStockStatus"
-              outlined
-              dense
-              emit-value
-              map-options
-              clearable
-              label="Stock Status"
-              :options="stockStatusOptions"
-              @update:model-value="onStockFilter"
-            />
-          </div>
-
-
           <div class="col-md-1 col-xs-12" v-if="canPerformCrud()">
             <q-btn
               color="primary"
@@ -85,7 +70,11 @@
     <!-- Statistics Cards -->
     <div class="row q-gutter-xs q-mb-sm no-wrap">
       <div class="col">
-        <q-card class="mini-stats">
+        <q-card
+          class="mini-stats clickable-metric"
+          :class="{ 'active-filter': activeFilter === 'all' }"
+          @click="filterByStatus('all')"
+        >
           <q-card-section class="q-pa-xs text-center">
             <div class="text-subtitle2 q-mb-none">{{ totalComponents }}</div>
             <div class="text-overline text-grey">Total</div>
@@ -94,27 +83,39 @@
       </div>
 
       <div class="col">
-        <q-card class="mini-stats">
+        <q-card
+          class="mini-stats clickable-metric"
+          :class="{ 'active-filter': activeFilter === 'low' }"
+          @click="filterByStatus('low')"
+        >
           <q-card-section class="q-pa-xs text-center">
-            <div class="text-subtitle2 text-orange q-mb-none">{{ lowStockComponents.length }}</div>
+            <div class="text-subtitle2 text-orange q-mb-none">{{ totalLowStock }}</div>
             <div class="text-overline text-grey">Low Stock</div>
           </q-card-section>
         </q-card>
       </div>
 
       <div class="col">
-        <q-card class="mini-stats">
+        <q-card
+          class="mini-stats clickable-metric"
+          :class="{ 'active-filter': activeFilter === 'out' }"
+          @click="filterByStatus('out')"
+        >
           <q-card-section class="q-pa-xs text-center">
-            <div class="text-subtitle2 text-red q-mb-none">{{ outOfStockComponents.length }}</div>
+            <div class="text-subtitle2 text-red q-mb-none">{{ totalOutOfStock }}</div>
             <div class="text-overline text-grey">Out of Stock</div>
           </q-card-section>
         </q-card>
       </div>
 
       <div class="col">
-        <q-card class="mini-stats">
+        <q-card
+          class="mini-stats clickable-metric"
+          :class="{ 'active-filter': activeFilter === 'available' }"
+          @click="filterByStatus('available')"
+        >
           <q-card-section class="q-pa-xs text-center">
-            <div class="text-subtitle2 text-green q-mb-none">{{ components.length - outOfStockComponents.length }}</div>
+            <div class="text-subtitle2 text-green q-mb-none">{{ totalAvailable }}</div>
             <div class="text-overline text-grey">Available</div>
           </q-card-section>
         </q-card>
@@ -147,8 +148,11 @@
       :rows-per-page-options="[25, 50, 100]"
       v-model:expanded="expanded"
       dense
+      flat
+      bordered
+      :grid="$q.screen.xs"
       @row-click="onRowClick"
-      class="compact-table"
+      class="compact-table responsive-table"
     >
       <!-- Use body slot for internal expansion model -->
       <template v-slot:body="props">
@@ -830,13 +834,16 @@ const {
   totalPages,
   itemsPerPage,
   lowStockComponents,
-  outOfStockComponents
+  outOfStockComponents,
+  totalLowStock,
+  totalOutOfStock,
+  totalAvailable
 } = storeToRefs(componentsStore)
 
 // Local state
 const searchQuery = ref('')
 const selectedCategory = ref('')
-const selectedStockStatus = ref('')
+const activeFilter = ref('all')
 const sortBy = ref('updated_at')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const expanded = ref<string[]>([])
@@ -937,12 +944,6 @@ const categoryOptions = computed(() => {
   }))
 })
 
-const stockStatusOptions = [
-  { label: 'Low Stock', value: 'low' },
-  { label: 'Out of Stock', value: 'out' },
-  { label: 'Available', value: 'available' }
-]
-
 // Methods
 const getStockStatusColor = (component: Component) => {
   if (component.quantity_on_hand === 0) return 'negative'
@@ -1013,8 +1014,13 @@ const onCategoryFilter = (category: string) => {
   componentsStore.filterByCategory(category)
 }
 
-const onStockFilter = (status: 'low' | 'out' | 'available' | undefined) => {
-  componentsStore.filterByStockStatus(status)
+const filterByStatus = (status: 'all' | 'low' | 'out' | 'available') => {
+  activeFilter.value = status
+  if (status === 'all') {
+    componentsStore.clearFilters()
+  } else {
+    componentsStore.filterByStockStatus(status)
+  }
 }
 
 // Client-side table with no server-side requests needed for sorting
@@ -1284,6 +1290,7 @@ const deleteAttachment = async (attachment: any, componentId: string) => {
 // Lifecycle
 onMounted(() => {
   componentsStore.fetchComponents()
+  componentsStore.fetchMetrics()
 })
 </script>
 
@@ -1386,5 +1393,80 @@ onMounted(() => {
 .primary-image-placeholder .q-card {
   border-radius: 8px;
   border: 2px dashed #e0e0e0;
+}
+
+/* Clickable metrics styling */
+.clickable-metric {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.clickable-metric:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.clickable-metric.active-filter {
+  border: 2px solid #1976d2;
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+.clickable-metric.active-filter:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+/* Table responsive styling */
+.responsive-table {
+  min-width: 100%;
+  overflow-x: auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 599px) {
+  .responsive-table :deep(.q-table__container) {
+    overflow-x: auto;
+  }
+
+  .responsive-table :deep(.q-table__middle) {
+    min-width: 100%;
+  }
+
+  .responsive-table :deep(.q-td) {
+    white-space: nowrap;
+    padding: 4px 2px;
+    font-size: 0.75rem;
+  }
+
+  .responsive-table :deep(.q-th) {
+    padding: 4px 2px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Hide less important columns on very small screens */
+  .responsive-table :deep(.q-td:nth-child(n+5)),
+  .responsive-table :deep(.q-th:nth-child(n+5)) {
+    display: none;
+  }
+
+  /* Make first column (expand/component name) wider */
+  .responsive-table :deep(.q-td:first-child),
+  .responsive-table :deep(.q-th:first-child) {
+    min-width: 120px;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .responsive-table :deep(.q-td) {
+    padding: 3px 4px;
+    font-size: 0.8rem;
+  }
+
+  .responsive-table :deep(.q-th) {
+    padding: 3px 4px;
+    font-size: 0.8rem;
+  }
 }
 </style>

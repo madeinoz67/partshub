@@ -20,6 +20,11 @@ export const useComponentsStore = defineStore('components', () => {
   const totalPages = ref(1)
   const itemsPerPage = ref(50)
 
+  // Metrics state (always calculated from full dataset for dashboard)
+  const totalLowStock = ref(0)
+  const totalOutOfStock = ref(0)
+  const totalAvailable = ref(0)
+
   // Filter state
   const filters = ref<ComponentFilters>({
     search: '',
@@ -270,6 +275,25 @@ export const useComponentsStore = defineStore('components', () => {
     fetchComponents()
   }
 
+  const fetchMetrics = async () => {
+    try {
+      // Fetch metrics by making separate API calls for each status
+      const [lowStockResponse, outOfStockResponse, totalResponse] = await Promise.all([
+        APIService.getComponents({ stock_status: 'low', limit: 1 }),
+        APIService.getComponents({ stock_status: 'out', limit: 1 }),
+        APIService.getComponents({ limit: 1 })
+      ])
+
+      totalLowStock.value = lowStockResponse.total
+      totalOutOfStock.value = outOfStockResponse.total
+      totalComponents.value = totalResponse.total
+      totalAvailable.value = totalResponse.total - outOfStockResponse.total
+
+    } catch (err: any) {
+      console.error('Error fetching metrics:', err)
+    }
+  }
+
   return {
     // State
     components,
@@ -282,6 +306,11 @@ export const useComponentsStore = defineStore('components', () => {
     totalPages,
     itemsPerPage,
     filters,
+
+    // Metrics state
+    totalLowStock,
+    totalOutOfStock,
+    totalAvailable,
 
     // Getters
     lowStockComponents,
@@ -304,5 +333,6 @@ export const useComponentsStore = defineStore('components', () => {
     filterByStockStatus,
     sortComponents,
     clearFilters,
+    fetchMetrics,
   }
 })
