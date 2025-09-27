@@ -47,6 +47,9 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 4. **Given** I have components in different storage locations, **When** I view a component, **Then** I can see exactly which box/drawer/shelf it's stored in
 5. **Given** I want to order more components, **When** I generate a shopping list, **Then** I see parts that are low in stock with supplier information
 6. **Given** I'm browsing the components table, **When** I click the expand arrow on a component row, **Then** I see detailed specifications, stock information, and attachments inline without navigating to a separate page
+7. **Given** I'm viewing a component's details, **When** I click on the KiCad tab, **Then** I see graphical representations of the component's symbol and footprint with pin/pad layouts for PCB design reference
+8. **Given** I have a custom KiCad symbol file for a component, **When** I upload it via the KiCad tab, **Then** the custom symbol overrides the auto-generated one and is displayed in the preview
+9. **Given** I want to use a provider's KiCad data, **When** the component is imported from LCSC or similar provider, **Then** the provider's symbol and footprint take precedence over auto-generated versions
 
 ### Edge Cases
 
@@ -118,6 +121,14 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-038**: System MUST provide KiCad integration allowing KiCad to query and retrieve component data via API
 - **FR-039**: System MUST support KiCad-specific data formats for component symbols, footprints, and 3D models
 - **FR-040**: System MUST enable component selection and library synchronization between KiCad and PartsHub inventory
+- **FR-070**: System MUST display graphical representations of KiCad symbols and footprints in component detail view
+- **FR-071**: System MUST provide dedicated KiCad tab in component details showing visual symbol preview with pin layouts
+- **FR-072**: System MUST show footprint graphics with pad layouts and physical dimensions for PCB design reference
+- **FR-073**: System MUST render KiCad library data in user-friendly format showing component electrical and physical properties
+- **FR-074**: System MUST allow users to upload custom KiCad symbol and footprint files to override auto-generated versions
+- **FR-075**: System MUST support provider-downloaded KiCad symbols and footprints with preference over auto-generated ones
+- **FR-076**: System MUST provide symbol/footprint source priority: custom upload > provider download > auto-generated
+- **FR-077**: System MUST allow users to reset to auto-generated symbols/footprints and manage custom overrides
 - **FR-041**: System MUST support bulk storage location creation with configurable prefix and naming patterns
 - **FR-042**: System MUST provide multiple storage layout options (Single, Row, Grid, 3D Grid) for location organization
 - **FR-043**: System MUST support flexible location naming with letter ranges (a-z), number ranges (1-999), and capitalization options
