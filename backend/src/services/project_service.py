@@ -39,8 +39,7 @@ class ProjectService:
         return (
             self.db.query(Project)
             .options(
-                selectinload(Project.project_components).selectinload(ProjectComponent.component),
-                selectinload(Project.project_components).selectinload(ProjectComponent.stock_transactions)
+                selectinload(Project.project_components).selectinload(ProjectComponent.component)
             )
             .filter(Project.id == project_id)
             .first()
@@ -137,6 +136,27 @@ class ProjectService:
 
         return query.all()
 
+    def count_projects(
+        self,
+        status: Optional[str] = None,
+        search: Optional[str] = None
+    ) -> int:
+        """Count projects with filtering."""
+        query = self.db.query(Project)
+
+        # Apply filters (same as list_projects)
+        if status:
+            query = query.filter(Project.status == status)
+
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                Project.name.ilike(search_term) |
+                Project.description.ilike(search_term)
+            )
+
+        return query.count()
+
     def allocate_component_to_project(
         self,
         project_id: str,
@@ -187,7 +207,6 @@ class ProjectService:
         else:
             # Create new allocation
             project_component = ProjectComponent(
-                id=str(uuid.uuid4()),
                 project_id=project_id,
                 component_id=component_id,
                 quantity_allocated=quantity,
@@ -288,7 +307,7 @@ class ProjectService:
             self.db.query(ProjectComponent)
             .options(selectinload(ProjectComponent.component))
             .filter(ProjectComponent.project_id == project_id)
-            .order_by(ProjectComponent.created_at)
+            .order_by(ProjectComponent.updated_at)
             .all()
         )
 
@@ -299,7 +318,7 @@ class ProjectService:
             .options(selectinload(ProjectComponent.project))
             .filter(ProjectComponent.component_id == component_id)
             .filter(ProjectComponent.quantity_allocated > 0)
-            .order_by(ProjectComponent.created_at)
+            .order_by(ProjectComponent.updated_at)
             .all()
         )
 
@@ -311,7 +330,7 @@ class ProjectService:
 
         # Calculate statistics
         total_components = (
-            self.db.query(func.count(ProjectComponent.id))
+            self.db.query(func.count(ProjectComponent.project_id))
             .filter(ProjectComponent.project_id == project_id)
             .scalar()
         )

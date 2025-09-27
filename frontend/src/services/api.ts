@@ -411,6 +411,142 @@ export class APIService {
   static async revokeAPIToken(tokenId: string): Promise<void> {
     await api.delete(`/api/v1/auth/api-tokens/${tokenId}`)
   }
+
+  // Projects API
+  static async getProjects(params: {
+    search?: string
+    status?: string
+    limit?: number
+    offset?: number
+    sort_by?: string
+    sort_order?: string
+  } = {}): Promise<{
+    projects: Array<{
+      id: string
+      name: string
+      description: string | null
+      version: string | null
+      status: string
+      notes: string | null
+      created_at: string
+      updated_at: string
+      component_count?: number
+      total_cost?: number
+    }>
+    total: number
+  }> {
+    const query = new URLSearchParams()
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, value.toString())
+      }
+    })
+
+    const response = await api.get(`/api/v1/projects/?${query}`)
+    return response.data
+  }
+
+  static async getProject(id: string): Promise<{
+    id: string
+    name: string
+    description: string | null
+    version: string | null
+    status: string
+    notes: string | null
+    created_at: string
+    updated_at: string
+  }> {
+    const response = await api.get(`/api/v1/projects/${id}`)
+    return response.data
+  }
+
+  static async createProject(data: {
+    name: string
+    description?: string
+    version?: string
+    status?: string
+    notes?: string
+  }): Promise<{
+    id: string
+    name: string
+    description: string | null
+    version: string | null
+    status: string
+    notes: string | null
+    created_at: string
+    updated_at: string
+  }> {
+    const response = await api.post('/api/v1/projects/', data)
+    return response.data
+  }
+
+  static async updateProject(id: string, data: {
+    name?: string
+    description?: string
+    version?: string
+    status?: string
+    notes?: string
+  }): Promise<{
+    id: string
+    name: string
+    description: string | null
+    version: string | null
+    status: string
+    notes: string | null
+    created_at: string
+    updated_at: string
+  }> {
+    const response = await api.patch(`/api/v1/projects/${id}`, data)
+    return response.data
+  }
+
+  static async deleteProject(id: string): Promise<void> {
+    await api.delete(`/api/v1/projects/${id}`)
+  }
+
+  static async getProjectStatistics(id: string): Promise<{
+    total_components: number
+    allocated_components: number
+    total_cost: number
+    completion_percentage: number
+  }> {
+    const response = await api.get(`/api/v1/projects/${id}/statistics`)
+    return response.data
+  }
+
+  static async getProjectComponents(id: string): Promise<Array<{
+    project_id: string
+    component_id: string
+    quantity_allocated: number
+    quantity_used: number
+    quantity_reserved: number
+    notes: string | null
+    designator: string | null
+    unit_cost_at_allocation: number | null
+    allocated_at: string
+    updated_at: string
+    component_name: string | null
+    component_part_number: string | null
+  }>> {
+    const response = await api.get(`/api/v1/projects/${id}/components`)
+    return response.data
+  }
+
+  static async allocateComponent(projectId: string, data: {
+    component_id: string
+    quantity: number
+  }): Promise<void> {
+    await api.post(`/api/v1/projects/${projectId}/allocate`, data)
+  }
+
+  static async returnComponent(projectId: string, data: {
+    component_id: string
+    quantity: number
+  }): Promise<void> {
+    await api.post(`/api/v1/projects/${projectId}/return`, data)
+  }
 }
 
 export default api
+export { api }

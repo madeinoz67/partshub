@@ -15,16 +15,15 @@ logger = logging.getLogger(__name__)
 # - macOS: brew install zbar; pip install pyzbar
 # - Docker: apt-get install libzbar0; pip install pyzbar
 # For now, we'll provide a mock implementation with graceful fallback
+from ..models import Component
+from ..database import get_session
+
 try:
     from pyzbar import pyzbar
     PYZBAR_AVAILABLE = True
 except ImportError:
     PYZBAR_AVAILABLE = False
-    # Log the missing dependency for debugging
-    logger.warning("pyzbar not available - using mock barcode scanning. Install with: pip install pyzbar")
-
-from ..models import Component
-from ..database import get_session
+    # pyzbar not available - using mock barcode scanning
 
 
 class BarcodeResult:

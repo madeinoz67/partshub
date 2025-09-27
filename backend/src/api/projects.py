@@ -9,10 +9,11 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from datetime import datetime
 import uuid
+import math
 
 from ..database import get_db
 from ..services.project_service import ProjectService
-from ..auth.dependencies import require_auth, require_auth_legacy
+from ..auth.dependencies import require_auth, require_auth_legacy, require_admin
 from ..models import ProjectStatus
 
 router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
@@ -37,6 +38,7 @@ class ProjectUpdate(BaseModel):
     version: Optional[str] = None
     client_project_id: Optional[str] = None
     budget_allocated: Optional[float] = None
+    notes: Optional[str] = None
 
 
 class ProjectResponse(BaseModel):
@@ -83,7 +85,7 @@ class ProjectComponentResponse(BaseModel):
     notes: Optional[str]
     designator: Optional[str]
     unit_cost_at_allocation: Optional[float]
-    created_at: datetime
+    allocated_at: datetime
     updated_at: datetime
 
     # Include component details
@@ -106,6 +108,15 @@ class ProjectStatisticsResponse(BaseModel):
     updated_at: Optional[str]
 
 
+class ProjectsListResponse(BaseModel):
+    """Projects list response with pagination."""
+    projects: List[ProjectResponse]
+    total: int
+    page: int
+    total_pages: int
+    limit: int
+
+
 def validate_uuid(project_id: str) -> None:
     """Validate UUID format and raise 422 error if invalid."""
     try:
@@ -118,7 +129,7 @@ def validate_uuid(project_id: str) -> None:
 @router.post("/", response_model=ProjectResponse)
 async def create_project(
     project_data: ProjectCreate,
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """Create a new project."""
@@ -126,7 +137,7 @@ async def create_project(
 
     try:
         project = project_service.create_project(project_data.dict())
-        return ProjectResponse.from_orm(project)
+        return ProjectResponse.model_validate(project)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -134,7 +145,7 @@ async def create_project(
         )
 
 
-@router.get("/", response_model=List[ProjectResponse])
+@router.get("/", response_model=ProjectsListResponse)
 async def list_projects(
     status_filter: Optional[str] = Query(None, alias="status", description="Filter by project status"),
     search: Optional[str] = Query(None, description="Search in project name and description"),
@@ -147,6 +158,12 @@ async def list_projects(
     """List projects with filtering and pagination."""
     project_service = ProjectService(db)
 
+    # Get total count for pagination
+    total_count = project_service.count_projects(
+        status=status_filter,
+        search=search
+    )
+
     projects = project_service.list_projects(
         status=status_filter,
         search=search,
@@ -156,7 +173,17 @@ async def list_projects(
         offset=offset
     )
 
-    return [ProjectResponse.from_orm(project) for project in projects]
+    # Calculate pagination info
+    page = (offset // limit) + 1 if limit > 0 else 1
+    total_pages = math.ceil(total_count / limit) if limit > 0 else 1
+
+    return ProjectsListResponse(
+        projects=[ProjectResponse.model_validate(project) for project in projects],
+        total=total_count,
+        page=page,
+        total_pages=total_pages,
+        limit=limit
+    )
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
@@ -176,14 +203,14 @@ async def get_project(
             detail="Project not found"
         )
 
-    return ProjectResponse.from_orm(project)
+    return ProjectResponse.model_validate(project)
 
 
 @router.patch("/{project_id}", response_model=ProjectResponse)
 async def update_project(
     project_id: str,
     project_update: ProjectUpdate,
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """Update project details."""
@@ -202,14 +229,14 @@ async def update_project(
             detail="Project not found"
         )
 
-    return ProjectResponse.from_orm(project)
+    return ProjectResponse.model_validate(project)
 
 
 @router.delete("/{project_id}")
 async def delete_project(
     project_id: str,
     force: bool = Query(False, description="Force delete even with allocated components"),
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """Delete a project."""
@@ -239,7 +266,7 @@ async def delete_project(
 async def allocate_component(
     project_id: str,
     allocation: ComponentAllocationRequest,
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """Allocate components to a project."""
@@ -256,7 +283,7 @@ async def allocate_component(
         )
 
         # Create response with component details
-        response_data = ProjectComponentResponse.from_orm(project_component)
+        response_data = ProjectComponentResponse.model_validate(project_component)
         if project_component.component:
             response_data.component_name = project_component.component.name
             response_data.component_part_number = project_component.component.part_number
@@ -273,7 +300,7 @@ async def allocate_component(
 async def return_component(
     project_id: str,
     return_request: ComponentReturnRequest,
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """Return components from a project to inventory."""
@@ -290,7 +317,7 @@ async def return_component(
         )
 
         # Create response with component details
-        response_data = ProjectComponentResponse.from_orm(project_component)
+        response_data = ProjectComponentResponse.model_validate(project_component)
         if project_component.component:
             response_data.component_name = project_component.component.name
             response_data.component_part_number = project_component.component.part_number
@@ -317,7 +344,7 @@ async def get_project_components(
     # Create responses with component details
     responses = []
     for pc in project_components:
-        response_data = ProjectComponentResponse.from_orm(pc)
+        response_data = ProjectComponentResponse.model_validate(pc)
         if pc.component:
             response_data.component_name = pc.component.name
             response_data.component_part_number = pc.component.part_number
@@ -350,7 +377,7 @@ async def get_project_statistics(
 async def close_project(
     project_id: str,
     return_components: bool = Query(True, description="Whether to return allocated components to inventory"),
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """Close a project and optionally return components to inventory."""

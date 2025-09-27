@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from ..services.provider_service import ProviderService
 from ..services.import_service import ImportService
-from ..services.barcode_service import BarcodeService
+# from ..services.barcode_service import BarcodeService  # Temporarily disabled due to import issues
 from ..services.kicad_service import KiCadExportService
 from ..services.kicad_library import KiCadLibraryManager
 from ..services.provider_attachment_service import provider_attachment_service
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/api/v1", tags=["integrations"])
 # Initialize services
 provider_service = ProviderService()
 import_service = ImportService()
-barcode_service = BarcodeService()
+# barcode_service = BarcodeService()  # Disabled
 kicad_service = KiCadExportService()
 kicad_library = KiCadLibraryManager()
 
@@ -292,48 +292,48 @@ async def download_component_attachments(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Barcode endpoints
-@router.post("/barcode/scan")
-async def scan_barcode(
-    request: BarcodeProcessRequest,
-    
-):
-    """Process barcode scan from image data"""
-    try:
-        result = await barcode_service.process_barcode_scan(request.image_data)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# Barcode endpoints - temporarily disabled due to import issues
+# @router.post("/barcode/scan")
+# async def scan_barcode(
+#     request: BarcodeProcessRequest,
+#
+# ):
+#     """Process barcode scan from image data"""
+#     try:
+#         result = await barcode_service.process_barcode_scan(request.image_data)
+#         return result
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/barcode/upload")
-async def scan_barcode_file(
-    file: UploadFile = File(...),
-    
-):
-    """Scan barcode from uploaded image file"""
-    try:
-        # Read file content
-        content = await file.read()
+# @router.post("/barcode/upload")
+# async def scan_barcode_file(
+#     file: UploadFile = File(...),
+#
+# ):
+#     """Scan barcode from uploaded image file"""
+#     try:
+#         # Read file content
+#         content = await file.read()
 
-        # Convert to base64
-        import base64
-        image_data = base64.b64encode(content).decode('utf-8')
+#         # Convert to base64
+#         import base64
+#         image_data = base64.b64encode(content).decode('utf-8')
 
-        result = await barcode_service.process_barcode_scan(f"data:image/{file.content_type};base64,{image_data}")
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#         result = await barcode_service.process_barcode_scan(f"data:image/{file.content_type};base64,{image_data}")
+#         return result
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/barcode/info")
-async def get_barcode_service_info():
-    """Get barcode service information and capabilities"""
-    try:
-        info = barcode_service.get_service_info()
-        return info
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# @router.get("/barcode/info")
+# async def get_barcode_service_info():
+#     """Get barcode service information and capabilities"""
+#     try:
+#         info = barcode_service.get_service_info()
+#         return info
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 # KiCad endpoints

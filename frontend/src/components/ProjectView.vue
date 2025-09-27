@@ -1,5 +1,20 @@
 <template>
   <div class="project-view">
+    <!-- Close Button - Prominent and visible -->
+    <div class="row justify-end q-mb-md" style="position: relative; z-index: 9999;">
+      <q-btn
+        unelevated
+        round
+        icon="close"
+        @click="$emit('close')"
+        aria-label="Close dialog"
+        color="red"
+        text-color="white"
+        size="lg"
+        style="position: sticky; top: 0; right: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.3);"
+      />
+    </div>
+
     <q-card class="q-pa-md">
       <!-- Project Header -->
       <div class="row items-center q-mb-md">
@@ -100,8 +115,8 @@
           <template v-slot:body-cell-component="props">
             <q-td :props="props">
               <div>
-                <div class="text-weight-medium">{{ props.row.component?.part_number }}</div>
-                <div class="text-caption text-grey-6">{{ props.row.component?.name }}</div>
+                <div class="text-weight-medium">{{ props.row.component_part_number || 'No Part Number' }}</div>
+                <div class="text-caption text-grey-6">{{ props.row.component_name || 'No Component Name' }}</div>
               </div>
             </q-td>
           </template>
@@ -222,7 +237,7 @@
         <q-card-section>
           <div class="q-gutter-md">
             <div class="text-body2">
-              <strong>Component:</strong> {{ componentToReturn?.component?.part_number }}
+              <strong>Component:</strong> {{ componentToReturn?.component_part_number }}
             </div>
             <div class="text-body2">
               <strong>Currently Allocated:</strong> {{ componentToReturn?.quantity_allocated }}
@@ -265,7 +280,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
-import { api } from '../services/api'
+import { APIService } from '../services/api'
 
 const props = defineProps({
   projectId: {
@@ -273,6 +288,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['close', 'project-updated'])
 
 const route = useRoute()
 const router = useRouter()
@@ -318,7 +335,7 @@ const allocationColumns = [
   {
     name: 'allocated_date',
     label: 'Allocated Date',
-    field: 'created_at',
+    field: 'allocated_at',
     align: 'center',
     sortable: true,
     format: (val) => val ? new Date(val).toLocaleDateString() : ''
@@ -358,23 +375,34 @@ const getStatusColor = (status) => {
 
 // Methods
 const loadProject = async () => {
-  if (!props.projectId) return
+  if (!props.projectId) {
+    console.log('No projectId provided')
+    return
+  }
 
+  console.log('Loading project:', props.projectId)
   loading.value = true
   try {
     // Load project details
-    const projectResponse = await api.get(`/projects/${props.projectId}`)
-    project.value = projectResponse.data
+    console.log('Loading project details...')
+    const projectResponse = await APIService.getProject(props.projectId)
+    project.value = projectResponse
+    console.log('Project details loaded:', projectResponse)
 
     // Load project statistics
-    const statsResponse = await api.get(`/projects/${props.projectId}/statistics`)
-    stats.value = statsResponse.data
+    console.log('Loading project statistics...')
+    const statsResponse = await APIService.getProjectStatistics(props.projectId)
+    stats.value = statsResponse
+    console.log('Project statistics loaded:', statsResponse)
 
     // Load allocated components
-    const allocationsResponse = await api.get(`/projects/${props.projectId}/components`)
-    allocatedComponents.value = allocationsResponse.data
+    console.log('Loading allocated components...')
+    const allocationsResponse = await APIService.getProjectComponents(props.projectId)
+    allocatedComponents.value = allocationsResponse
+    console.log('Allocated components loaded:', allocationsResponse)
 
   } catch (error) {
+    console.error('Error loading project:', error)
     $q.notify({
       type: 'negative',
       message: 'Failed to load project details',
@@ -393,15 +421,13 @@ const filterComponents = async (val, update) => {
   }
 
   try {
-    const response = await api.get('/components', {
-      params: {
-        search: val,
-        limit: 20
-      }
+    const response = await APIService.getComponents({
+      search: val,
+      limit: 20
     })
 
     update(() => {
-      componentOptions.value = response.data.map(component => ({
+      componentOptions.value = response.components.map(component => ({
         ...component,
         display_name: `${component.part_number} - ${component.name}`
       }))
@@ -421,10 +447,9 @@ const allocateComponent = async () => {
   if (!selectedComponent.value || !allocationQuantity.value) return
 
   try {
-    await api.post(`/projects/${props.projectId}/allocate`, {
+    await APIService.allocateComponent(props.projectId, {
       component_id: selectedComponent.value.id,
-      quantity: allocationQuantity.value,
-      notes: allocationNotes.value
+      quantity: allocationQuantity.value
     })
 
     $q.notify({
@@ -454,10 +479,9 @@ const confirmReturn = async () => {
   if (!componentToReturn.value || !returnQuantity.value) return
 
   try {
-    await api.post(`/projects/${props.projectId}/return`, {
+    await APIService.returnComponent(props.projectId, {
       component_id: componentToReturn.value.component_id,
-      quantity: returnQuantity.value,
-      notes: returnNotes.value
+      quantity: returnQuantity.value
     })
 
     $q.notify({
@@ -478,8 +502,10 @@ const confirmReturn = async () => {
 
 const allocateMore = (allocation) => {
   selectedComponent.value = {
-    ...allocation.component,
-    display_name: `${allocation.component.part_number} - ${allocation.component.name}`
+    id: allocation.component_id,
+    part_number: allocation.component_part_number,
+    name: allocation.component_name,
+    display_name: `${allocation.component_part_number || 'Unknown'} - ${allocation.component_name || 'Unknown'}`
   }
   allocationQuantity.value = 1
   allocationNotes.value = `Additional allocation for existing component`
@@ -517,7 +543,7 @@ const confirmDelete = () => {
 
 const deleteProject = async () => {
   try {
-    await api.delete(`/projects/${props.projectId}`)
+    await APIService.deleteProject(props.projectId)
 
     $q.notify({
       type: 'positive',

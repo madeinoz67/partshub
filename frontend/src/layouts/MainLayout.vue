@@ -268,6 +268,12 @@ const essentialLinks: EssentialLink[] = [
     link: '/components'
   },
   {
+    title: 'Projects',
+    caption: 'Manage project BOMs',
+    icon: 'engineering',
+    link: '/projects'
+  },
+  {
     title: 'Storage Locations',
     caption: 'Organize workspace',
     icon: 'folder',

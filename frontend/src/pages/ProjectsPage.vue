@@ -27,49 +27,41 @@
       </div>
 
       <!-- Search and Filters -->
-      <q-card flat bordered class="q-mb-lg">
-        <q-card-section>
-          <div class="row q-col-gutter-md items-end">
-            <!-- Search Input -->
-            <div class="col-md-4 col-sm-6 col-12">
+      <q-card class="q-mb-sm">
+        <q-card-section class="q-pa-sm">
+          <div class="row q-gutter-md items-center">
+            <div class="col-md-4 col-xs-12">
               <q-input
                 v-model="searchQuery"
-                label="Search projects..."
                 outlined
                 dense
-                clearable
+                placeholder="Search projects..."
                 debounce="300"
                 @update:model-value="searchProjects"
               >
                 <template v-slot:prepend>
                   <q-icon name="search" />
                 </template>
+                <template v-slot:append>
+                  <q-icon
+                    v-if="searchQuery"
+                    name="clear"
+                    class="cursor-pointer"
+                    @click="searchQuery = ''; searchProjects()"
+                  />
+                </template>
               </q-input>
             </div>
 
-            <!-- Status Filter -->
-            <div class="col-md-2 col-sm-6 col-12">
-              <q-select
-                v-model="selectedStatus"
-                :options="statusOptions"
-                label="Status"
-                outlined
+            <div class="col-md-1 col-xs-12">
+              <q-btn
+                color="primary"
+                icon="add"
                 dense
-                clearable
-                @update:model-value="filterProjects"
-              />
-            </div>
-
-            <!-- Sort By -->
-            <div class="col-md-2 col-sm-6 col-12">
-              <q-select
-                v-model="sortBy"
-                :options="sortOptions"
-                label="Sort By"
-                outlined
-                dense
-                @update:model-value="loadProjects"
-              />
+                @click="showCreateDialog = true"
+              >
+                New Project
+              </q-btn>
             </div>
 
             <!-- View Mode -->
@@ -93,11 +85,115 @@
         </q-card-section>
       </q-card>
 
+      <!-- Statistics Cards - Desktop -->
+      <div class="row q-gutter-xs q-mb-sm no-wrap gt-sm">
+        <div class="col">
+          <q-card
+            class="mini-stats clickable-metric"
+            :class="{ 'active-filter': activeFilter === 'all' }"
+            @click="filterByStatus('all')"
+          >
+            <q-card-section class="q-pa-xs text-center">
+              <div class="text-subtitle2 q-mb-none">{{ totalProjects }}</div>
+              <div class="text-overline text-grey">Total</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col">
+          <q-card
+            class="mini-stats clickable-metric"
+            :class="{ 'active-filter': activeFilter === 'planning' }"
+            @click="filterByStatus('planning')"
+          >
+            <q-card-section class="q-pa-xs text-center">
+              <div class="text-subtitle2 text-blue q-mb-none">{{ totalPlanning }}</div>
+              <div class="text-overline text-grey">Planning</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col">
+          <q-card
+            class="mini-stats clickable-metric"
+            :class="{ 'active-filter': activeFilter === 'active' }"
+            @click="filterByStatus('active')"
+          >
+            <q-card-section class="q-pa-xs text-center">
+              <div class="text-subtitle2 text-green q-mb-none">{{ totalActive }}</div>
+              <div class="text-overline text-grey">Active</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col">
+          <q-card
+            class="mini-stats clickable-metric"
+            :class="{ 'active-filter': activeFilter === 'on_hold' }"
+            @click="filterByStatus('on_hold')"
+          >
+            <q-card-section class="q-pa-xs text-center">
+              <div class="text-subtitle2 text-orange q-mb-none">{{ totalOnHold }}</div>
+              <div class="text-overline text-grey">On Hold</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col">
+          <q-card
+            class="mini-stats clickable-metric"
+            :class="{ 'active-filter': activeFilter === 'completed' }"
+            @click="filterByStatus('completed')"
+          >
+            <q-card-section class="q-pa-xs text-center">
+              <div class="text-subtitle2 text-purple q-mb-none">{{ totalCompleted }}</div>
+              <div class="text-overline text-grey">Completed</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col">
+          <q-card
+            class="mini-stats clickable-metric"
+            :class="{ 'active-filter': activeFilter === 'cancelled' }"
+            @click="filterByStatus('cancelled')"
+          >
+            <q-card-section class="q-pa-xs text-center">
+              <div class="text-subtitle2 text-red q-mb-none">{{ totalCancelled }}</div>
+              <div class="text-overline text-grey">Cancelled</div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Status Filter Dropdown - Mobile -->
+      <div class="row q-mb-sm lt-md">
+        <div class="col-12">
+          <q-select
+            v-model="selectedStatus"
+            :options="statusDropdownOptions"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            label="Filter by Status"
+            outlined
+            dense
+            clearable
+            @update:model-value="onStatusFilterChange"
+          >
+            <template v-slot:prepend>
+              <q-icon name="filter_list" />
+            </template>
+          </q-select>
+        </div>
+      </div>
+
       <!-- Results Summary -->
       <div class="row items-center q-mb-md">
         <div class="col">
           <div class="text-body2 text-grey-6">
-            Showing {{ projects.length }} of {{ totalProjects }} projects
+            Showing {{ projects?.length || 0 }} of {{ totalProjects }} projects
             <span v-if="hasActiveFilters">(filtered)</span>
           </div>
         </div>
@@ -109,84 +205,268 @@
           :rows="projects"
           :columns="tableColumns"
           :loading="loading"
+          :pagination.sync="tablePagination"
+          :rows-per-page-options="[25, 50, 100]"
+          v-model:expanded="expanded"
           row-key="id"
           flat
           bordered
-          @row-click="openProjectDetails"
-          class="projects-table"
+          @request="onTableRequest"
+          :grid="$q.screen.xs"
+          class="projects-table responsive-table compact-table"
+          dense
         >
-          <template v-slot:body-cell-status="props">
-            <q-td :props="props">
-              <q-chip
-                :color="getStatusColor(props.value)"
-                text-color="white"
-                :label="getStatusLabel(props.value)"
-                size="sm"
-              />
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-progress="props">
-            <q-td :props="props">
-              <div class="row items-center">
-                <div class="col">
-                  <q-linear-progress
-                    :value="getProjectProgress(props.row)"
-                    color="primary"
-                    size="8px"
-                    class="q-mr-sm"
-                  />
-                </div>
-                <div class="col-auto text-caption">
-                  {{ Math.round(getProjectProgress(props.row) * 100) }}%
-                </div>
-              </div>
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-budget="props">
-            <q-td :props="props">
-              <div class="text-right">
-                <div class="text-body2">${{ formatCurrency(props.row.budget_spent || 0) }}</div>
-                <div class="text-caption text-grey-6" v-if="props.row.budget_allocated">
-                  of ${{ formatCurrency(props.row.budget_allocated) }}
-                </div>
-              </div>
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-actions="props">
-            <q-td :props="props">
-              <q-btn-group flat>
+          <!-- Use body slot for internal expansion model -->
+          <template v-slot:body="props">
+            <!-- Regular row -->
+            <q-tr :props="props">
+              <!-- Expand button column -->
+              <q-td auto-width>
                 <q-btn
-                  flat
-                  dense
-                  icon="visibility"
-                  color="primary"
-                  @click.stop="openProjectDetails(props.row)"
-                >
-                  <q-tooltip>View Details</q-tooltip>
-                </q-btn>
-                <q-btn
-                  flat
-                  dense
-                  icon="edit"
-                  color="secondary"
-                  @click.stop="editProject(props.row)"
-                >
-                  <q-tooltip>Edit Project</q-tooltip>
-                </q-btn>
-                <q-btn
-                  flat
-                  dense
-                  icon="inventory"
+                  size="sm"
                   color="accent"
-                  @click.stop="allocateComponents(props.row)"
-                >
-                  <q-tooltip>Allocate Components</q-tooltip>
-                </q-btn>
-              </q-btn-group>
-            </q-td>
+                  round
+                  dense
+                  flat
+                  @click="toggleExpand(props)"
+                  :icon="props.expand ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
+                />
+              </q-td>
+
+              <!-- Project name column -->
+              <q-td key="name" :props="props">
+                <div class="text-weight-medium">{{ props.row.name }}</div>
+                <div v-if="props.row.version" class="text-caption text-grey">
+                  Version: {{ props.row.version }}
+                </div>
+              </q-td>
+
+              <!-- Status column -->
+              <q-td key="status" :props="props">
+                <q-chip
+                  :color="getStatusColor(props.row.status)"
+                  text-color="white"
+                  :label="getStatusLabel(props.row.status)"
+                  size="sm"
+                />
+              </q-td>
+
+              <!-- Version column -->
+              <q-td key="version" :props="props">
+                {{ props.row.version || '—' }}
+              </q-td>
+
+              <!-- Progress column -->
+              <q-td key="progress" :props="props">
+                <div class="row items-center">
+                  <div class="col">
+                    <q-linear-progress
+                      :value="getProjectProgress(props.row)"
+                      color="primary"
+                      size="8px"
+                      class="q-mr-sm"
+                    />
+                  </div>
+                  <div class="col-auto text-caption">
+                    {{ Math.round(getProjectProgress(props.row) * 100) }}%
+                  </div>
+                </div>
+              </q-td>
+
+              <!-- Budget column -->
+              <q-td key="budget" :props="props">
+                <div class="text-right">
+                  <div class="text-body2">${{ formatCurrency(props.row.budget_spent || 0) }}</div>
+                  <div class="text-caption text-grey-6" v-if="props.row.budget_allocated">
+                    of ${{ formatCurrency(props.row.budget_allocated) }}
+                  </div>
+                </div>
+              </q-td>
+
+              <!-- Created column -->
+              <q-td key="created_at" :props="props">
+                {{ new Date(props.row.created_at).toLocaleDateString() }}
+              </q-td>
+
+              <!-- Actions column -->
+              <q-td key="actions" :props="props">
+                <q-btn-group flat>
+                  <q-btn
+                    flat
+                    dense
+                    icon="visibility"
+                    color="primary"
+                    @click.stop="openProjectDetails(props.row)"
+                  >
+                    <q-tooltip>View Details</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    flat
+                    dense
+                    icon="edit"
+                    color="secondary"
+                    @click.stop="editProject(props.row)"
+                  >
+                    <q-tooltip>Edit Project</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    flat
+                    dense
+                    icon="inventory"
+                    color="accent"
+                    @click.stop="allocateComponents(props.row)"
+                  >
+                    <q-tooltip>Allocate Components</q-tooltip>
+                  </q-btn>
+                </q-btn-group>
+              </q-td>
+            </q-tr>
+
+            <!-- Expansion row -->
+            <q-tr v-if="props.expand" :props="props">
+              <q-td colspan="100%" style="padding: 0;">
+                <div style="background: #f8f9fa; border-left: 4px solid #1976d2; margin: 0;">
+                  <div class="q-pa-md">
+                    <div class="row q-col-gutter-md">
+                      <!-- Project Description -->
+                      <div class="col-12" v-if="props.row.description">
+                        <div class="text-subtitle2 q-mb-sm">Description</div>
+                        <div class="text-body2 text-grey-8">{{ props.row.description }}</div>
+                      </div>
+
+                      <!-- Project Notes -->
+                      <div class="col-12" v-if="props.row.notes">
+                        <div class="text-subtitle2 q-mb-sm">Notes</div>
+                        <div class="text-body2 text-grey-8">{{ props.row.notes }}</div>
+                      </div>
+
+                      <!-- Project Dates -->
+                      <div class="col-md-6 col-12">
+                        <div class="text-subtitle2 q-mb-sm">Timeline</div>
+                        <div class="text-body2">
+                          <div><strong>Created:</strong> {{ new Date(props.row.created_at).toLocaleDateString() }}</div>
+                          <div><strong>Updated:</strong> {{ new Date(props.row.updated_at).toLocaleDateString() }}</div>
+                        </div>
+                      </div>
+
+                      <!-- Budget Details -->
+                      <div class="col-md-6 col-12" v-if="props.row.budget_allocated || props.row.budget_spent">
+                        <div class="text-subtitle2 q-mb-sm">Budget Breakdown</div>
+                        <div class="text-body2">
+                          <div v-if="props.row.budget_allocated">
+                            <strong>Allocated:</strong> ${{ formatCurrency(props.row.budget_allocated) }}
+                          </div>
+                          <div>
+                            <strong>Spent:</strong> ${{ formatCurrency(props.row.budget_spent || 0) }}
+                          </div>
+                          <div v-if="props.row.budget_allocated">
+                            <strong>Remaining:</strong> ${{ formatCurrency(props.row.budget_allocated - (props.row.budget_spent || 0)) }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </q-td>
+            </q-tr>
+          </template>
+
+          <!-- Custom grid template for mobile -->
+          <template v-slot:item="props">
+            <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
+              <q-card>
+                <q-card-section>
+                  <div class="row items-center no-wrap">
+                    <div class="col">
+                      <div class="text-weight-medium">{{ props.row.name }}</div>
+                      <div v-if="props.row.version" class="text-caption text-grey">
+                        Version: {{ props.row.version }}
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <q-chip
+                        :color="getStatusColor(props.row.status)"
+                        text-color="white"
+                        :label="getStatusLabel(props.row.status)"
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Progress bar -->
+                  <div class="q-mt-sm">
+                    <div class="row items-center q-mb-xs">
+                      <div class="col text-caption text-grey-6">Progress</div>
+                      <div class="col-auto text-caption">
+                        {{ Math.round(getProjectProgress(props.row) * 100) }}%
+                      </div>
+                    </div>
+                    <q-linear-progress
+                      :value="getProjectProgress(props.row)"
+                      color="primary"
+                      size="4px"
+                    />
+                  </div>
+
+                  <!-- Budget info -->
+                  <div v-if="props.row.budget_allocated || props.row.budget_spent" class="q-mt-sm">
+                    <div class="text-caption text-grey-6">Budget</div>
+                    <div class="text-body2">
+                      ${{ formatCurrency(props.row.budget_spent || 0) }}
+                      <span v-if="props.row.budget_allocated" class="text-grey-6">
+                        / ${{ formatCurrency(props.row.budget_allocated) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Description if available -->
+                  <div v-if="props.row.description" class="q-mt-sm">
+                    <div class="text-caption text-grey-6">Description</div>
+                    <div class="text-body2">
+                      {{ props.row.description.length > 100 ? props.row.description.substring(0, 100) + '...' : props.row.description }}
+                    </div>
+                  </div>
+
+                  <!-- Created date -->
+                  <div class="q-mt-sm">
+                    <div class="text-caption text-grey-6">
+                      Created: {{ new Date(props.row.created_at).toLocaleDateString() }}
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <!-- Actions section -->
+                <q-card-actions align="right">
+                  <q-btn
+                    flat
+                    dense
+                    icon="visibility"
+                    color="primary"
+                    @click="openProjectDetails(props.row)"
+                  >
+                    <q-tooltip>View Details</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    flat
+                    dense
+                    icon="edit"
+                    color="secondary"
+                    @click="editProject(props.row)"
+                  >
+                    <q-tooltip>Edit Project</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    flat
+                    dense
+                    icon="inventory"
+                    color="accent"
+                    @click="allocateComponents(props.row)"
+                  >
+                    <q-tooltip>Allocate Components</q-tooltip>
+                  </q-btn>
+                </q-card-actions>
+              </q-card>
+            </div>
           </template>
         </q-table>
       </div>
@@ -315,22 +595,11 @@
         />
       </div>
 
-      <!-- Pagination -->
-      <div v-if="totalProjects > pageSize" class="row justify-center q-mt-lg">
-        <q-pagination
-          v-model="currentPage"
-          :max="Math.ceil(totalProjects / pageSize)"
-          direction-links
-          boundary-links
-          @update:model-value="loadProjects"
-        />
-      </div>
     </div>
 
     <!-- Create Project Dialog -->
     <q-dialog v-model="showCreateDialog" persistent max-width="600px">
       <ProjectForm
-        mode="create"
         @saved="handleProjectSaved"
         @cancelled="showCreateDialog = false"
       />
@@ -339,7 +608,6 @@
     <!-- Edit Project Dialog -->
     <q-dialog v-model="showEditDialog" persistent max-width="600px">
       <ProjectForm
-        mode="edit"
         :project="selectedProject"
         @saved="handleProjectSaved"
         @cancelled="showEditDialog = false"
@@ -379,7 +647,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
-import { api } from '../services/api'
+import { APIService } from '../services/api'
 import ProjectForm from '../components/ProjectForm.vue'
 import ProjectView from '../components/ProjectView.vue'
 import ComponentAllocation from '../components/ComponentAllocation.vue'
@@ -392,14 +660,25 @@ const $q = useQuasar()
 const projects = ref([])
 const totalProjects = ref(0)
 const loading = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(50)
 
 // Search and filters
 const searchQuery = ref('')
 const selectedStatus = ref(null)
-const sortBy = ref('created_at')
+const activeFilter = ref('all')
 const viewMode = ref('list')
+
+// Table sorting and pagination
+const sortBy = ref('created_at')
+const sortOrder = ref('desc')
+const tablePagination = ref({
+  sortBy: 'created_at',
+  descending: true,
+  page: 1,
+  rowsPerPage: 50
+})
+
+// Row expansion
+const expanded = ref([])
 
 // Dialog state
 const showCreateDialog = ref(false)
@@ -419,15 +698,28 @@ const statusOptions = [
   { label: 'Cancelled', value: 'cancelled' }
 ]
 
-const sortOptions = [
-  { label: 'Created Date', value: 'created_at' },
-  { label: 'Name', value: 'name' },
-  { label: 'Status', value: 'status' },
-  { label: 'Budget', value: 'budget_allocated' }
-]
+const statusDropdownOptions = computed(() => [
+  { label: `All Projects (${totalProjects.value})`, value: null },
+  { label: `Planning (${totalPlanning.value})`, value: 'planning' },
+  { label: `Active (${totalActive.value})`, value: 'active' },
+  { label: `On Hold (${totalOnHold.value})`, value: 'on_hold' },
+  { label: `Completed (${totalCompleted.value})`, value: 'completed' },
+  { label: `Cancelled (${totalCancelled.value})`, value: 'cancelled' }
+])
+
 
 // Table columns
 const tableColumns = [
+  {
+    name: 'expand',
+    label: '',
+    field: 'expand',
+    sortable: false,
+    required: true,
+    align: 'left',
+    style: 'width: 40px',
+    headerStyle: 'width: 40px'
+  },
   {
     name: 'name',
     label: 'Project Name',
@@ -481,26 +773,68 @@ const hasActiveFilters = computed(() => {
   return searchQuery.value || selectedStatus.value
 })
 
+const totalPlanning = computed(() => {
+  return projects.value.filter(p => p.status === 'planning').length
+})
+
+const totalActive = computed(() => {
+  return projects.value.filter(p => p.status === 'active').length
+})
+
+const totalOnHold = computed(() => {
+  return projects.value.filter(p => p.status === 'on_hold').length
+})
+
+const totalCompleted = computed(() => {
+  return projects.value.filter(p => p.status === 'completed').length
+})
+
+const totalCancelled = computed(() => {
+  return projects.value.filter(p => p.status === 'cancelled').length
+})
+
 // Methods
+const onTableRequest = async (props) => {
+  const { page, rowsPerPage, sortBy: newSortBy, descending } = props.pagination
+
+  // Update pagination state
+  tablePagination.value.page = page
+  tablePagination.value.rowsPerPage = rowsPerPage
+  tablePagination.value.sortBy = newSortBy
+  tablePagination.value.descending = descending
+
+  // Update internal sort state
+  sortBy.value = newSortBy || 'created_at'
+  sortOrder.value = descending ? 'desc' : 'asc'
+
+  await loadProjects()
+}
+
 const loadProjects = async () => {
   loading.value = true
   try {
     const params = {
-      limit: pageSize.value,
-      offset: (currentPage.value - 1) * pageSize.value,
+      limit: tablePagination.value.rowsPerPage,
+      offset: (tablePagination.value.page - 1) * tablePagination.value.rowsPerPage,
       sort_by: sortBy.value,
-      sort_order: 'desc'
+      sort_order: sortOrder.value
     }
 
     // Add filters
     if (searchQuery.value) params.search = searchQuery.value
     if (selectedStatus.value) params.status = selectedStatus.value
 
-    const response = await api.get('/projects', { params })
-    projects.value = response.data
-    totalProjects.value = response.headers['x-total-count'] || response.data.length
+    const response = await APIService.getProjects(params)
+    projects.value = response.projects || []
+
+    // Update pagination with total count
+    tablePagination.value.rowsNumber = response.total || 0
+    totalProjects.value = response.total || 0
 
   } catch (error) {
+    projects.value = []
+    totalProjects.value = 0
+    tablePagination.value.rowsNumber = 0
     $q.notify({
       type: 'negative',
       message: 'Failed to load projects',
@@ -511,20 +845,47 @@ const loadProjects = async () => {
 }
 
 const searchProjects = () => {
-  currentPage.value = 1
+  tablePagination.value.page = 1
   loadProjects()
 }
 
 const filterProjects = () => {
-  currentPage.value = 1
+  tablePagination.value.page = 1
   loadProjects()
 }
 
 const clearFilters = () => {
   searchQuery.value = ''
   selectedStatus.value = null
-  currentPage.value = 1
+  activeFilter.value = 'all'
+  tablePagination.value.page = 1
   loadProjects()
+}
+
+const filterByStatus = (status) => {
+  activeFilter.value = status
+  if (status === 'all') {
+    selectedStatus.value = null
+  } else {
+    selectedStatus.value = status
+  }
+  tablePagination.value.page = 1
+  loadProjects()
+}
+
+const onStatusFilterChange = (status) => {
+  if (status === null) {
+    activeFilter.value = 'all'
+  } else {
+    activeFilter.value = status
+  }
+  selectedStatus.value = status
+  tablePagination.value.page = 1
+  loadProjects()
+}
+
+const toggleExpand = (props) => {
+  props.expand = !props.expand
 }
 
 const openProjectDetails = (project) => {
@@ -542,15 +903,34 @@ const allocateComponents = (project) => {
   showAllocationDialog.value = true
 }
 
-const handleProjectSaved = () => {
-  showCreateDialog.value = false
-  showEditDialog.value = false
-  selectedProject.value = null
-  loadProjects()
-  $q.notify({
-    type: 'positive',
-    message: 'Project saved successfully'
-  })
+const handleProjectSaved = async (projectData) => {
+  try {
+    if (showCreateDialog.value) {
+      // Create new project
+      await APIService.createProject(projectData)
+      // Reset to first page to see the new project (since we sort by created_at desc)
+      tablePagination.value.page = 1
+    } else if (showEditDialog.value && selectedProject.value) {
+      // Update existing project
+      await APIService.updateProject(selectedProject.value.id, projectData)
+    }
+
+    showCreateDialog.value = false
+    showEditDialog.value = false
+    selectedProject.value = null
+    await loadProjects()
+
+    $q.notify({
+      type: 'positive',
+      message: 'Project saved successfully'
+    })
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to save project',
+      caption: error.response?.data?.detail || error.message
+    })
+  }
 }
 
 const handleAllocationSaved = () => {
@@ -658,5 +1038,183 @@ onMounted(() => {
 
 .projects-table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.mini-stats {
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mini-stats:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clickable-metric {
+  min-height: 60px;
+}
+
+.clickable-metric.active-filter {
+  border-color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+/* Compact table styling */
+.compact-table {
+  font-size: 0.875rem;
+}
+
+.compact-table :deep(.q-table__top) {
+  padding: 8px 16px;
+}
+
+.compact-table :deep(.q-td) {
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  height: 32px;
+}
+
+.compact-table :deep(.q-th) {
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  height: 36px;
+}
+
+.compact-table :deep(tbody tr) {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: 32px;
+}
+
+.compact-table :deep(tbody tr:hover) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.compact-table :deep(.q-chip) {
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  min-height: 16px;
+}
+
+/* Table responsive styling */
+.responsive-table {
+  min-width: 100%;
+  overflow-x: auto;
+}
+
+.responsive-table :deep(.q-table__container) {
+  overflow-x: auto;
+}
+
+.responsive-table :deep(.q-table__middle) {
+  min-width: 100%;
+}
+
+.responsive-table :deep(.q-td) {
+  padding: 4px 8px;
+  font-size: 0.875rem;
+}
+
+.responsive-table :deep(.q-th) {
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 599px) {
+  .responsive-table :deep(.q-table__container) {
+    overflow-x: auto;
+  }
+
+  .responsive-table :deep(.q-table__middle) {
+    min-width: 100%;
+  }
+
+  .responsive-table :deep(.q-td) {
+    white-space: nowrap;
+    padding: 4px 2px;
+    font-size: 0.75rem;
+  }
+
+  .responsive-table :deep(.q-th) {
+    padding: 4px 2px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Hide less important columns on very small screens */
+  .responsive-table :deep(.q-td:nth-child(4)),
+  .responsive-table :deep(.q-th:nth-child(4)),
+  .responsive-table :deep(.q-td:nth-child(5)),
+  .responsive-table :deep(.q-th:nth-child(5)),
+  .responsive-table :deep(.q-td:nth-child(6)),
+  .responsive-table :deep(.q-th:nth-child(6)),
+  .responsive-table :deep(.q-td:nth-child(7)),
+  .responsive-table :deep(.q-th:nth-child(7)) {
+    display: none;
+  }
+
+  /* Make first column (expand/project name) wider */
+  .responsive-table :deep(.q-td:first-child),
+  .responsive-table :deep(.q-th:first-child) {
+    min-width: 40px;
+  }
+
+  /* Make project name column wider */
+  .responsive-table :deep(.q-td:nth-child(2)),
+  .responsive-table :deep(.q-th:nth-child(2)) {
+    min-width: 150px;
+  }
+
+  /* Keep status and actions visible */
+  .responsive-table :deep(.q-td:nth-child(3)),
+  .responsive-table :deep(.q-th:nth-child(3)),
+  .responsive-table :deep(.q-td:last-child),
+  .responsive-table :deep(.q-th:last-child) {
+    display: table-cell;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .responsive-table :deep(.q-td) {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  .responsive-table :deep(.q-th) {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  /* Hide some columns on tablets */
+  .responsive-table :deep(.q-td:nth-child(4)),
+  .responsive-table :deep(.q-th:nth-child(4)),
+  .responsive-table :deep(.q-td:nth-child(6)),
+  .responsive-table :deep(.q-th:nth-child(6)) {
+    display: none;
+  }
+}
+
+/* Grid mode card styling */
+.projects-table :deep(.q-table__grid-content) {
+  flex-wrap: wrap;
+}
+
+.projects-table :deep(.q-table__grid-item) {
+  padding: 4px;
+}
+
+.projects-table :deep(.q-table__grid-item .q-card) {
+  height: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.projects-table :deep(.q-table__grid-item .q-card:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 </style>

@@ -67,8 +67,8 @@
       </q-card-section>
     </q-card>
 
-    <!-- Statistics Cards -->
-    <div class="row q-gutter-xs q-mb-sm no-wrap">
+    <!-- Statistics Cards - Desktop -->
+    <div class="row q-gutter-xs q-mb-sm no-wrap gt-sm">
       <div class="col">
         <q-card
           class="mini-stats clickable-metric"
@@ -119,6 +119,29 @@
             <div class="text-overline text-grey">Available</div>
           </q-card-section>
         </q-card>
+      </div>
+    </div>
+
+    <!-- Stock Filter Dropdown - Mobile -->
+    <div class="row q-mb-sm lt-md">
+      <div class="col-12">
+        <q-select
+          :model-value="activeFilter"
+          :options="stockDropdownOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          label="Filter by Stock Status"
+          outlined
+          dense
+          clearable
+          @update:model-value="onStockFilterChange"
+        >
+          <template v-slot:prepend>
+            <q-icon name="filter_list" />
+          </template>
+        </q-select>
       </div>
     </div>
 
@@ -944,6 +967,13 @@ const categoryOptions = computed(() => {
   }))
 })
 
+const stockDropdownOptions = computed(() => [
+  { label: `All Components (${totalComponents.value})`, value: 'all' },
+  { label: `Low Stock (${totalLowStock.value})`, value: 'low' },
+  { label: `Out of Stock (${totalOutOfStock.value})`, value: 'out' },
+  { label: `Available (${totalAvailable.value})`, value: 'available' }
+])
+
 // Methods
 const getStockStatusColor = (component: Component) => {
   if (component.quantity_on_hand === 0) return 'negative'
@@ -1021,6 +1051,10 @@ const filterByStatus = (status: 'all' | 'low' | 'out' | 'available') => {
   } else {
     componentsStore.filterByStockStatus(status)
   }
+}
+
+const onStockFilterChange = (status: 'all' | 'low' | 'out' | 'available') => {
+  filterByStatus(status)
 }
 
 // Client-side table with no server-side requests needed for sorting
