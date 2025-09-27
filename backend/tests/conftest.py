@@ -8,7 +8,7 @@ import os
 # Set testing environment variables to ensure complete isolation
 os.environ["TESTING"] = "1"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
-os.environ["PORT"] = "8001"  # Use different port for tests (production uses 8000)
+os.environ["PORT"] = "8005"  # Use different port for tests (production uses 8000)
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -83,18 +83,48 @@ def db_session():
 
 
 @pytest.fixture(scope="function")
-def client():
+def client(db_session):
     """
-    Create a test client with test database injection
+    Create a test client with shared test database session
+    Following Testing Isolation principle - use same session for fixtures and API
+    Includes auth dependency overrides for TestClient compatibility
     """
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    from src.auth.dependencies import get_optional_user
+    from src.auth.jwt_auth import get_current_user as get_user_from_token
+    from src.models import User
+
     def override_get_db():
-        session = TestingSessionLocal()
+        yield db_session
+
+    async def test_get_optional_user(
+        credentials: HTTPAuthorizationCredentials = None,
+        db = None
+    ):
+        """TestClient-compatible version of get_optional_user"""
+        if not credentials:
+            return None
+
+        # Use the shared test database session
+        test_db = db_session
+
         try:
-            yield session
-        finally:
-            session.close()
+            user_data = get_user_from_token(credentials.credentials)
+            user = test_db.query(User).filter(User.id == user_data["user_id"]).first()
+            if user and user.is_active:
+                return {
+                    "user_id": user.id,
+                    "username": user.username,
+                    "is_admin": user.is_admin,
+                    "auth_type": "jwt"
+                }
+        except Exception:
+            pass
+
+        return None
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_optional_user] = test_get_optional_user
 
     with TestClient(app) as test_client:
         yield test_client
@@ -211,14 +241,12 @@ def api_token_headers(auth_headers, db_session):
     # Get the admin user that was created by auth_headers
     admin_user = db_session.query(User).filter(User.username == "testadmin").first()
 
-    api_token = APIToken(
+    raw_token, api_token = APIToken.generate_token(
         user_id=admin_user.id,
         name="Test API Token",
-        description="Token for testing",
-        scopes=["components:read", "components:write", "storage:read", "storage:write"]
+        description="Token for testing"
     )
-    api_token.generate_token()
     db_session.add(api_token)
     db_session.commit()
 
-    return {"X-API-Key": api_token.token}
+    return {"X-API-Key": raw_token}

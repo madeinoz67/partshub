@@ -13,6 +13,7 @@ import uuid
 from ..database import get_db
 from ..services.attachment_service import AttachmentService
 from ..services.file_storage import file_storage
+from ..auth.dependencies import require_auth
 
 # Pydantic schemas
 class AttachmentResponse(BaseModel):
@@ -47,10 +48,6 @@ class AttachmentListResponse(BaseModel):
 
 router = APIRouter()
 
-# Mock authentication dependency
-def require_auth():
-    """Mock authentication requirement - allows mock tokens for testing."""
-    return {"user_id": "test_user", "username": "test"}
 
 @router.get("/api/v1/components/{component_id}/attachments", response_model=AttachmentListResponse, tags=["attachments"])
 def list_component_attachments(

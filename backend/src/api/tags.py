@@ -10,6 +10,7 @@ import uuid
 
 from ..database import get_db
 from ..models import Tag
+from ..auth.dependencies import require_auth
 from sqlalchemy import func
 
 # Pydantic schemas
@@ -42,9 +43,6 @@ class TagsListResponse(BaseModel):
 
 router = APIRouter(prefix="/api/v1/tags", tags=["tags"])
 
-# Mock authentication
-def require_auth():
-    return {"user_id": "test_user", "username": "test"}
 
 @router.get("", response_model=TagsListResponse)
 def list_tags(

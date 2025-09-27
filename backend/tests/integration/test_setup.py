@@ -61,7 +61,7 @@ class TestFirstTimeSetup:
 
         # Step 1: Verify default admin exists after database initialization
         # The admin should be created automatically via startup event
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"  # Default password
         })
@@ -84,7 +84,7 @@ class TestFirstTimeSetup:
         assert password_change_response.status_code == 200
 
         # Step 3: Login with new password
-        new_login_response = client.post("/api/v1/auth/login", json={
+        new_login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "newSecurePassword123!"
         })
@@ -194,7 +194,7 @@ class TestFirstTimeSetup:
         """Test setup with bulk storage location creation"""
 
         # Login as admin
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -208,7 +208,7 @@ class TestFirstTimeSetup:
         )
 
         # Re-login
-        new_login = client.post("/api/v1/auth/login", json={
+        new_login = client.post("/api/v1/auth/token", json={
             "username": "admin", "password": "newPass123!"
         })
         new_headers = {"Authorization": f"Bearer {new_login.json()['access_token']}"}
@@ -253,7 +253,7 @@ class TestFirstTimeSetup:
         """Test adding component with file attachments"""
 
         # Setup authentication
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin", "password": "admin123"
         })
         token = login_response.json()["access_token"]
@@ -266,7 +266,7 @@ class TestFirstTimeSetup:
         )
 
         # Re-login
-        new_login = client.post("/api/v1/auth/login", json={
+        new_login = client.post("/api/v1/auth/token", json={
             "username": "admin", "password": "newPass123!"
         })
         new_headers = {"Authorization": f"Bearer {new_login.json()['access_token']}"}
@@ -325,7 +325,7 @@ class TestFirstTimeSetup:
         """Test error handling during setup process"""
 
         # Test invalid login
-        invalid_login = client.post("/api/v1/auth/login", json={
+        invalid_login = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "wrongpassword"
         })
@@ -339,7 +339,7 @@ class TestFirstTimeSetup:
         assert component_response.status_code == 401
 
         # Login properly
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin", "password": "admin123"
         })
         token = login_response.json()["access_token"]

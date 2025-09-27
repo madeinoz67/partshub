@@ -13,10 +13,7 @@ from ..services.import_service import ImportService
 from ..services.kicad_service import KiCadExportService
 from ..services.kicad_library import KiCadLibraryManager
 from ..services.provider_attachment_service import provider_attachment_service
-# from ..auth import require_auth
-# Mock auth for MVP - remove in production
-def require_auth():
-    return None
+from ..auth.dependencies import require_auth
 
 router = APIRouter(prefix="/api/v1", tags=["integrations"])
 

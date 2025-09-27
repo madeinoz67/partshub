@@ -1,15 +1,15 @@
 # PartsHub Constitution
 <!--
 Sync Impact Report:
-Version change: Initial → 1.0.0
-Modified principles: N/A - Initial creation
-Added sections: All core sections established
+Version change: 1.0.0 → 1.1.0
+Modified principles: None
+Added sections: VI. Testing Isolation (new principle added)
 Removed sections: None
 Templates requiring updates:
-  ✅ plan-template.md - already references constitution
-  ✅ spec-template.md - compatible with principles
-  ✅ tasks-template.md - compatible with TDD approach
-Follow-up TODOs: None - all placeholders filled
+  ✅ plan-template.md - version reference corrected (line 212: v2.1.1 → v1.1.0)
+  ✅ spec-template.md - no changes needed
+  ✅ tasks-template.md - no changes needed
+Follow-up TODOs: None - all testing isolation requirements incorporated
 -->
 
 ## Core Principles
@@ -39,6 +39,11 @@ Every library MUST expose its core functionality through a command-line interfac
 
 **Rationale**: CLI interfaces ensure automation compatibility, enable easy integration testing, and provide consistent interaction patterns.
 
+### VI. Testing Isolation (NON-NEGOTIABLE)
+All tests MUST use isolated test fixtures with proper setup and teardown procedures. Tests MUST NEVER use live production databases or services. Test environments MUST use different ports, databases, and configuration from production systems. Test fixtures MUST ensure complete isolation between test runs.
+
+**Rationale**: Test isolation prevents data corruption, ensures reproducible test results, eliminates environmental dependencies, and protects production systems from test interference.
+
 ## Development Workflow
 
 All development MUST follow the /specify → /plan → /tasks → /implement workflow. Features cannot proceed to implementation without passing constitution compliance checks. Code reviews MUST verify adherence to these principles, and complexity violations MUST be documented and justified.
@@ -63,4 +68,4 @@ This constitution supersedes all other development practices and guidelines. Ame
 **Violation Handling**: Complexity deviations MUST be documented in plan.md with justification
 **Runtime Guidance**: See agent-specific guidance files (CLAUDE.md, etc.) for implementation details
 
-**Version**: 1.0.0 | **Ratified**: 2025-09-25 | **Last Amended**: 2025-09-25
+**Version**: 1.1.0 | **Ratified**: 2025-09-25 | **Last Amended**: 2025-09-27

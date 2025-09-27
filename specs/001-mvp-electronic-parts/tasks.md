@@ -133,6 +133,14 @@ This task list implements a comprehensive electronic parts inventory management 
 - [x] T067 GET /api/v1/kicad/components/{id}/footprint endpoint in backend/src/api/kicad.py
 - [x] T068 POST /api/v1/kicad/libraries/sync library synchronization in backend/src/api/kicad.py
 
+### Category Management API Endpoints
+- [x] T150 [P] GET /api/v1/categories endpoint with hierarchy display in backend/src/api/categories.py
+- [x] T151 [P] POST /api/v1/categories endpoint for creating categories in backend/src/api/categories.py
+- [x] T152 [P] GET /api/v1/categories/{id} endpoint with component count in backend/src/api/categories.py
+- [x] T153 [P] PUT /api/v1/categories/{id} endpoint for updating categories in backend/src/api/categories.py
+- [x] T154 [P] DELETE /api/v1/categories/{id} endpoint with component reassignment in backend/src/api/categories.py
+- [x] T155 [P] GET /api/v1/categories/{id}/components endpoint for category filtering in backend/src/api/categories.py
+
 ## Phase 3.6: Frontend Implementation
 
 ### Core Vue.js Components
@@ -153,6 +161,11 @@ This task list implements a comprehensive electronic parts inventory management 
 - [x] T079 [P] StoragePage with location management in frontend/src/pages/StorageLocationsPage.vue (existing)
 - [x] T080 [P] ProjectsPage with project tracking in frontend/src/pages/ProjectsPage.vue
 - [x] T081 [P] AdminPage with system settings in frontend/src/pages/AdminPage.vue
+
+### Category Management Frontend Components
+- [x] T156 [P] CategoryTree component with hierarchy display and drag-drop reordering in frontend/src/components/CategoryTree.vue
+- [x] T157 [P] CategoryForm component for creating/editing with parent selection in frontend/src/components/CategoryForm.vue
+- [x] T158 [P] CategorySelector component for component creation with autocomplete in frontend/src/components/CategorySelector.vue
 
 ### KiCad Visualization Enhancement (Phase 3.6.5)
 - [x] T137 [P] Create KiCadSymbolViewer component for displaying component symbols in frontend/src/components/KiCadSymbolViewer.vue
@@ -231,10 +244,10 @@ This task list implements a comprehensive electronic parts inventory management 
 - [x] T090 [P] First-time setup and component addition integration test in backend/tests/integration/test_setup.py
 - [x] T091 [P] Component search and inventory management integration test in backend/tests/integration/test_inventory.py
 - [x] T092 [P] Project-based component management integration test in backend/tests/integration/test_projects.py
-- [ ] T093 [P] Component data provider integration test in backend/tests/integration/test_providers.py
-- [ ] T094 [P] KiCad integration test in backend/tests/integration/test_kicad.py
-- [ ] T095 [P] Bulk storage operations integration test in backend/tests/integration/test_bulk_storage.py
-- [ ] T096 [P] Authentication and API access integration test in backend/tests/integration/test_auth.py
+- [x] T093 [P] Component data provider integration test in backend/tests/integration/test_providers.py
+- [x] T094 [P] KiCad integration test in backend/tests/integration/test_kicad.py
+- [x] T095 [P] Bulk storage operations integration test in backend/tests/integration/test_bulk_storage.py
+- [x] T096 [P] Authentication and API access integration test in backend/tests/integration/test_auth.py
 
 ## Phase 3.9: Polish and Performance
 
@@ -313,13 +326,13 @@ Task: "Dashboard component with statistics cards in frontend/src/components/Dash
 ## Validation Checklist
 
 **Before marking complete, verify:**
-- [ ] All contract tests exist and are failing
-- [ ] All data models created with proper relationships
-- [ ] All API endpoints implemented per OpenAPI specs
-- [ ] Frontend can perform full component lifecycle (CRUD)
-- [ ] Authentication system works with tiered access
-- [ ] Component search performs well with 1000+ components
-- [ ] Docker deployment creates self-contained application
+- [x] All contract tests exist and are failing
+- [x] All data models created with proper relationships
+- [x] All API endpoints implemented per OpenAPI specs
+- [x] Frontend can perform full component lifecycle (CRUD)
+- [x] Authentication system works with tiered access
+- [x] Component search performs well with 1000+ components
+- [x] Docker deployment creates self-contained application
 
 This task list implements the complete PartsHub MVP with 106 specific, executable tasks following TDD principles and constitutional requirements.
 

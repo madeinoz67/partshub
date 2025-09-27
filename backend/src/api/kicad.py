@@ -16,7 +16,8 @@ from ..database import get_db
 from ..services.kicad_service import KiCadExportService
 from ..services.kicad_library import KiCadLibraryManager
 from ..services.component_service import ComponentService
-from ..auth.dependencies import get_current_user, require_auth, require_auth_legacy
+from ..auth.dependencies import require_auth
+from ..auth.jwt_auth import get_current_user
 
 # Import EasyEDA services
 try:

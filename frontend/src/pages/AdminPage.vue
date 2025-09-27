@@ -39,6 +39,7 @@
       >
         <q-tab name="dashboard" label="Dashboard" icon="dashboard" />
         <q-tab name="users" label="User Management" icon="people" />
+        <q-tab name="categories" label="Category Management" icon="category" />
         <q-tab name="system" label="System Management" icon="settings" />
         <q-tab name="analytics" label="Analytics & Reports" icon="analytics" />
       </q-tabs>
@@ -328,6 +329,234 @@
               </q-table>
             </q-tab-panel>
           </q-tab-panels>
+        </q-tab-panel>
+
+        <!-- Category Management Tab -->
+        <q-tab-panel name="categories">
+          <div class="text-h6 q-mb-md">Category Management</div>
+
+          <!-- Category Management Actions -->
+          <div class="row q-mb-md">
+            <div class="col">
+              <q-input
+                v-model="categorySearch"
+                placeholder="Search categories..."
+                outlined
+                dense
+                clearable
+                debounce="300"
+                class="q-mr-md"
+                style="max-width: 300px;"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-auto">
+              <q-btn
+                color="primary"
+                icon="add"
+                label="Create Category"
+                @click="showCreateCategoryDialog = true"
+                class="q-mr-sm"
+              />
+              <q-btn
+                color="secondary"
+                icon="refresh"
+                label="Refresh"
+                @click="loadCategories"
+                :loading="loadingCategories"
+              />
+            </div>
+          </div>
+
+          <!-- Category Statistics Cards -->
+          <div class="row q-gutter-md q-mb-lg">
+            <div class="col">
+              <q-card>
+                <q-card-section class="text-center">
+                  <div class="text-h4 text-primary">{{ categoryStats.total }}</div>
+                  <div class="text-subtitle1">Total Categories</div>
+                </q-card-section>
+              </q-card>
+            </div>
+            <div class="col">
+              <q-card>
+                <q-card-section class="text-center">
+                  <div class="text-h4 text-positive">{{ categoryStats.withComponents }}</div>
+                  <div class="text-subtitle1">With Components</div>
+                </q-card-section>
+              </q-card>
+            </div>
+            <div class="col">
+              <q-card>
+                <q-card-section class="text-center">
+                  <div class="text-h4 text-warning">{{ categoryStats.empty }}</div>
+                  <div class="text-subtitle1">Empty Categories</div>
+                </q-card-section>
+              </q-card>
+            </div>
+            <div class="col">
+              <q-card>
+                <q-card-section class="text-center">
+                  <div class="text-h4 text-secondary">{{ categoryStats.maxDepth }}</div>
+                  <div class="text-subtitle1">Max Depth</div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+
+          <!-- Category Tree View -->
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 q-mb-md">Category Hierarchy</div>
+
+              <!-- Loading State -->
+              <div v-if="loadingCategories" class="text-center q-pa-lg">
+                <q-spinner color="primary" size="3em" />
+                <div class="q-mt-md">Loading categories...</div>
+              </div>
+
+              <!-- Category Tree -->
+              <q-tree
+                v-else
+                :nodes="categoryTreeNodes"
+                node-key="id"
+                :filter="categorySearch"
+                :filter-method="filterCategories"
+                selected-color="primary"
+                class="category-tree"
+              >
+                <template v-slot:default-header="prop">
+                  <div class="row items-center full-width">
+                    <div class="col row items-center q-gutter-xs">
+                      <q-icon
+                        v-if="prop.node.icon"
+                        :name="prop.node.icon"
+                        :color="prop.node.color || 'primary'"
+                        size="18px"
+                      />
+                      <span class="text-weight-medium">{{ prop.node.label }}</span>
+                      <q-chip
+                        v-if="prop.node.component_count > 0"
+                        :label="prop.node.component_count"
+                        size="sm"
+                        color="primary"
+                        text-color="white"
+                      />
+                      <q-chip
+                        v-else
+                        label="0"
+                        size="sm"
+                        color="grey-4"
+                        text-color="dark"
+                      />
+                    </div>
+                    <div class="col-auto">
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="edit"
+                        size="sm"
+                        color="primary"
+                        @click.stop="editCategory(prop.node)"
+                      >
+                        <q-tooltip>Edit Category</q-tooltip>
+                      </q-btn>
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="add"
+                        size="sm"
+                        color="positive"
+                        @click.stop="createSubcategory(prop.node)"
+                      >
+                        <q-tooltip>Add Subcategory</q-tooltip>
+                      </q-btn>
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="delete"
+                        size="sm"
+                        color="negative"
+                        @click.stop="deleteCategory(prop.node)"
+                        :disable="prop.node.component_count > 0"
+                      >
+                        <q-tooltip>
+                          {{ prop.node.component_count > 0 ? 'Cannot delete: category has components' : 'Delete Category' }}
+                        </q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-slot:default-body="prop">
+                  <div v-if="prop.node.description" class="text-caption text-grey-6 q-ml-md">
+                    {{ prop.node.description }}
+                  </div>
+                </template>
+              </q-tree>
+
+              <!-- Empty State -->
+              <div v-if="!loadingCategories && categoryTreeNodes.length === 0" class="text-center q-pa-lg">
+                <q-icon name="category" size="4em" color="grey-4" />
+                <div class="text-h6 text-grey-6 q-mt-md">No Categories Found</div>
+                <div class="text-body2 text-grey-5">Create your first category to get started</div>
+                <q-btn
+                  color="primary"
+                  label="Create Category"
+                  @click="showCreateCategoryDialog = true"
+                  class="q-mt-md"
+                />
+              </div>
+            </q-card-section>
+          </q-card>
+
+          <!-- Create/Edit Category Dialog -->
+          <q-dialog v-model="showCreateCategoryDialog" persistent>
+            <q-card style="min-width: 500px">
+              <q-card-section>
+                <div class="text-h6">{{ editingCategory ? 'Edit Category' : 'Create Category' }}</div>
+              </q-card-section>
+              <q-card-section class="q-pt-none">
+                <CategoryForm
+                  :category="editingCategory"
+                  :parent-id="suggestedParentId"
+                  @success="onCategoryFormSuccess"
+                  @cancel="closeCreateCategoryDialog"
+                />
+              </q-card-section>
+            </q-card>
+          </q-dialog>
+
+          <!-- Delete Confirmation Dialog -->
+          <q-dialog v-model="showDeleteDialog" persistent>
+            <q-card>
+              <q-card-section class="row items-center">
+                <q-avatar icon="warning" color="negative" text-color="white" />
+                <span class="q-ml-md">
+                  Are you sure you want to delete the category "{{ categoryToDelete?.name }}"?
+                  <span v-if="categoryToDelete?.children?.length > 0" class="text-weight-bold text-negative">
+                    This category has {{ categoryToDelete.children.length }} subcategories.
+                  </span>
+                </span>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="Cancel" color="primary" @click="showDeleteDialog = false" />
+                <q-btn
+                  flat
+                  label="Delete"
+                  color="negative"
+                  @click="confirmDeleteCategory"
+                  :loading="deletingCategory"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </q-tab-panel>
 
         <!-- System Management Tab -->
@@ -1119,6 +1348,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import api, { APIService } from '../services/api'
 import UserForm from '../components/UserForm.vue'
+import CategoryForm from '../components/CategoryForm.vue'
 
 const $q = useQuasar()
 
@@ -1167,6 +1397,17 @@ const lastBackupDate = ref(null)
 const newToken = ref({ name: '', description: '', expires_in_days: null })
 const createdToken = ref(null)
 const createdTokenValue = ref('')
+
+// Category Management state
+const categories = ref([])
+const loadingCategories = ref(false)
+const categorySearch = ref('')
+const showCreateCategoryDialog = ref(false)
+const editingCategory = ref(null)
+const suggestedParentId = ref(null)
+const showDeleteDialog = ref(false)
+const categoryToDelete = ref(null)
+const deletingCategory = ref(false)
 
 // User table columns
 const userColumns = [
@@ -1290,6 +1531,55 @@ const getDataQualityScore = () => {
   return (quality.category_coverage + quality.location_coverage + quality.specification_coverage) / 3
 }
 
+// Category Management computed properties
+const categoryTreeNodes = computed(() => {
+  const buildTreeNodes = (cats, depth = 0) => {
+    return cats.map(cat => ({
+      id: cat.id,
+      label: cat.name,
+      name: cat.name,
+      description: cat.description,
+      icon: cat.icon,
+      color: cat.color,
+      component_count: cat.component_count || 0,
+      children: cat.children ? buildTreeNodes(cat.children, depth + 1) : [],
+      expanded: depth < 2, // Auto-expand first 2 levels
+      header: 'generic',
+      body: 'generic'
+    }))
+  }
+  return buildTreeNodes(categories.value)
+})
+
+const categoryStats = computed(() => {
+  const calculateStats = (cats) => {
+    let total = 0
+    let withComponents = 0
+    let empty = 0
+    let maxDepth = 0
+
+    const traverse = (categories, depth = 1) => {
+      maxDepth = Math.max(maxDepth, depth)
+      for (const cat of categories) {
+        total++
+        if (cat.component_count > 0) {
+          withComponents++
+        } else {
+          empty++
+        }
+        if (cat.children) {
+          traverse(cat.children, depth + 1)
+        }
+      }
+    }
+
+    traverse(cats)
+    return { total, withComponents, empty, maxDepth }
+  }
+
+  return calculateStats(categories.value)
+})
+
 // Methods
 const loadDashboardData = async () => {
   try {
@@ -1370,7 +1660,8 @@ const refreshAllData = async () => {
       loadUsageAnalytics(),
       loadProjectAnalytics(),
       loadSearchAnalytics(),
-      loadUsers()
+      loadUsers(),
+      loadCategories()
     ])
     $q.notify({
       type: 'positive',
@@ -1788,6 +2079,112 @@ const formatDate = (dateString) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+// Category Management Methods
+const loadCategories = async () => {
+  loadingCategories.value = true
+  try {
+    const response = await api.get('/api/v1/categories?hierarchy=true&include_empty=true')
+    categories.value = response.data
+  } catch (error) {
+    console.error('Error loading categories:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to load categories',
+      caption: error.response?.data?.detail || error.message
+    })
+  } finally {
+    loadingCategories.value = false
+  }
+}
+
+const filterCategories = (node, filter) => {
+  if (!filter) return true
+  const searchTerm = filter.toLowerCase()
+  return node.label.toLowerCase().includes(searchTerm) ||
+         (node.description && node.description.toLowerCase().includes(searchTerm))
+}
+
+const editCategory = (categoryNode) => {
+  editingCategory.value = {
+    id: categoryNode.id,
+    name: categoryNode.name,
+    description: categoryNode.description,
+    icon: categoryNode.icon,
+    color: categoryNode.color,
+    parent_id: categoryNode.parent_id || null
+  }
+  suggestedParentId.value = null
+  showCreateCategoryDialog.value = true
+}
+
+const createSubcategory = (parentNode) => {
+  editingCategory.value = null
+  suggestedParentId.value = parentNode.id
+  showCreateCategoryDialog.value = true
+}
+
+const deleteCategory = (categoryNode) => {
+  if (categoryNode.component_count > 0) {
+    $q.notify({
+      type: 'negative',
+      message: 'Cannot delete category with components',
+      caption: 'Move or delete all components first'
+    })
+    return
+  }
+
+  categoryToDelete.value = categoryNode
+  showDeleteDialog.value = true
+}
+
+const confirmDeleteCategory = async () => {
+  if (!categoryToDelete.value) return
+
+  deletingCategory.value = true
+  try {
+    await api.delete(`/api/v1/categories/${categoryToDelete.value.id}`)
+
+    $q.notify({
+      type: 'positive',
+      message: `Category "${categoryToDelete.value.name}" deleted successfully`
+    })
+
+    await loadCategories()
+  } catch (error) {
+    console.error('Error deleting category:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to delete category',
+      caption: error.response?.data?.detail || error.message
+    })
+  } finally {
+    deletingCategory.value = false
+    showDeleteDialog.value = false
+    categoryToDelete.value = null
+  }
+}
+
+const onCategoryFormSuccess = async (newCategory) => {
+  showCreateCategoryDialog.value = false
+  editingCategory.value = null
+  suggestedParentId.value = null
+
+  await loadCategories()
+
+  $q.notify({
+    type: 'positive',
+    message: editingCategory.value
+      ? `Category "${newCategory.name}" updated successfully`
+      : `Category "${newCategory.name}" created successfully`
+  })
+}
+
+const closeCreateCategoryDialog = () => {
+  showCreateCategoryDialog.value = false
+  editingCategory.value = null
+  suggestedParentId.value = null
 }
 
 // Lifecycle

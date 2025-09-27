@@ -10,7 +10,7 @@ import uuid
 
 from ..database import get_db
 from ..services.storage_service import StorageLocationService
-from ..auth import require_auth, get_optional_user
+from ..auth.dependencies import require_auth, get_optional_user
 
 # Pydantic schemas
 class StorageLocationBase(BaseModel):

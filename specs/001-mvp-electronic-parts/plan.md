@@ -37,7 +37,7 @@ Build a comprehensive electronic parts inventory management system for hobbyists
 **Language/Version**: Python 3.11+ with FastAPI web framework
 **Primary Dependencies**: FastAPI, SQLAlchemy, SQLite, Vue.js 3, Quasar Framework, pyzbar (barcode scanning), uv (package management)
 **Storage**: SQLite with JSON fields for flexible component specifications
-**Testing**: NEEDS CLARIFICATION - framework-appropriate testing tools
+**Testing**: pytest + FastAPI TestClient for backend, Vue Test Utils for frontend
 **Target Platform**: Self-contained web application for desktop/hobbyist environments
 **Project Type**: web - frontend + backend with API
 **Performance Goals**: Support search/filter across 10,000 components <1 second, UI responsiveness <200ms
@@ -234,7 +234,7 @@ From **quickstart.md** scenarios:
 
 **Technology-Specific Tasks**:
 - FastAPI application setup with OpenAPI auto-generation
-- PostgreSQL database with SQLAlchemy ORM and Alembic migrations
+- SQLite database with SQLAlchemy ORM and Alembic migrations (chosen for self-contained deployment)
 - JWT authentication with tiered access (anonymous, admin, API tokens)
 - Vue.js 3 + Quasar Framework frontend with responsive design
 - Docker Compose for self-contained deployment

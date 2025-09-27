@@ -24,6 +24,7 @@ from .api.kicad import router as kicad_router
 from .api.projects import router as projects_router
 from .api.reports import router as reports_router
 from .api.bom import router as bom_router
+from .api.categories import router as categories_router
 
 app = FastAPI(
     title="PartsHub API",
@@ -60,6 +61,7 @@ app.include_router(kicad_router)
 app.include_router(projects_router)
 app.include_router(reports_router)
 app.include_router(bom_router)
+app.include_router(categories_router)
 
 
 @app.on_event("startup")

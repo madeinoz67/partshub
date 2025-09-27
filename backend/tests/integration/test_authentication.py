@@ -50,7 +50,7 @@ class TestAuthenticationIntegration:
         """Test default admin user login functionality"""
 
         # Test initial admin login with default password
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -72,7 +72,7 @@ class TestAuthenticationIntegration:
         """Test forced password change for default admin"""
 
         # Login with default credentials
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -91,7 +91,7 @@ class TestAuthenticationIntegration:
         """Test password change functionality"""
 
         # Login with default credentials
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -107,14 +107,14 @@ class TestAuthenticationIntegration:
         assert password_change_response.status_code == 200
 
         # Test that old password no longer works
-        old_login_response = client.post("/api/v1/auth/login", json={
+        old_login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
         assert old_login_response.status_code == 401
 
         # Test that new password works
-        new_login_response = client.post("/api/v1/auth/login", json={
+        new_login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "newSecurePassword123!"
         })
@@ -124,21 +124,21 @@ class TestAuthenticationIntegration:
         """Test handling of invalid login attempts"""
 
         # Test wrong username
-        wrong_user_response = client.post("/api/v1/auth/login", json={
+        wrong_user_response = client.post("/api/v1/auth/token", json={
             "username": "nonexistent",
             "password": "admin123"
         })
         assert wrong_user_response.status_code == 401
 
         # Test wrong password
-        wrong_password_response = client.post("/api/v1/auth/login", json={
+        wrong_password_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "wrongpassword"
         })
         assert wrong_password_response.status_code == 401
 
         # Test malformed request
-        malformed_response = client.post("/api/v1/auth/login", json={
+        malformed_response = client.post("/api/v1/auth/token", json={
             "username": "admin"
             # Missing password
         })
@@ -148,7 +148,7 @@ class TestAuthenticationIntegration:
         """Test JWT token authentication for protected endpoints"""
 
         # Login to get token
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -172,7 +172,7 @@ class TestAuthenticationIntegration:
         """Test API token creation and management"""
 
         # Login to get admin access
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -186,7 +186,7 @@ class TestAuthenticationIntegration:
         }, headers=headers)
 
         # Re-login with new password
-        new_login = client.post("/api/v1/auth/login", json={
+        new_login = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "newPass123!"
         })
@@ -237,7 +237,7 @@ class TestAuthenticationIntegration:
         """Test admin CRUD operations require authentication"""
 
         # Login as admin
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -251,7 +251,7 @@ class TestAuthenticationIntegration:
         }, headers=headers)
 
         # Re-login
-        new_login = client.post("/api/v1/auth/login", json={
+        new_login = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "adminPass123!"
         })
@@ -289,7 +289,7 @@ class TestAuthenticationIntegration:
         """Test token expiration and refresh behavior"""
 
         # Login to get token
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -309,7 +309,7 @@ class TestAuthenticationIntegration:
         """Test logout functionality and token invalidation"""
 
         # Login to get token
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -332,7 +332,7 @@ class TestAuthenticationIntegration:
         """Test password validation requirements"""
 
         # Login as admin
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
@@ -357,13 +357,13 @@ class TestAuthenticationIntegration:
         """Test multiple concurrent login sessions"""
 
         # Create multiple login sessions
-        login1_response = client.post("/api/v1/auth/login", json={
+        login1_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })
         token1 = login1_response.json()["access_token"]
 
-        login2_response = client.post("/api/v1/auth/login", json={
+        login2_response = client.post("/api/v1/auth/token", json={
             "username": "admin",
             "password": "admin123"
         })

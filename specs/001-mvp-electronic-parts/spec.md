@@ -50,6 +50,9 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 7. **Given** I'm viewing a component's details, **When** I click on the KiCad tab, **Then** I see graphical representations of the component's symbol and footprint with pin/pad layouts for PCB design reference
 8. **Given** I have a custom KiCad symbol file for a component, **When** I upload it via the KiCad tab, **Then** the custom symbol overrides the auto-generated one and is displayed in the preview
 9. **Given** I want to use a provider's KiCad data, **When** the component is imported from LCSC or similar provider, **Then** the provider's symbol and footprint take precedence over auto-generated versions
+10. **Given** I want to organize my components by type, **When** I create categories like "Passive Components > Resistors > SMD Resistors", **Then** I can easily filter and browse components by category hierarchy
+11. **Given** I'm adding a new capacitor to inventory, **When** I start typing "capacitor" in the category field, **Then** the system suggests existing related categories and allows me to create new ones
+12. **Given** I have components assigned to a category I want to delete, **When** I attempt to delete the category, **Then** the system prevents deletion and offers to reassign components to a different category
 
 ### Edge Cases
 
@@ -57,6 +60,9 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - How does the system handle duplicate part entries with slightly different specifications?
 - What occurs when trying to subtract more quantity than available in stock?
 - How does the system behave when storage locations are reorganized or renamed?
+- What happens when trying to delete a category that has subcategories or assigned components?
+- How does the system handle category name conflicts or duplicate category creation attempts?
+- What occurs when a component's category is changed - does it affect reporting and filtering?
 
 ## Requirements
 
@@ -68,6 +74,14 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **FR-004**: System MUST support hierarchical storage locations (cabinet > drawer > box)
 - **FR-005**: System MUST provide search functionality across all component fields with filtering
 - **FR-006**: System MUST support categorization of components (resistors, capacitors, ICs, connectors, etc.)
+- **FR-085**: System MUST provide comprehensive category management with CRUD operations for admin users
+- **FR-086**: System MUST support hierarchical category structure allowing parent-child relationships for organized component classification
+- **FR-087**: System MUST display category tree view in component creation/editing interface for easy selection
+- **FR-088**: System MUST track component count per category and display in category management interface
+- **FR-089**: System MUST prevent deletion of categories that contain components with option to reassign components to different category
+- **FR-090**: System MUST provide category-based filtering and search in component lists and inventory views
+- **FR-091**: System MUST support category descriptions and custom properties for enhanced organization
+- **FR-092**: System MUST automatically suggest categories based on component type, manufacturer, or specifications during component creation
 - **FR-007**: System MUST track low stock alerts with configurable minimum quantities per component
 - **FR-008**: System MUST maintain supplier information and purchase history for components
 - **FR-009**: System MUST generate shopping lists based on low stock items
@@ -147,11 +161,11 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 
 ### User Interface Requirements
 
-- **FR-070**: System MUST provide expandable table rows in the main components list for detailed component preview without full page navigation
-- **FR-071**: System MUST use standard directional expand icons (right arrow for collapsed, down arrow for expanded) following UI conventions
-- **FR-072**: System MUST display attachment type indicators (PDF for datasheets, image thumbnails) in the table Files column for quick visual identification
-- **FR-073**: System MUST show component details including specifications, stock information, storage location, and quick actions in the expanded table row
-- **FR-074**: System MUST maintain expand/collapse state per component allowing multiple rows to be expanded simultaneously for comparison
+- **FR-093**: System MUST provide expandable table rows in the main components list for detailed component preview without full page navigation
+- **FR-094**: System MUST use standard directional expand icons (right arrow for collapsed, down arrow for expanded) following UI conventions
+- **FR-095**: System MUST display attachment type indicators (PDF for datasheets, image thumbnails) in the table Files column for quick visual identification
+- **FR-096**: System MUST show component details including specifications, stock information, storage location, and quick actions in the expanded table row
+- **FR-097**: System MUST maintain expand/collapse state per component allowing multiple rows to be expanded simultaneously for comparison
 
 ### Deployment & Operations Requirements
 
@@ -167,7 +181,7 @@ As an electronics hobbyist or engineer, I need to track my electronic component 
 - **Component**: Represents an electronic part with specifications, unique part numbers, and relationships to projects and meta-parts (quantities now tracked per location)
 - **ComponentLocation**: Junction entity tracking component quantities, costs, and notes for specific storage locations, enabling multiple locations per component
 - **Storage Location**: Hierarchical storage system (cabinet/room > shelf/drawer > container/box) where components are physically stored with location codes
-- **Category**: Component classification system (passive components, active components, connectors, mechanical, etc.)
+- **Category**: Hierarchical component classification system supporting parent-child relationships, custom descriptions, and component count tracking (passive components > resistors > SMD resistors, etc.)
 - **Supplier**: Vendor information including name, part numbers, pricing, and ordering details
 - **Project**: Collection of components allocated for specific builds or designs with usage tracking
 - **Stock Transaction**: Detailed record of component operations (add, remove, move) with timestamps, quantities, and reasons

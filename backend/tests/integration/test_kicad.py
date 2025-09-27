@@ -5,80 +5,24 @@ Tests KiCad API integration, symbol/footprint generation, and library synchroniz
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-import tempfile
-import os
-
-from src.main import app
-from src.database.connection import get_db, Base
 
 
 class TestKiCadIntegration:
     """Integration tests for KiCad functionality"""
 
     @pytest.fixture
-    def test_db(self):
-        """Create a temporary database for testing"""
-        db_fd, db_path = tempfile.mkstemp()
-        engine = create_engine(f"sqlite:///{db_path}")
-        TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-        Base.metadata.create_all(bind=engine)
-
-        def override_get_db():
-            try:
-                db = TestingSessionLocal()
-                yield db
-            finally:
-                db.close()
-
-        app.dependency_overrides[get_db] = override_get_db
-        yield engine
-
-        os.close(db_fd)
-        os.unlink(db_path)
-        app.dependency_overrides.clear()
-
-    @pytest.fixture
-    def client(self, test_db):
-        """Test client with isolated database"""
-        return TestClient(app)
-
-    @pytest.fixture
-    def admin_headers(self, client):
-        """Get admin authentication headers"""
-        login_response = client.post("/api/v1/auth/login", json={
-            "username": "admin", "password": "admin123"
-        })
-        token = login_response.json()["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
-
-        # Change password
-        client.post("/api/v1/auth/change-password",
-            json={"current_password": "admin123", "new_password": "newPass123!"},
-            headers=headers
-        )
-
-        # Re-login
-        new_login = client.post("/api/v1/auth/login", json={
-            "username": "admin", "password": "newPass123!"
-        })
-        return {"Authorization": f"Bearer {new_login.json()['access_token']}"}
-
-    @pytest.fixture
-    def sample_component(self, client, admin_headers):
+    def sample_component(self, client, auth_headers):
         """Create a sample component for testing"""
         # Create category and storage
         category_response = client.post("/api/v1/categories",
             json={"name": "KiCad Test", "description": "For KiCad testing"},
-            headers=admin_headers
+            headers=auth_headers
         )
         category_id = category_response.json()["id"]
 
         storage_response = client.post("/api/v1/storage-locations",
             json={"name": "KiCad Storage", "description": "For KiCad testing"},
-            headers=admin_headers
+            headers=auth_headers
         )
         storage_id = storage_response.json()["id"]
 
@@ -104,7 +48,7 @@ class TestKiCadIntegration:
 
         component_response = client.post("/api/v1/components",
             json=component_data,
-            headers=admin_headers
+            headers=auth_headers
         )
         assert component_response.status_code == 201
         return component_response.json()
@@ -113,7 +57,7 @@ class TestKiCadIntegration:
         """Test KiCad component search functionality"""
 
         # Test basic component search
-        search_response = client.get("/api/v1/kicad/search?query=resistor")
+        search_response = client.get("/api/v1/kicad/components?query=resistor")
         assert search_response.status_code == 200
 
         search_data = search_response.json()
@@ -133,14 +77,14 @@ class TestKiCadIntegration:
         """Test KiCad component search with filters"""
 
         # Test search with package filter
-        search_response = client.get("/api/v1/kicad/search?query=resistor&package=0603")
+        search_response = client.get("/api/v1/kicad/components?query=resistor&package=0603")
         assert search_response.status_code == 200
 
         search_data = search_response.json()
         assert "components" in search_data
 
         # Test search with manufacturer filter
-        search_response = client.get("/api/v1/kicad/search?query=resistor&manufacturer=Test%20Mfg")
+        search_response = client.get("/api/v1/kicad/components?query=resistor&manufacturer=Test%20Mfg")
         assert search_response.status_code == 200
 
         search_data = search_response.json()
@@ -152,7 +96,7 @@ class TestKiCadIntegration:
         component_id = sample_component["id"]
 
         # Test symbol library generation
-        symbol_response = client.get(f"/api/v1/kicad/library/{component_id}/symbol")
+        symbol_response = client.get(f"/api/v1/kicad/components/{component_id}/symbol")
 
         if symbol_response.status_code == 200:
             # Verify symbol library content
@@ -168,7 +112,7 @@ class TestKiCadIntegration:
         component_id = sample_component["id"]
 
         # Test footprint library generation
-        footprint_response = client.get(f"/api/v1/kicad/library/{component_id}/footprint")
+        footprint_response = client.get(f"/api/v1/kicad/components/{component_id}/footprint")
 
         if footprint_response.status_code == 200:
             # Verify footprint library content
@@ -184,7 +128,7 @@ class TestKiCadIntegration:
         component_id = sample_component["id"]
 
         # Test component details for KiCad
-        details_response = client.get(f"/api/v1/kicad/component/{component_id}")
+        details_response = client.get(f"/api/v1/kicad/components/{component_id}")
 
         if details_response.status_code == 200:
             details_data = details_response.json()
@@ -197,11 +141,11 @@ class TestKiCadIntegration:
             # Endpoint might not be fully implemented
             assert details_response.status_code in [200, 404, 501]
 
-    def test_kicad_bulk_library_export(self, client: TestClient, sample_component: dict, admin_headers: dict):
+    def test_kicad_bulk_library_export(self, client: TestClient, sample_component: dict, auth_headers: dict):
         """Test bulk KiCad library export functionality"""
 
         # Test bulk symbol library export
-        bulk_symbols_response = client.get("/api/v1/kicad/library/symbols")
+        bulk_symbols_response = client.get("/api/v1/kicad/libraries/symbols")
 
         if bulk_symbols_response.status_code == 200:
             # Verify bulk symbol export
@@ -213,11 +157,11 @@ class TestKiCadIntegration:
             # Service might not be implemented yet
             assert bulk_symbols_response.status_code in [200, 404, 501]
 
-    def test_kicad_library_synchronization(self, client: TestClient, sample_component: dict, admin_headers: dict):
+    def test_kicad_library_synchronization(self, client: TestClient, sample_component: dict, auth_headers: dict):
         """Test KiCad library synchronization functionality"""
 
         # Test library sync endpoint (if implemented)
-        sync_response = client.post("/api/v1/kicad/sync", headers=admin_headers)
+        sync_response = client.post("/api/v1/kicad/libraries/sync", headers=auth_headers)
 
         if sync_response.status_code == 200:
             sync_data = sync_response.json()
@@ -231,11 +175,11 @@ class TestKiCadIntegration:
         """Test KiCad component validation for missing data"""
 
         # Test search with invalid component ID
-        invalid_response = client.get("/api/v1/kicad/component/invalid-id")
+        invalid_response = client.get("/api/v1/kicad/components/invalid-id")
         assert invalid_response.status_code in [404, 422]
 
         # Test search with empty query
-        empty_search_response = client.get("/api/v1/kicad/search?query=")
+        empty_search_response = client.get("/api/v1/kicad/components?query=")
         # Should handle empty queries gracefully
         assert empty_search_response.status_code in [200, 422]
 
@@ -243,12 +187,12 @@ class TestKiCadIntegration:
         """Test KiCad API error handling"""
 
         # Test malformed requests
-        malformed_response = client.get("/api/v1/kicad/search?invalid_param=test")
+        malformed_response = client.get("/api/v1/kicad/components?invalid_param=test")
         # Should handle unknown parameters gracefully
         assert malformed_response.status_code in [200, 422]
 
         # Test component search with special characters
-        special_char_response = client.get("/api/v1/kicad/search?query=%20%21%40%23")
+        special_char_response = client.get("/api/v1/kicad/components?query=%20%21%40%23")
         # Should handle special characters gracefully
         assert special_char_response.status_code in [200, 422]
 
@@ -256,7 +200,7 @@ class TestKiCadIntegration:
         """Test KiCad API performance and limits"""
 
         # Test search with large limit
-        large_limit_response = client.get("/api/v1/kicad/search?query=test&limit=1000")
+        large_limit_response = client.get("/api/v1/kicad/components?query=test&limit=1000")
 
         if large_limit_response.status_code == 200:
             search_data = large_limit_response.json()
@@ -270,16 +214,16 @@ class TestKiCadIntegration:
         """Test KiCad API authentication requirements"""
 
         # Test that read operations don't require authentication
-        search_response = client.get("/api/v1/kicad/search?query=resistor")
+        search_response = client.get("/api/v1/kicad/components?query=resistor")
         # Search should work without authentication
         assert search_response.status_code in [200, 404]
 
         component_id = sample_component["id"]
-        details_response = client.get(f"/api/v1/kicad/component/{component_id}")
+        details_response = client.get(f"/api/v1/kicad/components/{component_id}")
         # Component details should work without authentication
         assert details_response.status_code in [200, 404, 501]
 
         # Test that write operations might require authentication
-        sync_response = client.post("/api/v1/kicad/sync")
+        sync_response = client.post("/api/v1/kicad/libraries/sync")
         # Sync might require authentication
         assert sync_response.status_code in [200, 401, 404, 405, 501]

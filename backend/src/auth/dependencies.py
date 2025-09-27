@@ -94,15 +94,3 @@ async def require_admin(
 
     return current_user
 
-
-# Legacy compatibility functions (used by existing mock auth in components.py)
-def get_current_user():
-    """Mock authentication - always returns None for anonymous access."""
-    return None
-
-
-def require_auth_legacy():
-    """Mock authentication requirement - allows mock tokens for testing."""
-    # For MVP testing, allow mock JWT tokens and API keys
-    # In production, this would validate real tokens
-    return {"user_id": "test_user", "username": "test"}  # Mock user

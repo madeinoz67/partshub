@@ -12,7 +12,7 @@ import math
 from ..database import get_db
 from ..services.component_service import ComponentService
 from ..models import Component, StockTransaction
-from ..auth import require_auth, get_optional_user
+from ..auth.dependencies import require_auth, get_optional_user
 
 # Pydantic schemas
 class ComponentBase(BaseModel):

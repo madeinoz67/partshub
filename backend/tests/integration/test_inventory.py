@@ -11,83 +11,148 @@ import tempfile
 import os
 
 from src.main import app
-from src.database.connection import get_db, Base
+from src.database.connection import get_db
+from src.models import Base
 
 
 class TestInventoryManagement:
     """Integration tests for inventory management scenarios"""
 
     @pytest.fixture
-    def test_db(self):
-        """Create a temporary database for testing"""
+    def db_session(self):
+        """Create a shared database session for testing"""
+        from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+        from src.auth.dependencies import get_optional_user
+        from src.auth.jwt_auth import get_current_user as get_user_from_token
+        from src.models import User
+
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
         TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
         Base.metadata.create_all(bind=engine)
+        session = TestingSessionLocal()
 
         def override_get_db():
+            yield session
+
+        async def test_get_optional_user(
+            credentials: HTTPAuthorizationCredentials = None,
+            db = None
+        ):
+            """TestClient-compatible version of get_optional_user"""
+            if not credentials:
+                return None
+
             try:
-                db = TestingSessionLocal()
-                yield db
-            finally:
-                db.close()
+                user_data = get_user_from_token(credentials.credentials)
+                user = session.query(User).filter(User.id == user_data["user_id"]).first()
+                if user and user.is_active:
+                    return {
+                        "user_id": user.id,
+                        "username": user.username,
+                        "is_admin": user.is_admin,
+                        "auth_type": "jwt"
+                    }
+            except Exception:
+                pass
+
+            return None
 
         app.dependency_overrides[get_db] = override_get_db
-        yield engine
+        app.dependency_overrides[get_optional_user] = test_get_optional_user
+        yield session
 
+        session.close()
         os.close(db_fd)
         os.unlink(db_path)
         app.dependency_overrides.clear()
 
     @pytest.fixture
-    def client(self, test_db):
-        """Test client with isolated database"""
+    def client(self, db_session):
+        """Test client with shared database session"""
         return TestClient(app)
 
     @pytest.fixture
-    def admin_headers(self, client):
-        """Get admin authentication headers"""
-        # Login and change password
-        login_response = client.post("/api/v1/auth/login", json={
-            "username": "admin", "password": "admin123"
-        })
-        token = login_response.json()["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
+    def admin_headers(self, db_session):
+        """Get admin authentication headers using direct token creation"""
+        from src.auth.jwt_auth import create_access_token
+        from src.models import User
 
-        # Change password
-        client.post("/api/v1/auth/change-password",
-            json={"current_password": "admin123", "new_password": "newPass123!"},
-            headers=headers
+        # Create admin user directly in shared test database session
+        admin_user = User(
+            username="testadmin",
+            full_name="Test Admin",
+            is_admin=True,
+            is_active=True
         )
+        admin_user.set_password("testpassword")
 
-        # Re-login with new password
-        new_login = client.post("/api/v1/auth/login", json={
-            "username": "admin", "password": "newPass123!"
+        db_session.add(admin_user)
+        db_session.commit()
+        db_session.refresh(admin_user)
+
+        # Create JWT token directly
+        token = create_access_token({
+            "sub": admin_user.id,
+            "user_id": admin_user.id,
+            "username": admin_user.username,
+            "is_admin": admin_user.is_admin
         })
-        return {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 
-    def test_comprehensive_component_search(self, client: TestClient, admin_headers: dict):
-        """Test comprehensive component search functionality"""
+        return {"Authorization": f"Bearer {token}"}
 
-        # Create test categories
-        categories = [
-            {"name": "Resistors", "description": "Fixed value resistors"},
-            {"name": "Capacitors", "description": "Capacitors and supercaps"},
-            {"name": "Semiconductors", "description": "ICs, transistors, diodes"}
-        ]
+    @pytest.fixture
+    def seeded_data(self, db_session):
+        """Create foundational data for integration tests"""
+        from src.models import Category, StorageLocation, Component
 
-        category_ids = {}
-        for cat in categories:
-            response = client.post("/api/v1/categories", json=cat, headers=admin_headers)
-            category_ids[cat["name"]] = response.json()["id"]
+        # Create categories
+        categories = {
+            "resistors": Category(name="Resistors", description="Fixed value resistors"),
+            "capacitors": Category(name="Capacitors", description="Capacitors and supercaps"),
+            "semiconductors": Category(name="Semiconductors", description="ICs, transistors, diodes")
+        }
+
+        for category in categories.values():
+            db_session.add(category)
 
         # Create storage locations
-        storage_response = client.post("/api/v1/storage-locations",
-            json={"name": "Main Storage", "description": "Primary component storage"},
-            headers=admin_headers
-        )
-        storage_id = storage_response.json()["id"]
+        storage_locations = {
+            "main": StorageLocation(name="Main Storage", description="Primary component storage", type="room"),
+            "drawer1": StorageLocation(name="Drawer 1", description="Small parts drawer", type="drawer"),
+            "shelf_a": StorageLocation(name="Shelf A", description="Large components shelf", type="shelf")
+        }
+
+        for location in storage_locations.values():
+            db_session.add(location)
+
+        db_session.commit()
+
+        # Refresh to get IDs
+        for category in categories.values():
+            db_session.refresh(category)
+        for location in storage_locations.values():
+            db_session.refresh(location)
+
+        return {
+            "categories": categories,
+            "storage_locations": storage_locations
+        }
+
+    def test_comprehensive_component_search(self, client: TestClient, admin_headers: dict, seeded_data: dict):
+        """Test comprehensive component search functionality"""
+
+        # Use seeded data instead of creating via API
+        categories = seeded_data["categories"]
+        storage_locations = seeded_data["storage_locations"]
+
+        category_ids = {
+            "Resistors": categories["resistors"].id,
+            "Capacitors": categories["capacitors"].id,
+            "Semiconductors": categories["semiconductors"].id
+        }
+        storage_id = storage_locations["main"].id
 
         # Create diverse test components
         test_components = [

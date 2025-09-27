@@ -6,8 +6,8 @@ Test-Driven Development for stock filtering functionality.
 import requests
 import json
 
-# Test configuration
-BASE_URL = "http://localhost:8000"
+# Test configuration - use test port following Testing Isolation principle
+BASE_URL = "http://localhost:8005"
 
 def test_stock_filtering():
     """Test stock filtering endpoints return correct data."""

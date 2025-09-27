@@ -8,10 +8,7 @@ from typing import List, Dict, Any, Optional, Tuple
 from pydantic import BaseModel
 
 from ..services.bom_service import BOMService, BOMExportFormat
-# from ..auth import require_auth
-# Mock auth for MVP - remove in production
-def require_auth():
-    return None
+from ..auth.dependencies import require_auth
 
 router = APIRouter(prefix="/api/v1/bom", tags=["bom"])
 

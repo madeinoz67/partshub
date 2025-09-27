@@ -13,7 +13,7 @@ import math
 
 from ..database import get_db
 from ..services.project_service import ProjectService
-from ..auth.dependencies import require_auth, require_auth_legacy, require_admin
+from ..auth.dependencies import require_auth, require_admin
 from ..models import ProjectStatus
 
 router = APIRouter(prefix="/api/v1/projects", tags=["projects"])

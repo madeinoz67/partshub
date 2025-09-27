@@ -12,7 +12,7 @@ from datetime import datetime
 
 from ..database import get_db
 from ..services.report_service import ReportService
-from ..auth.dependencies import require_auth_legacy
+from ..auth.dependencies import require_auth
 
 router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
 
@@ -362,7 +362,7 @@ async def export_system_health_report(
 # Admin-only detailed reports
 @router.get("/admin/data-quality")
 async def get_admin_data_quality_report(
-    current_user: dict = Depends(require_auth_legacy),
+    current_user: dict = Depends(require_auth),
     db: Session = Depends(get_db)
 ) -> Dict[str, Any]:
     """Get detailed data quality report (admin only)."""

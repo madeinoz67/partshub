@@ -48,7 +48,7 @@ class TestProviderIntegration:
     @pytest.fixture
     def admin_headers(self, client):
         """Get admin authentication headers"""
-        login_response = client.post("/api/v1/auth/login", json={
+        login_response = client.post("/api/v1/auth/token", json={
             "username": "admin", "password": "admin123"
         })
         token = login_response.json()["access_token"]
@@ -61,7 +61,7 @@ class TestProviderIntegration:
         )
 
         # Re-login
-        new_login = client.post("/api/v1/auth/login", json={
+        new_login = client.post("/api/v1/auth/token", json={
             "username": "admin", "password": "newPass123!"
         })
         return {"Authorization": f"Bearer {new_login.json()['access_token']}"}
