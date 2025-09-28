@@ -3,55 +3,28 @@ Integration test for component data provider functionality.
 Tests provider API integration, data import, and provider selection workflows.
 """
 
-import os
-import tempfile
-
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from src.database.connection import Base, get_db
-from src.main import app
+from src.auth.admin import ensure_admin_exists
 
 
 class TestProviderIntegration:
     """Integration tests for component data provider functionality"""
 
     @pytest.fixture
-    def test_db(self):
-        """Create a temporary database for testing"""
-        db_fd, db_path = tempfile.mkstemp()
-        engine = create_engine(f"sqlite:///{db_path}")
-        testing_session_local = sessionmaker(
-            autocommit=False, autoflush=False, bind=engine
-        )
-
-        Base.metadata.create_all(bind=engine)
-
-        def override_get_db():
-            try:
-                db = testing_session_local()
-                yield db
-            finally:
-                db.close()
-
-        app.dependency_overrides[get_db] = override_get_db
-        yield engine
-
-        os.close(db_fd)
-        os.unlink(db_path)
-        app.dependency_overrides.clear()
-
-    @pytest.fixture
-    def client(self, test_db):
-        """Test client with isolated database"""
-        return TestClient(app)
-
-    @pytest.fixture
-    def admin_headers(self, client):
+    def admin_headers(self, client, db_session):
         """Get admin authentication headers"""
+        # Ensure admin user exists in test database and get the password
+        result = ensure_admin_exists(db_session)
+        if result:
+            admin_user, admin_password = result
+        else:
+            # Admin already exists - use fixed password for testing
+            admin_password = "admin123"
+
+        # Use form data instead of JSON for OAuth2 token request
         login_response = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+            "/api/v1/auth/token", data={"username": "admin", "password": admin_password}
         )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -59,13 +32,13 @@ class TestProviderIntegration:
         # Change password
         client.post(
             "/api/v1/auth/change-password",
-            json={"current_password": "admin123", "new_password": "newPass123!"},
+            json={"current_password": admin_password, "new_password": "newPass123!"},
             headers=headers,
         )
 
-        # Re-login
+        # Re-login with form data
         new_login = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "newPass123!"}
+            "/api/v1/auth/token", data={"username": "admin", "password": "newPass123!"}
         )
         return {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 

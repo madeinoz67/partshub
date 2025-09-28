@@ -5,7 +5,7 @@ ComponentService with CRUD and search operations for components.
 import uuid
 from typing import Any
 
-from sqlalchemy import and_, desc, func, or_
+from sqlalchemy import and_, case, desc, func, or_
 from sqlalchemy.orm import Session, selectinload
 
 from ..models import (
@@ -815,7 +815,7 @@ class ComponentService:
                 )
             ).order_by(
                 # Prioritize exact matches first, then partial matches by field importance
-                func.case(
+                case(
                     (Component.name.ilike(search_term_like), 1),
                     (Component.component_type.ilike(search_term_like), 2),
                     (Component.part_number.ilike(search_term_like), 3),

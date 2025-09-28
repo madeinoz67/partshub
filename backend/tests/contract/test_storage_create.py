@@ -24,9 +24,10 @@ class TestStorageCreateContract:
         # This should fail with 401 until auth is implemented
         assert response.status_code == 401
 
-    def test_create_storage_location_with_jwt_token(self, client: TestClient):
+    def test_create_storage_location_with_jwt_token(
+        self, client: TestClient, auth_headers
+    ):
         """Test storage location creation with JWT token"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         location_data = {
             "name": "Electronics Cabinet A",
             "description": "Main electronics components cabinet",
@@ -35,7 +36,7 @@ class TestStorageCreateContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
@@ -65,9 +66,10 @@ class TestStorageCreateContract:
             assert data["type"] == location_data["type"]
             assert data["parent_id"] is None
 
-    def test_create_storage_location_with_parent(self, client: TestClient):
+    def test_create_storage_location_with_parent(
+        self, client: TestClient, auth_headers
+    ):
         """Test creating nested storage location with parent"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         parent_id = str(uuid.uuid4())
         location_data = {
             "name": "Drawer 1",
@@ -77,7 +79,7 @@ class TestStorageCreateContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
@@ -93,9 +95,10 @@ class TestStorageCreateContract:
             # location_hierarchy should include parent path
             assert "/" in data["location_hierarchy"]
 
-    def test_create_storage_location_with_api_key(self, client: TestClient):
+    def test_create_storage_location_with_api_key(
+        self, client: TestClient, api_token_headers
+    ):
         """Test storage location creation with API key"""
-        headers = {"X-API-Key": "mock_api_key"}
         location_data = {
             "name": "Resistor Bin",
             "description": "Bin for resistor components",
@@ -103,15 +106,16 @@ class TestStorageCreateContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=api_token_headers
         )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 201
 
-    def test_create_storage_location_validation_errors(self, client: TestClient):
+    def test_create_storage_location_validation_errors(
+        self, client: TestClient, auth_headers
+    ):
         """Test validation errors for invalid location data"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # Missing required fields
         incomplete_data = {
@@ -119,14 +123,14 @@ class TestStorageCreateContract:
             # Missing type
         }
         response = client.post(
-            "/api/v1/storage-locations", json=incomplete_data, headers=headers
+            "/api/v1/storage-locations", json=incomplete_data, headers=auth_headers
         )
         assert response.status_code == 422
 
         # Invalid type
         invalid_type_data = {"name": "Test Location", "type": "invalid_type"}
         response = client.post(
-            "/api/v1/storage-locations", json=invalid_type_data, headers=headers
+            "/api/v1/storage-locations", json=invalid_type_data, headers=auth_headers
         )
         assert response.status_code == 422
 
@@ -137,13 +141,14 @@ class TestStorageCreateContract:
             "parent_id": "not-a-uuid",
         }
         response = client.post(
-            "/api/v1/storage-locations", json=invalid_parent_data, headers=headers
+            "/api/v1/storage-locations", json=invalid_parent_data, headers=auth_headers
         )
         assert response.status_code == 422
 
-    def test_create_storage_location_with_qr_code(self, client: TestClient):
+    def test_create_storage_location_with_qr_code(
+        self, client: TestClient, auth_headers
+    ):
         """Test creating location with QR code"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         location_data = {
             "name": "IC Storage Box",
             "description": "Box for integrated circuits",
@@ -152,7 +157,7 @@ class TestStorageCreateContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
@@ -161,10 +166,9 @@ class TestStorageCreateContract:
             assert data["qr_code_id"] == location_data["qr_code_id"]
 
     def test_create_storage_location_duplicate_name_validation(
-        self, client: TestClient
+        self, client: TestClient, auth_headers
     ):
         """Test duplicate name validation within same parent"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         location_data = {
             "name": "Duplicate Test Drawer",
             "description": "First instance",
@@ -173,21 +177,22 @@ class TestStorageCreateContract:
 
         # First creation should succeed
         response1 = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # Second creation with same name should fail
         response2 = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented with proper validation
         if response1.status_code == 201:
             assert response2.status_code in [400, 409]  # Conflict or bad request
 
-    def test_create_storage_location_nonexistent_parent(self, client: TestClient):
+    def test_create_storage_location_nonexistent_parent(
+        self, client: TestClient, auth_headers
+    ):
         """Test creating location with nonexistent parent"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         nonexistent_parent = str(uuid.uuid4())
         location_data = {
             "name": "Orphaned Drawer",
@@ -197,15 +202,16 @@ class TestStorageCreateContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [400, 404]  # Should reject nonexistent parent
 
-    def test_create_storage_location_circular_reference(self, client: TestClient):
+    def test_create_storage_location_circular_reference(
+        self, client: TestClient, auth_headers
+    ):
         """Test prevention of circular parent references"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # This test would require existing locations to test circular reference
         # For now, just test self-reference prevention
@@ -218,7 +224,7 @@ class TestStorageCreateContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations", json=location_data, headers=headers
+            "/api/v1/storage-locations", json=location_data, headers=auth_headers
         )
 
         # This will fail until validation is implemented

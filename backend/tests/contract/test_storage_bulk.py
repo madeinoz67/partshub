@@ -32,9 +32,10 @@ class TestStorageBulkContract:
         # This should fail with 401 until auth is implemented
         assert response.status_code == 401
 
-    def test_bulk_create_storage_hierarchy_with_jwt(self, client: TestClient):
+    def test_bulk_create_storage_hierarchy_with_jwt(
+        self, client: TestClient, auth_headers
+    ):
         """Test bulk creation of hierarchical storage locations"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         bulk_data = {
             "locations": [
                 {
@@ -64,7 +65,9 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented
@@ -100,9 +103,8 @@ class TestStorageBulkContract:
                 == "Workshop/Electronics Cabinet A/Drawer 1"
             )
 
-    def test_bulk_create_with_api_key(self, client: TestClient):
+    def test_bulk_create_with_api_key(self, client: TestClient, api_token_headers):
         """Test bulk creation with API key"""
-        headers = {"X-API-Key": "mock_api_key"}
         bulk_data = {
             "locations": [
                 {
@@ -120,27 +122,32 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=api_token_headers,
         )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 201
 
-    def test_bulk_create_validation_errors(self, client: TestClient):
+    def test_bulk_create_validation_errors(self, client: TestClient, auth_headers):
         """Test validation errors for invalid bulk data"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # Missing required locations array
         invalid_data = {"not_locations": []}
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=invalid_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=invalid_data,
+            headers=auth_headers,
         )
         assert response.status_code == 422
 
         # Empty locations array
         empty_data = {"locations": []}
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=empty_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=empty_data,
+            headers=auth_headers,
         )
         assert response.status_code == 422
 
@@ -156,13 +163,14 @@ class TestStorageBulkContract:
         response = client.post(
             "/api/v1/storage-locations/bulk-create",
             json=incomplete_data,
-            headers=headers,
+            headers=auth_headers,
         )
         assert response.status_code == 422
 
-    def test_bulk_create_nonexistent_parent_reference(self, client: TestClient):
+    def test_bulk_create_nonexistent_parent_reference(
+        self, client: TestClient, auth_headers
+    ):
         """Test error when parent_name references nonexistent location"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         bulk_data = {
             "locations": [
                 {
@@ -175,15 +183,18 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented with proper validation
         assert response.status_code in [400, 422]
 
-    def test_bulk_create_circular_reference_detection(self, client: TestClient):
+    def test_bulk_create_circular_reference_detection(
+        self, client: TestClient, auth_headers
+    ):
         """Test detection of circular references in bulk data"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         bulk_data = {
             "locations": [
                 {
@@ -202,15 +213,18 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented with circular reference detection
         assert response.status_code in [400, 422]
 
-    def test_bulk_create_duplicate_names_in_batch(self, client: TestClient):
+    def test_bulk_create_duplicate_names_in_batch(
+        self, client: TestClient, auth_headers
+    ):
         """Test handling of duplicate names in same bulk request"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         bulk_data = {
             "locations": [
                 {
@@ -227,15 +241,16 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented with duplicate detection
         assert response.status_code in [400, 422]
 
-    def test_bulk_create_with_qr_codes(self, client: TestClient):
+    def test_bulk_create_with_qr_codes(self, client: TestClient, auth_headers):
         """Test bulk creation with QR code IDs"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         bulk_data = {
             "locations": [
                 {
@@ -255,7 +270,9 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented
@@ -267,9 +284,8 @@ class TestStorageBulkContract:
             assert cabinet["qr_code_id"] == "QR-CAB-001"
             assert drawer["qr_code_id"] == "QR-DRW-001"
 
-    def test_bulk_create_transaction_rollback(self, client: TestClient):
+    def test_bulk_create_transaction_rollback(self, client: TestClient, auth_headers):
         """Test that partial failures result in complete rollback"""
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         bulk_data = {
             "locations": [
                 {
@@ -286,7 +302,9 @@ class TestStorageBulkContract:
         }
 
         response = client.post(
-            "/api/v1/storage-locations/bulk-create", json=bulk_data, headers=headers
+            "/api/v1/storage-locations/bulk-create",
+            json=bulk_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented with proper transaction handling
