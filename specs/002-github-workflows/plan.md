@@ -31,38 +31,52 @@
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
-Implement automated GitHub workflows for CI/CD that ensure code quality, automate testing, deploy to production, build documentation, manage releases, and publish Docker images. The system must support the full development lifecycle from feature branches through production deployment with comprehensive automation and quality gates.
+
+**Primary Requirement**: Implement comprehensive GitHub Actions workflows to automate the entire software development lifecycle for PartsHub, including continuous integration (CI), continuous deployment (CD), and release management with versioned documentation.
+
+**Technical Approach**: Create three core workflow files (ci.yml, cd.yml, release.yml) that automate testing, quality gates, deployment to production, and release artifact generation. Integrate Mike for versioned documentation, Release Please for automated release management, and GitHub Container Registry for Docker image distribution. Include GitHub templates for consistent issue reporting and pull request management.
 
 ## Technical Context
-**Language/Version**: YAML (GitHub Actions), Shell scripting, Python 3.11+ (for tooling)  
-**Primary Dependencies**: GitHub Actions, Docker, MkDocs, pytest, ruff, uv, Node.js/npm  
-**Storage**: GitHub Container Registry, GitHub Artifacts, GitHub Pages  
-**Testing**: pytest (backend), npm test (frontend), integration tests, workflow validation  
-**Target Platform**: GitHub Actions runners (Ubuntu latest), production deployment environment
-**Project Type**: web (existing frontend + backend structure)  
-**Performance Goals**: Workflow execution <10 minutes, Docker builds <5 minutes, test suite <3 minutes  
-**Constraints**: Free GitHub Actions minutes, no external secrets in workflow files, production deployment safety  
-**Scale/Scope**: Single repository, multiple workflows (CI, CD, release), support for concurrent development
+**Language/Version**: GitHub Actions YAML workflows, Python 3.11+ (backend), Node.js 18+ (frontend)
+**Primary Dependencies**: GitHub Actions ecosystem, Mike (docs versioning), Release Please (release automation), Docker/GitHub Container Registry
+**Storage**: YAML workflow files in `.github/workflows/`, GitHub Container Registry for Docker images
+**Testing**: Contract validation tests using pytest, GitHub Actions workflow testing in CI environment
+**Target Platform**: GitHub Actions runners (ubuntu-latest), containerized deployment environments
+**Project Type**: web (backend + frontend) - determines CI/CD structure
+**Performance Goals**: CI runs complete in <10 minutes, Docker builds use effective caching, dependency installation optimized
+**Constraints**: GitHub Actions usage limits, workflow complexity manageable, must support main-branch deployment strategy
+**Scale/Scope**: 3 core workflows (CI/CD/Release), automated quality gates, versioned documentation, GitHub templates for community
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**Constitutional Requirements Assessment:**
+**I. Specification-Driven Development**: ✅ PASS
+- Complete feature specification exists at spec.md with user scenarios, functional requirements, and acceptance criteria
+- Business-focused requirements defined before technical planning
 
-✅ **I. Specification-Driven Development**: Complete feature specification exists with clear user scenarios and functional requirements
-✅ **II. Test-Driven Development**: Workflow tests will be written before implementation; CI/CD workflows will enforce TDD for application code
-✅ **III. Incremental Design & Planning**: Following systematic phases: Research → Design → Contracts → Task Generation
-✅ **IV. Library-First Architecture**: GitHub Actions workflow files will be modular and reusable; workflow libraries can be shared
-✅ **V. CLI-Centric Interface**: All automation will be CLI-driven through GitHub Actions and shell scripts
-✅ **VI. Testing Isolation**: Workflow tests will use separate test environments; no interference with production systems
+**II. Test-Driven Development**: ✅ PASS
+- Will implement contract tests for workflow validation before workflow implementation
+- TDD approach: failing tests → implementation → refactor cycle
+- Contract tests in tests/workflows/ validate workflow behavior
 
-**Quality Standards Compliance:**
-✅ **Code Quality**: Workflows will enforce linting, type checking, and automated tests
-✅ **Security**: No secrets in repository; proper secret management through GitHub secrets
-✅ **Documentation**: All workflows will be documented with examples
-✅ **CI/CD Integration**: This feature IS the CI/CD integration system
+**III. Incremental Design & Planning**: ✅ PASS
+- Following systematic planning phases: Research → Design → Contracts → Task Generation
+- Each phase completed before proceeding to next
 
-**RESULT: PASS** - No constitutional violations identified
+**IV. Library-First Architecture**: ⚠️ EXCEPTION JUSTIFIED
+- GitHub workflows are infrastructure/DevOps configuration, not application libraries
+- This is foundational infrastructure that enables library-first development for other features
+- Workflows themselves are YAML configuration files, not code libraries
+
+**V. CLI-Centric Interface**: ⚠️ EXCEPTION JUSTIFIED
+- GitHub workflows are triggered by Git events (push, PR, tags), not CLI commands
+- Workflows do expose CLI-like interfaces via GitHub Actions and workflow dispatch
+- This is infrastructure automation, not user-facing functionality
+
+**VI. Testing Isolation**: ✅ PASS
+- Contract tests use isolated test fixtures
+- Workflows run in isolated GitHub Actions environments
+- No shared state between workflow runs
 
 ## Project Structure
 
@@ -114,9 +128,7 @@ ios/ or android/
 └── [platform-specific structure]
 ```
 
-**Structure Decision**: Option 2 (Web application) - Project has existing frontend/ and backend/ directories with established structure
-
-**GitHub Workflows Location**: `.github/workflows/` (standard GitHub Actions location)
+**Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
 
 ## Phase 0: Outline & Research
 1. **Extract unknowns from Technical Context** above:
@@ -177,32 +189,25 @@ ios/ or android/
 
 **Task Generation Strategy**:
 - Load `.specify/templates/tasks-template.md` as base
-- Generate tasks from workflow contracts (ci-workflow-contract.yml, cd-workflow-contract.yml, release-workflow-contract.yml)
-- Each contract becomes a workflow implementation task
-- Contract validation points become test tasks
-- Quickstart scenarios become integration test tasks
+- Generate contract validation tests for each workflow (CI, CD, Release)
+- Create workflow implementation tasks following TDD approach
+- Add GitHub template creation tasks (issues, PRs, discussions)
+- Include integration and validation tasks
 
-**Workflow-Specific Task Categories**:
-1. **Setup Tasks**: GitHub Actions environment, secrets configuration, repository settings
-2. **Contract Test Tasks**: Validate each workflow contract requirement [P]
-3. **Workflow Implementation Tasks**: Create .github/workflows/*.yml files [P]
-4. **Integration Test Tasks**: End-to-end workflow validation scenarios
-5. **Documentation Tasks**: Update project documentation with workflow information
+**Specific Task Categories**:
+1. **Contract Tests** [P]: CI workflow contract validation, CD workflow contract validation, Release workflow contract validation
+2. **Workflow Implementation**: ci.yml creation, cd.yml creation, release.yml creation (following contract tests)
+3. **GitHub Templates** [P]: Issue templates, PR template, discussion templates
+4. **Integration Tests**: End-to-end workflow testing, quickstart validation
+5. **Documentation**: Update project documentation with workflow information
 
 **Ordering Strategy**:
 - TDD order: Contract tests before workflow implementation
-- Parallel workflow creation: CI, CD, and Release workflows can be built simultaneously [P]
-- Sequential integration: Integration tests after all workflows complete
-- Documentation: Final task after all implementation complete
+- Parallel execution where possible: Contract tests can run in parallel [P]
+- Sequential for workflows: CI → CD → Release (dependency chain)
+- Templates can be created in parallel with workflow implementation
 
-**Dependency Mapping**:
-- CI workflow contract tests → CI workflow implementation
-- CD workflow contract tests → CD workflow implementation
-- Release workflow contract tests → Release workflow implementation
-- All workflow implementations → Integration testing
-- Integration testing → Documentation updates
-
-**Estimated Output**: 20-25 numbered, ordered tasks in tasks.md
+**Estimated Output**: 15-20 numbered, ordered tasks in tasks.md
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
@@ -218,8 +223,8 @@ ios/ or android/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Library-First Architecture | GitHub workflows are infrastructure configuration files, not application code libraries | Cannot apply library patterns to YAML workflow configuration; workflows are event-driven automation |
+| CLI-Centric Interface | Workflows are triggered by Git events (push, PR, tags) and GitHub UI, not CLI commands | Git events are the natural interface for CI/CD automation; manual CLI triggers would defeat automation purpose |
 
 
 ## Progress Tracking
@@ -235,9 +240,9 @@ ios/ or android/
 
 **Gate Status**:
 - [x] Initial Constitution Check: PASS
-- [x] Post-Design Constitution Check: PASS - No violations introduced during design phase
-- [x] All NEEDS CLARIFICATION resolved - Feature specification was fully clarified
-- [x] Complexity deviations documented - No complexity violations identified
+- [x] Post-Design Constitution Check: PASS
+- [x] All NEEDS CLARIFICATION resolved
+- [x] Complexity deviations documented
 
 ---
 *Based on Constitution v1.1.0 - See `.specify/memory/constitution.md`*
