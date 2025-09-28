@@ -25,29 +25,34 @@ class APIToken(Base):
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     name = Column(String(255), nullable=False)  # Human-readable token name
     description = Column(Text, nullable=True)
-    hashed_token = Column(Text, nullable=False, unique=True)  # Hashed version for security
+    hashed_token = Column(
+        Text, nullable=False, unique=True
+    )  # Hashed version for security
     prefix = Column(String(10), nullable=False)  # First 8 chars for identification
     is_active = Column(Boolean, default=True, nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)  # None = never expires
     last_used_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(UTC),
-        nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
-        nullable=False
+        nullable=False,
     )
 
     # Relationships
     user = relationship("User", back_populates="api_tokens")
 
     @classmethod
-    def generate_token(cls, user_id: str, name: str, description: str | None = None,
-                      expires_in_days: int | None = None) -> tuple[str, "APIToken"]:
+    def generate_token(
+        cls,
+        user_id: str,
+        name: str,
+        description: str | None = None,
+        expires_in_days: int | None = None,
+    ) -> tuple[str, "APIToken"]:
         """
         Generate a new API token and return both the raw token and the model instance.
 
@@ -76,7 +81,7 @@ class APIToken(Base):
             description=description,
             hashed_token=hashed_token,
             prefix=prefix,
-            expires_at=expires_at
+            expires_at=expires_at,
         )
 
         return raw_token, token

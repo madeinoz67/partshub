@@ -19,13 +19,16 @@ class TagBase(BaseModel):
     description: str | None = None
     color: str | None = None
 
+
 class TagCreate(TagBase):
     pass
+
 
 class TagUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
     color: str | None = None
+
 
 class TagResponse(TagBase):
     id: str
@@ -37,9 +40,11 @@ class TagResponse(TagBase):
     class Config:
         from_attributes = True
 
+
 class TagsListResponse(BaseModel):
     tags: list[TagResponse]
     total: int
+
 
 router = APIRouter(prefix="/api/v1/tags", tags=["tags"])
 
@@ -49,7 +54,7 @@ def list_tags(
     search: str | None = Query(None, description="Search in tag name"),
     limit: int = Query(100, ge=1, le=200, description="Number of items to return"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """List all tags with optional search."""
     query = db.query(Tag)
@@ -74,28 +79,23 @@ def list_tags(
             "is_system_tag": tag.is_system_tag,
             "component_count": len(tag.components),
             "created_at": tag.created_at.isoformat(),
-            "updated_at": tag.updated_at.isoformat()
+            "updated_at": tag.updated_at.isoformat(),
         }
         tag_list.append(tag_dict)
 
-    return TagsListResponse(
-        tags=tag_list,
-        total=total_count
-    )
+    return TagsListResponse(tags=tag_list, total=total_count)
+
 
 @router.post("", response_model=TagResponse, status_code=status.HTTP_201_CREATED)
 def create_tag(
-    tag: TagCreate,
-    current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    tag: TagCreate, current_user=Depends(require_auth), db: Session = Depends(get_db)
 ):
     """Create a new tag."""
     # Check if tag with same name already exists
     existing_tag = db.query(Tag).filter(Tag.name == tag.name).first()
     if existing_tag:
         raise HTTPException(
-            status_code=409,
-            detail=f"Tag with name '{tag.name}' already exists"
+            status_code=409, detail=f"Tag with name '{tag.name}' already exists"
         )
 
     # Create new tag
@@ -103,7 +103,7 @@ def create_tag(
         id=str(uuid.uuid4()),
         name=tag.name,
         description=tag.description,
-        color=tag.color
+        color=tag.color,
     )
 
     db.add(new_tag)
@@ -118,14 +118,12 @@ def create_tag(
         "is_system_tag": new_tag.is_system_tag,
         "component_count": 0,
         "created_at": new_tag.created_at.isoformat(),
-        "updated_at": new_tag.updated_at.isoformat()
+        "updated_at": new_tag.updated_at.isoformat(),
     }
 
+
 @router.get("/{tag_id}", response_model=TagResponse)
-def get_tag(
-    tag_id: str,
-    db: Session = Depends(get_db)
-):
+def get_tag(tag_id: str, db: Session = Depends(get_db)):
     """Get a tag by ID."""
     try:
         uuid.UUID(tag_id)
@@ -144,15 +142,16 @@ def get_tag(
         "is_system_tag": tag.is_system_tag,
         "component_count": len(tag.components),
         "created_at": tag.created_at.isoformat(),
-        "updated_at": tag.updated_at.isoformat()
+        "updated_at": tag.updated_at.isoformat(),
     }
+
 
 @router.put("/{tag_id}", response_model=TagResponse)
 def update_tag(
     tag_id: str,
     tag_update: TagUpdate,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update a tag."""
     try:
@@ -176,7 +175,7 @@ def update_tag(
         if existing_tag:
             raise HTTPException(
                 status_code=409,
-                detail=f"Tag with name '{update_data['name']}' already exists"
+                detail=f"Tag with name '{update_data['name']}' already exists",
             )
 
     for field, value in update_data.items():
@@ -193,14 +192,13 @@ def update_tag(
         "is_system_tag": tag.is_system_tag,
         "component_count": len(tag.components),
         "created_at": tag.created_at.isoformat(),
-        "updated_at": tag.updated_at.isoformat()
+        "updated_at": tag.updated_at.isoformat(),
     }
+
 
 @router.delete("/{tag_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_tag(
-    tag_id: str,
-    current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    tag_id: str, current_user=Depends(require_auth), db: Session = Depends(get_db)
 ):
     """Delete a tag."""
     try:
@@ -214,10 +212,7 @@ def delete_tag(
 
     # Prevent deletion of system tags
     if tag.is_system_tag:
-        raise HTTPException(
-            status_code=403,
-            detail="Cannot delete system tags"
-        )
+        raise HTTPException(status_code=403, detail="Cannot delete system tags")
 
     db.delete(tag)
     db.commit()

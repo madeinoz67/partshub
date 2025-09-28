@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 # For now, we'll provide a mock implementation with graceful fallback
 try:
     from pyzbar import pyzbar
+
     PYZBAR_AVAILABLE = True
 except ImportError:
     PYZBAR_AVAILABLE = False
@@ -29,6 +30,7 @@ except ImportError:
 
 class BarcodeResult:
     """Barcode scan result"""
+
     def __init__(self, data: str, format_type: str, confidence: float = 1.0):
         self.data = data
         self.format = format_type
@@ -40,8 +42,15 @@ class BarcodeService:
 
     def __init__(self):
         self.supported_formats = [
-            "CODE128", "CODE39", "EAN13", "EAN8", "UPCA", "UPCE",
-            "QRCODE", "DATAMATRIX", "PDF417"
+            "CODE128",
+            "CODE39",
+            "EAN13",
+            "EAN8",
+            "UPCA",
+            "UPCE",
+            "QRCODE",
+            "DATAMATRIX",
+            "PDF417",
         ]
 
     def scan_barcode_from_base64(self, image_data: str) -> list[BarcodeResult]:
@@ -56,8 +65,8 @@ class BarcodeService:
         """
         try:
             # Remove data URL prefix if present
-            if image_data.startswith('data:image'):
-                image_data = image_data.split(',')[1]
+            if image_data.startswith("data:image"):
+                image_data = image_data.split(",")[1]
 
             # Decode base64 to image
             image_bytes = base64.b64decode(image_data)
@@ -84,8 +93,8 @@ class BarcodeService:
 
         try:
             # Convert to RGB if needed
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
+            if image.mode != "RGB":
+                image = image.convert("RGB")
 
             # Scan for barcodes
             barcodes = pyzbar.decode(image)
@@ -94,13 +103,13 @@ class BarcodeService:
             for barcode in barcodes:
                 try:
                     # Decode barcode data
-                    data = barcode.data.decode('utf-8')
+                    data = barcode.data.decode("utf-8")
                     format_type = barcode.type
 
                     result = BarcodeResult(
                         data=data,
                         format_type=format_type,
-                        confidence=1.0  # pyzbar doesn't provide confidence scores
+                        confidence=1.0,  # pyzbar doesn't provide confidence scores
                     )
                     results.append(result)
 
@@ -121,7 +130,9 @@ class BarcodeService:
         Mock barcode scanning for development/testing.
         Returns simulated barcode results.
         """
-        logger.warning("Using mock barcode scanning - install pyzbar for real functionality")
+        logger.warning(
+            "Using mock barcode scanning - install pyzbar for real functionality"
+        )
 
         # Simulate some common component barcodes based on image characteristics
         mock_results = []
@@ -131,23 +142,25 @@ class BarcodeService:
 
         if width > 400 and height > 300:
             # Simulate finding a QR code with component data
-            mock_results.append(BarcodeResult(
-                data="STM32F407VGT6|STMicroelectronics|ARM Cortex-M4 MCU",
-                format_type="QRCODE",
-                confidence=0.95
-            ))
+            mock_results.append(
+                BarcodeResult(
+                    data="STM32F407VGT6|STMicroelectronics|ARM Cortex-M4 MCU",
+                    format_type="QRCODE",
+                    confidence=0.95,
+                )
+            )
 
         if width > 200 and height < 100:
             # Simulate finding a linear barcode with part number
-            mock_results.append(BarcodeResult(
-                data="LM358P",
-                format_type="CODE128",
-                confidence=0.90
-            ))
+            mock_results.append(
+                BarcodeResult(data="LM358P", format_type="CODE128", confidence=0.90)
+            )
 
         return mock_results
 
-    async def identify_component_from_barcode(self, barcode_data: str) -> dict[str, Any] | None:
+    async def identify_component_from_barcode(
+        self, barcode_data: str
+    ) -> dict[str, Any] | None:
         """
         Identify component from barcode data.
 
@@ -164,24 +177,35 @@ class BarcodeService:
             component = None
 
             # Strategy 1: Direct part number match
-            component = session.query(Component).filter_by(part_number=barcode_data).first()
+            component = (
+                session.query(Component).filter_by(part_number=barcode_data).first()
+            )
 
             # Strategy 2: Parse structured barcode data (e.g., "PART|MANUFACTURER|DESCRIPTION")
-            if not component and '|' in barcode_data:
-                parts = barcode_data.split('|')
+            if not component and "|" in barcode_data:
+                parts = barcode_data.split("|")
                 if len(parts) >= 2:
                     part_number, manufacturer = parts[0], parts[1]
-                    component = session.query(Component).join(Component.manufacturer).filter(
-                        Component.part_number == part_number,
-                        Component.manufacturer.has(name=manufacturer)
-                    ).first()
+                    component = (
+                        session.query(Component)
+                        .join(Component.manufacturer)
+                        .filter(
+                            Component.part_number == part_number,
+                            Component.manufacturer.has(name=manufacturer),
+                        )
+                        .first()
+                    )
 
             # Strategy 3: Search in part number or description
             if not component:
-                component = session.query(Component).filter(
-                    (Component.part_number.ilike(f'%{barcode_data}%')) |
-                    (Component.notes.ilike(f'%{barcode_data}%'))
-                ).first()
+                component = (
+                    session.query(Component)
+                    .filter(
+                        (Component.part_number.ilike(f"%{barcode_data}%"))
+                        | (Component.notes.ilike(f"%{barcode_data}%"))
+                    )
+                    .first()
+                )
 
             if component:
                 component_data = {
@@ -192,19 +216,25 @@ class BarcodeService:
                     "category": component.category.name if component.category else None,
                     "quantity_on_hand": component.quantity_on_hand,
                     "minimum_stock": component.minimum_stock,
-                    "storage_location": component.storage_location.name if component.storage_location else None,
+                    "storage_location": component.storage_location.name
+                    if component.storage_location
+                    else None,
                     "specifications": component.specifications,
-                    "barcode_match": barcode_data
+                    "barcode_match": barcode_data,
                 }
 
-                logger.info(f"Identified component from barcode '{barcode_data}': {component.part_number}")
+                logger.info(
+                    f"Identified component from barcode '{barcode_data}': {component.part_number}"
+                )
                 return component_data
 
             logger.info(f"No component found for barcode: {barcode_data}")
             return None
 
         except Exception as e:
-            logger.error(f"Error identifying component from barcode '{barcode_data}': {e}")
+            logger.error(
+                f"Error identifying component from barcode '{barcode_data}': {e}"
+            )
             return None
         finally:
             session.close()
@@ -228,7 +258,7 @@ class BarcodeService:
                     "success": False,
                     "message": "No barcodes detected in image",
                     "barcodes": [],
-                    "components": []
+                    "components": [],
                 }
 
             # Try to identify components for each barcode
@@ -239,7 +269,7 @@ class BarcodeService:
                 processed_barcode = {
                     "data": barcode.data,
                     "format": barcode.format,
-                    "confidence": barcode.confidence
+                    "confidence": barcode.confidence,
                 }
 
                 # Try to identify component
@@ -256,7 +286,7 @@ class BarcodeService:
                 "success": True,
                 "message": f"Detected {len(barcode_results)} barcode(s), found {len(components)} component(s)",
                 "barcodes": processed_barcodes,
-                "components": components
+                "components": components,
             }
 
             logger.info(f"Barcode scan processed: {result['message']}")
@@ -269,7 +299,7 @@ class BarcodeService:
                 "success": False,
                 "message": error_msg,
                 "barcodes": [],
-                "components": []
+                "components": [],
             }
 
     def get_supported_formats(self) -> list[str]:
@@ -283,7 +313,10 @@ class BarcodeService:
 
         # Detect environment and provide installation guidance
         system = platform.system().lower()
-        is_docker = os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER') == 'true'
+        is_docker = (
+            os.path.exists("/.dockerenv")
+            or os.environ.get("DOCKER_CONTAINER") == "true"
+        )
 
         installation_info = {}
         if not PYZBAR_AVAILABLE:
@@ -293,29 +326,26 @@ class BarcodeService:
                     "install_commands": [
                         "apt-get update",
                         "apt-get install -y libzbar0",
-                        "pip install pyzbar"
-                    ]
+                        "pip install pyzbar",
+                    ],
                 }
             elif system == "darwin":  # macOS
                 installation_info = {
                     "environment": "macos",
-                    "install_commands": [
-                        "brew install zbar",
-                        "pip install pyzbar"
-                    ]
+                    "install_commands": ["brew install zbar", "pip install pyzbar"],
                 }
             elif system == "linux":
                 installation_info = {
                     "environment": "linux",
                     "install_commands": [
                         "sudo apt-get install libzbar0",  # Ubuntu/Debian
-                        "pip install pyzbar"
-                    ]
+                        "pip install pyzbar",
+                    ],
                 }
             else:
                 installation_info = {
                     "environment": system,
-                    "install_commands": ["pip install pyzbar"]
+                    "install_commands": ["pip install pyzbar"],
                 }
 
         return {
@@ -325,6 +355,6 @@ class BarcodeService:
             "environment": {
                 "system": system,
                 "is_docker": is_docker,
-                "installation": installation_info
-            }
+                "installation": installation_info,
+            },
         }

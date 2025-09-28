@@ -32,8 +32,13 @@ class TestKiCadSymbolContract:
 
             # Required fields for KiCadSymbol
             required_fields = [
-                "component_id", "library_name", "symbol_name", "drawing_data",
-                "pins", "properties", "bounding_box"
+                "component_id",
+                "library_name",
+                "symbol_name",
+                "drawing_data",
+                "pins",
+                "properties",
+                "bounding_box",
             ]
 
             for field in required_fields:
@@ -72,7 +77,13 @@ class TestKiCadSymbolContract:
                 for shape in drawing_data["shapes"]:
                     assert "type" in shape
                     assert "coordinates" in shape
-                    assert shape["type"] in ["line", "rectangle", "circle", "arc", "polygon"]
+                    assert shape["type"] in [
+                        "line",
+                        "rectangle",
+                        "circle",
+                        "arc",
+                        "polygon",
+                    ]
 
             # Text elements for labels, values, etc.
             if "text_elements" in drawing_data:
@@ -99,7 +110,12 @@ class TestKiCadSymbolContract:
             # Each pin should have required fields
             for pin in pins:
                 required_pin_fields = [
-                    "number", "name", "type", "position", "length", "orientation"
+                    "number",
+                    "name",
+                    "type",
+                    "position",
+                    "length",
+                    "orientation",
                 ]
 
                 for field in required_pin_fields:
@@ -107,9 +123,17 @@ class TestKiCadSymbolContract:
 
                 # Pin type validation
                 assert pin["type"] in [
-                    "input", "output", "bidirectional", "tri_state",
-                    "passive", "unspecified", "power_in", "power_out",
-                    "open_collector", "open_emitter", "not_connected"
+                    "input",
+                    "output",
+                    "bidirectional",
+                    "tri_state",
+                    "passive",
+                    "unspecified",
+                    "power_in",
+                    "power_out",
+                    "open_collector",
+                    "open_emitter",
+                    "not_connected",
                 ]
 
                 # Position should have x, y coordinates
@@ -167,7 +191,9 @@ class TestKiCadSymbolContract:
         component_id = str(uuid.uuid4())
 
         # Test SVG format request
-        response = client.get(f"/api/v1/kicad/components/{component_id}/symbol?format=svg")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/symbol?format=svg"
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -175,10 +201,14 @@ class TestKiCadSymbolContract:
             data = response.json()
             assert "svg_data" in data
             assert isinstance(data["svg_data"], str)
-            assert data["svg_data"].startswith("<?xml") or data["svg_data"].startswith("<svg")
+            assert data["svg_data"].startswith("<?xml") or data["svg_data"].startswith(
+                "<svg"
+            )
 
         # Test raw KiCad format
-        response = client.get(f"/api/v1/kicad/components/{component_id}/symbol?format=kicad")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/symbol?format=kicad"
+        )
 
         if response.status_code == 200:
             # Raw KiCad format should return native symbol data
@@ -246,7 +276,9 @@ class TestKiCadSymbolContract:
         component_id = str(uuid.uuid4())
 
         # Invalid format parameter
-        response = client.get(f"/api/v1/kicad/components/{component_id}/symbol?format=invalid")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/symbol?format=invalid"
+        )
         assert response.status_code in [200, 400, 422]
 
     def test_get_kicad_symbol_coordinate_system(self, client: TestClient):

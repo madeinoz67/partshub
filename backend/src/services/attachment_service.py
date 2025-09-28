@@ -19,7 +19,10 @@ class AttachmentService:
 
     def component_exists(self, component_id: str) -> bool:
         """Check if a component exists."""
-        return self.db.query(Component).filter(Component.id == component_id).first() is not None
+        return (
+            self.db.query(Component).filter(Component.id == component_id).first()
+            is not None
+        )
 
     def list_attachments(self, component_id: str) -> list[Attachment]:
         """List all attachments for a component, ordered by display_order."""
@@ -30,7 +33,9 @@ class AttachmentService:
             .all()
         )
 
-    def get_attachment(self, attachment_id: str, component_id: str = None) -> Attachment | None:
+    def get_attachment(
+        self, attachment_id: str, component_id: str = None
+    ) -> Attachment | None:
         """Get a specific attachment, optionally filtered by component."""
         query = self.db.query(Attachment).filter(Attachment.id == attachment_id)
 
@@ -57,7 +62,9 @@ class AttachmentService:
 
         return attachment
 
-    def update_attachment(self, attachment_id: str, component_id: str, update_data: dict[str, Any]) -> Attachment | None:
+    def update_attachment(
+        self, attachment_id: str, component_id: str, update_data: dict[str, Any]
+    ) -> Attachment | None:
         """Update attachment metadata."""
         attachment = self.get_attachment(attachment_id, component_id)
 
@@ -89,7 +96,9 @@ class AttachmentService:
 
         return True
 
-    def set_primary_image(self, attachment_id: str, component_id: str) -> Attachment | None:
+    def set_primary_image(
+        self, attachment_id: str, component_id: str
+    ) -> Attachment | None:
         """Set an attachment as the primary image for a component."""
         attachment = self.get_attachment(attachment_id, component_id)
 
@@ -97,7 +106,7 @@ class AttachmentService:
             return None
 
         # Check if it's an image
-        if not attachment.mime_type.startswith('image/'):
+        if not attachment.mime_type.startswith("image/"):
             return None
 
         # Clear other primary images for this component
@@ -118,7 +127,7 @@ class AttachmentService:
                 and_(
                     Attachment.component_id == component_id,
                     Attachment.is_primary_image is True,
-                    Attachment.mime_type.like('image/%')
+                    Attachment.mime_type.like("image/%"),
                 )
             )
             .first()
@@ -131,7 +140,7 @@ class AttachmentService:
             .filter(
                 and_(
                     Attachment.component_id == component_id,
-                    Attachment.mime_type.like('image/%')
+                    Attachment.mime_type.like("image/%"),
                 )
             )
             .order_by(Attachment.display_order, Attachment.created_at)
@@ -146,9 +155,9 @@ class AttachmentService:
                 and_(
                     Attachment.component_id == component_id,
                     or_(
-                        Attachment.attachment_type == 'datasheet',
-                        Attachment.mime_type == 'application/pdf'
-                    )
+                        Attachment.attachment_type == "datasheet",
+                        Attachment.mime_type == "application/pdf",
+                    ),
                 )
             )
             .order_by(Attachment.created_at)
@@ -160,6 +169,6 @@ class AttachmentService:
         self.db.query(Attachment).filter(
             and_(
                 Attachment.component_id == component_id,
-                Attachment.is_primary_image is True
+                Attachment.is_primary_image is True,
             )
         ).update({"is_primary_image": False})

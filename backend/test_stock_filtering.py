@@ -9,6 +9,7 @@ import requests
 # Test configuration - use test port following Testing Isolation principle
 BASE_URL = "http://localhost:8005"
 
+
 def test_stock_filtering():
     """Test stock filtering endpoints return correct data."""
     print("Testing stock filter endpoints...")
@@ -22,14 +23,20 @@ def test_stock_filtering():
 
     # Test 2: All stock status endpoints work without errors
     for status in ["out", "low", "available"]:
-        response = requests.get(f"{BASE_URL}/api/v1/components?stock_status={status}&limit=1")
-        assert response.status_code == 200, f"Stock status {status} failed: {response.status_code}"
+        response = requests.get(
+            f"{BASE_URL}/api/v1/components?stock_status={status}&limit=1"
+        )
+        assert (
+            response.status_code == 200
+        ), f"Stock status {status} failed: {response.status_code}"
         print(f"✓ Stock status '{status}' endpoint working")
 
     # Test 3: Stock filtering should return different counts (when properly implemented)
     counts = {}
     for status in ["out", "low", "available"]:
-        response = requests.get(f"{BASE_URL}/api/v1/components?stock_status={status}&limit=1")
+        response = requests.get(
+            f"{BASE_URL}/api/v1/components?stock_status={status}&limit=1"
+        )
         data = response.json()
         counts[status] = data["total"]
         print(f"✓ Stock status '{status}': {counts[status]} components")
@@ -41,6 +48,7 @@ def test_stock_filtering():
         print("✓ Stock filtering is working - different counts per status")
 
     return counts
+
 
 if __name__ == "__main__":
     try:

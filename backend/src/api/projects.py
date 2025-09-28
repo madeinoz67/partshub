@@ -22,6 +22,7 @@ router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 # Request/Response models
 class ProjectCreate(BaseModel):
     """Create project request."""
+
     name: str = Field(..., min_length=1, max_length=200)
     description: str | None = None
     status: ProjectStatus | None = ProjectStatus.PLANNING
@@ -32,6 +33,7 @@ class ProjectCreate(BaseModel):
 
 class ProjectUpdate(BaseModel):
     """Update project request."""
+
     name: str | None = Field(None, min_length=1, max_length=200)
     description: str | None = None
     status: ProjectStatus | None = None
@@ -43,6 +45,7 @@ class ProjectUpdate(BaseModel):
 
 class ProjectResponse(BaseModel):
     """Project response model."""
+
     id: str
     name: str
     description: str | None
@@ -63,6 +66,7 @@ class ProjectResponse(BaseModel):
 
 class ComponentAllocationRequest(BaseModel):
     """Component allocation request."""
+
     component_id: str
     quantity: int = Field(..., gt=0)
     notes: str | None = None
@@ -70,6 +74,7 @@ class ComponentAllocationRequest(BaseModel):
 
 class ComponentReturnRequest(BaseModel):
     """Component return request."""
+
     component_id: str
     quantity: int = Field(..., gt=0)
     notes: str | None = None
@@ -77,6 +82,7 @@ class ComponentReturnRequest(BaseModel):
 
 class ProjectComponentResponse(BaseModel):
     """Project component allocation response."""
+
     project_id: str
     component_id: str
     quantity_allocated: int
@@ -98,6 +104,7 @@ class ProjectComponentResponse(BaseModel):
 
 class ProjectStatisticsResponse(BaseModel):
     """Project statistics response."""
+
     project_id: str
     project_name: str
     project_status: ProjectStatus
@@ -110,6 +117,7 @@ class ProjectStatisticsResponse(BaseModel):
 
 class ProjectsListResponse(BaseModel):
     """Projects list response with pagination."""
+
     projects: list[ProjectResponse]
     total: int
     page: int
@@ -130,7 +138,7 @@ def validate_uuid(project_id: str) -> None:
 async def create_project(
     project_data: ProjectCreate,
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Create a new project."""
     project_service = ProjectService(db)
@@ -141,28 +149,29 @@ async def create_project(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create project: {str(e)}"
+            detail=f"Failed to create project: {str(e)}",
         )
 
 
 @router.get("/", response_model=ProjectsListResponse)
 async def list_projects(
-    status_filter: str | None = Query(None, alias="status", description="Filter by project status"),
-    search: str | None = Query(None, description="Search in project name and description"),
+    status_filter: str | None = Query(
+        None, alias="status", description="Filter by project status"
+    ),
+    search: str | None = Query(
+        None, description="Search in project name and description"
+    ),
     sort_by: str = Query("created_at", description="Sort field"),
     sort_order: str = Query("desc", description="Sort order (asc/desc)"),
     limit: int = Query(50, le=200, description="Maximum number of results"),
     offset: int = Query(0, ge=0, description="Result offset for pagination"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """List projects with filtering and pagination."""
     project_service = ProjectService(db)
 
     # Get total count for pagination
-    total_count = project_service.count_projects(
-        status=status_filter,
-        search=search
-    )
+    total_count = project_service.count_projects(status=status_filter, search=search)
 
     projects = project_service.list_projects(
         status=status_filter,
@@ -170,7 +179,7 @@ async def list_projects(
         sort_by=sort_by,
         sort_order=sort_order,
         limit=limit,
-        offset=offset
+        offset=offset,
     )
 
     # Calculate pagination info
@@ -182,15 +191,12 @@ async def list_projects(
         total=total_count,
         page=page,
         total_pages=total_pages,
-        limit=limit
+        limit=limit,
     )
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
-async def get_project(
-    project_id: str,
-    db: Session = Depends(get_db)
-):
+async def get_project(project_id: str, db: Session = Depends(get_db)):
     """Get project details by ID."""
     validate_uuid(project_id)
 
@@ -199,8 +205,7 @@ async def get_project(
 
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     return ProjectResponse.model_validate(project)
@@ -211,7 +216,7 @@ async def update_project(
     project_id: str,
     project_update: ProjectUpdate,
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update project details."""
     validate_uuid(project_id)
@@ -225,8 +230,7 @@ async def update_project(
 
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     return ProjectResponse.model_validate(project)
@@ -235,9 +239,11 @@ async def update_project(
 @router.delete("/{project_id}")
 async def delete_project(
     project_id: str,
-    force: bool = Query(False, description="Force delete even with allocated components"),
+    force: bool = Query(
+        False, description="Force delete even with allocated components"
+    ),
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Delete a project."""
     validate_uuid(project_id)
@@ -249,16 +255,12 @@ async def delete_project(
 
         if not success:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
             )
 
         return {"message": "Project deleted successfully"}
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 # Component allocation endpoints
@@ -267,7 +269,7 @@ async def allocate_component(
     project_id: str,
     allocation: ComponentAllocationRequest,
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Allocate components to a project."""
     validate_uuid(project_id)
@@ -279,21 +281,20 @@ async def allocate_component(
             project_id=project_id,
             component_id=allocation.component_id,
             quantity=allocation.quantity,
-            notes=allocation.notes
+            notes=allocation.notes,
         )
 
         # Create response with component details
         response_data = ProjectComponentResponse.model_validate(project_component)
         if project_component.component:
             response_data.component_name = project_component.component.name
-            response_data.component_part_number = project_component.component.part_number
+            response_data.component_part_number = (
+                project_component.component.part_number
+            )
 
         return response_data
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/{project_id}/return", response_model=ProjectComponentResponse)
@@ -301,7 +302,7 @@ async def return_component(
     project_id: str,
     return_request: ComponentReturnRequest,
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Return components from a project to inventory."""
     validate_uuid(project_id)
@@ -313,28 +314,24 @@ async def return_component(
             project_id=project_id,
             component_id=return_request.component_id,
             quantity=return_request.quantity,
-            notes=return_request.notes
+            notes=return_request.notes,
         )
 
         # Create response with component details
         response_data = ProjectComponentResponse.model_validate(project_component)
         if project_component.component:
             response_data.component_name = project_component.component.name
-            response_data.component_part_number = project_component.component.part_number
+            response_data.component_part_number = (
+                project_component.component.part_number
+            )
 
         return response_data
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/{project_id}/components", response_model=list[ProjectComponentResponse])
-async def get_project_components(
-    project_id: str,
-    db: Session = Depends(get_db)
-):
+async def get_project_components(project_id: str, db: Session = Depends(get_db)):
     """Get all component allocations for a project."""
     validate_uuid(project_id)
 
@@ -354,10 +351,7 @@ async def get_project_components(
 
 
 @router.get("/{project_id}/statistics", response_model=ProjectStatisticsResponse)
-async def get_project_statistics(
-    project_id: str,
-    db: Session = Depends(get_db)
-):
+async def get_project_statistics(project_id: str, db: Session = Depends(get_db)):
     """Get project statistics including component counts and costs."""
     validate_uuid(project_id)
 
@@ -366,8 +360,7 @@ async def get_project_statistics(
 
     if not stats:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     return ProjectStatisticsResponse(**stats)
@@ -376,23 +369,26 @@ async def get_project_statistics(
 @router.post("/{project_id}/close")
 async def close_project(
     project_id: str,
-    return_components: bool = Query(True, description="Whether to return allocated components to inventory"),
+    return_components: bool = Query(
+        True, description="Whether to return allocated components to inventory"
+    ),
     current_user: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Close a project and optionally return components to inventory."""
     validate_uuid(project_id)
 
     project_service = ProjectService(db)
-    project = project_service.close_project(project_id, return_components=return_components)
+    project = project_service.close_project(
+        project_id, return_components=return_components
+    )
 
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     return {
         "message": "Project closed successfully",
-        "components_returned": return_components
+        "components_returned": return_components,
     }

@@ -28,10 +28,12 @@ class TestComponentsUpdateContract:
         update_data = {
             "name": "Updated Resistor 10kΩ 1% 0805",
             "notes": "Updated notes for testing",
-            "minimum_stock": 15
+            "minimum_stock": 15,
         }
 
-        response = client.put(f"/api/v1/components/{component_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         # Could be 200 (updated) or 404 (not found)
@@ -50,7 +52,9 @@ class TestComponentsUpdateContract:
         headers = {"X-API-Key": "mock_api_key"}
         update_data = {"notes": "Updated via API key"}
 
-        response = client.put(f"/api/v1/components/{component_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -61,7 +65,9 @@ class TestComponentsUpdateContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Name"}
 
-        response = client.put(f"/api/v1/components/{nonexistent_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{nonexistent_id}", json=update_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 404
@@ -73,7 +79,9 @@ class TestComponentsUpdateContract:
 
         # Invalid data (negative minimum_stock)
         invalid_data = {"minimum_stock": -5}
-        response = client.put(f"/api/v1/components/{component_id}", json=invalid_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{component_id}", json=invalid_data, headers=headers
+        )
 
         # This will fail until validation is implemented
         assert response.status_code in [422, 400]
@@ -84,7 +92,9 @@ class TestComponentsUpdateContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Name"}
 
-        response = client.put(f"/api/v1/components/{invalid_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{invalid_id}", json=update_data, headers=headers
+        )
 
         # This will fail until validation is implemented
         assert response.status_code == 422
@@ -98,11 +108,13 @@ class TestComponentsUpdateContract:
             "specifications": {
                 "voltage_rating": "25V",
                 "temperature_range": "-55°C to +125°C",
-                "updated_field": "new_value"
+                "updated_field": "new_value",
             }
         }
 
-        response = client.put(f"/api/v1/components/{component_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -117,7 +129,9 @@ class TestComponentsUpdateContract:
         # Only update one field
         update_data = {"notes": "Only updating notes field"}
 
-        response = client.put(f"/api/v1/components/{component_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -131,19 +145,36 @@ class TestComponentsUpdateContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Component"}
 
-        response = client.put(f"/api/v1/components/{component_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+        )
 
         if response.status_code == 200:
             data = response.json()
 
             # Should return complete component structure
             required_fields = [
-                "id", "name", "part_number", "manufacturer", "category",
-                "storage_location", "component_type", "value", "package",
-                "quantity_on_hand", "quantity_ordered", "minimum_stock",
-                "average_purchase_price", "total_purchase_value", "notes",
-                "specifications", "custom_fields", "tags", "attachments",
-                "created_at", "updated_at"
+                "id",
+                "name",
+                "part_number",
+                "manufacturer",
+                "category",
+                "storage_location",
+                "component_type",
+                "value",
+                "package",
+                "quantity_on_hand",
+                "quantity_ordered",
+                "minimum_stock",
+                "average_purchase_price",
+                "total_purchase_value",
+                "notes",
+                "specifications",
+                "custom_fields",
+                "tags",
+                "attachments",
+                "created_at",
+                "updated_at",
             ]
 
             for field in required_fields:

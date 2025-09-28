@@ -19,32 +19,33 @@ class TestCDWorkflowContract:
 
     def test_workflow_file_exists(self):
         """Test that CD workflow file exists at expected location"""
-        assert self.workflow_file.exists(), f"CD workflow file not found at {self.workflow_file}"
+        assert (
+            self.workflow_file.exists()
+        ), f"CD workflow file not found at {self.workflow_file}"
 
     def test_workflow_triggers_on_main_push(self):
         """Test that workflow triggers on main branch push (FR-004)"""
         with open(self.workflow_file) as f:
             workflow = yaml.safe_load(f)
 
-        triggers = workflow.get('on', {})
-        assert 'push' in triggers, "CD workflow must trigger on push events"
+        triggers = workflow.get("on", {})
+        assert "push" in triggers, "CD workflow must trigger on push events"
 
-        push_config = triggers['push']
-        if isinstance(push_config, dict) and 'branches' in push_config:
-            branches = push_config['branches']
-            assert 'main' in branches, \
-                "CD workflow must trigger on main branch push"
+        push_config = triggers["push"]
+        if isinstance(push_config, dict) and "branches" in push_config:
+            branches = push_config["branches"]
+            assert "main" in branches, "CD workflow must trigger on main branch push"
 
     def test_workflow_has_deployment_jobs(self):
         """Test that workflow includes deployment jobs (FR-004)"""
         with open(self.workflow_file) as f:
             workflow = yaml.safe_load(f)
 
-        jobs = workflow.get('jobs', {})
+        jobs = workflow.get("jobs", {})
         deploy_job_found = False
 
         for job_name, job_config in jobs.items():
-            if 'deploy' in job_name.lower():
+            if "deploy" in job_name.lower():
                 deploy_job_found = True
                 break
 

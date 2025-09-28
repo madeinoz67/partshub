@@ -18,7 +18,9 @@ from src.models import APIToken, User
 
 # Set testing environment variables to ensure complete isolation
 os.environ["TESTING"] = "1"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
+os.environ[
+    "DATABASE_URL"
+] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
 os.environ["PORT"] = "8005"  # Use different port for tests (production uses 8000)
 
 # Test database URL - in-memory database for complete isolation
@@ -29,7 +31,7 @@ test_engine = create_engine(
     TEST_DATABASE_URL,
     poolclass=StaticPool,
     connect_args={"check_same_thread": False},
-    echo=False
+    echo=False,
 )
 
 # Create test session
@@ -56,6 +58,7 @@ def setup_test_database():
     """
     # Use the correct Base from models package to create all tables
     from src.models import Base as ModelsBase
+
     ModelsBase.metadata.create_all(bind=test_engine)
 
     yield
@@ -96,8 +99,7 @@ def client(db_session):
         yield db_session
 
     async def test_get_optional_user(
-        credentials: HTTPAuthorizationCredentials = None,
-        db = None
+        credentials: HTTPAuthorizationCredentials = None, db=None
     ):
         """TestClient-compatible version of get_optional_user"""
         if not credentials:
@@ -114,7 +116,7 @@ def client(db_session):
                     "user_id": user.id,
                     "username": user.username,
                     "is_admin": user.is_admin,
-                    "auth_type": "jwt"
+                    "auth_type": "jwt",
                 }
         except Exception:
             pass
@@ -149,9 +151,9 @@ def sample_component_data():
             "resistance": "10kΩ",
             "tolerance": "±1%",
             "power_rating": "0.125W",
-            "temperature_coefficient": "±100ppm/°C"
+            "temperature_coefficient": "±100ppm/°C",
         },
-        "notes": "General purpose precision resistor"
+        "notes": "General purpose precision resistor",
     }
 
 
@@ -164,7 +166,7 @@ def sample_storage_location_data():
         "name": "drawer-1",
         "description": "Main workbench drawer 1",
         "location_type": "drawer",
-        "is_single_part_only": False
+        "is_single_part_only": False,
     }
 
 
@@ -180,10 +182,7 @@ def auth_headers(client, db_session):
     """
     # Create a test admin user directly in the test database session
     admin_user = User(
-        username="testadmin",
-        full_name="Test Admin",
-        is_admin=True,
-        is_active=True
+        username="testadmin", full_name="Test Admin", is_admin=True, is_active=True
     )
     admin_user.set_password("testpassword")
 
@@ -192,12 +191,14 @@ def auth_headers(client, db_session):
     db_session.refresh(admin_user)
 
     # Create JWT token for this user
-    token = create_access_token({
-        "sub": admin_user.id,  # Use 'sub' as standard JWT claim for user ID
-        "user_id": admin_user.id,  # Keep for backward compatibility
-        "username": admin_user.username,
-        "is_admin": admin_user.is_admin
-    })
+    token = create_access_token(
+        {
+            "sub": admin_user.id,  # Use 'sub' as standard JWT claim for user ID
+            "user_id": admin_user.id,  # Keep for backward compatibility
+            "username": admin_user.username,
+            "is_admin": admin_user.is_admin,
+        }
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -209,10 +210,7 @@ def user_auth_headers(client, db_session):
     """
     # Create a test regular user directly in the test database session
     regular_user = User(
-        username="testuser",
-        full_name="Test User",
-        is_admin=False,
-        is_active=True
+        username="testuser", full_name="Test User", is_admin=False, is_active=True
     )
     regular_user.set_password("testpassword")
 
@@ -221,12 +219,14 @@ def user_auth_headers(client, db_session):
     db_session.refresh(regular_user)
 
     # Create JWT token for this user
-    token = create_access_token({
-        "sub": regular_user.id,  # Use 'sub' as standard JWT claim for user ID
-        "user_id": regular_user.id,  # Keep for backward compatibility
-        "username": regular_user.username,
-        "is_admin": regular_user.is_admin
-    })
+    token = create_access_token(
+        {
+            "sub": regular_user.id,  # Use 'sub' as standard JWT claim for user ID
+            "user_id": regular_user.id,  # Keep for backward compatibility
+            "username": regular_user.username,
+            "is_admin": regular_user.is_admin,
+        }
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -240,9 +240,7 @@ def api_token_headers(auth_headers, db_session):
     admin_user = db_session.query(User).filter(User.username == "testadmin").first()
 
     raw_token, api_token = APIToken.generate_token(
-        user_id=admin_user.id,
-        name="Test API Token",
-        description="Token for testing"
+        user_id=admin_user.id, name="Test API Token", description="Token for testing"
     )
     db_session.add(api_token)
     db_session.commit()

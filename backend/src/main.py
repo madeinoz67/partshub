@@ -30,7 +30,7 @@ app = FastAPI(
     description="Electronic parts inventory management system",
     version="0.1.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS middleware for frontend integration
@@ -42,7 +42,7 @@ app.add_middleware(
         "http://localhost:9000",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8080",
-        "http://127.0.0.1:9000"
+        "http://127.0.0.1:9000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -68,6 +68,7 @@ async def startup_event():
     """Initialize application on startup."""
     # Configure SQLAlchemy registry to ensure all relationships are properly initialized
     from sqlalchemy.orm import configure_mappers
+
     try:
         configure_mappers()
     except Exception as e:
@@ -75,6 +76,7 @@ async def startup_event():
 
     # Ensure default admin user exists (skip during tests)
     import os
+
     if not os.getenv("TESTING"):
         db = next(get_db())
         try:
@@ -94,11 +96,15 @@ async def startup_event():
     db = next(get_db())
     try:
         from .database.indexes import optimize_database_for_search
+
         results = optimize_database_for_search(db)
         if results.get("indexes_created"):
             print("📊 Database search indexes optimized for performance")
-            optimized_count = sum(1 for q in results.get("performance_analysis", {}).values()
-                                if q.get("optimized", False))
+            optimized_count = sum(
+                1
+                for q in results.get("performance_analysis", {}).values()
+                if q.get("optimized", False)
+            )
             total_count = len(results.get("performance_analysis", {}))
             print(f"   {optimized_count}/{total_count} search queries optimized")
         if results.get("errors"):
@@ -113,11 +119,7 @@ async def startup_event():
 @app.get("/")
 async def root():
     """Root endpoint providing API information."""
-    return {
-        "message": "PartsHub API",
-        "version": "0.1.0",
-        "docs": "/docs"
-    }
+    return {"message": "PartsHub API", "version": "0.1.0", "docs": "/docs"}
 
 
 @app.get("/health")
@@ -130,5 +132,6 @@ if __name__ == "__main__":
     import os
 
     import uvicorn
+
     port = int(os.getenv("PORT", 8000))  # Use PORT env var, default to 8000
     uvicorn.run(app, host="0.0.0.0", port=port, reload=True)

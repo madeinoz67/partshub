@@ -25,17 +25,25 @@ class StorageLocationService:
 
         # Validate parent exists if specified
         if "parent_id" in location_data and location_data["parent_id"]:
-            parent = self.db.query(StorageLocation).filter(
-                StorageLocation.id == location_data["parent_id"]
-            ).first()
+            parent = (
+                self.db.query(StorageLocation)
+                .filter(StorageLocation.id == location_data["parent_id"])
+                .first()
+            )
             if not parent:
-                raise ValueError(f"Parent location not found: {location_data['parent_id']}")
+                raise ValueError(
+                    f"Parent location not found: {location_data['parent_id']}"
+                )
 
         location = StorageLocation(**location_data)
 
         # Build hierarchy path
         if location.parent_id:
-            parent = self.db.query(StorageLocation).filter(StorageLocation.id == location.parent_id).first()
+            parent = (
+                self.db.query(StorageLocation)
+                .filter(StorageLocation.id == location.parent_id)
+                .first()
+            )
             location.location_hierarchy = f"{parent.location_hierarchy}/{location.name}"
         else:
             location.location_hierarchy = location.name
@@ -50,7 +58,7 @@ class StorageLocationService:
         location_id: str,
         include_children: bool = False,
         include_component_count: bool = False,
-        include_full_hierarchy: bool = False
+        include_full_hierarchy: bool = False,
     ) -> StorageLocation | None:
         """Get a storage location by ID with optional related data."""
         query = self.db.query(StorageLocation)
@@ -74,9 +82,15 @@ class StorageLocationService:
 
         return location
 
-    def update_storage_location(self, location_id: str, update_data: dict[str, Any]) -> StorageLocation | None:
+    def update_storage_location(
+        self, location_id: str, update_data: dict[str, Any]
+    ) -> StorageLocation | None:
         """Update a storage location."""
-        location = self.db.query(StorageLocation).filter(StorageLocation.id == location_id).first()
+        location = (
+            self.db.query(StorageLocation)
+            .filter(StorageLocation.id == location_id)
+            .first()
+        )
         if not location:
             return None
 
@@ -90,7 +104,11 @@ class StorageLocationService:
 
             # Validate parent exists
             if new_parent_id:
-                parent = self.db.query(StorageLocation).filter(StorageLocation.id == new_parent_id).first()
+                parent = (
+                    self.db.query(StorageLocation)
+                    .filter(StorageLocation.id == new_parent_id)
+                    .first()
+                )
                 if not parent:
                     raise ValueError(f"Parent location not found: {new_parent_id}")
 
@@ -106,8 +124,14 @@ class StorageLocationService:
         # Rebuild hierarchy if parent or name changed
         if "parent_id" in update_data or "name" in update_data:
             if location.parent_id:
-                parent = self.db.query(StorageLocation).filter(StorageLocation.id == location.parent_id).first()
-                location.location_hierarchy = f"{parent.location_hierarchy}/{location.name}"
+                parent = (
+                    self.db.query(StorageLocation)
+                    .filter(StorageLocation.id == location.parent_id)
+                    .first()
+                )
+                location.location_hierarchy = (
+                    f"{parent.location_hierarchy}/{location.name}"
+                )
             else:
                 location.location_hierarchy = location.name
 
@@ -120,14 +144,24 @@ class StorageLocationService:
 
     def delete_storage_location(self, location_id: str) -> bool:
         """Delete a storage location."""
-        location = self.db.query(StorageLocation).filter(StorageLocation.id == location_id).first()
+        location = (
+            self.db.query(StorageLocation)
+            .filter(StorageLocation.id == location_id)
+            .first()
+        )
         if not location:
             return False
 
         # Check if location has components
-        component_count = self.db.query(Component).filter(Component.storage_location_id == location_id).count()
+        component_count = (
+            self.db.query(Component)
+            .filter(Component.storage_location_id == location_id)
+            .count()
+        )
         if component_count > 0:
-            raise ValueError(f"Cannot delete location with {component_count} components")
+            raise ValueError(
+                f"Cannot delete location with {component_count} components"
+            )
 
         self.db.delete(location)
         self.db.commit()
@@ -139,7 +173,7 @@ class StorageLocationService:
         location_type: str | None = None,
         include_component_count: bool = False,
         limit: int = 100,
-        offset: int = 0
+        offset: int = 0,
     ) -> list[StorageLocation]:
         """List storage locations with filtering and pagination."""
         query = self.db.query(StorageLocation)
@@ -151,7 +185,7 @@ class StorageLocationService:
                 or_(
                     StorageLocation.name.ilike(search_term),
                     StorageLocation.location_hierarchy.ilike(search_term),
-                    StorageLocation.description.ilike(search_term)
+                    StorageLocation.description.ilike(search_term),
                 )
             )
 
@@ -159,7 +193,11 @@ class StorageLocationService:
             query = query.filter(StorageLocation.type == location_type)
 
         # Apply pagination
-        query = query.order_by(StorageLocation.location_hierarchy).offset(offset).limit(limit)
+        query = (
+            query.order_by(StorageLocation.location_hierarchy)
+            .offset(offset)
+            .limit(limit)
+        )
         locations = query.all()
 
         # Add component count if requested
@@ -180,7 +218,7 @@ class StorageLocationService:
         sort_by: str = "name",
         sort_order: str = "asc",
         limit: int = 50,
-        offset: int = 0
+        offset: int = 0,
     ) -> list[Component]:
         """Get components in a storage location."""
         from .component_service import ComponentService
@@ -191,7 +229,11 @@ class StorageLocationService:
 
         if include_children:
             # Get location and all its descendants
-            location = self.db.query(StorageLocation).filter(StorageLocation.id == location_id).first()
+            location = (
+                self.db.query(StorageLocation)
+                .filter(StorageLocation.id == location_id)
+                .first()
+            )
             if not location:
                 return []
 
@@ -199,18 +241,28 @@ class StorageLocationService:
             location_ids = [location.id] + [loc.id for loc in descendant_locations]
 
             # Filter components by multiple locations via ComponentLocation
-            query = self.db.query(Component).options(
-                selectinload(Component.category),
-                selectinload(Component.locations),
-                selectinload(Component.tags)
-            ).join(ComponentLocation).filter(ComponentLocation.storage_location_id.in_(location_ids))
+            query = (
+                self.db.query(Component)
+                .options(
+                    selectinload(Component.category),
+                    selectinload(Component.locations),
+                    selectinload(Component.tags),
+                )
+                .join(ComponentLocation)
+                .filter(ComponentLocation.storage_location_id.in_(location_ids))
+            )
         else:
             # Just this location
-            query = self.db.query(Component).options(
-                selectinload(Component.category),
-                selectinload(Component.locations),
-                selectinload(Component.tags)
-            ).join(ComponentLocation).filter(ComponentLocation.storage_location_id == location_id)
+            query = (
+                self.db.query(Component)
+                .options(
+                    selectinload(Component.category),
+                    selectinload(Component.locations),
+                    selectinload(Component.tags),
+                )
+                .join(ComponentLocation)
+                .filter(ComponentLocation.storage_location_id == location_id)
+            )
 
         # Apply additional filters (reuse logic from ComponentService)
         if search:
@@ -219,12 +271,13 @@ class StorageLocationService:
                 or_(
                     Component.name.ilike(search_term),
                     Component.part_number.ilike(search_term),
-                    Component.manufacturer.ilike(search_term)
+                    Component.manufacturer.ilike(search_term),
                 )
             )
 
         if category:
             from ..models import Category
+
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
 
         if component_type:
@@ -232,11 +285,14 @@ class StorageLocationService:
 
         if stock_status:
             from sqlalchemy import and_, func
+
             # Apply the same multi-location stock filtering logic as ComponentService
             if stock_status == "out":
                 # Components with zero total quantity across all locations
                 quantity_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
@@ -244,12 +300,16 @@ class StorageLocationService:
             elif stock_status == "low":
                 # Components with quantity > 0 but <= total minimum stock across all locations
                 quantity_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
                 min_stock_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.minimum_stock), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
@@ -257,18 +317,22 @@ class StorageLocationService:
                     and_(
                         quantity_subquery > 0,
                         quantity_subquery <= min_stock_subquery,
-                        min_stock_subquery > 0
+                        min_stock_subquery > 0,
                     )
                 )
             elif stock_status == "available":
                 # Components with quantity > total minimum stock across all locations
                 quantity_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
                 min_stock_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.minimum_stock), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
@@ -281,7 +345,9 @@ class StorageLocationService:
             elif sort_by == "quantity":
                 # For multi-location model, we need to sort by calculated total quantity
                 quantity_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
@@ -292,7 +358,9 @@ class StorageLocationService:
             elif sort_by == "quantity":
                 # For multi-location model, we need to sort by calculated total quantity
                 quantity_subquery = (
-                    self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                    self.db.query(
+                        func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                    )
                     .filter(ComponentLocation.component_id == Component.id)
                     .scalar_subquery()
                 )
@@ -301,7 +369,9 @@ class StorageLocationService:
         # Apply pagination
         return query.offset(offset).limit(limit).all()
 
-    def bulk_create_locations(self, locations_data: list[dict[str, Any]]) -> list[StorageLocation]:
+    def bulk_create_locations(
+        self, locations_data: list[dict[str, Any]]
+    ) -> list[StorageLocation]:
         """Create multiple storage locations in a single transaction."""
         if not locations_data:
             raise ValueError("No locations provided")
@@ -321,7 +391,9 @@ class StorageLocationService:
                     create_data.pop("parent_id")
 
                 location = StorageLocation(**create_data)
-                location.location_hierarchy = location.name  # Temporary, will be updated
+                location.location_hierarchy = (
+                    location.name
+                )  # Temporary, will be updated
 
                 self.db.add(location)
                 location_map[location.name] = location
@@ -339,7 +411,9 @@ class StorageLocationService:
                     if parent_name in location_map:
                         parent = location_map[parent_name]
                         location.parent_id = parent.id
-                        location.location_hierarchy = f"{parent.location_hierarchy}/{location.name}"
+                        location.location_hierarchy = (
+                            f"{parent.location_hierarchy}/{location.name}"
+                        )
                     else:
                         raise ValueError(f"Parent location not found: {parent_name}")
 
@@ -363,17 +437,23 @@ class StorageLocationService:
     def _update_children_hierarchy(self, parent_location: StorageLocation):
         """Recursively update hierarchy paths for all children."""
         for child in parent_location.children:
-            child.location_hierarchy = f"{parent_location.location_hierarchy}/{child.name}"
+            child.location_hierarchy = (
+                f"{parent_location.location_hierarchy}/{child.name}"
+            )
             self._update_children_hierarchy(child)
 
-    def _check_circular_reference(self, location: StorageLocation, location_map: dict[str, StorageLocation]):
+    def _check_circular_reference(
+        self, location: StorageLocation, location_map: dict[str, StorageLocation]
+    ):
         """Check for circular references in bulk creation."""
         visited = set()
         current = location
 
         while current and current.parent_id:
             if current.id in visited:
-                raise ValueError(f"Circular reference detected for location: {location.name}")
+                raise ValueError(
+                    f"Circular reference detected for location: {location.name}"
+                )
             visited.add(current.id)
 
             # Find parent in location_map

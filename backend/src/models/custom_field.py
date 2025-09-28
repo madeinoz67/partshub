@@ -15,6 +15,7 @@ from ..database import Base
 
 class FieldType(enum.Enum):
     """Custom field type enumeration."""
+
     TEXT = "text"
     NUMBER = "number"
     BOOLEAN = "boolean"
@@ -27,6 +28,7 @@ class CustomField(Base):
     """
     Definition of custom fields that can be added to components.
     """
+
     __tablename__ = "custom_fields"
 
     # Primary identification
@@ -43,10 +45,14 @@ class CustomField(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
-    values = relationship("CustomFieldValue", back_populates="field", cascade="all, delete-orphan")
+    values = relationship(
+        "CustomFieldValue", back_populates="field", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<CustomField(id='{self.id}', name='{self.name}', type='{self.field_type.value}')>"
@@ -56,6 +62,7 @@ class CustomFieldValue(Base):
     """
     Values of custom fields for specific components.
     """
+
     __tablename__ = "custom_field_values"
 
     # Composite primary key
@@ -67,7 +74,9 @@ class CustomFieldValue(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     component = relationship("Component", back_populates="custom_field_values")

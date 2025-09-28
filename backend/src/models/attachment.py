@@ -15,6 +15,7 @@ class Attachment(Base):
     """
     Attachment model for storing component-related files.
     """
+
     __tablename__ = "attachments"
 
     # Primary identification
@@ -31,7 +32,9 @@ class Attachment(Base):
     # Metadata
     title = Column(String(200), nullable=True)
     description = Column(Text, nullable=True)
-    attachment_type = Column(String(50), nullable=True)  # datasheet, photo, schematic, etc.
+    attachment_type = Column(
+        String(50), nullable=True
+    )  # datasheet, photo, schematic, etc.
 
     # Image-specific fields
     is_primary_image = Column(Boolean, nullable=False, default=False)
@@ -40,7 +43,9 @@ class Attachment(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     component = relationship("Component", back_populates="attachments")

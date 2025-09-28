@@ -11,10 +11,7 @@ class TestKiCadSyncContract:
 
     def test_sync_kicad_libraries_requires_auth(self, client: TestClient):
         """Test that library sync requires authentication"""
-        sync_data = {
-            "libraries": ["Device", "Connector"],
-            "sync_mode": "incremental"
-        }
+        sync_data = {"libraries": ["Device", "Connector"], "sync_mode": "incremental"}
 
         response = client.post("/api/v1/kicad/libraries/sync", json=sync_data)
 
@@ -27,20 +24,29 @@ class TestKiCadSyncContract:
         sync_data = {
             "libraries": ["Device", "Connector", "Logic_74xx"],
             "sync_mode": "incremental",
-            "force_update": False
+            "force_update": False,
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
-        assert response.status_code in [200, 202]  # 200 sync complete, 202 accepted for async processing
+        assert response.status_code in [
+            200,
+            202,
+        ]  # 200 sync complete, 202 accepted for async processing
 
         if response.status_code in [200, 202]:
             data = response.json()
 
             # Response should contain sync job information
             required_fields = [
-                "job_id", "status", "libraries_requested", "sync_mode", "started_at"
+                "job_id",
+                "status",
+                "libraries_requested",
+                "sync_mode",
+                "started_at",
             ]
 
             for field in required_fields:
@@ -52,12 +58,11 @@ class TestKiCadSyncContract:
     def test_sync_kicad_libraries_with_api_key(self, client: TestClient):
         """Test library sync with API key"""
         headers = {"X-API-Key": "mock_api_key"}
-        sync_data = {
-            "libraries": ["Device"],
-            "sync_mode": "full"
-        }
+        sync_data = {"libraries": ["Device"], "sync_mode": "full"}
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 202]
@@ -67,10 +72,12 @@ class TestKiCadSyncContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         sync_data = {
             "libraries": [],  # Empty array means sync all
-            "sync_mode": "incremental"
+            "sync_mode": "incremental",
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code in [200, 202]:
@@ -87,10 +94,12 @@ class TestKiCadSyncContract:
             "libraries": ["Device", "Connector"],
             "sync_mode": "full",
             "force_update": True,
-            "clear_cache": True
+            "clear_cache": True,
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code in [200, 202]:
@@ -102,11 +111,10 @@ class TestKiCadSyncContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # Invalid sync_mode
-        invalid_mode_data = {
-            "libraries": ["Device"],
-            "sync_mode": "invalid_mode"
-        }
-        response = client.post("/api/v1/kicad/libraries/sync", json=invalid_mode_data, headers=headers)
+        invalid_mode_data = {"libraries": ["Device"], "sync_mode": "invalid_mode"}
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=invalid_mode_data, headers=headers
+        )
         assert response.status_code == 422
 
         # Missing required fields
@@ -114,15 +122,19 @@ class TestKiCadSyncContract:
             "libraries": ["Device"]
             # Missing sync_mode
         }
-        response = client.post("/api/v1/kicad/libraries/sync", json=incomplete_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=incomplete_data, headers=headers
+        )
         assert response.status_code == 422
 
         # Invalid library names (empty strings)
         invalid_libs_data = {
             "libraries": ["Device", "", "Connector"],
-            "sync_mode": "incremental"
+            "sync_mode": "incremental",
         }
-        response = client.post("/api/v1/kicad/libraries/sync", json=invalid_libs_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=invalid_libs_data, headers=headers
+        )
         assert response.status_code == 422
 
     def test_sync_kicad_libraries_with_filters(self, client: TestClient):
@@ -134,11 +146,13 @@ class TestKiCadSyncContract:
             "filters": {
                 "component_types": ["resistor", "capacitor"],
                 "exclude_obsolete": True,
-                "min_popularity": 10
-            }
+                "min_popularity": 10,
+            },
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code in [200, 202]:
@@ -148,54 +162,64 @@ class TestKiCadSyncContract:
     def test_sync_kicad_libraries_status_tracking(self, client: TestClient):
         """Test sync job status tracking"""
         headers = {"Authorization": "Bearer mock_jwt_token"}
-        sync_data = {
-            "libraries": ["Device"],
-            "sync_mode": "incremental"
-        }
+        sync_data = {"libraries": ["Device"], "sync_mode": "incremental"}
 
         # Start sync job
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         if response.status_code in [200, 202]:
             data = response.json()
             job_id = data["job_id"]
 
             # Check sync status (this would be a separate endpoint)
-            status_response = client.get(f"/api/v1/kicad/libraries/sync/{job_id}/status", headers=headers)
+            status_response = client.get(
+                f"/api/v1/kicad/libraries/sync/{job_id}/status", headers=headers
+            )
 
             # Status endpoint might not be implemented yet
             assert status_response.status_code in [200, 404]
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
-                status_fields = ["job_id", "status", "progress", "libraries_processed", "components_synced"]
+                status_fields = [
+                    "job_id",
+                    "status",
+                    "progress",
+                    "libraries_processed",
+                    "components_synced",
+                ]
 
                 for field in status_fields:
                     assert field in status_data
 
-                assert status_data["status"] in ["pending", "running", "completed", "failed"]
+                assert status_data["status"] in [
+                    "pending",
+                    "running",
+                    "completed",
+                    "failed",
+                ]
 
     def test_sync_kicad_libraries_incremental_vs_full(self, client: TestClient):
         """Test difference between incremental and full sync modes"""
         headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # Incremental sync
-        incremental_data = {
-            "libraries": ["Device"],
-            "sync_mode": "incremental"
-        }
-        response = client.post("/api/v1/kicad/libraries/sync", json=incremental_data, headers=headers)
+        incremental_data = {"libraries": ["Device"], "sync_mode": "incremental"}
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=incremental_data, headers=headers
+        )
 
         if response.status_code in [200, 202]:
             incremental_result = response.json()
             assert incremental_result["sync_mode"] == "incremental"
 
         # Full sync
-        full_data = {
-            "libraries": ["Device"],
-            "sync_mode": "full"
-        }
-        response = client.post("/api/v1/kicad/libraries/sync", json=full_data, headers=headers)
+        full_data = {"libraries": ["Device"], "sync_mode": "full"}
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=full_data, headers=headers
+        )
 
         if response.status_code in [200, 202]:
             full_result = response.json()
@@ -204,16 +228,17 @@ class TestKiCadSyncContract:
     def test_sync_kicad_libraries_concurrent_jobs(self, client: TestClient):
         """Test handling of concurrent sync jobs"""
         headers = {"Authorization": "Bearer mock_jwt_token"}
-        sync_data = {
-            "libraries": ["Device"],
-            "sync_mode": "incremental"
-        }
+        sync_data = {"libraries": ["Device"], "sync_mode": "incremental"}
 
         # Start first sync job
-        response1 = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response1 = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # Immediately start second sync job
-        response2 = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response2 = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         # Behavior could be:
@@ -231,10 +256,12 @@ class TestKiCadSyncContract:
             "libraries": ["Device"],
             "sync_mode": "incremental",
             "kicad_installation_path": "/usr/share/kicad",
-            "library_table_path": "~/.config/kicad/sym-lib-table"
+            "library_table_path": "~/.config/kicad/sym-lib-table",
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code in [200, 202]:
@@ -249,10 +276,12 @@ class TestKiCadSyncContract:
         # Try to sync non-existent library
         invalid_library_data = {
             "libraries": ["NonExistentLibrary123"],
-            "sync_mode": "incremental"
+            "sync_mode": "incremental",
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=invalid_library_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=invalid_library_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         # Could return 400 Bad Request for invalid library names
@@ -270,17 +299,23 @@ class TestKiCadSyncContract:
         sync_data = {
             "libraries": ["Device", "Connector", "Logic_74xx"],
             "sync_mode": "full",
-            "report_progress": True
+            "report_progress": True,
         }
 
-        response = client.post("/api/v1/kicad/libraries/sync", json=sync_data, headers=headers)
+        response = client.post(
+            "/api/v1/kicad/libraries/sync", json=sync_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code in [200, 202]:
             data = response.json()
 
             # Should include information about progress tracking
-            progress_fields = ["estimated_components", "progress_callback_url", "webhook_url"]
+            progress_fields = [
+                "estimated_components",
+                "progress_callback_url",
+                "webhook_url",
+            ]
 
             # At least some progress information should be available
             any(field in data for field in progress_fields)

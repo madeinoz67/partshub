@@ -15,16 +15,18 @@ from ..database import Base
 
 class TransactionType(enum.Enum):
     """Stock transaction type enumeration."""
-    ADD = "add"          # Adding stock (purchase, found, etc.)
-    REMOVE = "remove"    # Removing stock (used, broken, lost, etc.)
-    MOVE = "move"        # Moving between locations (no quantity change)
-    ADJUST = "adjust"    # Inventory correction/adjustment
+
+    ADD = "add"  # Adding stock (purchase, found, etc.)
+    REMOVE = "remove"  # Removing stock (used, broken, lost, etc.)
+    MOVE = "move"  # Moving between locations (no quantity change)
+    ADJUST = "adjust"  # Inventory correction/adjustment
 
 
 class StockTransaction(Base):
     """
     Audit trail for all component stock changes with full traceability.
     """
+
     __tablename__ = "stock_transactions"
 
     # Primary identification
@@ -39,8 +41,12 @@ class StockTransaction(Base):
 
     # Context and traceability
     reason = Column(Text, nullable=False)  # Human-readable reason
-    reference_id = Column(String, nullable=True)  # Reference to related entity (purchase, project, etc.)
-    reference_type = Column(String(50), nullable=True)  # Type of reference (purchase, project, adjustment, etc.)
+    reference_id = Column(
+        String, nullable=True
+    )  # Reference to related entity (purchase, project, etc.)
+    reference_type = Column(
+        String(50), nullable=True
+    )  # Type of reference (purchase, project, adjustment, etc.)
 
     # Location tracking (for moves)
     from_location_id = Column(String, ForeignKey("storage_locations.id"), nullable=True)
@@ -48,7 +54,9 @@ class StockTransaction(Base):
 
     # User tracking (when implemented)
     user_id = Column(String, nullable=True)  # Who performed the transaction
-    user_name = Column(String(100), nullable=True)  # Cached username for historical reference
+    user_name = Column(
+        String(100), nullable=True
+    )  # Cached username for historical reference
 
     # Metadata
     batch_id = Column(String, nullable=True)  # For grouping related transactions
@@ -78,9 +86,11 @@ class StockTransaction(Base):
     @property
     def is_location_move(self):
         """Check if this is a location move transaction."""
-        return (self.transaction_type == TransactionType.MOVE and
-                self.from_location_id is not None and
-                self.to_location_id is not None)
+        return (
+            self.transaction_type == TransactionType.MOVE
+            and self.from_location_id is not None
+            and self.to_location_id is not None
+        )
 
     @property
     def absolute_quantity_change(self):
@@ -88,7 +98,9 @@ class StockTransaction(Base):
         return abs(self.quantity_change)
 
     @classmethod
-    def create_add_transaction(cls, component, quantity, reason, reference_id=None, reference_type=None):
+    def create_add_transaction(
+        cls, component, quantity, reason, reference_id=None, reference_type=None
+    ):
         """Helper method to create an ADD transaction."""
         return cls(
             component_id=component.id,
@@ -98,11 +110,13 @@ class StockTransaction(Base):
             new_quantity=component.quantity_on_hand + quantity,
             reason=reason,
             reference_id=reference_id,
-            reference_type=reference_type
+            reference_type=reference_type,
         )
 
     @classmethod
-    def create_remove_transaction(cls, component, quantity, reason, reference_id=None, reference_type=None):
+    def create_remove_transaction(
+        cls, component, quantity, reason, reference_id=None, reference_type=None
+    ):
         """Helper method to create a REMOVE transaction."""
         return cls(
             component_id=component.id,
@@ -112,11 +126,13 @@ class StockTransaction(Base):
             new_quantity=component.quantity_on_hand - quantity,
             reason=reason,
             reference_id=reference_id,
-            reference_type=reference_type
+            reference_type=reference_type,
         )
 
     @classmethod
-    def create_move_transaction(cls, component, from_location, to_location, reason, reference_id=None):
+    def create_move_transaction(
+        cls, component, from_location, to_location, reason, reference_id=None
+    ):
         """Helper method to create a MOVE transaction."""
         return cls(
             component_id=component.id,
@@ -128,11 +144,13 @@ class StockTransaction(Base):
             to_location_id=to_location.id if to_location else None,
             reason=reason,
             reference_id=reference_id,
-            reference_type="location_move"
+            reference_type="location_move",
         )
 
     @classmethod
-    def create_adjustment_transaction(cls, component, new_quantity, reason, reference_id=None):
+    def create_adjustment_transaction(
+        cls, component, new_quantity, reason, reference_id=None
+    ):
         """Helper method to create an ADJUST transaction."""
         quantity_change = new_quantity - component.quantity_on_hand
         return cls(
@@ -143,5 +161,5 @@ class StockTransaction(Base):
             new_quantity=new_quantity,
             reason=reason,
             reference_id=reference_id,
-            reference_type="inventory_adjustment"
+            reference_type="inventory_adjustment",
         )

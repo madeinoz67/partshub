@@ -14,7 +14,7 @@ def create_api_token(
     user_id: str,
     name: str,
     description: str | None = None,
-    expires_in_days: int | None = None
+    expires_in_days: int | None = None,
 ) -> tuple[str, APIToken]:
     """
     Create a new API token for a user.
@@ -45,7 +45,7 @@ def create_api_token(
         user_id=user_id,
         name=name,
         description=description,
-        expires_in_days=expires_in_days
+        expires_in_days=expires_in_days,
     )
 
     # Save to database
@@ -94,7 +94,9 @@ def verify_api_token(raw_token: str, db: Session) -> User | None:
     return user
 
 
-def list_user_tokens(db: Session, user_id: str, include_inactive: bool = False) -> list[APIToken]:
+def list_user_tokens(
+    db: Session, user_id: str, include_inactive: bool = False
+) -> list[APIToken]:
     """
     List all API tokens for a user.
 
@@ -112,13 +114,15 @@ def list_user_tokens(db: Session, user_id: str, include_inactive: bool = False) 
         now = datetime.now(UTC)
         query = query.filter(
             APIToken.is_active is True,
-            (APIToken.expires_at.is_(None) | (APIToken.expires_at > now))
+            (APIToken.expires_at.is_(None) | (APIToken.expires_at > now)),
         )
 
     return query.order_by(APIToken.created_at.desc()).all()
 
 
-def get_api_token(db: Session, token_id: str, user_id: str | None = None) -> APIToken | None:
+def get_api_token(
+    db: Session, token_id: str, user_id: str | None = None
+) -> APIToken | None:
     """
     Get an API token by ID.
 
@@ -176,11 +180,15 @@ def cleanup_expired_tokens(db: Session) -> int:
     """
     now = datetime.now(UTC)
 
-    expired_tokens = db.query(APIToken).filter(
-        APIToken.is_active is True,
-        APIToken.expires_at.isnot(None),
-        APIToken.expires_at <= now
-    ).all()
+    expired_tokens = (
+        db.query(APIToken)
+        .filter(
+            APIToken.is_active is True,
+            APIToken.expires_at.isnot(None),
+            APIToken.expires_at <= now,
+        )
+        .all()
+    )
 
     count = 0
     for token in expired_tokens:

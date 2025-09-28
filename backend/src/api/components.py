@@ -38,8 +38,10 @@ class ComponentBase(BaseModel):
     custom_fields: dict | None = None
     tags: list[str] | None = None  # List of tag IDs
 
+
 class ComponentCreate(ComponentBase):
     pass
+
 
 class ComponentUpdate(BaseModel):
     name: str | None = None
@@ -58,6 +60,7 @@ class ComponentUpdate(BaseModel):
     notes: str | None = None
     specifications: dict | None = None
 
+
 class ComponentResponse(ComponentBase):
     id: str
     category: dict | None = None
@@ -71,11 +74,13 @@ class ComponentResponse(ComponentBase):
     class Config:
         from_attributes = True
 
+
 class StockTransactionCreate(BaseModel):
     transaction_type: str = Field(..., pattern="^(add|remove|move|adjust)$")
     quantity_change: int
     reason: str
     reference_id: str | None = None
+
 
 class StockTransactionResponse(BaseModel):
     id: str
@@ -91,6 +96,7 @@ class StockTransactionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ComponentsListResponse(BaseModel):
     components: list[ComponentResponse]
     total: int
@@ -98,22 +104,32 @@ class ComponentsListResponse(BaseModel):
     total_pages: int
     limit: int
 
+
 router = APIRouter(prefix="/api/v1/components", tags=["components"])
 
 # Authentication implemented - using real auth system
 
+
 @router.get("", response_model=ComponentsListResponse)
 def list_components(
-    search: str | None = Query(None, description="Search in name, part number, manufacturer"),
+    search: str | None = Query(
+        None, description="Search in name, part number, manufacturer"
+    ),
     category: str | None = Query(None, description="Filter by category name"),
-    storage_location: str | None = Query(None, description="Filter by storage location"),
+    storage_location: str | None = Query(
+        None, description="Filter by storage location"
+    ),
     component_type: str | None = Query(None, description="Filter by component type"),
-    stock_status: str | None = Query(None, pattern="^(low|out|available)$", description="Filter by stock status"),
-    sort_by: str = Query("name", pattern="^(name|quantity|created_at)$", description="Sort field"),
+    stock_status: str | None = Query(
+        None, pattern="^(low|out|available)$", description="Filter by stock status"
+    ),
+    sort_by: str = Query(
+        "name", pattern="^(name|quantity|created_at)$", description="Sort field"
+    ),
     sort_order: str = Query("asc", pattern="^(asc|desc)$", description="Sort order"),
     limit: int = Query(50, ge=1, le=100, description="Number of items to return"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """List components with filtering and pagination."""
     service = ComponentService(db)
@@ -124,7 +140,7 @@ def list_components(
         category=category,
         storage_location=storage_location,
         component_type=component_type,
-        stock_status=stock_status
+        stock_status=stock_status,
     )
 
     components = service.list_components(
@@ -136,7 +152,7 @@ def list_components(
         sort_by=sort_by,
         sort_order=sort_order,
         limit=limit,
-        offset=offset
+        offset=offset,
     )
 
     # Convert to response format
@@ -152,43 +168,58 @@ def list_components(
             "provider_sku": component.provider_sku,
             "manufacturer": component.manufacturer,
             "category_id": component.category_id,
-            "storage_location_id": component.storage_locations[0].id if component.storage_locations else None,
+            "storage_location_id": component.storage_locations[0].id
+            if component.storage_locations
+            else None,
             "component_type": component.component_type,
             "value": component.value,
             "package": component.package,
             "quantity_on_hand": component.quantity_on_hand,
             "quantity_ordered": component.quantity_ordered,
             "minimum_stock": component.minimum_stock,
-            "average_purchase_price": float(component.average_purchase_price) if component.average_purchase_price else None,
-            "total_purchase_value": float(component.total_purchase_value) if component.total_purchase_value else None,
+            "average_purchase_price": float(component.average_purchase_price)
+            if component.average_purchase_price
+            else None,
+            "total_purchase_value": float(component.total_purchase_value)
+            if component.total_purchase_value
+            else None,
             "notes": component.notes,
             "specifications": component.specifications,
             "custom_fields": component.custom_fields,
-            "category": {"id": component.category.id, "name": component.category.name} if component.category else None,
+            "category": {"id": component.category.id, "name": component.category.name}
+            if component.category
+            else None,
             "storage_location": {
                 "id": component.primary_location.id,
                 "name": component.primary_location.name,
-                "location_hierarchy": component.primary_location.location_hierarchy
-            } if component.primary_location else None,
+                "location_hierarchy": component.primary_location.location_hierarchy,
+            }
+            if component.primary_location
+            else None,
             "storage_locations": [
                 {
                     "location": {
                         "id": loc.storage_location.id,
                         "name": loc.storage_location.name,
-                        "location_hierarchy": loc.storage_location.location_hierarchy
+                        "location_hierarchy": loc.storage_location.location_hierarchy,
                     },
                     "quantity_on_hand": loc.quantity_on_hand,
                     "quantity_ordered": loc.quantity_ordered,
                     "minimum_stock": loc.minimum_stock,
                     "location_notes": loc.location_notes,
-                    "unit_cost_at_location": float(loc.unit_cost_at_location) if loc.unit_cost_at_location else None
+                    "unit_cost_at_location": float(loc.unit_cost_at_location)
+                    if loc.unit_cost_at_location
+                    else None,
                 }
                 for loc in component.locations
             ],
             "tags": [{"id": tag.id, "name": tag.name} for tag in component.tags],
-            "attachments": [{"id": att.id, "filename": att.filename} for att in component.attachments],
+            "attachments": [
+                {"id": att.id, "filename": att.filename}
+                for att in component.attachments
+            ],
             "created_at": component.created_at.isoformat(),
-            "updated_at": component.updated_at.isoformat()
+            "updated_at": component.updated_at.isoformat(),
         }
         component_list.append(component_dict)
 
@@ -201,14 +232,15 @@ def list_components(
         total=total_count,
         page=page,
         total_pages=total_pages,
-        limit=limit
+        limit=limit,
     )
+
 
 @router.post("", response_model=ComponentResponse, status_code=status.HTTP_201_CREATED)
 def create_component(
     component: ComponentCreate,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Create a new component."""
     service = ComponentService(db)
@@ -233,39 +265,55 @@ def create_component(
             "provider_sku": created_component.provider_sku,
             "manufacturer": created_component.manufacturer,
             "category_id": created_component.category_id,
-            "storage_location_id": created_component.storage_locations[0].id if created_component.storage_locations else None,
+            "storage_location_id": created_component.storage_locations[0].id
+            if created_component.storage_locations
+            else None,
             "component_type": created_component.component_type,
             "value": created_component.value,
             "package": created_component.package,
             "quantity_on_hand": created_component.quantity_on_hand,
             "quantity_ordered": created_component.quantity_ordered,
             "minimum_stock": created_component.minimum_stock,
-            "average_purchase_price": float(created_component.average_purchase_price) if created_component.average_purchase_price else None,
-            "total_purchase_value": float(created_component.total_purchase_value) if created_component.total_purchase_value else None,
+            "average_purchase_price": float(created_component.average_purchase_price)
+            if created_component.average_purchase_price
+            else None,
+            "total_purchase_value": float(created_component.total_purchase_value)
+            if created_component.total_purchase_value
+            else None,
             "notes": created_component.notes,
             "specifications": created_component.specifications,
             "custom_fields": created_component.custom_fields,
-            "category": {"id": created_component.category.id, "name": created_component.category.name} if created_component.category else None,
+            "category": {
+                "id": created_component.category.id,
+                "name": created_component.category.name,
+            }
+            if created_component.category
+            else None,
             "storage_location": {
                 "id": created_component.primary_location.id,
                 "name": created_component.primary_location.name,
-                "location_hierarchy": created_component.primary_location.location_hierarchy
-            } if created_component.primary_location else None,
-            "tags": [{"id": tag.id, "name": tag.name} for tag in created_component.tags],
-            "attachments": [{"id": att.id, "filename": att.filename} for att in created_component.attachments],
+                "location_hierarchy": created_component.primary_location.location_hierarchy,
+            }
+            if created_component.primary_location
+            else None,
+            "tags": [
+                {"id": tag.id, "name": tag.name} for tag in created_component.tags
+            ],
+            "attachments": [
+                {"id": att.id, "filename": att.filename}
+                for att in created_component.attachments
+            ],
             "created_at": created_component.created_at.isoformat(),
-            "updated_at": created_component.updated_at.isoformat()
+            "updated_at": created_component.updated_at.isoformat(),
         }
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
 @router.get("/{component_id}", response_model=ComponentResponse)
-def get_component(
-    component_id: str,
-    db: Session = Depends(get_db)
-):
+def get_component(component_id: str, db: Session = Depends(get_db)):
     """Get a component by ID."""
     try:
         uuid.UUID(component_id)
@@ -288,7 +336,9 @@ def get_component(
         "provider_sku": component.provider_sku,
         "manufacturer": component.manufacturer,
         "category_id": component.category_id,
-        "storage_location_id": component.storage_locations[0].id if component.storage_locations else None,
+        "storage_location_id": component.storage_locations[0].id
+        if component.storage_locations
+        else None,
         "component_type": component.component_type,
         "value": component.value,
         "package": component.package,
@@ -300,39 +350,48 @@ def get_component(
         "notes": component.notes,
         "specifications": component.specifications,
         "custom_fields": component.custom_fields,
-        "category": {"id": component.category.id, "name": component.category.name} if component.category else None,
+        "category": {"id": component.category.id, "name": component.category.name}
+        if component.category
+        else None,
         "storage_location": {
             "id": component.primary_location.id,
             "name": component.primary_location.name,
-            "location_hierarchy": component.primary_location.location_hierarchy
-        } if component.primary_location else None,
+            "location_hierarchy": component.primary_location.location_hierarchy,
+        }
+        if component.primary_location
+        else None,
         "storage_locations": [
             {
                 "location": {
                     "id": loc.storage_location.id,
                     "name": loc.storage_location.name,
-                    "location_hierarchy": loc.storage_location.location_hierarchy
+                    "location_hierarchy": loc.storage_location.location_hierarchy,
                 },
                 "quantity_on_hand": loc.quantity_on_hand,
                 "quantity_ordered": loc.quantity_ordered,
                 "minimum_stock": loc.minimum_stock,
                 "location_notes": loc.location_notes,
-                "unit_cost_at_location": float(loc.unit_cost_at_location) if loc.unit_cost_at_location else None
+                "unit_cost_at_location": float(loc.unit_cost_at_location)
+                if loc.unit_cost_at_location
+                else None,
             }
             for loc in component.locations
         ],
         "tags": [{"id": tag.id, "name": tag.name} for tag in component.tags],
-        "attachments": [{"id": att.id, "filename": att.filename} for att in component.attachments],
+        "attachments": [
+            {"id": att.id, "filename": att.filename} for att in component.attachments
+        ],
         "created_at": component.created_at.isoformat() if component.created_at else "",
-        "updated_at": component.updated_at.isoformat() if component.updated_at else ""
+        "updated_at": component.updated_at.isoformat() if component.updated_at else "",
     }
+
 
 @router.put("/{component_id}", response_model=ComponentResponse)
 def update_component(
     component_id: str,
     component_update: ComponentUpdate,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update a component."""
     try:
@@ -343,7 +402,9 @@ def update_component(
     service = ComponentService(db)
 
     # Filter out None values
-    update_data = {k: v for k, v in component_update.model_dump().items() if v is not None}
+    update_data = {
+        k: v for k, v in component_update.model_dump().items() if v is not None
+    }
 
     if not update_data:
         raise HTTPException(status_code=422, detail="No data provided for update")
@@ -356,11 +417,10 @@ def update_component(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
+
 @router.delete("/{component_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_component(
-    component_id: str,
-    current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    component_id: str, current_user=Depends(require_auth), db: Session = Depends(get_db)
 ):
     """Delete a component."""
     try:
@@ -374,12 +434,13 @@ def delete_component(
     if not success:
         raise HTTPException(status_code=404, detail="Component not found")
 
+
 @router.post("/{component_id}/stock", response_model=StockTransactionResponse)
 def update_component_stock(
     component_id: str,
     stock_update: StockTransactionCreate,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update component stock."""
     try:
@@ -396,7 +457,7 @@ def update_component_stock(
             quantity_change=stock_update.quantity_change,
             reason=stock_update.reason,
             reference_id=stock_update.reference_id,
-            reference_type="api_update"
+            reference_type="api_update",
         )
 
         if not transaction:
@@ -406,11 +467,14 @@ def update_component_stock(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.get("/{component_id}/history", response_model=list[StockTransactionResponse])
 def get_component_history(
     component_id: str,
-    limit: int = Query(50, ge=1, le=100, description="Number of transactions to return"),
-    db: Session = Depends(get_db)
+    limit: int = Query(
+        50, ge=1, le=100, description="Number of transactions to return"
+    ),
+    db: Session = Depends(get_db),
 ):
     """Get component stock transaction history."""
     try:

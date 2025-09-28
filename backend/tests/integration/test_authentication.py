@@ -22,7 +22,9 @@ class TestAuthenticationIntegration:
         """Create a temporary database for testing"""
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
-        testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        testing_session_local = sessionmaker(
+            autocommit=False, autoflush=False, bind=engine
+        )
 
         Base.metadata.create_all(bind=engine)
 
@@ -49,10 +51,9 @@ class TestAuthenticationIntegration:
         """Test default admin user login functionality"""
 
         # Test initial admin login with default password
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
 
         assert login_response.status_code == 200
         login_data = login_response.json()
@@ -71,10 +72,9 @@ class TestAuthenticationIntegration:
         """Test forced password change for default admin"""
 
         # Login with default credentials
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -84,73 +84,79 @@ class TestAuthenticationIntegration:
 
         user_data = user_response.json()
         # Should indicate password change required for default admin
-        assert "needs_password_change" in user_data or user_data.get("username") == "admin"
+        assert (
+            "needs_password_change" in user_data or user_data.get("username") == "admin"
+        )
 
     def test_password_change_functionality(self, client: TestClient):
         """Test password change functionality"""
 
         # Login with default credentials
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Change password
-        password_change_response = client.post("/api/v1/auth/change-password", json={
-            "current_password": "admin123",
-            "new_password": "newSecurePassword123!"
-        }, headers=headers)
+        password_change_response = client.post(
+            "/api/v1/auth/change-password",
+            json={
+                "current_password": "admin123",
+                "new_password": "newSecurePassword123!",
+            },
+            headers=headers,
+        )
 
         assert password_change_response.status_code == 200
 
         # Test that old password no longer works
-        old_login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        old_login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         assert old_login_response.status_code == 401
 
         # Test that new password works
-        new_login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "newSecurePassword123!"
-        })
+        new_login_response = client.post(
+            "/api/v1/auth/token",
+            json={"username": "admin", "password": "newSecurePassword123!"},
+        )
         assert new_login_response.status_code == 200
 
     def test_invalid_login_attempts(self, client: TestClient):
         """Test handling of invalid login attempts"""
 
         # Test wrong username
-        wrong_user_response = client.post("/api/v1/auth/token", json={
-            "username": "nonexistent",
-            "password": "admin123"
-        })
+        wrong_user_response = client.post(
+            "/api/v1/auth/token",
+            json={"username": "nonexistent", "password": "admin123"},
+        )
         assert wrong_user_response.status_code == 401
 
         # Test wrong password
-        wrong_password_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "wrongpassword"
-        })
+        wrong_password_response = client.post(
+            "/api/v1/auth/token",
+            json={"username": "admin", "password": "wrongpassword"},
+        )
         assert wrong_password_response.status_code == 401
 
         # Test malformed request
-        malformed_response = client.post("/api/v1/auth/token", json={
-            "username": "admin"
-            # Missing password
-        })
+        malformed_response = client.post(
+            "/api/v1/auth/token",
+            json={
+                "username": "admin"
+                # Missing password
+            },
+        )
         assert malformed_response.status_code == 422
 
     def test_token_authentication(self, client: TestClient):
         """Test JWT token authentication for protected endpoints"""
 
         # Login to get token
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -171,32 +177,35 @@ class TestAuthenticationIntegration:
         """Test API token creation and management"""
 
         # Login to get admin access
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Change password first (required for admin)
-        client.post("/api/v1/auth/change-password", json={
-            "current_password": "admin123",
-            "new_password": "newPass123!"
-        }, headers=headers)
+        client.post(
+            "/api/v1/auth/change-password",
+            json={"current_password": "admin123", "new_password": "newPass123!"},
+            headers=headers,
+        )
 
         # Re-login with new password
-        new_login = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "newPass123!"
-        })
+        new_login = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "newPass123!"}
+        )
         headers = {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 
         # Test API token creation
-        api_token_response = client.post("/api/v1/auth/api-tokens", json={
-            "name": "Test API Token",
-            "description": "Integration test token",
-            "expires_days": 30
-        }, headers=headers)
+        api_token_response = client.post(
+            "/api/v1/auth/api-tokens",
+            json={
+                "name": "Test API Token",
+                "description": "Integration test token",
+                "expires_days": 30,
+            },
+            headers=headers,
+        )
 
         if api_token_response.status_code == 201:
             api_token_data = api_token_response.json()
@@ -208,7 +217,10 @@ class TestAuthenticationIntegration:
             api_headers = {"Authorization": f"Bearer {api_token_data['token']}"}
             api_test_response = client.get("/api/v1/components", headers=api_headers)
             # API tokens should work for CRUD operations
-            assert api_test_response.status_code in [200, 401]  # Depends on implementation
+            assert api_test_response.status_code in [
+                200,
+                401,
+            ]  # Depends on implementation
         else:
             # API token management might not be implemented
             assert api_token_response.status_code in [201, 404, 501]
@@ -218,80 +230,93 @@ class TestAuthenticationIntegration:
 
         # Test anonymous read access
         anonymous_components_response = client.get("/api/v1/components")
-        assert anonymous_components_response.status_code == 200  # Should allow read access
+        assert (
+            anonymous_components_response.status_code == 200
+        )  # Should allow read access
 
         anonymous_storage_response = client.get("/api/v1/storage-locations")
         assert anonymous_storage_response.status_code == 200  # Should allow read access
 
         # Test anonymous write access should be denied
-        anonymous_create_response = client.post("/api/v1/components", json={
-            "name": "Test Component",
-            "part_number": "TEST001",
-            "manufacturer": "Test Mfg",
-            "component_type": "resistor"
-        })
+        anonymous_create_response = client.post(
+            "/api/v1/components",
+            json={
+                "name": "Test Component",
+                "part_number": "TEST001",
+                "manufacturer": "Test Mfg",
+                "component_type": "resistor",
+            },
+        )
         assert anonymous_create_response.status_code == 401  # Should deny write access
 
     def test_admin_crud_operations(self, client: TestClient):
         """Test admin CRUD operations require authentication"""
 
         # Login as admin
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Change password
-        client.post("/api/v1/auth/change-password", json={
-            "current_password": "admin123",
-            "new_password": "adminPass123!"
-        }, headers=headers)
+        client.post(
+            "/api/v1/auth/change-password",
+            json={"current_password": "admin123", "new_password": "adminPass123!"},
+            headers=headers,
+        )
 
         # Re-login
-        new_login = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "adminPass123!"
-        })
+        new_login = client.post(
+            "/api/v1/auth/token",
+            json={"username": "admin", "password": "adminPass123!"},
+        )
         headers = {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 
         # Test authenticated CRUD operations
 
         # Create category
-        category_response = client.post("/api/v1/categories", json={
-            "name": "Auth Test Category",
-            "description": "Testing authentication"
-        }, headers=headers)
+        category_response = client.post(
+            "/api/v1/categories",
+            json={
+                "name": "Auth Test Category",
+                "description": "Testing authentication",
+            },
+            headers=headers,
+        )
         assert category_response.status_code == 201
 
         # Create storage location
-        storage_response = client.post("/api/v1/storage-locations", json={
-            "name": "Auth Test Storage",
-            "description": "Testing authentication"
-        }, headers=headers)
+        storage_response = client.post(
+            "/api/v1/storage-locations",
+            json={"name": "Auth Test Storage", "description": "Testing authentication"},
+            headers=headers,
+        )
         assert storage_response.status_code == 201
 
         # Create component
-        component_response = client.post("/api/v1/components", json={
-            "name": "Auth Test Component",
-            "part_number": "AUTH001",
-            "manufacturer": "Auth Mfg",
-            "category_id": category_response.json()["id"],
-            "storage_location_id": storage_response.json()["id"],
-            "component_type": "resistor",
-            "quantity_on_hand": 10
-        }, headers=headers)
+        component_response = client.post(
+            "/api/v1/components",
+            json={
+                "name": "Auth Test Component",
+                "part_number": "AUTH001",
+                "manufacturer": "Auth Mfg",
+                "category_id": category_response.json()["id"],
+                "storage_location_id": storage_response.json()["id"],
+                "component_type": "resistor",
+                "quantity_on_hand": 10,
+            },
+            headers=headers,
+        )
         assert component_response.status_code == 201
 
     def test_token_expiration_handling(self, client: TestClient):
         """Test token expiration and refresh behavior"""
 
         # Login to get token
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
 
         # Test that token is valid initially
@@ -300,7 +325,9 @@ class TestAuthenticationIntegration:
         assert valid_response.status_code == 200
 
         # Test with very old/expired token (if token validation is strict)
-        expired_headers = {"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDIyfQ.invalid"}
+        expired_headers = {
+            "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDIyfQ.invalid"
+        }
         expired_response = client.get("/api/v1/auth/me", headers=expired_headers)
         assert expired_response.status_code == 401
 
@@ -308,10 +335,9 @@ class TestAuthenticationIntegration:
         """Test logout functionality and token invalidation"""
 
         # Login to get token
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -331,18 +357,21 @@ class TestAuthenticationIntegration:
         """Test password validation requirements"""
 
         # Login as admin
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Test weak password rejection
-        weak_password_response = client.post("/api/v1/auth/change-password", json={
-            "current_password": "admin123",
-            "new_password": "123"  # Too weak
-        }, headers=headers)
+        weak_password_response = client.post(
+            "/api/v1/auth/change-password",
+            json={
+                "current_password": "admin123",
+                "new_password": "123",  # Too weak
+            },
+            headers=headers,
+        )
 
         if weak_password_response.status_code == 422:
             # Password validation is implemented
@@ -356,16 +385,14 @@ class TestAuthenticationIntegration:
         """Test multiple concurrent login sessions"""
 
         # Create multiple login sessions
-        login1_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login1_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token1 = login1_response.json()["access_token"]
 
-        login2_response = client.post("/api/v1/auth/token", json={
-            "username": "admin",
-            "password": "admin123"
-        })
+        login2_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token2 = login2_response.json()["access_token"]
 
         # Test that both tokens work
@@ -382,15 +409,15 @@ class TestAuthenticationIntegration:
         """Test authentication error message handling"""
 
         # Test malformed Authorization header
-        bad_header_response = client.get("/api/v1/auth/me", headers={
-            "Authorization": "InvalidFormat"
-        })
+        bad_header_response = client.get(
+            "/api/v1/auth/me", headers={"Authorization": "InvalidFormat"}
+        )
         assert bad_header_response.status_code == 401
 
         # Test empty Authorization header
-        empty_header_response = client.get("/api/v1/auth/me", headers={
-            "Authorization": ""
-        })
+        empty_header_response = client.get(
+            "/api/v1/auth/me", headers={"Authorization": ""}
+        )
         assert empty_header_response.status_code == 401
 
         # Verify error responses have appropriate structure

@@ -11,12 +11,9 @@ DATABASE_URL = "sqlite:///./data/partshub.db"
 # SQLite specific configuration for concurrent access and foreign keys
 engine = create_engine(
     DATABASE_URL,
-    connect_args={
-        "check_same_thread": False,
-        "timeout": 30
-    },
+    connect_args={"check_same_thread": False, "timeout": 30},
     poolclass=StaticPool,
-    echo=False  # Set to True for SQL debugging
+    echo=False,  # Set to True for SQL debugging
 )
 
 # Enable foreign key constraints in SQLite
@@ -29,6 +26,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA journal_mode=WAL")
     cursor.close()
 
+
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -39,11 +37,12 @@ metadata = MetaData(
         "uq": "uq_%(table_name)s_%(column_0_name)s",
         "ck": "ck_%(table_name)s_%(constraint_name)s",
         "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s"
+        "pk": "pk_%(table_name)s",
     }
 )
 
 Base = declarative_base(metadata=metadata)
+
 
 # Dependency injection for FastAPI
 def get_db():
@@ -53,6 +52,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 def get_session():
     """Get a new database session for direct use in services."""

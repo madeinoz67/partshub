@@ -44,9 +44,7 @@ class ReportService:
         )
 
         out_of_stock_count = (
-            self.db.query(Component)
-            .filter(Component.quantity_on_hand == 0)
-            .count()
+            self.db.query(Component).filter(Component.quantity_on_hand == 0).count()
         )
 
         # Active projects
@@ -79,17 +77,17 @@ class ReportService:
                 "total_components": total_components,
                 "low_stock_components": low_stock_count,
                 "out_of_stock_components": out_of_stock_count,
-                "available_components": total_components - out_of_stock_count
+                "available_components": total_components - out_of_stock_count,
             },
             "project_statistics": {
                 "active_projects": active_projects,
-                "total_projects": self.db.query(Project).count()
+                "total_projects": self.db.query(Project).count(),
             },
             "activity_statistics": {
                 "transactions_last_week": recent_transactions,
-                "total_inventory_value": total_inventory_value
+                "total_inventory_value": total_inventory_value,
             },
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.utcnow().isoformat(),
         }
 
     def get_inventory_breakdown(self) -> dict[str, Any]:
@@ -98,9 +96,11 @@ class ReportService:
         category_breakdown = (
             self.db.query(
                 Category.name,
-                func.count(Component.id).label('component_count'),
-                func.sum(Component.quantity_on_hand).label('total_quantity'),
-                func.sum(Component.quantity_on_hand * Component.average_purchase_price).label('total_value')
+                func.count(Component.id).label("component_count"),
+                func.sum(Component.quantity_on_hand).label("total_quantity"),
+                func.sum(
+                    Component.quantity_on_hand * Component.average_purchase_price
+                ).label("total_value"),
             )
             .outerjoin(Component)
             .group_by(Category.id, Category.name)
@@ -112,11 +112,15 @@ class ReportService:
             self.db.query(
                 StorageLocation.name,
                 StorageLocation.location_hierarchy,
-                func.count(Component.id).label('component_count'),
-                func.sum(Component.quantity_on_hand).label('total_quantity')
+                func.count(Component.id).label("component_count"),
+                func.sum(Component.quantity_on_hand).label("total_quantity"),
             )
             .outerjoin(Component)
-            .group_by(StorageLocation.id, StorageLocation.name, StorageLocation.location_hierarchy)
+            .group_by(
+                StorageLocation.id,
+                StorageLocation.name,
+                StorageLocation.location_hierarchy,
+            )
             .all()
         )
 
@@ -124,8 +128,8 @@ class ReportService:
         type_breakdown = (
             self.db.query(
                 Component.component_type,
-                func.count(Component.id).label('component_count'),
-                func.sum(Component.quantity_on_hand).label('total_quantity')
+                func.count(Component.id).label("component_count"),
+                func.sum(Component.quantity_on_hand).label("total_quantity"),
             )
             .filter(Component.component_type.isnot(None))
             .group_by(Component.component_type)
@@ -139,7 +143,7 @@ class ReportService:
                     "category": name,
                     "component_count": int(count or 0),
                     "total_quantity": int(total_qty or 0),
-                    "total_value": float(total_val or 0)
+                    "total_value": float(total_val or 0),
                 }
                 for name, count, total_qty, total_val in category_breakdown
             ],
@@ -148,7 +152,7 @@ class ReportService:
                     "location": name,
                     "hierarchy": hierarchy,
                     "component_count": int(count or 0),
-                    "total_quantity": int(total_qty or 0)
+                    "total_quantity": int(total_qty or 0),
                 }
                 for name, hierarchy, count, total_qty in location_breakdown
             ],
@@ -156,10 +160,10 @@ class ReportService:
                 {
                     "component_type": comp_type,
                     "component_count": int(count or 0),
-                    "total_quantity": int(total_qty or 0)
+                    "total_quantity": int(total_qty or 0),
                 }
                 for comp_type, count, total_qty in type_breakdown
-            ]
+            ],
         }
 
     def get_usage_analytics(self, days: int = 30) -> dict[str, Any]:
@@ -173,12 +177,16 @@ class ReportService:
                 StockTransaction.component_id,
                 Component.part_number,
                 Component.name,
-                func.count(StockTransaction.id).label('transaction_count'),
-                func.sum(func.abs(StockTransaction.quantity_change)).label('total_quantity_moved')
+                func.count(StockTransaction.id).label("transaction_count"),
+                func.sum(func.abs(StockTransaction.quantity_change)).label(
+                    "total_quantity_moved"
+                ),
             )
             .join(Component)
             .filter(StockTransaction.created_at >= start_date)
-            .group_by(StockTransaction.component_id, Component.part_number, Component.name)
+            .group_by(
+                StockTransaction.component_id, Component.part_number, Component.name
+            )
             .order_by(func.count(StockTransaction.id).desc())
             .limit(10)
             .all()
@@ -188,8 +196,10 @@ class ReportService:
         transaction_types = (
             self.db.query(
                 StockTransaction.transaction_type,
-                func.count(StockTransaction.id).label('count'),
-                func.sum(func.abs(StockTransaction.quantity_change)).label('total_quantity')
+                func.count(StockTransaction.id).label("count"),
+                func.sum(func.abs(StockTransaction.quantity_change)).label(
+                    "total_quantity"
+                ),
             )
             .filter(StockTransaction.created_at >= start_date)
             .group_by(StockTransaction.transaction_type)
@@ -199,8 +209,8 @@ class ReportService:
         # Daily activity trend
         daily_activity = (
             self.db.query(
-                func.date(StockTransaction.created_at).label('date'),
-                func.count(StockTransaction.id).label('transaction_count')
+                func.date(StockTransaction.created_at).label("date"),
+                func.count(StockTransaction.id).label("transaction_count"),
             )
             .filter(StockTransaction.created_at >= start_date)
             .group_by(func.date(StockTransaction.created_at))
@@ -216,35 +226,31 @@ class ReportService:
                     "part_number": part_num,
                     "name": name,
                     "transaction_count": int(count),
-                    "total_quantity_moved": int(total_qty or 0)
+                    "total_quantity_moved": int(total_qty or 0),
                 }
                 for comp_id, part_num, name, count, total_qty in most_used
             ],
             "transaction_distribution": [
                 {
-                    "transaction_type": trans_type.value if hasattr(trans_type, 'value') else str(trans_type),
+                    "transaction_type": trans_type.value
+                    if hasattr(trans_type, "value")
+                    else str(trans_type),
                     "count": int(count),
-                    "total_quantity": int(total_qty or 0)
+                    "total_quantity": int(total_qty or 0),
                 }
                 for trans_type, count, total_qty in transaction_types
             ],
             "daily_activity": [
-                {
-                    "date": str(date) if date else None,
-                    "transaction_count": int(count)
-                }
+                {"date": str(date) if date else None, "transaction_count": int(count)}
                 for date, count in daily_activity
-            ]
+            ],
         }
 
     def get_project_analytics(self) -> dict[str, Any]:
         """Get project-related analytics and statistics."""
         # Project status distribution
         project_status = (
-            self.db.query(
-                Project.status,
-                func.count(Project.id).label('count')
-            )
+            self.db.query(Project.status, func.count(Project.id).label("count"))
             .group_by(Project.status)
             .all()
         )
@@ -255,12 +261,14 @@ class ReportService:
                 ProjectComponent.component_id,
                 Component.part_number,
                 Component.name,
-                func.sum(ProjectComponent.quantity_allocated).label('total_allocated'),
-                func.count(ProjectComponent.project_id).label('project_count')
+                func.sum(ProjectComponent.quantity_allocated).label("total_allocated"),
+                func.count(ProjectComponent.project_id).label("project_count"),
             )
             .join(Component)
             .filter(ProjectComponent.quantity_allocated > 0)
-            .group_by(ProjectComponent.component_id, Component.part_number, Component.name)
+            .group_by(
+                ProjectComponent.component_id, Component.part_number, Component.name
+            )
             .order_by(func.sum(ProjectComponent.quantity_allocated).desc())
             .limit(10)
             .all()
@@ -272,26 +280,27 @@ class ReportService:
                 Project.id,
                 Project.name,
                 func.sum(
-                    ProjectComponent.quantity_allocated * Component.average_purchase_price
-                ).label('estimated_value')
+                    ProjectComponent.quantity_allocated
+                    * Component.average_purchase_price
+                ).label("estimated_value"),
             )
             .join(ProjectComponent)
             .join(Component)
             .filter(Component.average_purchase_price.isnot(None))
             .group_by(Project.id, Project.name)
-            .order_by(func.sum(
-                ProjectComponent.quantity_allocated * Component.average_purchase_price
-            ).desc())
+            .order_by(
+                func.sum(
+                    ProjectComponent.quantity_allocated
+                    * Component.average_purchase_price
+                ).desc()
+            )
             .limit(10)
             .all()
         )
 
         return {
             "project_status_distribution": [
-                {
-                    "status": status,
-                    "count": int(count)
-                }
+                {"status": status, "count": int(count)}
                 for status, count in project_status
             ],
             "most_allocated_components": [
@@ -300,7 +309,7 @@ class ReportService:
                     "part_number": part_num,
                     "name": name,
                     "total_allocated": int(total_alloc),
-                    "project_count": int(proj_count)
+                    "project_count": int(proj_count),
                 }
                 for comp_id, part_num, name, total_alloc, proj_count in allocated_components
             ],
@@ -308,10 +317,10 @@ class ReportService:
                 {
                     "project_id": proj_id,
                     "project_name": proj_name,
-                    "estimated_value": float(value or 0)
+                    "estimated_value": float(value or 0),
                 }
                 for proj_id, proj_name, value in project_values
-            ]
+            ],
         }
 
     def get_financial_summary(self, months: int = 12) -> dict[str, Any]:
@@ -333,13 +342,13 @@ class ReportService:
         try:
             purchase_trends = (
                 self.db.query(
-                    func.date_trunc('month', Purchase.purchase_date).label('month'),
-                    func.sum(Purchase.total_amount).label('total_spent'),
-                    func.count(Purchase.id).label('purchase_count')
+                    func.date_trunc("month", Purchase.purchase_date).label("month"),
+                    func.sum(Purchase.total_amount).label("total_spent"),
+                    func.count(Purchase.id).label("purchase_count"),
                 )
                 .filter(Purchase.purchase_date >= start_date)
-                .group_by(func.date_trunc('month', Purchase.purchase_date))
-                .order_by(func.date_trunc('month', Purchase.purchase_date))
+                .group_by(func.date_trunc("month", Purchase.purchase_date))
+                .order_by(func.date_trunc("month", Purchase.purchase_date))
                 .all()
             )
 
@@ -347,7 +356,7 @@ class ReportService:
                 {
                     "month": month.isoformat() if month else None,
                     "total_spent": float(total or 0),
-                    "purchase_count": int(count)
+                    "purchase_count": int(count),
                 }
                 for month, total, count in purchase_trends
             ]
@@ -361,11 +370,15 @@ class ReportService:
                 Component.id,
                 Component.part_number,
                 Component.name,
-                (Component.quantity_on_hand * Component.average_purchase_price).label('total_value')
+                (Component.quantity_on_hand * Component.average_purchase_price).label(
+                    "total_value"
+                ),
             )
             .filter(Component.average_purchase_price.isnot(None))
             .filter(Component.quantity_on_hand > 0)
-            .order_by((Component.quantity_on_hand * Component.average_purchase_price).desc())
+            .order_by(
+                (Component.quantity_on_hand * Component.average_purchase_price).desc()
+            )
             .limit(10)
             .all()
         )
@@ -378,21 +391,18 @@ class ReportService:
                     "component_id": comp_id,
                     "part_number": part_num,
                     "name": name,
-                    "inventory_value": float(value or 0)
+                    "inventory_value": float(value or 0),
                 }
                 for comp_id, part_num, name, value in top_value_components
             ],
-            "analysis_period_months": months
+            "analysis_period_months": months,
         }
 
     def get_search_analytics(self) -> dict[str, Any]:
         """Get analytics about search patterns and popular components."""
         # Most popular tags (by component count)
         popular_tags = (
-            self.db.query(
-                Tag.name,
-                func.count(Component.id).label('component_count')
-            )
+            self.db.query(Tag.name, func.count(Component.id).label("component_count"))
             .join(Tag.components)
             .group_by(Tag.id, Tag.name)
             .order_by(func.count(Component.id).desc())
@@ -406,7 +416,7 @@ class ReportService:
                 Component.id,
                 Component.part_number,
                 Component.name,
-                func.count(Tag.id).label('tag_count')
+                func.count(Tag.id).label("tag_count"),
             )
             .join(Component.tags)
             .group_by(Component.id, Component.part_number, Component.name)
@@ -426,10 +436,7 @@ class ReportService:
 
         return {
             "popular_tags": [
-                {
-                    "tag_name": name,
-                    "component_count": int(count)
-                }
+                {"tag_name": name, "component_count": int(count)}
                 for name, count in popular_tags
             ],
             "well_tagged_components": [
@@ -437,7 +444,7 @@ class ReportService:
                     "component_id": comp_id,
                     "part_number": part_num,
                     "name": name,
-                    "tag_count": int(count)
+                    "tag_count": int(count),
                 }
                 for comp_id, part_num, name, count in well_tagged_components
             ],
@@ -445,10 +452,11 @@ class ReportService:
                 "untagged_components": untagged_count,
                 "total_components": self.db.query(Component).count(),
                 "tagging_percentage": (
-                    (self.db.query(Component).count() - untagged_count) /
-                    max(1, self.db.query(Component).count()) * 100
-                )
-            }
+                    (self.db.query(Component).count() - untagged_count)
+                    / max(1, self.db.query(Component).count())
+                    * 100
+                ),
+            },
         }
 
     def generate_comprehensive_report(self) -> dict[str, Any]:
@@ -457,21 +465,21 @@ class ReportService:
             return {
                 "report_metadata": {
                     "generated_at": datetime.utcnow().isoformat(),
-                    "report_type": "comprehensive_analytics"
+                    "report_type": "comprehensive_analytics",
                 },
                 "dashboard_summary": self.get_dashboard_summary(),
                 "inventory_breakdown": self.get_inventory_breakdown(),
                 "usage_analytics": self.get_usage_analytics(days=30),
                 "project_analytics": self.get_project_analytics(),
                 "financial_summary": self.get_financial_summary(months=6),
-                "search_analytics": self.get_search_analytics()
+                "search_analytics": self.get_search_analytics(),
             }
         except Exception as e:
             logger.error(f"Error generating comprehensive report: {e}")
             return {
                 "error": "Failed to generate comprehensive report",
                 "message": str(e),
-                "generated_at": datetime.utcnow().isoformat()
+                "generated_at": datetime.utcnow().isoformat(),
             }
 
     def get_system_health_metrics(self) -> dict[str, Any]:
@@ -484,9 +492,7 @@ class ReportService:
 
             # Data quality checks
             components_without_category = (
-                self.db.query(Component)
-                .filter(Component.category_id.is_(None))
-                .count()
+                self.db.query(Component).filter(Component.category_id.is_(None)).count()
             )
 
             components_without_location = (
@@ -497,22 +503,23 @@ class ReportService:
 
             components_without_specs = (
                 self.db.query(Component)
-                .filter(or_(
-                    Component.specifications.is_(None),
-                    Component.specifications == '{}'
-                ))
+                .filter(
+                    or_(
+                        Component.specifications.is_(None),
+                        Component.specifications == "{}",
+                    )
+                )
                 .count()
             )
 
             # Performance indicators
-            avg_components_per_location = (
-                self.db.query(func.avg(
+            avg_components_per_location = self.db.query(
+                func.avg(
                     self.db.query(func.count(Component.id))
                     .filter(Component.storage_location_id == StorageLocation.id)
                     .scalar_subquery()
-                ))
-                .scalar()
-            )
+                )
+            ).scalar()
 
             return {
                 "database_statistics": {
@@ -520,35 +527,44 @@ class ReportService:
                     "total_transactions": total_transactions,
                     "total_projects": total_projects,
                     "total_storage_locations": self.db.query(StorageLocation).count(),
-                    "total_categories": self.db.query(Category).count()
+                    "total_categories": self.db.query(Category).count(),
                 },
                 "data_quality": {
                     "components_without_category": components_without_category,
                     "components_without_location": components_without_location,
                     "components_without_specifications": components_without_specs,
                     "category_coverage": (
-                        (total_components - components_without_category) / max(1, total_components) * 100
+                        (total_components - components_without_category)
+                        / max(1, total_components)
+                        * 100
                     ),
                     "location_coverage": (
-                        (total_components - components_without_location) / max(1, total_components) * 100
+                        (total_components - components_without_location)
+                        / max(1, total_components)
+                        * 100
                     ),
                     "specification_coverage": (
-                        (total_components - components_without_specs) / max(1, total_components) * 100
-                    )
+                        (total_components - components_without_specs)
+                        / max(1, total_components)
+                        * 100
+                    ),
                 },
                 "system_metrics": {
-                    "avg_components_per_location": float(avg_components_per_location or 0),
-                    "database_health": "good" if all([
-                        total_components > 0,
-                        components_without_category < total_components * 0.1,
-                        components_without_location < total_components * 0.1
-                    ]) else "needs_attention"
-                }
+                    "avg_components_per_location": float(
+                        avg_components_per_location or 0
+                    ),
+                    "database_health": "good"
+                    if all(
+                        [
+                            total_components > 0,
+                            components_without_category < total_components * 0.1,
+                            components_without_location < total_components * 0.1,
+                        ]
+                    )
+                    else "needs_attention",
+                },
             }
 
         except Exception as e:
             logger.error(f"Error getting system health metrics: {e}")
-            return {
-                "error": "Failed to get system health metrics",
-                "message": str(e)
-            }
+            return {"error": "Failed to get system health metrics", "message": str(e)}

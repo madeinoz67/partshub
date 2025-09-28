@@ -14,9 +14,10 @@ from ..database import Base
 
 class KiCadDataSource(enum.Enum):
     """Source of KiCad data with priority order."""
-    CUSTOM = "custom"           # User uploaded files (highest priority)
-    PROVIDER = "provider"       # Downloaded from component provider
-    AUTO_GENERATED = "auto"     # System generated (lowest priority)
+
+    CUSTOM = "custom"  # User uploaded files (highest priority)
+    PROVIDER = "provider"  # Downloaded from component provider
+    AUTO_GENERATED = "auto"  # System generated (lowest priority)
 
 
 class KiCadLibraryData(Base):
@@ -27,34 +28,49 @@ class KiCadLibraryData(Base):
     enabling seamless integration with KiCad EDA software. Supports component
     library synchronization and automated schematic/PCB design workflows.
     """
+
     __tablename__ = "kicad_library_data"
 
     # Primary identifier
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
 
     # Foreign key relationships
-    component_id = Column(String, ForeignKey('components.id'), nullable=False, unique=True)
+    component_id = Column(
+        String, ForeignKey("components.id"), nullable=False, unique=True
+    )
 
     # KiCad symbol information
     symbol_library = Column(String(255), nullable=True)  # KiCad symbol library name
-    symbol_name = Column(String(255), nullable=True)     # Symbol identifier
+    symbol_name = Column(String(255), nullable=True)  # Symbol identifier
 
     # KiCad footprint information
     footprint_library = Column(String(255), nullable=True)  # Footprint library name
-    footprint_name = Column(String(255), nullable=True)     # Footprint identifier
+    footprint_name = Column(String(255), nullable=True)  # Footprint identifier
 
     # 3D model information
     model_3d_path = Column(Text, nullable=True)  # 3D model file path
 
     # Custom file storage for symbols and footprints
-    custom_symbol_file_path = Column(Text, nullable=True)      # Path to custom .kicad_sym file
-    custom_footprint_file_path = Column(Text, nullable=True)   # Path to custom .kicad_mod file
-    custom_3d_model_file_path = Column(Text, nullable=True)    # Path to custom 3D model file
+    custom_symbol_file_path = Column(
+        Text, nullable=True
+    )  # Path to custom .kicad_sym file
+    custom_footprint_file_path = Column(
+        Text, nullable=True
+    )  # Path to custom .kicad_mod file
+    custom_3d_model_file_path = Column(
+        Text, nullable=True
+    )  # Path to custom 3D model file
 
     # Source tracking with priority order
-    symbol_source = Column(Enum(KiCadDataSource), default=KiCadDataSource.AUTO_GENERATED, nullable=False)
-    footprint_source = Column(Enum(KiCadDataSource), default=KiCadDataSource.AUTO_GENERATED, nullable=False)
-    model_3d_source = Column(Enum(KiCadDataSource), default=KiCadDataSource.AUTO_GENERATED, nullable=False)
+    symbol_source = Column(
+        Enum(KiCadDataSource), default=KiCadDataSource.AUTO_GENERATED, nullable=False
+    )
+    footprint_source = Column(
+        Enum(KiCadDataSource), default=KiCadDataSource.AUTO_GENERATED, nullable=False
+    )
+    model_3d_source = Column(
+        Enum(KiCadDataSource), default=KiCadDataSource.AUTO_GENERATED, nullable=False
+    )
 
     # Timestamps for tracking changes
     symbol_updated_at = Column(DateTime, default=datetime.utcnow, nullable=True)
@@ -99,7 +115,10 @@ class KiCadLibraryData(Base):
 
     def get_effective_symbol_path(self) -> str:
         """Get the effective symbol path based on source priority."""
-        if self.symbol_source == KiCadDataSource.CUSTOM and self.custom_symbol_file_path:
+        if (
+            self.symbol_source == KiCadDataSource.CUSTOM
+            and self.custom_symbol_file_path
+        ):
             return self.custom_symbol_file_path
         elif self.symbol_source == KiCadDataSource.PROVIDER and self.has_symbol:
             return self.get_symbol_reference()
@@ -109,7 +128,10 @@ class KiCadLibraryData(Base):
 
     def get_effective_footprint_path(self) -> str:
         """Get the effective footprint path based on source priority."""
-        if self.footprint_source == KiCadDataSource.CUSTOM and self.custom_footprint_file_path:
+        if (
+            self.footprint_source == KiCadDataSource.CUSTOM
+            and self.custom_footprint_file_path
+        ):
             return self.custom_footprint_file_path
         elif self.footprint_source == KiCadDataSource.PROVIDER and self.has_footprint:
             return self.get_footprint_reference()
@@ -119,7 +141,10 @@ class KiCadLibraryData(Base):
 
     def get_effective_3d_model_path(self) -> str:
         """Get the effective 3D model path based on source priority."""
-        if self.model_3d_source == KiCadDataSource.CUSTOM and self.custom_3d_model_file_path:
+        if (
+            self.model_3d_source == KiCadDataSource.CUSTOM
+            and self.custom_3d_model_file_path
+        ):
             return self.custom_3d_model_file_path
         elif self.model_3d_source == KiCadDataSource.PROVIDER and self.model_3d_path:
             return self.model_3d_path
@@ -163,9 +188,14 @@ class KiCadLibraryData(Base):
         self.model_3d_source = KiCadDataSource.AUTO_GENERATED
         self.model_3d_updated_at = datetime.utcnow()
 
-    def set_provider_data(self, symbol_lib: str = None, symbol_name: str = None,
-                         footprint_lib: str = None, footprint_name: str = None,
-                         model_3d_path: str = None) -> None:
+    def set_provider_data(
+        self,
+        symbol_lib: str = None,
+        symbol_name: str = None,
+        footprint_lib: str = None,
+        footprint_name: str = None,
+        model_3d_path: str = None,
+    ) -> None:
         """Set provider data and update source tracking (only if not custom)."""
         if self.symbol_source != KiCadDataSource.CUSTOM and symbol_lib and symbol_name:
             self.symbol_library = symbol_lib
@@ -173,7 +203,11 @@ class KiCadLibraryData(Base):
             self.symbol_source = KiCadDataSource.PROVIDER
             self.symbol_updated_at = datetime.utcnow()
 
-        if self.footprint_source != KiCadDataSource.CUSTOM and footprint_lib and footprint_name:
+        if (
+            self.footprint_source != KiCadDataSource.CUSTOM
+            and footprint_lib
+            and footprint_name
+        ):
             self.footprint_library = footprint_lib
             self.footprint_name = footprint_name
             self.footprint_source = KiCadDataSource.PROVIDER
@@ -187,23 +221,29 @@ class KiCadLibraryData(Base):
     @property
     def has_custom_symbol(self) -> bool:
         """Check if component has custom symbol file."""
-        return self.symbol_source == KiCadDataSource.CUSTOM and bool(self.custom_symbol_file_path)
+        return self.symbol_source == KiCadDataSource.CUSTOM and bool(
+            self.custom_symbol_file_path
+        )
 
     @property
     def has_custom_footprint(self) -> bool:
         """Check if component has custom footprint file."""
-        return self.footprint_source == KiCadDataSource.CUSTOM and bool(self.custom_footprint_file_path)
+        return self.footprint_source == KiCadDataSource.CUSTOM and bool(
+            self.custom_footprint_file_path
+        )
 
     @property
     def has_custom_3d_model(self) -> bool:
         """Check if component has custom 3D model file."""
-        return self.model_3d_source == KiCadDataSource.CUSTOM and bool(self.custom_3d_model_file_path)
+        return self.model_3d_source == KiCadDataSource.CUSTOM and bool(
+            self.custom_3d_model_file_path
+        )
 
     def to_kicad_fields(self) -> dict:
         """Convert to KiCad-compatible field format."""
         fields = {
             "Reference": "",  # Will be assigned by KiCad
-            "Value": "",      # Will be filled from component
+            "Value": "",  # Will be filled from component
             "Footprint": self.get_effective_footprint_path(),
         }
 
@@ -221,20 +261,26 @@ class KiCadLibraryData(Base):
                 "has_custom": self.has_custom_symbol,
                 "has_library": self.has_symbol,
                 "effective_path": self.get_effective_symbol_path(),
-                "updated_at": self.symbol_updated_at.isoformat() if self.symbol_updated_at else None
+                "updated_at": self.symbol_updated_at.isoformat()
+                if self.symbol_updated_at
+                else None,
             },
             "footprint": {
                 "source": self.footprint_source.value,
                 "has_custom": self.has_custom_footprint,
                 "has_library": self.has_footprint,
                 "effective_path": self.get_effective_footprint_path(),
-                "updated_at": self.footprint_updated_at.isoformat() if self.footprint_updated_at else None
+                "updated_at": self.footprint_updated_at.isoformat()
+                if self.footprint_updated_at
+                else None,
             },
             "model_3d": {
                 "source": self.model_3d_source.value,
                 "has_custom": self.has_custom_3d_model,
                 "has_library": self.has_3d_model,
                 "effective_path": self.get_effective_3d_model_path(),
-                "updated_at": self.model_3d_updated_at.isoformat() if self.model_3d_updated_at else None
-            }
+                "updated_at": self.model_3d_updated_at.isoformat()
+                if self.model_3d_updated_at
+                else None,
+            },
         }

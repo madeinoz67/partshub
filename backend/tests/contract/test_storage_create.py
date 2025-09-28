@@ -16,7 +16,7 @@ class TestStorageCreateContract:
         location_data = {
             "name": "Test Drawer",
             "description": "Test drawer for components",
-            "type": "drawer"
+            "type": "drawer",
         }
 
         response = client.post("/api/v1/storage-locations", json=location_data)
@@ -31,10 +31,12 @@ class TestStorageCreateContract:
             "name": "Electronics Cabinet A",
             "description": "Main electronics components cabinet",
             "type": "cabinet",
-            "parent_id": None
+            "parent_id": None,
         }
 
-        response = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 201
@@ -44,8 +46,15 @@ class TestStorageCreateContract:
 
             # Response should match StorageLocation schema
             required_fields = [
-                "id", "name", "description", "type", "location_hierarchy",
-                "parent_id", "qr_code_id", "created_at", "updated_at"
+                "id",
+                "name",
+                "description",
+                "type",
+                "location_hierarchy",
+                "parent_id",
+                "qr_code_id",
+                "created_at",
+                "updated_at",
             ]
 
             for field in required_fields:
@@ -64,13 +73,19 @@ class TestStorageCreateContract:
             "name": "Drawer 1",
             "description": "First drawer in cabinet A",
             "type": "drawer",
-            "parent_id": parent_id
+            "parent_id": parent_id,
         }
 
-        response = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
-        assert response.status_code in [201, 400, 404]  # Could fail if parent doesn't exist
+        assert response.status_code in [
+            201,
+            400,
+            404,
+        ]  # Could fail if parent doesn't exist
 
         if response.status_code == 201:
             data = response.json()
@@ -84,10 +99,12 @@ class TestStorageCreateContract:
         location_data = {
             "name": "Resistor Bin",
             "description": "Bin for resistor components",
-            "type": "bin"
+            "type": "bin",
         }
 
-        response = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 201
@@ -101,24 +118,27 @@ class TestStorageCreateContract:
             "name": "Test Location"
             # Missing type
         }
-        response = client.post("/api/v1/storage-locations", json=incomplete_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=incomplete_data, headers=headers
+        )
         assert response.status_code == 422
 
         # Invalid type
-        invalid_type_data = {
-            "name": "Test Location",
-            "type": "invalid_type"
-        }
-        response = client.post("/api/v1/storage-locations", json=invalid_type_data, headers=headers)
+        invalid_type_data = {"name": "Test Location", "type": "invalid_type"}
+        response = client.post(
+            "/api/v1/storage-locations", json=invalid_type_data, headers=headers
+        )
         assert response.status_code == 422
 
         # Invalid parent_id (not a UUID)
         invalid_parent_data = {
             "name": "Test Location",
             "type": "drawer",
-            "parent_id": "not-a-uuid"
+            "parent_id": "not-a-uuid",
         }
-        response = client.post("/api/v1/storage-locations", json=invalid_parent_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=invalid_parent_data, headers=headers
+        )
         assert response.status_code == 422
 
     def test_create_storage_location_with_qr_code(self, client: TestClient):
@@ -128,30 +148,38 @@ class TestStorageCreateContract:
             "name": "IC Storage Box",
             "description": "Box for integrated circuits",
             "type": "container",
-            "qr_code_id": "QR-IC-BOX-001"
+            "qr_code_id": "QR-IC-BOX-001",
         }
 
-        response = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 201:
             data = response.json()
             assert data["qr_code_id"] == location_data["qr_code_id"]
 
-    def test_create_storage_location_duplicate_name_validation(self, client: TestClient):
+    def test_create_storage_location_duplicate_name_validation(
+        self, client: TestClient
+    ):
         """Test duplicate name validation within same parent"""
         headers = {"Authorization": "Bearer mock_jwt_token"}
         location_data = {
             "name": "Duplicate Test Drawer",
             "description": "First instance",
-            "type": "drawer"
+            "type": "drawer",
         }
 
         # First creation should succeed
-        response1 = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response1 = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # Second creation with same name should fail
-        response2 = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response2 = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented with proper validation
         if response1.status_code == 201:
@@ -165,10 +193,12 @@ class TestStorageCreateContract:
             "name": "Orphaned Drawer",
             "description": "Drawer with nonexistent parent",
             "type": "drawer",
-            "parent_id": nonexistent_parent
+            "parent_id": nonexistent_parent,
         }
 
-        response = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [400, 404]  # Should reject nonexistent parent
@@ -184,10 +214,12 @@ class TestStorageCreateContract:
             "name": "Self Reference Test",
             "description": "Should not allow self as parent",
             "type": "drawer",
-            "parent_id": self_id  # This should be rejected
+            "parent_id": self_id,  # This should be rejected
         }
 
-        response = client.post("/api/v1/storage-locations", json=location_data, headers=headers)
+        response = client.post(
+            "/api/v1/storage-locations", json=location_data, headers=headers
+        )
 
         # This will fail until validation is implemented
         assert response.status_code in [400, 422]

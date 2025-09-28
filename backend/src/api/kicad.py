@@ -30,6 +30,7 @@ from ..services.kicad_service import KiCadExportService
 try:
     from ..providers.lcsc_provider import LCSCProvider
     from ..services.easyeda_service import EasyEDAService
+
     EASYEDA_API_AVAILABLE = True
 except ImportError:
     EASYEDA_API_AVAILABLE = False
@@ -50,8 +51,7 @@ def validate_uuid(component_id: str) -> None:
 
 
 def kicad_sync_auth(
-    authorization: str | None = Header(None),
-    x_api_key: str | None = Header(None)
+    authorization: str | None = Header(None), x_api_key: str | None = Header(None)
 ) -> dict:
     """
     Custom authentication for KiCad sync endpoint.
@@ -69,6 +69,7 @@ def kicad_sync_auth(
 # Request/Response models
 class KiCadComponentResponse(BaseModel):
     """KiCad-formatted component data."""
+
     model_config = {"protected_namespaces": ()}
 
     # Contract test expected fields
@@ -102,6 +103,7 @@ class KiCadComponentResponse(BaseModel):
 
 class KiCadSymbolResponse(BaseModel):
     """KiCad symbol data."""
+
     symbol_library: str
     symbol_name: str
     symbol_reference: str
@@ -111,6 +113,7 @@ class KiCadSymbolResponse(BaseModel):
 
 class KiCadFootprintResponse(BaseModel):
     """KiCad footprint data."""
+
     footprint_library: str
     footprint_name: str
     footprint_reference: str
@@ -120,6 +123,7 @@ class KiCadFootprintResponse(BaseModel):
 
 class LibrarySyncRequest(BaseModel):
     """Library synchronization request."""
+
     libraries: list[str]
     sync_mode: str  # "incremental" or "full" - REQUIRED field
     force_update: bool = False
@@ -140,6 +144,7 @@ class LibrarySyncRequest(BaseModel):
 
 class LibrarySyncResponse(BaseModel):
     """Library synchronization response."""
+
     # Contract test expected fields
     job_id: str
     status: str  # "completed", "in_progress", "failed"
@@ -165,18 +170,25 @@ class LibrarySyncResponse(BaseModel):
 # T064: GET /api/v1/kicad/components - Search components for KiCad
 @router.get("/components", response_model=list[KiCadComponentResponse])
 def search_kicad_components(
-    search: str | None = Query(None, description="Search query for component name, part number, or value"),
-    package: str | None = Query(None, description="Filter by package type (0805, DIP8, etc.)"),
+    search: str | None = Query(
+        None, description="Search query for component name, part number, or value"
+    ),
+    package: str | None = Query(
+        None, description="Filter by package type (0805, DIP8, etc.)"
+    ),
     category_id: str | None = Query(None, description="Filter by category ID"),
     manufacturer: str | None = Query(None, description="Filter by manufacturer"),
     library: str | None = Query(None, description="Filter by KiCad library name"),
     symbol: str | None = Query(None, description="Filter by symbol name"),
     footprint: str | None = Query(None, description="Filter by footprint name"),
     keywords: str | None = Query(None, description="Filter by keywords"),
-    sort: str | None = Query("name", description="Sort by field (name, part_number, manufacturer_part_number, local_part_id, created_at)"),
+    sort: str | None = Query(
+        "name",
+        description="Sort by field (name, part_number, manufacturer_part_number, local_part_id, created_at)",
+    ),
     limit: int = Query(50, le=200, description="Maximum number of results"),
     offset: int = Query(0, ge=0, description="Result offset for pagination"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Search components formatted for KiCad integration.
@@ -189,21 +201,18 @@ def search_kicad_components(
     # Build search filters for ComponentService
     filters = {}
     if package:
-        filters['package'] = package
+        filters["package"] = package
     if category_id:
-        filters['category_id'] = category_id
+        filters["category_id"] = category_id
     if manufacturer:
-        filters['manufacturer'] = manufacturer
+        filters["manufacturer"] = manufacturer
 
     # Get more components initially to allow for KiCad-specific filtering
     initial_limit = limit * 3 if any([library, symbol, footprint, keywords]) else limit
 
     # Search components
     components = component_service.search_components(
-        query=search,
-        filters=filters,
-        limit=initial_limit,
-        offset=offset
+        query=search, filters=filters, limit=initial_limit, offset=offset
     )
 
     # Format for KiCad
@@ -218,11 +227,16 @@ def search_kicad_components(
     if symbol:
         kicad_components = [c for c in kicad_components if c.symbol_name == symbol]
     if footprint:
-        kicad_components = [c for c in kicad_components if c.footprint_name and footprint in c.footprint_name]
-    if keywords:
-        keyword_list = [kw.strip().lower() for kw in keywords.split(',')]
         kicad_components = [
-            c for c in kicad_components
+            c
+            for c in kicad_components
+            if c.footprint_name and footprint in c.footprint_name
+        ]
+    if keywords:
+        keyword_list = [kw.strip().lower() for kw in keywords.split(",")]
+        kicad_components = [
+            c
+            for c in kicad_components
             if any(kw in [tag.lower() for tag in c.keywords] for kw in keyword_list)
         ]
 
@@ -246,10 +260,7 @@ def search_kicad_components(
 
 # T065: GET /api/v1/kicad/components/{id} - Get component details for KiCad
 @router.get("/components/{component_id}", response_model=KiCadComponentResponse)
-def get_kicad_component(
-    component_id: str,
-    db: Session = Depends(get_db)
-):
+def get_kicad_component(component_id: str, db: Session = Depends(get_db)):
     """
     Get detailed component information formatted for KiCad.
 
@@ -266,7 +277,9 @@ def get_kicad_component(
         raise HTTPException(status_code=404, detail="Component not found")
 
     # Format for KiCad with full details
-    kicad_data = kicad_service.format_component_for_kicad(component, include_full_specs=True)
+    kicad_data = kicad_service.format_component_for_kicad(
+        component, include_full_specs=True
+    )
     return KiCadComponentResponse(**kicad_data)
 
 
@@ -275,7 +288,7 @@ def get_kicad_component(
 def get_kicad_symbol(
     component_id: str,
     format: str | None = Query("json", description="Response format (json, kicad)"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get KiCad symbol data for a component.
@@ -288,7 +301,10 @@ def get_kicad_symbol(
     # Validate format parameter
     valid_formats = ["json", "kicad"]
     if format not in valid_formats:
-        raise HTTPException(status_code=422, detail=f"Invalid format. Supported formats: {', '.join(valid_formats)}")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid format. Supported formats: {', '.join(valid_formats)}",
+        )
 
     component_service = ComponentService(db)
     component = component_service.get_component(component_id)
@@ -297,18 +313,19 @@ def get_kicad_symbol(
         raise HTTPException(status_code=404, detail="Component not found")
 
     if not component.kicad_data or not component.kicad_data.has_symbol:
-        raise HTTPException(status_code=404, detail="No KiCad symbol data available for this component")
+        raise HTTPException(
+            status_code=404, detail="No KiCad symbol data available for this component"
+        )
 
     symbol_data = kicad_service.get_symbol_data(component)
     return KiCadSymbolResponse(**symbol_data)
 
 
 # T067: GET /api/v1/kicad/components/{id}/footprint - Get footprint data
-@router.get("/components/{component_id}/footprint", response_model=KiCadFootprintResponse)
-def get_kicad_footprint(
-    component_id: str,
-    db: Session = Depends(get_db)
-):
+@router.get(
+    "/components/{component_id}/footprint", response_model=KiCadFootprintResponse
+)
+def get_kicad_footprint(component_id: str, db: Session = Depends(get_db)):
     """
     Get KiCad footprint data for a component.
 
@@ -324,7 +341,10 @@ def get_kicad_footprint(
         raise HTTPException(status_code=404, detail="Component not found")
 
     if not component.kicad_data or not component.kicad_data.has_footprint:
-        raise HTTPException(status_code=404, detail="No KiCad footprint data available for this component")
+        raise HTTPException(
+            status_code=404,
+            detail="No KiCad footprint data available for this component",
+        )
 
     footprint_data = kicad_service.get_footprint_data(component)
     return KiCadFootprintResponse(**footprint_data)
@@ -335,7 +355,7 @@ def get_kicad_footprint(
 def sync_kicad_libraries(
     request: LibrarySyncRequest,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(kicad_sync_auth)
+    current_user: dict = Depends(kicad_sync_auth),
 ):
     """
     Synchronize PartsHub components to KiCad libraries.
@@ -345,7 +365,9 @@ def sync_kicad_libraries(
     """
     # Validate sync mode (before try block so HTTPException propagates properly)
     if request.sync_mode not in ["incremental", "full"]:
-        raise HTTPException(status_code=422, detail="sync_mode must be 'incremental' or 'full'")
+        raise HTTPException(
+            status_code=422, detail="sync_mode must be 'incremental' or 'full'"
+        )
 
     # Validate libraries
     # Check for empty library names
@@ -353,15 +375,26 @@ def sync_kicad_libraries(
     if empty_libraries:
         raise HTTPException(status_code=422, detail="Library names cannot be empty")
 
-    valid_libraries = ["Device", "Connector", "Logic_74xx", "Memory", "Sensor", "RF", "MCU"]
+    valid_libraries = [
+        "Device",
+        "Connector",
+        "Logic_74xx",
+        "Memory",
+        "Sensor",
+        "RF",
+        "MCU",
+    ]
     invalid_libraries = [lib for lib in request.libraries if lib not in valid_libraries]
     if invalid_libraries:
-        raise HTTPException(status_code=400, detail=f"Unknown libraries: {', '.join(invalid_libraries)}")
+        raise HTTPException(
+            status_code=400, detail=f"Unknown libraries: {', '.join(invalid_libraries)}"
+        )
 
     try:
-
         # Determine output path
-        library_path = request.kicad_path or request.library_path or "/tmp/kicad_libraries"
+        library_path = (
+            request.kicad_path or request.library_path or "/tmp/kicad_libraries"
+        )
 
         # Perform synchronization
         sync_result = kicad_library.sync_libraries(
@@ -369,7 +402,7 @@ def sync_kicad_libraries(
             category_filters=request.libraries,  # Use libraries as categories
             include_symbols=request.include_symbols,
             include_footprints=request.include_footprints,
-            include_3d_models=request.include_3d_models
+            include_3d_models=request.include_3d_models,
         )
 
         import uuid
@@ -394,27 +427,28 @@ def sync_kicad_libraries(
             libraries_requested=request.libraries,
             sync_mode=request.sync_mode,
             started_at=datetime.now().isoformat(),
-
             # Additional fields
             success=True,
-            components_exported=sync_result.get('components_exported', 0),
-            symbols_created=sync_result.get('symbols_created', 0),
-            footprints_created=sync_result.get('footprints_created', 0),
-            models_created=sync_result.get('models_created', 0),
+            components_exported=sync_result.get("components_exported", 0),
+            symbols_created=sync_result.get("symbols_created", 0),
+            footprints_created=sync_result.get("footprints_created", 0),
+            models_created=sync_result.get("models_created", 0),
             library_path=library_path,
             message=f"Successfully synchronized {sync_result.get('components_exported', 0)} components to KiCad libraries",
-
             # Optional fields for advanced sync features
             filters=request.filters,
             configuration=configuration if configuration else None,
-            paths_used=paths_used
+            paths_used=paths_used,
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Library synchronization failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Library synchronization failed: {str(e)}"
+        )
 
 
 # Additional utility endpoints
+
 
 @router.get("/libraries/status")
 def get_library_status(db: Session = Depends(get_db)):
@@ -427,8 +461,10 @@ def get_library_status(db: Session = Depends(get_db)):
     return {
         "total_components": total_components,
         "components_with_kicad_data": components_with_kicad,
-        "coverage_percentage": (components_with_kicad / total_components * 100) if total_components > 0 else 0,
-        "library_manager_available": True
+        "coverage_percentage": (components_with_kicad / total_components * 100)
+        if total_components > 0
+        else 0,
+        "library_manager_available": True,
     }
 
 
@@ -452,14 +488,14 @@ def validate_kicad_file(file: UploadFile, expected_extension: str) -> bool:
 
     # Basic content validation - check for KiCad file signatures
     try:
-        content = file.file.read(1024).decode('utf-8')
+        content = file.file.read(1024).decode("utf-8")
         file.file.seek(0)  # Reset file pointer
 
-        if expected_extension == '.kicad_sym':
-            return '(kicad_symbol_lib' in content or '(symbol' in content
-        elif expected_extension == '.kicad_mod':
-            return '(footprint' in content or '(module' in content
-        elif expected_extension in ['.step', '.wrl', '.3dshapes']:
+        if expected_extension == ".kicad_sym":
+            return "(kicad_symbol_lib" in content or "(symbol" in content
+        elif expected_extension == ".kicad_mod":
+            return "(footprint" in content or "(module" in content
+        elif expected_extension in [".step", ".wrl", ".3dshapes"]:
             return True  # Basic validation for 3D models
 
     except Exception:
@@ -489,18 +525,21 @@ def save_custom_kicad_file(component_id: str, file: UploadFile, file_type: str) 
 
 class CustomFileUploadResponse(BaseModel):
     """Response model for custom file uploads."""
+
     success: bool
     message: str
     file_path: str | None = None
     source_info: dict[str, Any] | None = None
 
 
-@router.post("/components/{component_id}/upload-symbol", response_model=CustomFileUploadResponse)
+@router.post(
+    "/components/{component_id}/upload-symbol", response_model=CustomFileUploadResponse
+)
 def upload_custom_symbol(
     component_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Upload custom KiCad symbol file (.kicad_sym) for a component.
@@ -512,10 +551,10 @@ def upload_custom_symbol(
     validate_uuid(component_id)
 
     # Validate file
-    if not validate_kicad_file(file, '.kicad_sym'):
+    if not validate_kicad_file(file, ".kicad_sym"):
         raise HTTPException(
             status_code=422,
-            detail="Invalid KiCad symbol file. Must be a .kicad_sym file with valid KiCad symbol format."
+            detail="Invalid KiCad symbol file. Must be a .kicad_sym file with valid KiCad symbol format.",
         )
 
     # Get component and ensure KiCad data exists
@@ -529,6 +568,7 @@ def upload_custom_symbol(
     if not component.kicad_data:
         # Create new KiCad data record
         from ..models.kicad_data import KiCadLibraryData
+
         kicad_data = KiCadLibraryData(component_id=component_id)
         db.add(kicad_data)
         db.flush()
@@ -546,20 +586,25 @@ def upload_custom_symbol(
             success=True,
             message=f"Custom symbol uploaded successfully: {file.filename}",
             file_path=file_path,
-            source_info=component.kicad_data.get_source_info()
+            source_info=component.kicad_data.get_source_info(),
         )
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to upload symbol: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to upload symbol: {str(e)}"
+        )
 
 
-@router.post("/components/{component_id}/upload-footprint", response_model=CustomFileUploadResponse)
+@router.post(
+    "/components/{component_id}/upload-footprint",
+    response_model=CustomFileUploadResponse,
+)
 def upload_custom_footprint(
     component_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Upload custom KiCad footprint file (.kicad_mod) for a component.
@@ -571,10 +616,10 @@ def upload_custom_footprint(
     validate_uuid(component_id)
 
     # Validate file
-    if not validate_kicad_file(file, '.kicad_mod'):
+    if not validate_kicad_file(file, ".kicad_mod"):
         raise HTTPException(
             status_code=422,
-            detail="Invalid KiCad footprint file. Must be a .kicad_mod file with valid KiCad footprint format."
+            detail="Invalid KiCad footprint file. Must be a .kicad_mod file with valid KiCad footprint format.",
         )
 
     # Get component and ensure KiCad data exists
@@ -588,6 +633,7 @@ def upload_custom_footprint(
     if not component.kicad_data:
         # Create new KiCad data record
         from ..models.kicad_data import KiCadLibraryData
+
         kicad_data = KiCadLibraryData(component_id=component_id)
         db.add(kicad_data)
         db.flush()
@@ -605,20 +651,25 @@ def upload_custom_footprint(
             success=True,
             message=f"Custom footprint uploaded successfully: {file.filename}",
             file_path=file_path,
-            source_info=component.kicad_data.get_source_info()
+            source_info=component.kicad_data.get_source_info(),
         )
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to upload footprint: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to upload footprint: {str(e)}"
+        )
 
 
-@router.post("/components/{component_id}/upload-3d-model", response_model=CustomFileUploadResponse)
+@router.post(
+    "/components/{component_id}/upload-3d-model",
+    response_model=CustomFileUploadResponse,
+)
 def upload_custom_3d_model(
     component_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Upload custom 3D model file (.step, .wrl, etc.) for a component.
@@ -630,11 +681,11 @@ def upload_custom_3d_model(
     validate_uuid(component_id)
 
     # Validate file (accept common 3D model formats)
-    valid_extensions = ['.step', '.stp', '.wrl', '.3dshapes']
+    valid_extensions = [".step", ".stp", ".wrl", ".3dshapes"]
     if not any(file.filename.endswith(ext) for ext in valid_extensions):
         raise HTTPException(
             status_code=422,
-            detail=f"Invalid 3D model file. Must be one of: {', '.join(valid_extensions)}"
+            detail=f"Invalid 3D model file. Must be one of: {', '.join(valid_extensions)}",
         )
 
     # Get component and ensure KiCad data exists
@@ -648,6 +699,7 @@ def upload_custom_3d_model(
     if not component.kicad_data:
         # Create new KiCad data record
         from ..models.kicad_data import KiCadLibraryData
+
         kicad_data = KiCadLibraryData(component_id=component_id)
         db.add(kicad_data)
         db.flush()
@@ -665,19 +717,21 @@ def upload_custom_3d_model(
             success=True,
             message=f"Custom 3D model uploaded successfully: {file.filename}",
             file_path=file_path,
-            source_info=component.kicad_data.get_source_info()
+            source_info=component.kicad_data.get_source_info(),
         )
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to upload 3D model: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to upload 3D model: {str(e)}"
+        )
 
 
 @router.delete("/components/{component_id}/reset-symbol")
 def reset_symbol_to_auto(
     component_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Reset component symbol to auto-generated, removing custom override.
@@ -702,7 +756,7 @@ def reset_symbol_to_auto(
         return {
             "success": True,
             "message": "Symbol reset to auto-generated successfully",
-            "source_info": component.kicad_data.get_source_info()
+            "source_info": component.kicad_data.get_source_info(),
         }
 
     except Exception as e:
@@ -714,7 +768,7 @@ def reset_symbol_to_auto(
 def reset_footprint_to_auto(
     component_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Reset component footprint to auto-generated, removing custom override.
@@ -739,19 +793,21 @@ def reset_footprint_to_auto(
         return {
             "success": True,
             "message": "Footprint reset to auto-generated successfully",
-            "source_info": component.kicad_data.get_source_info()
+            "source_info": component.kicad_data.get_source_info(),
         }
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to reset footprint: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to reset footprint: {str(e)}"
+        )
 
 
 @router.delete("/components/{component_id}/reset-3d-model")
 def reset_3d_model_to_auto(
     component_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Reset component 3D model to auto-generated, removing custom override.
@@ -776,19 +832,18 @@ def reset_3d_model_to_auto(
         return {
             "success": True,
             "message": "3D model reset to auto-generated successfully",
-            "source_info": component.kicad_data.get_source_info()
+            "source_info": component.kicad_data.get_source_info(),
         }
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to reset 3D model: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to reset 3D model: {str(e)}"
+        )
 
 
 @router.get("/components/{component_id}/source-info")
-def get_kicad_source_info(
-    component_id: str,
-    db: Session = Depends(get_db)
-):
+def get_kicad_source_info(component_id: str, db: Session = Depends(get_db)):
     """
     Get comprehensive source information for component's KiCad data.
 
@@ -808,18 +863,19 @@ def get_kicad_source_info(
     if not component.kicad_data:
         return {
             "has_kicad_data": False,
-            "message": "No KiCad data available for this component"
+            "message": "No KiCad data available for this component",
         }
 
     return {
         "has_kicad_data": True,
         "component_id": component_id,
         "component_name": component.name,
-        "source_info": component.kicad_data.get_source_info()
+        "source_info": component.kicad_data.get_source_info(),
     }
 
 
 # EasyEDA Conversion Endpoints
+
 
 class LCSCConversionRequest(BaseModel):
     lcsc_id: str
@@ -837,9 +893,11 @@ class LCSCConversionResponse(BaseModel):
 @router.post("/lcsc/{lcsc_id}/convert", response_model=LCSCConversionResponse)
 async def convert_lcsc_component(
     lcsc_id: str,
-    include_files: bool = Query(False, description="Include converted KiCad files in response"),
+    include_files: bool = Query(
+        False, description="Include converted KiCad files in response"
+    ),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Convert an LCSC component to KiCad format using EasyEDA data.
@@ -849,13 +907,12 @@ async def convert_lcsc_component(
     """
     if not EASYEDA_API_AVAILABLE:
         raise HTTPException(
-            status_code=503,
-            detail="EasyEDA conversion service not available"
+            status_code=503, detail="EasyEDA conversion service not available"
         )
 
     # Clean LCSC ID format
     clean_lcsc_id = lcsc_id.upper()
-    if not clean_lcsc_id.startswith('C'):
+    if not clean_lcsc_id.startswith("C"):
         clean_lcsc_id = f"C{clean_lcsc_id}"
 
     try:
@@ -872,34 +929,33 @@ async def convert_lcsc_component(
                 lcsc_id=clean_lcsc_id,
                 message=f"No EasyEDA data found for component {clean_lcsc_id}",
                 easyeda_data=None,
-                conversion_result=None
+                conversion_result=None,
             )
 
         # Convert to KiCad format if requested
         conversion_result = None
         if include_files:
-            conversion_result = await easyeda_service.convert_lcsc_component(clean_lcsc_id)
+            conversion_result = await easyeda_service.convert_lcsc_component(
+                clean_lcsc_id
+            )
 
         return LCSCConversionResponse(
             success=True,
             lcsc_id=clean_lcsc_id,
             message=f"Successfully processed component {clean_lcsc_id}",
             easyeda_data=easyeda_data,
-            conversion_result=conversion_result
+            conversion_result=conversion_result,
         )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Conversion failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Conversion failed: {str(e)}")
 
 
 @router.get("/lcsc/{lcsc_id}/info")
 async def get_lcsc_component_info(
     lcsc_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Get LCSC component information including EasyEDA data.
@@ -907,14 +963,11 @@ async def get_lcsc_component_info(
     Returns component details, EasyEDA availability, and conversion status.
     """
     if not EASYEDA_API_AVAILABLE:
-        raise HTTPException(
-            status_code=503,
-            detail="EasyEDA service not available"
-        )
+        raise HTTPException(status_code=503, detail="EasyEDA service not available")
 
     # Clean LCSC ID format
     clean_lcsc_id = lcsc_id.upper()
-    if not clean_lcsc_id.startswith('C'):
+    if not clean_lcsc_id.startswith("C"):
         clean_lcsc_id = f"C{clean_lcsc_id}"
 
     try:
@@ -923,29 +976,26 @@ async def get_lcsc_component_info(
 
         # Get component info with KiCad data
         component_info = await lcsc_provider.get_component_with_kicad_data(
-            clean_lcsc_id,
-            include_conversion=False
+            clean_lcsc_id, include_conversion=False
         )
 
         if not component_info:
             raise HTTPException(
-                status_code=404,
-                detail=f"Component {clean_lcsc_id} not found"
+                status_code=404, detail=f"Component {clean_lcsc_id} not found"
             )
 
         return {
             "lcsc_id": clean_lcsc_id,
             "component_info": component_info,
-            "easyeda_available": component_info.get('easyeda_data') is not None,
-            "conversion_available": EASYEDA_API_AVAILABLE
+            "easyeda_available": component_info.get("easyeda_data") is not None,
+            "conversion_available": EASYEDA_API_AVAILABLE,
         }
 
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get component info: {str(e)}"
+            status_code=500, detail=f"Failed to get component info: {str(e)}"
         )
 
 
@@ -953,7 +1003,7 @@ async def get_lcsc_component_info(
 async def convert_component_from_lcsc(
     component_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(require_auth),
 ):
     """
     Convert an existing component using LCSC/EasyEDA data.
@@ -963,8 +1013,7 @@ async def convert_component_from_lcsc(
     """
     if not EASYEDA_API_AVAILABLE:
         raise HTTPException(
-            status_code=503,
-            detail="EasyEDA conversion service not available"
+            status_code=503, detail="EasyEDA conversion service not available"
         )
 
     validate_uuid(component_id)
@@ -985,7 +1034,7 @@ async def convert_component_from_lcsc(
                 "success": False,
                 "message": "No LCSC ID found for this component",
                 "component_id": component_id,
-                "component_name": component.name
+                "component_name": component.name,
             }
 
         # Convert using EasyEDA
@@ -1002,7 +1051,7 @@ async def convert_component_from_lcsc(
                 "component_id": component_id,
                 "component_name": component.name,
                 "lcsc_id": lcsc_id,
-                "kicad_data_created": True
+                "kicad_data_created": True,
             }
         else:
             return {
@@ -1010,27 +1059,19 @@ async def convert_component_from_lcsc(
                 "message": f"Conversion failed for LCSC component {lcsc_id}",
                 "component_id": component_id,
                 "component_name": component.name,
-                "lcsc_id": lcsc_id
+                "lcsc_id": lcsc_id,
             }
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Conversion failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Conversion failed: {str(e)}")
 
 
 @router.get("/easyeda/status")
-async def get_easyeda_status(
-    current_user: dict = Depends(require_auth)
-):
+async def get_easyeda_status(current_user: dict = Depends(require_auth)):
     """
     Get EasyEDA conversion service status and capabilities.
     """
-    status = {
-        "service_available": EASYEDA_API_AVAILABLE,
-        "capabilities": []
-    }
+    status = {"service_available": EASYEDA_API_AVAILABLE, "capabilities": []}
 
     if EASYEDA_API_AVAILABLE:
         try:
@@ -1041,7 +1082,7 @@ async def get_easyeda_status(
                 "lcsc_component_conversion",
                 "easyeda_symbol_conversion",
                 "easyeda_footprint_conversion",
-                "easyeda_3d_model_conversion"
+                "easyeda_3d_model_conversion",
             ]
         except Exception as e:
             status["error"] = f"Service initialization failed: {str(e)}"
