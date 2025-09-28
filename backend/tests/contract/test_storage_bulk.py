@@ -70,7 +70,7 @@ class TestStorageBulkContract:
             headers=auth_headers,
         )
 
-        # This will fail until endpoint is implemented
+        # This should now pass
         assert response.status_code == 201
 
         if response.status_code == 201:

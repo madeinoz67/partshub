@@ -21,7 +21,8 @@ def test_stock_status_parameter_validation(client, auth_headers):
         assert "components" in data
         assert "total" in data
         assert "limit" in data
-        assert "offset" in data
+        assert "page" in data
+        assert "total_pages" in data
 
     # Test invalid stock status parameter
     response = client.get(
@@ -39,14 +40,15 @@ def test_stock_filtering_api_structure(client, auth_headers):
     data = response.json()
 
     # Verify response structure matches expected format
-    required_fields = ["components", "total", "limit", "offset"]
+    required_fields = ["components", "total", "limit", "page", "total_pages"]
     for field in required_fields:
         assert field in data, f"Required field '{field}' missing from response"
 
     # Verify data types
     assert isinstance(data["total"], int)
     assert isinstance(data["limit"], int)
-    assert isinstance(data["offset"], int)
+    assert isinstance(data["page"], int)
+    assert isinstance(data["total_pages"], int)
     assert isinstance(data["components"], list)
 
     # Test with stock status filter - should maintain same structure

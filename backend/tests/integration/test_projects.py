@@ -78,7 +78,7 @@ class TestProjectManagement:
                 "storage_location_id": storage_id,
                 "component_type": "microcontroller",
                 "quantity_on_hand": 5,
-                "unit_cost": 25.00,
+                "average_purchase_price": 25.00,
             },
             {
                 "name": "8x8 LED Matrix",
@@ -88,7 +88,7 @@ class TestProjectManagement:
                 "storage_location_id": storage_id,
                 "component_type": "display",
                 "quantity_on_hand": 10,
-                "unit_cost": 8.50,
+                "average_purchase_price": 8.50,
             },
             {
                 "name": "220Ω Resistor",
@@ -99,7 +99,7 @@ class TestProjectManagement:
                 "component_type": "resistor",
                 "value": "220Ω",
                 "quantity_on_hand": 100,
-                "unit_cost": 0.02,
+                "average_purchase_price": 0.02,
             },
         ]
 
@@ -166,12 +166,12 @@ class TestProjectManagement:
         # Step 6: Update project status
         update_response = client.patch(
             f"/api/v1/projects/{project_id}",
-            json={"status": "in_progress"},
+            json={"status": "active"},
             headers=auth_headers,
         )
         assert update_response.status_code == 200
         updated_project = update_response.json()
-        assert updated_project["status"] == "in_progress"
+        assert updated_project["status"] == "active"
 
         # Step 7: Verify stock was reduced
         for i, comp_id in enumerate(component_ids):
@@ -259,7 +259,7 @@ class TestProjectManagement:
                 "storage_location_id": storage_id,
                 "component_type": "microprocessor",
                 "quantity_on_hand": 2,
-                "unit_cost": 75.00,
+                "average_purchase_price": 75.00,
             },
             headers=auth_headers,
         )
@@ -356,7 +356,7 @@ class TestProjectManagement:
                 "storage_location_id": storage_id,
                 "component_type": "resistor",
                 "quantity_on_hand": 100,
-                "unit_cost": 0.05,
+                "average_purchase_price": 0.05,
             },
             headers=auth_headers,
         )
@@ -422,7 +422,7 @@ class TestProjectManagement:
             {
                 "name": "Active Development Project",
                 "description": "Currently in development",
-                "status": "in_progress",
+                "status": "active",
             },
             {
                 "name": "Completed Production Project",
@@ -451,10 +451,10 @@ class TestProjectManagement:
         assert any("Development" in proj["name"] for proj in search_data["projects"])
 
         # Test filter by status
-        active_filter = client.get("/api/v1/projects?status=in_progress")
+        active_filter = client.get("/api/v1/projects?status=active")
         assert active_filter.status_code == 200
         active_data = active_filter.json()
-        assert all(proj["status"] == "in_progress" for proj in active_data["projects"])
+        assert all(proj["status"] == "active" for proj in active_data["projects"])
 
         completed_filter = client.get("/api/v1/projects?status=completed")
         assert completed_filter.status_code == 200
@@ -514,7 +514,7 @@ class TestProjectManagement:
                 "category_id": category_id,
                 "storage_location_id": storage_id,
                 "quantity_on_hand": 50,
-                "unit_cost": 1.00,
+                "average_purchase_price": 1.00,
             },
             headers=auth_headers,
         )

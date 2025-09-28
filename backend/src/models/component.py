@@ -131,15 +131,62 @@ class Component(Base):
         """Calculate total quantity across all storage locations."""
         return sum(location.quantity_on_hand for location in self.locations)
 
+    @quantity_on_hand.setter
+    def quantity_on_hand(self, value: int):
+        """Set quantity on hand for the primary location, creating ComponentLocation if needed."""
+        if not self.locations:
+            # Cannot set quantity without a storage location
+            raise ValueError(
+                "Cannot set quantity without a storage location. Create a ComponentLocation first."
+            )
+
+        # Update the primary location (first location or one with highest quantity)
+        primary_location = (
+            self.locations[0]
+            if len(self.locations) == 1
+            else max(self.locations, key=lambda loc: loc.quantity_on_hand)
+        )
+        primary_location.quantity_on_hand = value
+
     @property
     def quantity_ordered(self):
         """Calculate total ordered quantity across all storage locations."""
         return sum(location.quantity_ordered for location in self.locations)
 
+    @quantity_ordered.setter
+    def quantity_ordered(self, value: int):
+        """Set quantity ordered for the primary location."""
+        if not self.locations:
+            raise ValueError(
+                "Cannot set quantity without a storage location. Create a ComponentLocation first."
+            )
+
+        primary_location = (
+            self.locations[0]
+            if len(self.locations) == 1
+            else max(self.locations, key=lambda loc: loc.quantity_on_hand)
+        )
+        primary_location.quantity_ordered = value
+
     @property
     def minimum_stock(self):
         """Calculate total minimum stock across all storage locations."""
         return sum(location.minimum_stock for location in self.locations)
+
+    @minimum_stock.setter
+    def minimum_stock(self, value: int):
+        """Set minimum stock for the primary location."""
+        if not self.locations:
+            raise ValueError(
+                "Cannot set quantity without a storage location. Create a ComponentLocation first."
+            )
+
+        primary_location = (
+            self.locations[0]
+            if len(self.locations) == 1
+            else max(self.locations, key=lambda loc: loc.quantity_on_hand)
+        )
+        primary_location.minimum_stock = value
 
     @property
     def primary_location(self):

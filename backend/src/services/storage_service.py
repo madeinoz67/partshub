@@ -408,6 +408,8 @@ class StorageLocationService:
                 # Handle parent_name reference
                 if "parent_name" in loc_data:
                     parent_name = loc_data["parent_name"]
+                    if parent_name is None:
+                        continue  # Skip if parent_name is explicitly None
                     if parent_name in location_map:
                         parent = location_map[parent_name]
                         location.parent_id = parent.id
