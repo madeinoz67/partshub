@@ -293,6 +293,11 @@ def update_storage_location(
     if not update_data:
         raise HTTPException(status_code=422, detail="No data provided for update")
 
+    # Validate name if provided
+    if "name" in update_data:
+        if not update_data["name"] or not update_data["name"].strip():
+            raise HTTPException(status_code=422, detail="Name cannot be empty")
+
     # Validate type if provided
     if "type" in update_data:
         valid_types = [
@@ -315,6 +320,10 @@ def update_storage_location(
             uuid.UUID(update_data["parent_id"])
         except ValueError:
             raise HTTPException(status_code=422, detail="Invalid parent_id format")
+
+        # Prevent self-reference
+        if update_data["parent_id"] == location_id:
+            raise HTTPException(status_code=422, detail="Location cannot be its own parent")
 
     service = StorageLocationService(db)
 

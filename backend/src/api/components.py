@@ -242,8 +242,8 @@ def list_components(
 @router.post("", response_model=ComponentResponse, status_code=status.HTTP_201_CREATED)
 def create_component(
     component: ComponentCreate,
-    current_user=Depends(require_auth),
     db: Session = Depends(get_db),
+    current_user=Depends(require_auth),
 ):
     """Create a new component."""
     service = ComponentService(db)
@@ -466,7 +466,18 @@ def update_component_stock(
         if not transaction:
             raise HTTPException(status_code=404, detail="Component not found")
 
-        return transaction
+        # Convert to response format
+        return {
+            "id": transaction.id,
+            "component_id": transaction.component_id,
+            "transaction_type": transaction.transaction_type.value if hasattr(transaction.transaction_type, 'value') else str(transaction.transaction_type),
+            "quantity_change": transaction.quantity_change,
+            "previous_quantity": transaction.previous_quantity,
+            "new_quantity": transaction.new_quantity,
+            "reason": transaction.reason,
+            "reference_id": transaction.reference_id,
+            "created_at": transaction.created_at.isoformat() if hasattr(transaction.created_at, 'isoformat') else str(transaction.created_at),
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -493,4 +504,19 @@ def get_component_history(
         raise HTTPException(status_code=404, detail="Component not found")
 
     transactions = service.get_stock_history(component_id, limit)
-    return transactions
+
+    # Convert to response format
+    return [
+        {
+            "id": transaction.id,
+            "component_id": transaction.component_id,
+            "transaction_type": transaction.transaction_type.value if hasattr(transaction.transaction_type, 'value') else str(transaction.transaction_type),
+            "quantity_change": transaction.quantity_change,
+            "previous_quantity": transaction.previous_quantity,
+            "new_quantity": transaction.new_quantity,
+            "reason": transaction.reason,
+            "reference_id": transaction.reference_id,
+            "created_at": transaction.created_at.isoformat() if hasattr(transaction.created_at, 'isoformat') else str(transaction.created_at),
+        }
+        for transaction in transactions
+    ]

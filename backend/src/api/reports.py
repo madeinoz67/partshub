@@ -24,6 +24,13 @@ async def get_dashboard_summary(db: Session = Depends(get_db)) -> dict[str, Any]
     return report_service.get_dashboard_summary()
 
 
+@router.get("/dashboard-stats")
+async def get_dashboard_stats(db: Session = Depends(get_db)) -> dict[str, Any]:
+    """Get dashboard statistics for first-time setup and overview."""
+    report_service = ReportService(db)
+    return report_service.get_dashboard_stats()
+
+
 @router.get("/inventory-breakdown")
 async def get_inventory_breakdown(db: Session = Depends(get_db)) -> dict[str, Any]:
     """Get detailed inventory breakdown by categories and locations."""
