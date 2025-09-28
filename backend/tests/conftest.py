@@ -5,22 +5,22 @@ Pytest configuration and shared fixtures
 import os
 
 import pytest
-
-# Set testing environment variables to ensure complete isolation
-os.environ["TESTING"] = "1"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
-os.environ["PORT"] = "8005"  # Use different port for tests (production uses 8000)
-# Import all models to ensure they're registered with Base
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
 from src.auth.jwt_auth import create_access_token
 from src.database.connection import get_db
 from src.main import app
 from src.models import APIToken, User
+
+# Set testing environment variables to ensure complete isolation
+os.environ["TESTING"] = "1"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
+os.environ["PORT"] = "8005"  # Use different port for tests (production uses 8000)
 
 # Test database URL - in-memory database for complete isolation
 TEST_DATABASE_URL = "sqlite:///:memory:"
