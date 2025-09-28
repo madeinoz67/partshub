@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -29,7 +29,7 @@ jobs:
           enable-cache: true
 
       - name: Cache uv dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.uv-cache
           key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
@@ -54,7 +54,7 @@ jobs:
           uv run --project .. pytest --junitxml=test-results.xml --cov=src --cov-report=xml --cov-report=html
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: backend-test-results
@@ -62,7 +62,7 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: backend-coverage-report
@@ -112,7 +112,7 @@ jobs:
           npm run build
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: frontend-test-results
@@ -120,7 +120,7 @@ jobs:
           retention-days: 30
 
       - name: Upload build verification
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: frontend-build-verification
@@ -174,7 +174,7 @@ jobs:
           npm audit --audit-level=critical --json > npm-audit-report.json || true
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan-results
@@ -215,7 +215,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
@@ -259,7 +259,7 @@ jobs:
           docker stop test-frontend
 
       - name: Upload Docker build logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: docker-build-logs
