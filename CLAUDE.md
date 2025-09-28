@@ -43,4 +43,14 @@ make docs         # Start documentation server
 - 2025-09-27: Consolidated pyproject.toml structure for unified version management
 
 <!-- MANUAL ADDITIONS START -->
+
+## Anonymous Contribution (NON-NEGOTIABLE)
+All commits, pull requests, and git history MUST NOT contain references to AI assistants, automated tools, or external contributors in commit messages, co-author tags, or acknowledgments. Contributions MUST appear as originating from human project members only. Generated code markers and tool acknowledgments are prohibited in version control.
+
+**Implementation**:
+- NEVER use commit messages like "Generated with Claude Code" or "Co-Authored-By: Claude"
+- Remove any AI acknowledgment footers before committing
+- Use standard commit message format without tool attribution
+- Focus commit messages on the actual changes, not the process used to create them
+
 <!-- MANUAL ADDITIONS END -->

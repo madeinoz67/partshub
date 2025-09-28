@@ -11,7 +11,13 @@ from sqlalchemy.orm import Session
 from ..database import Base, engine, get_db
 
 # Import all models to ensure they are registered
-from ..models import *
+from ..models import (
+    Category,
+    Component,
+    ComponentLocation,
+    StorageLocation,
+    Tag,
+)
 
 fake = Faker()
 
