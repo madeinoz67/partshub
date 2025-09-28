@@ -2,7 +2,7 @@
 Database configuration and session management for PartsHub backend.
 """
 
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import MetaData, create_engine, event
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -20,7 +20,6 @@ engine = create_engine(
 )
 
 # Enable foreign key constraints in SQLite
-from sqlalchemy import event
 
 
 @event.listens_for(engine, "connect")
