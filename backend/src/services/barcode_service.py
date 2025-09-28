@@ -10,15 +10,15 @@ from typing import Any
 
 from PIL import Image
 
+from ..database import get_session
+from ..models import Component
+
 logger = logging.getLogger(__name__)
 
 # Note: pyzbar installation varies by environment:
 # - macOS: brew install zbar; pip install pyzbar
 # - Docker: apt-get install libzbar0; pip install pyzbar
 # For now, we'll provide a mock implementation with graceful fallback
-from ..database import get_session
-from ..models import Component
-
 try:
     from pyzbar import pyzbar
     PYZBAR_AVAILABLE = True
