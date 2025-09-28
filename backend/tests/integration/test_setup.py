@@ -22,14 +22,14 @@ class TestFirstTimeSetup:
         """Create a temporary database for testing"""
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
-        TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
         # Create all tables
         Base.metadata.create_all(bind=engine)
 
         def override_get_db():
             try:
-                db = TestingSessionLocal()
+                db = testing_session_local()
                 yield db
             finally:
                 db.close()
