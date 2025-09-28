@@ -1,0 +1,167 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for PartsHub
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What type of feature is this?
+      options:
+        - User Interface/UX
+        - API/Backend
+        - Database/Storage
+        - Search/Filtering
+        - Reports/Analytics
+        - Integration
+        - Performance
+        - Security
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would be helpful
+        - High - Important for my workflow
+        - Critical - Blocking current work
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the current limitation?
+      placeholder: |
+        Currently, when I try to...
+        The problem is that...
+        This makes it difficult to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented
+      placeholder: |
+        I would like...
+        The feature should...
+        It would work by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: User Story
+      description: Write this as a user story with acceptance criteria
+      placeholder: |
+        As a [type of user], I want [goal/desire] so that [benefit/value].
+
+        Acceptance Criteria:
+        - [ ] Given [context], when [action], then [outcome]
+        - [ ] Given [context], when [action], then [outcome]
+        - [ ] Given [context], when [action], then [outcome]
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternative solutions or workarounds have you considered?
+      placeholder: |
+        I've considered...
+        Current workaround is...
+        This doesn't work because...
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples/Screenshots
+      description: |
+        Provide examples, mockups, or screenshots if applicable.
+        You can attach images by clicking this area and dragging files in.
+      placeholder: |
+        Example workflow:
+        1. User does...
+        2. System shows...
+        3. User can then...
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact Assessment
+      description: Who would benefit from this feature and how?
+      placeholder: |
+        This would help:
+        - [Type of users] by [specific benefit]
+        - [Another group] by [different benefit]
+
+        Business value:
+        - [Efficiency improvement]
+        - [User experience enhancement]
+        - [Cost savings]
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Considerations
+      description: Check any relevant implementation aspects
+      options:
+        - label: This requires database schema changes
+          required: false
+        - label: This affects the API contract
+          required: false
+        - label: This requires new UI components
+          required: false
+        - label: This needs new permissions/roles
+          required: false
+        - label: This impacts performance
+          required: false
+        - label: This requires external integrations
+          required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided clear acceptance criteria
+          required: true
+        - label: I am willing to help test this feature when implemented
+          required: false
+        - label: I am willing to help with implementation (if I have the skills)
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, references, or information about the feature request
+      placeholder: |
+        Related links:
+        - [Similar feature in other tools]
+        - [Documentation or specs]
+
+        Additional notes:
+        - [Any other relevant information]

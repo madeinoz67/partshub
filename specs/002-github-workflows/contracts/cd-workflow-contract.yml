@@ -7,7 +7,7 @@ file_location: ".github/workflows/cd.yml"
 # Triggers (FR-004: System MUST automatically deploy successful builds from main branch)
 triggers:
   - event: "push"
-    branches: ["main", "001-mvp-electronic-parts"]
+    branches: ["main"]
     conditions:
       - all_ci_checks_pass: true
 

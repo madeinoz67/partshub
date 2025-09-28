@@ -6,7 +6,7 @@ This guide validates that the GitHub workflows implementation correctly fulfills
 
 Before testing the workflows, ensure:
 
-- [ ] Repository has `main` branch or `001-mvp-electronic-parts` branch
+- [ ] Repository has `main` branch
 - [ ] pyproject.toml exists with valid version field
 - [ ] Backend and frontend directories are properly structured
 - [ ] GitHub repository settings allow Actions to run

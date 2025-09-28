@@ -1,15 +1,15 @@
 site_name: PartsHub Documentation
 site_description: Electronic Parts Inventory Management System
 site_author: Stephen Eaton
-site_url: https://partshub.dev
+site_url: https://madeinoz67.github.io/partshub
 
 # Repository
 repo_name: partshub
-repo_url: https://github.com/your-org/partshub
+repo_url: https://github.com/madeinoz67/partshub
 edit_uri: edit/main/docs/
 
 # Copyright
-copyright: Copyright &copy; 2024 PartsHub
+copyright: Copyright &copy; 2025 PartsHub
 
 # Configuration
 theme:
