@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.auth.jwt_auth import create_access_token
-from src.database.connection import get_db
+from src.database import get_db
 from src.main import app
 from src.models import APIToken, User
 
@@ -56,15 +56,15 @@ def setup_test_database():
     """
     Set up fresh in-memory test database for each test
     """
-    # Use the correct Base from models package to create all tables
-    from src.models import Base as ModelsBase
+    # Use the Base from database module to ensure consistency
+    from src.database import Base
 
-    ModelsBase.metadata.create_all(bind=test_engine)
+    Base.metadata.create_all(bind=test_engine)
 
     yield
 
     # Drop all tables after test for clean state
-    ModelsBase.metadata.drop_all(bind=test_engine)
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
@@ -86,45 +86,16 @@ def db_session():
 @pytest.fixture(scope="function")
 def client(db_session):
     """
-    Create a test client with shared test database session
-    Following Testing Isolation principle - use same session for fixtures and API
-    Includes auth dependency overrides for TestClient compatibility
+    Create a test client with database session override
     """
-    from fastapi.security import HTTPAuthorizationCredentials
-    from src.auth.dependencies import get_optional_user
-    from src.auth.jwt_auth import get_current_user as get_user_from_token
-    from src.models import User
 
     def override_get_db():
-        yield db_session
-
-    async def test_get_optional_user(
-        credentials: HTTPAuthorizationCredentials = None, db=None
-    ):
-        """TestClient-compatible version of get_optional_user"""
-        if not credentials:
-            return None
-
-        # Use the shared test database session
-        test_db = db_session
-
         try:
-            user_data = get_user_from_token(credentials.credentials)
-            user = test_db.query(User).filter(User.id == user_data["user_id"]).first()
-            if user and user.is_active:
-                return {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "is_admin": user.is_admin,
-                    "auth_type": "jwt",
-                }
-        except Exception:
-            pass
-
-        return None
+            yield db_session
+        finally:
+            pass  # Don't close the session here, let the test manage it
 
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[get_optional_user] = test_get_optional_user
 
     with TestClient(app) as test_client:
         yield test_client
@@ -231,7 +202,7 @@ def user_auth_headers(client, db_session):
 
 
 @pytest.fixture
-def api_token_headers(auth_headers, db_session):
+def api_token_headers(auth_headers, client, db_session):
     """
     Create valid API token headers for authenticated requests
     Uses the same admin user created by auth_headers fixture
@@ -245,4 +216,4 @@ def api_token_headers(auth_headers, db_session):
     db_session.add(api_token)
     db_session.commit()
 
-    return {"X-API-Key": raw_token}
+    return {"Authorization": f"Bearer {raw_token}"}

@@ -39,14 +39,36 @@ class ComponentService:
         if "id" not in component_data:
             component_data["id"] = str(uuid.uuid4())
 
-        # Extract tags before creating component
+        # Extract fields that should not be set directly on Component
         tag_ids = component_data.pop("tags", [])
+        storage_location_id = component_data.pop("storage_location_id", None)
+        quantity_on_hand = component_data.pop("quantity_on_hand", 0)
+        quantity_ordered = component_data.pop("quantity_ordered", 0)
+        minimum_stock = component_data.pop("minimum_stock", 0)
 
-        # Create component instance
+        # Create component instance (without quantity fields)
         component = Component(**component_data)
 
         self.db.add(component)
         self.db.flush()  # Flush to get component ID
+
+        # Create ComponentLocation record if storage location is specified
+        if storage_location_id:
+            # Verify storage location exists
+            storage_location = (
+                self.db.query(StorageLocation)
+                .filter(StorageLocation.id == storage_location_id)
+                .first()
+            )
+            if storage_location:
+                component_location = ComponentLocation(
+                    component_id=component.id,
+                    storage_location_id=storage_location_id,
+                    quantity_on_hand=quantity_on_hand,
+                    quantity_ordered=quantity_ordered,
+                    minimum_stock=minimum_stock,
+                )
+                self.db.add(component_location)
 
         # Handle tag associations
         if tag_ids:
@@ -57,10 +79,10 @@ class ComponentService:
         self.db.refresh(component)
 
         # Create initial stock transaction if quantity > 0
-        if component.quantity_on_hand > 0:
+        if quantity_on_hand > 0:
             initial_transaction = StockTransaction.create_add_transaction(
                 component=component,
-                quantity=component.quantity_on_hand,
+                quantity=quantity_on_hand,
                 reason="Initial stock entry",
                 reference_type="initial_stock",
             )
