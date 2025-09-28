@@ -2,26 +2,25 @@
 Pytest configuration and shared fixtures
 """
 
-import pytest
 import os
+
+import pytest
 
 # Set testing environment variables to ensure complete isolation
 os.environ["TESTING"] = "1"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
 os.environ["PORT"] = "8005"  # Use different port for tests (production uses 8000)
+# Import all models to ensure they're registered with Base
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from alembic.config import Config
-from alembic import command
-
-from src.database.connection import Base, get_db
-from src.main import app
 from src.auth.jwt_auth import create_access_token
-# Import all models to ensure they're registered with Base
-import src.models
-from src.models import User, APIToken
+from src.database.connection import get_db
+from src.main import app
+from src.models import APIToken, User
 
 # Test database URL - in-memory database for complete isolation
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -89,7 +88,7 @@ def client(db_session):
     Following Testing Isolation principle - use same session for fixtures and API
     Includes auth dependency overrides for TestClient compatibility
     """
-    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    from fastapi.security import HTTPAuthorizationCredentials
     from src.auth.dependencies import get_optional_user
     from src.auth.jwt_auth import get_current_user as get_user_from_token
     from src.models import User

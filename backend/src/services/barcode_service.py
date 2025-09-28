@@ -3,11 +3,12 @@ Barcode scanning service for component identification.
 Supports various barcode formats and integrates with component database.
 """
 
-import io
 import base64
-from typing import Optional, Dict, Any, List
-from PIL import Image
+import io
 import logging
+from typing import Any
+
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +16,8 @@ logger = logging.getLogger(__name__)
 # - macOS: brew install zbar; pip install pyzbar
 # - Docker: apt-get install libzbar0; pip install pyzbar
 # For now, we'll provide a mock implementation with graceful fallback
-from ..models import Component
 from ..database import get_session
+from ..models import Component
 
 try:
     from pyzbar import pyzbar
@@ -43,7 +44,7 @@ class BarcodeService:
             "QRCODE", "DATAMATRIX", "PDF417"
         ]
 
-    def scan_barcode_from_base64(self, image_data: str) -> List[BarcodeResult]:
+    def scan_barcode_from_base64(self, image_data: str) -> list[BarcodeResult]:
         """
         Scan barcode from base64 encoded image.
 
@@ -68,7 +69,7 @@ class BarcodeService:
             logger.error(f"Error scanning barcode from base64: {e}")
             return []
 
-    def scan_barcode_from_image(self, image: Image.Image) -> List[BarcodeResult]:
+    def scan_barcode_from_image(self, image: Image.Image) -> list[BarcodeResult]:
         """
         Scan barcode from PIL Image.
 
@@ -115,7 +116,7 @@ class BarcodeService:
             logger.error(f"Error scanning barcode from image: {e}")
             return []
 
-    def _mock_barcode_scan(self, image: Image.Image) -> List[BarcodeResult]:
+    def _mock_barcode_scan(self, image: Image.Image) -> list[BarcodeResult]:
         """
         Mock barcode scanning for development/testing.
         Returns simulated barcode results.
@@ -146,7 +147,7 @@ class BarcodeService:
 
         return mock_results
 
-    async def identify_component_from_barcode(self, barcode_data: str) -> Optional[Dict[str, Any]]:
+    async def identify_component_from_barcode(self, barcode_data: str) -> dict[str, Any] | None:
         """
         Identify component from barcode data.
 
@@ -208,7 +209,7 @@ class BarcodeService:
         finally:
             session.close()
 
-    async def process_barcode_scan(self, image_data: str) -> Dict[str, Any]:
+    async def process_barcode_scan(self, image_data: str) -> dict[str, Any]:
         """
         Process barcode scan from image and identify components.
 
@@ -271,14 +272,14 @@ class BarcodeService:
                 "components": []
             }
 
-    def get_supported_formats(self) -> List[str]:
+    def get_supported_formats(self) -> list[str]:
         """Get list of supported barcode formats"""
         return self.supported_formats.copy()
 
-    def get_service_info(self) -> Dict[str, Any]:
+    def get_service_info(self) -> dict[str, Any]:
         """Get barcode service information"""
-        import platform
         import os
+        import platform
 
         # Detect environment and provide installation guidance
         system = platform.system().lower()

@@ -2,10 +2,11 @@
 Tag and ComponentTag junction models for flexible component labeling.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Table
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Table, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

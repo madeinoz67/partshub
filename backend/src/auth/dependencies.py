@@ -2,25 +2,24 @@
 FastAPI dependencies for authentication and authorization.
 """
 
-from typing import Optional
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from .jwt_auth import get_current_user as get_user_from_token
-from .api_tokens import verify_api_token
 from ..database import get_db
-from ..models import User, APIToken
-
+from ..models import User
+from .api_tokens import verify_api_token
+from .jwt_auth import get_current_user as get_user_from_token
 
 # Security scheme for bearer tokens
 security = HTTPBearer(auto_error=False)
 
 
 async def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: Session = Depends(get_db)
-) -> Optional[dict]:
+) -> dict | None:
     """
     Get current user if authenticated, otherwise return None.
     Supports both JWT tokens and API tokens.
@@ -64,7 +63,7 @@ async def get_optional_user(
 
 
 async def require_auth(
-    current_user: Optional[dict] = Depends(get_optional_user)
+    current_user: dict | None = Depends(get_optional_user)
 ) -> dict:
     """
     Require authentication. Raises 401 if not authenticated.

@@ -3,7 +3,6 @@ Contract test for GET /api/v1/kicad/components
 Tests KiCad component search endpoint according to OpenAPI specification
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -205,10 +204,6 @@ class TestKiCadSearchContract:
 
                 # Properties might contain KiCad-specific fields
                 # These are examples of what might be in KiCad component properties
-                possible_properties = [
-                    "Value", "Footprint", "Datasheet", "ki_keywords",
-                    "ki_description", "ki_fp_filters"
-                ]
 
                 # At least some properties should be present
                 assert isinstance(properties, dict)

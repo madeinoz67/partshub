@@ -4,8 +4,9 @@ Test runner script that ensures complete isolation from production environment.
 """
 
 import os
-import sys
 import subprocess
+import sys
+
 
 def main():
     """Run tests with proper environment isolation."""

@@ -3,17 +3,18 @@ Nested attachments API endpoints for component file management.
 Implements nested routes under /api/v1/components/{component_id}/attachments
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+import uuid
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-import uuid
 
+from ..auth.dependencies import require_auth
 from ..database import get_db
 from ..services.attachment_service import AttachmentService
 from ..services.file_storage import file_storage
-from ..auth.dependencies import require_auth
+
 
 # Pydantic schemas
 class AttachmentResponse(BaseModel):
@@ -23,11 +24,11 @@ class AttachmentResponse(BaseModel):
     original_filename: str
     file_size: int
     mime_type: str
-    title: Optional[str] = None
-    description: Optional[str] = None
-    attachment_type: Optional[str] = None
+    title: str | None = None
+    description: str | None = None
+    attachment_type: str | None = None
     is_primary_image: bool = False
-    thumbnail_path: Optional[str] = None
+    thumbnail_path: str | None = None
     display_order: int = 0
     created_at: str
     updated_at: str
@@ -36,14 +37,14 @@ class AttachmentResponse(BaseModel):
         from_attributes = True
 
 class AttachmentUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    attachment_type: Optional[str] = None
-    is_primary_image: Optional[bool] = None
-    display_order: Optional[int] = None
+    title: str | None = None
+    description: str | None = None
+    attachment_type: str | None = None
+    is_primary_image: bool | None = None
+    display_order: int | None = None
 
 class AttachmentListResponse(BaseModel):
-    attachments: List[AttachmentResponse]
+    attachments: list[AttachmentResponse]
     total: int
 
 router = APIRouter()
@@ -92,9 +93,9 @@ def list_component_attachments(
 async def upload_attachment(
     component_id: str,
     file: UploadFile = File(...),
-    title: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    attachment_type: Optional[str] = Form(None),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    attachment_type: str | None = Form(None),
     is_primary_image: bool = Form(False),
     display_order: int = Form(0),
     current_user=Depends(require_auth),
@@ -161,7 +162,7 @@ async def upload_attachment(
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Failed to upload file")
 
 @router.get("/api/v1/components/{component_id}/attachments/{attachment_id}", response_model=AttachmentResponse, tags=["attachments"])

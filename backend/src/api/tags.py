@@ -2,30 +2,30 @@
 Tags API endpoints for component tagging functionality.
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from ..auth.dependencies import require_auth
 from ..database import get_db
 from ..models import Tag
-from ..auth.dependencies import require_auth
-from sqlalchemy import func
+
 
 # Pydantic schemas
 class TagBase(BaseModel):
     name: str
-    description: Optional[str] = None
-    color: Optional[str] = None
+    description: str | None = None
+    color: str | None = None
 
 class TagCreate(TagBase):
     pass
 
 class TagUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    color: Optional[str] = None
+    name: str | None = None
+    description: str | None = None
+    color: str | None = None
 
 class TagResponse(TagBase):
     id: str
@@ -38,7 +38,7 @@ class TagResponse(TagBase):
         from_attributes = True
 
 class TagsListResponse(BaseModel):
-    tags: List[TagResponse]
+    tags: list[TagResponse]
     total: int
 
 router = APIRouter(prefix="/api/v1/tags", tags=["tags"])
@@ -46,7 +46,7 @@ router = APIRouter(prefix="/api/v1/tags", tags=["tags"])
 
 @router.get("", response_model=TagsListResponse)
 def list_tags(
-    search: Optional[str] = Query(None, description="Search in tag name"),
+    search: str | None = Query(None, description="Search in tag name"),
     limit: int = Query(100, ge=1, le=200, description="Number of items to return"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
     db: Session = Depends(get_db)

@@ -3,9 +3,9 @@ Contract test for POST /api/v1/components/{id}/stock
 Tests component stock update endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestComponentsStockContract:

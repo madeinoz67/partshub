@@ -3,7 +3,6 @@ Contract test for GET /api/v1/storage-locations
 Tests storage locations listing endpoint according to OpenAPI specification
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -62,7 +61,7 @@ class TestStorageListContract:
                 # Parent relationships should be consistent
                 if location["parent_id"]:
                     # Parent should exist in the list (for consistency check)
-                    parent_exists = any(loc["id"] == location["parent_id"] for loc in data)
+                    any(loc["id"] == location["parent_id"] for loc in data)
                     # Note: This might not always pass if we're not returning all locations
                     # but it's a good consistency check
 

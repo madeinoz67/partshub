@@ -9,7 +9,7 @@ triggers:
   - event: "push"
     branches: ["*"]
   - event: "pull_request"
-    branches: ["main", "001-mvp-electronic-parts"]
+    branches: ["main"]
 
 # Required Jobs
 jobs:

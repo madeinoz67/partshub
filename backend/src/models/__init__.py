@@ -6,26 +6,26 @@ Imports all models to ensure proper SQLAlchemy relationship initialization.
 
 # Import Base first
 from ..database import Base
+from .api_token import APIToken
+from .attachment import Attachment
+from .category import Category
 
 # Import all models to ensure they are registered with SQLAlchemy
 from .component import Component
 from .component_location import ComponentLocation
-from .storage_location import StorageLocation
-from .category import Category
-from .project import Project, ProjectComponent, ProjectStatus
-from .stock_transaction import StockTransaction, TransactionType
-from .tag import Tag, component_tags
-from .attachment import Attachment
 from .custom_field import CustomField, CustomFieldValue, FieldType
-from .substitute import Substitute
-from .user import User
-from .api_token import APIToken
-from .supplier import Supplier
-from .purchase import Purchase, PurchaseItem
-from .provider import ComponentDataProvider
-from .provider_data import ComponentProviderData
 from .kicad_data import KiCadLibraryData
 from .meta_part import MetaPart, MetaPartComponent
+from .project import Project, ProjectComponent, ProjectStatus
+from .provider import ComponentDataProvider
+from .provider_data import ComponentProviderData
+from .purchase import Purchase, PurchaseItem
+from .stock_transaction import StockTransaction, TransactionType
+from .storage_location import StorageLocation
+from .substitute import Substitute
+from .supplier import Supplier
+from .tag import Tag, component_tags
+from .user import User
 
 # Export all models
 __all__ = [

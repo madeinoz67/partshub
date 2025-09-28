@@ -3,15 +3,15 @@ Integration test for first-time setup and component addition.
 Tests the complete flow from initial setup to adding the first component.
 """
 
+import os
+import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import tempfile
-import os
-
+from src.database.connection import Base, get_db
 from src.main import app
-from src.database.connection import get_db, Base
 
 
 class TestFirstTimeSetup:
@@ -307,7 +307,7 @@ class TestFirstTimeSetup:
             headers=new_headers
         )
         assert component_response.status_code == 201
-        component_id = component_response.json()["id"]
+        component_response.json()["id"]
 
         # Test that component shows up in search
         search_response = client.get("/api/v1/components?search=ESP32")

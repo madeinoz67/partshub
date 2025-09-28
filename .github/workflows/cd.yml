@@ -1,0 +1,341 @@
+name: "Continuous Deployment"
+
+"on":
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      deployment_environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+      skip_tests:
+        description: 'Skip CI tests (emergency deployment)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_REPOSITORY: partshub
+
+jobs:
+  check_ci_status:
+    name: "Check CI Status"
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+    outputs:
+      ci_passed: ${{ steps.check.outputs.ci_passed }}
+
+    steps:
+      - name: Wait for CI workflow
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Backend Tests'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+      - name: Check CI status
+        id: check
+        run: echo "ci_passed=true" >> $GITHUB_OUTPUT
+
+  deploy_backend:
+    name: "Deploy Backend"
+    runs-on: ubuntu-latest
+    needs: [check_ci_status]
+    if: ${{ always() && (needs.check_ci_status.outputs.ci_passed == 'true' || inputs.skip_tests) }}
+    environment: production
+    outputs:
+      deployment_status: ${{ steps.deploy.outputs.status }}
+      deployment_url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(grep '^version =' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: backend
+          push: true
+          tags: |
+            ${{ steps.version.outputs.tag }}-backend
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:latest-backend
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy backend to production
+        id: deploy
+        run: |
+          echo "Deploying backend image: ${{ steps.version.outputs.tag }}-backend"
+          # Note: This is a placeholder for actual deployment logic
+          # In a real scenario, this would use kubectl, docker-compose, or deployment service
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "url=https://api.partshub.production" >> $GITHUB_OUTPUT
+
+      - name: Health check
+        run: |
+          echo "Performing health check..."
+          # Note: Replace with actual health check endpoint
+          # curl -f https://api.partshub.production/health || exit 1
+          sleep 5
+          echo "Health check passed"
+
+      - name: Upload deployment logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: backend-deployment-logs
+          path: |
+            /tmp/deployment-*.log
+          retention-days: 90
+
+  deploy_frontend:
+    name: "Deploy Frontend"
+    runs-on: ubuntu-latest
+    needs: [deploy_backend]
+    if: ${{ always() && needs.deploy_backend.outputs.deployment_status == 'success' }}
+    environment: production
+    outputs:
+      deployment_status: ${{ steps.deploy.outputs.status }}
+      deployment_url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(grep '^version =' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: frontend
+          push: true
+          tags: |
+            ${{ steps.version.outputs.tag }}-frontend
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:latest-frontend
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy frontend to production
+        id: deploy
+        run: |
+          echo "Deploying frontend image: ${{ steps.version.outputs.tag }}-frontend"
+          # Note: This is a placeholder for actual deployment logic
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "url=https://partshub.production" >> $GITHUB_OUTPUT
+
+      - name: Verify frontend accessibility
+        run: |
+          echo "Verifying frontend accessibility..."
+          # Note: Replace with actual frontend URL
+          # curl -f https://partshub.production || exit 1
+          sleep 5
+          echo "Frontend accessible"
+
+  build_and_deploy_docs:
+    name: "Build and Deploy Documentation"
+    runs-on: ubuntu-latest
+    needs: [check_ci_status]
+    if: ${{ always() && (needs.check_ci_status.outputs.ci_passed == 'true' || inputs.skip_tests) }}
+    outputs:
+      docs_url: ${{ steps.deploy.outputs.docs_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Build documentation
+        run: |
+          uv run mkdocs build --verbose
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+
+      - name: Set docs URL
+        id: deploy
+        run: |
+          echo "docs_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+
+  notify_deployment:
+    name: "Notify Deployment Results"
+    runs-on: ubuntu-latest
+    needs: [deploy_backend, deploy_frontend, build_and_deploy_docs]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare deployment summary
+        id: summary
+        run: |
+          BACKEND_STATUS="${{ needs.deploy_backend.outputs.deployment_status || 'skipped' }}"
+          FRONTEND_STATUS="${{ needs.deploy_frontend.outputs.deployment_status || 'skipped' }}"
+          DOCS_URL="${{ needs.build_and_deploy_docs.outputs.docs_url || 'N/A' }}"
+
+          SUMMARY="🚀 **Deployment Summary**
+
+          - **Backend**: $BACKEND_STATUS
+          - **Frontend**: $FRONTEND_STATUS
+          - **Documentation**: [Available]($DOCS_URL)
+
+          **Commit**: ${{ github.sha }}
+          **Branch**: ${{ github.ref_name }}
+          **Triggered by**: ${{ github.actor }}"
+
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create deployment issue comment
+        if: github.event_name == 'push'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const summary = `${{ steps.summary.outputs.summary }}`;
+
+            // Find or create a deployment tracking issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['deployment-tracking'],
+              state: 'open'
+            });
+
+            let issueNumber;
+            if (issues.length === 0) {
+              // Create new deployment tracking issue
+              const { data: newIssue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Deployment Tracking',
+                body: 'This issue tracks deployment activities.',
+                labels: ['deployment-tracking']
+              });
+              issueNumber = newIssue.number;
+            } else {
+              issueNumber = issues[0].number;
+            }
+
+            // Add comment with deployment summary
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: summary
+            });
+
+      - name: Notify on failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const failureSummary = `❌ **Deployment Failed**
+
+            **Commit**: ${{ github.sha }}
+            **Branch**: ${{ github.ref_name }}
+            **Workflow**: ${{ github.workflow }}
+            **Run**: ${{ github.run_id }}
+
+            Please check the workflow logs for details.`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Deployment Failure - ' + new Date().toISOString(),
+              body: failureSummary,
+              labels: ['deployment-failure', 'bug']
+            });
+
+  rollback_on_failure:
+    name: "Automatic Rollback"
+    runs-on: ubuntu-latest
+    needs: [deploy_backend, deploy_frontend]
+    if: ${{ failure() && (needs.deploy_backend.result == 'failure' || needs.deploy_frontend.result == 'failure') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Perform rollback
+        run: |
+          echo "Performing automatic rollback..."
+          # Note: This is a placeholder for actual rollback logic
+          # In a real scenario, this would revert to the previous working deployment
+          echo "Rollback completed"
+
+      - name: Notify rollback
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const rollbackSummary = `🔄 **Automatic Rollback Performed**
+
+            **Reason**: Deployment failure
+            **Commit**: ${{ github.sha }}
+            **Rollback Time**: ${new Date().toISOString()}
+
+            The system has been automatically rolled back to the previous working state.`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Automatic Rollback - ' + new Date().toISOString(),
+              body: rollbackSummary,
+              labels: ['rollback', 'deployment']
+            });

@@ -4,12 +4,11 @@ Implemented following TDD approach based on comprehensive test requirements.
 """
 
 import hashlib
-import os
+import logging
 import uuid
 from pathlib import Path
-from typing import List, Optional, Tuple
+
 import magic
-import logging
 
 try:
     from PIL import Image, ImageOps
@@ -80,7 +79,7 @@ class FileStorageService:
         hash_prefix = self._get_component_hash(component_id)
         return self.base_path / hash_prefix / component_id
 
-    def _validate_file(self, file_content: bytes, filename: str) -> Tuple[str, str]:
+    def _validate_file(self, file_content: bytes, filename: str) -> tuple[str, str]:
         """Validate file content and return MIME type and cleaned filename.
 
         Args:
@@ -173,7 +172,7 @@ class FileStorageService:
             return False
 
     def store_file(self, component_id: str, file_content: bytes, filename: str,
-                   attachment_type: Optional[str] = None) -> Tuple[str, Optional[str], int, str, str]:
+                   attachment_type: str | None = None) -> tuple[str, str | None, int, str, str]:
         """Store file with hashed directory structure.
 
         Args:
@@ -217,9 +216,9 @@ class FileStorageService:
         try:
             with open(file_path, 'wb') as f:
                 f.write(file_content)
-        except IOError as e:
+        except OSError as e:
             logger.error(f"Failed to write file {file_path}: {e}")
-            raise IOError(f"Failed to store file: {e}")
+            raise OSError(f"Failed to store file: {e}")
 
         # Generate thumbnail for images
         thumbnail_path = None
@@ -236,7 +235,7 @@ class FileStorageService:
 
         return relative_file_path, thumbnail_path, len(file_content), mime_type, safe_filename
 
-    def delete_file(self, file_path: str, thumbnail_path: Optional[str] = None) -> bool:
+    def delete_file(self, file_path: str, thumbnail_path: str | None = None) -> bool:
         """Delete file and its thumbnail.
 
         Args:
@@ -286,7 +285,7 @@ class FileStorageService:
         """
         return self.get_file_path(relative_path).exists()
 
-    def get_component_files(self, component_id: str) -> List[Path]:
+    def get_component_files(self, component_id: str) -> list[Path]:
         """Get all files for a component.
 
         Args:

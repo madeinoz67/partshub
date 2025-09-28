@@ -2,11 +2,20 @@
 ComponentProviderData cache model for storing provider data per component.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, JSON, UniqueConstraint, Index
+import uuid
+from typing import Any
+
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
-from typing import Dict, Any, Optional
 
 from ..database import Base
 
@@ -54,7 +63,7 @@ class ComponentProviderData(Base):
         return f"<ComponentProviderData(id='{self.id}', component='{self.component_id}', provider='{self.provider_id}')>"
 
     @property
-    def specifications(self) -> Dict[str, Any]:
+    def specifications(self) -> dict[str, Any]:
         """Return specifications as dictionary."""
         return self.specifications_json if self.specifications_json else {}
 
@@ -68,9 +77,9 @@ class ComponentProviderData(Base):
 
     def update_cache(self,
                     provider_part_id: str,
-                    datasheet_url: Optional[str] = None,
-                    image_url: Optional[str] = None,
-                    specifications: Optional[Dict[str, Any]] = None) -> None:
+                    datasheet_url: str | None = None,
+                    image_url: str | None = None,
+                    specifications: dict[str, Any] | None = None) -> None:
         """Update cached provider data."""
         self.provider_part_id = provider_part_id
         self.datasheet_url = datasheet_url

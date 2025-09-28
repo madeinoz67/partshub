@@ -2,11 +2,13 @@
 StorageLocationService with hierarchy and bulk creation operations.
 """
 
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, or_
-from ..models import StorageLocation, Component
 import uuid
+from typing import Any
+
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, selectinload
+
+from ..models import Component, StorageLocation
 
 
 class StorageLocationService:
@@ -15,7 +17,7 @@ class StorageLocationService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_storage_location(self, location_data: Dict[str, Any]) -> StorageLocation:
+    def create_storage_location(self, location_data: dict[str, Any]) -> StorageLocation:
         """Create a new storage location."""
         # Generate ID if not provided
         if "id" not in location_data:
@@ -49,7 +51,7 @@ class StorageLocationService:
         include_children: bool = False,
         include_component_count: bool = False,
         include_full_hierarchy: bool = False
-    ) -> Optional[StorageLocation]:
+    ) -> StorageLocation | None:
         """Get a storage location by ID with optional related data."""
         query = self.db.query(StorageLocation)
 
@@ -72,7 +74,7 @@ class StorageLocationService:
 
         return location
 
-    def update_storage_location(self, location_id: str, update_data: Dict[str, Any]) -> Optional[StorageLocation]:
+    def update_storage_location(self, location_id: str, update_data: dict[str, Any]) -> StorageLocation | None:
         """Update a storage location."""
         location = self.db.query(StorageLocation).filter(StorageLocation.id == location_id).first()
         if not location:
@@ -133,12 +135,12 @@ class StorageLocationService:
 
     def list_storage_locations(
         self,
-        search: Optional[str] = None,
-        location_type: Optional[str] = None,
+        search: str | None = None,
+        location_type: str | None = None,
         include_component_count: bool = False,
         limit: int = 100,
         offset: int = 0
-    ) -> List[StorageLocation]:
+    ) -> list[StorageLocation]:
         """List storage locations with filtering and pagination."""
         query = self.db.query(StorageLocation)
 
@@ -171,19 +173,19 @@ class StorageLocationService:
         self,
         location_id: str,
         include_children: bool = False,
-        search: Optional[str] = None,
-        category: Optional[str] = None,
-        component_type: Optional[str] = None,
-        stock_status: Optional[str] = None,
+        search: str | None = None,
+        category: str | None = None,
+        component_type: str | None = None,
+        stock_status: str | None = None,
         sort_by: str = "name",
         sort_order: str = "asc",
         limit: int = 50,
         offset: int = 0
-    ) -> List[Component]:
+    ) -> list[Component]:
         """Get components in a storage location."""
         from .component_service import ComponentService
 
-        component_service = ComponentService(self.db)
+        ComponentService(self.db)
 
         from ..models import ComponentLocation
 
@@ -229,7 +231,7 @@ class StorageLocationService:
             query = query.filter(Component.component_type.ilike(f"%{component_type}%"))
 
         if stock_status:
-            from sqlalchemy import func, and_
+            from sqlalchemy import and_, func
             # Apply the same multi-location stock filtering logic as ComponentService
             if stock_status == "out":
                 # Components with zero total quantity across all locations
@@ -299,7 +301,7 @@ class StorageLocationService:
         # Apply pagination
         return query.offset(offset).limit(limit).all()
 
-    def bulk_create_locations(self, locations_data: List[Dict[str, Any]]) -> List[StorageLocation]:
+    def bulk_create_locations(self, locations_data: list[dict[str, Any]]) -> list[StorageLocation]:
         """Create multiple storage locations in a single transaction."""
         if not locations_data:
             raise ValueError("No locations provided")
@@ -364,7 +366,7 @@ class StorageLocationService:
             child.location_hierarchy = f"{parent_location.location_hierarchy}/{child.name}"
             self._update_children_hierarchy(child)
 
-    def _check_circular_reference(self, location: StorageLocation, location_map: Dict[str, StorageLocation]):
+    def _check_circular_reference(self, location: StorageLocation, location_map: dict[str, StorageLocation]):
         """Check for circular references in bulk creation."""
         visited = set()
         current = location

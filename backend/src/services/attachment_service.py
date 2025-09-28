@@ -2,11 +2,13 @@
 AttachmentService for managing component file attachments.
 """
 
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
-from ..models import Attachment, Component
 import uuid
+from typing import Any
+
+from sqlalchemy import and_, or_
+from sqlalchemy.orm import Session
+
+from ..models import Attachment, Component
 
 
 class AttachmentService:
@@ -19,7 +21,7 @@ class AttachmentService:
         """Check if a component exists."""
         return self.db.query(Component).filter(Component.id == component_id).first() is not None
 
-    def list_attachments(self, component_id: str) -> List[Attachment]:
+    def list_attachments(self, component_id: str) -> list[Attachment]:
         """List all attachments for a component, ordered by display_order."""
         return (
             self.db.query(Attachment)
@@ -28,7 +30,7 @@ class AttachmentService:
             .all()
         )
 
-    def get_attachment(self, attachment_id: str, component_id: str = None) -> Optional[Attachment]:
+    def get_attachment(self, attachment_id: str, component_id: str = None) -> Attachment | None:
         """Get a specific attachment, optionally filtered by component."""
         query = self.db.query(Attachment).filter(Attachment.id == attachment_id)
 
@@ -37,7 +39,7 @@ class AttachmentService:
 
         return query.first()
 
-    def create_attachment(self, attachment_data: Dict[str, Any]) -> Attachment:
+    def create_attachment(self, attachment_data: dict[str, Any]) -> Attachment:
         """Create a new attachment."""
         # Generate ID if not provided
         if "id" not in attachment_data:
@@ -55,7 +57,7 @@ class AttachmentService:
 
         return attachment
 
-    def update_attachment(self, attachment_id: str, component_id: str, update_data: Dict[str, Any]) -> Optional[Attachment]:
+    def update_attachment(self, attachment_id: str, component_id: str, update_data: dict[str, Any]) -> Attachment | None:
         """Update attachment metadata."""
         attachment = self.get_attachment(attachment_id, component_id)
 
@@ -87,7 +89,7 @@ class AttachmentService:
 
         return True
 
-    def set_primary_image(self, attachment_id: str, component_id: str) -> Optional[Attachment]:
+    def set_primary_image(self, attachment_id: str, component_id: str) -> Attachment | None:
         """Set an attachment as the primary image for a component."""
         attachment = self.get_attachment(attachment_id, component_id)
 
@@ -108,21 +110,21 @@ class AttachmentService:
 
         return attachment
 
-    def get_primary_image(self, component_id: str) -> Optional[Attachment]:
+    def get_primary_image(self, component_id: str) -> Attachment | None:
         """Get the primary image attachment for a component."""
         return (
             self.db.query(Attachment)
             .filter(
                 and_(
                     Attachment.component_id == component_id,
-                    Attachment.is_primary_image == True,
+                    Attachment.is_primary_image is True,
                     Attachment.mime_type.like('image/%')
                 )
             )
             .first()
         )
 
-    def get_images(self, component_id: str) -> List[Attachment]:
+    def get_images(self, component_id: str) -> list[Attachment]:
         """Get all image attachments for a component, ordered by display_order."""
         return (
             self.db.query(Attachment)
@@ -136,7 +138,7 @@ class AttachmentService:
             .all()
         )
 
-    def get_datasheets(self, component_id: str) -> List[Attachment]:
+    def get_datasheets(self, component_id: str) -> list[Attachment]:
         """Get all datasheet attachments for a component."""
         return (
             self.db.query(Attachment)
@@ -158,6 +160,6 @@ class AttachmentService:
         self.db.query(Attachment).filter(
             and_(
                 Attachment.component_id == component_id,
-                Attachment.is_primary_image == True
+                Attachment.is_primary_image is True
             )
         ).update({"is_primary_image": False})

@@ -3,7 +3,8 @@ Database initialization with default categories and admin user.
 """
 
 from sqlalchemy.orm import Session
-from ..database import engine, Base
+
+from ..database import Base, engine
 from ..models import Category, StorageLocation, Tag
 
 

@@ -3,15 +3,15 @@ Integration test for component search and inventory management.
 Tests the complete inventory workflows including search, filtering, stock management.
 """
 
+import os
+import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import tempfile
-import os
-
-from src.main import app
 from src.database.connection import get_db
+from src.main import app
 from src.models import Base
 
 
@@ -21,7 +21,7 @@ class TestInventoryManagement:
     @pytest.fixture
     def db_session(self):
         """Create a shared database session for testing"""
-        from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+        from fastapi.security import HTTPAuthorizationCredentials
         from src.auth.dependencies import get_optional_user
         from src.auth.jwt_auth import get_current_user as get_user_from_token
         from src.models import User
@@ -105,7 +105,7 @@ class TestInventoryManagement:
     @pytest.fixture
     def seeded_data(self, db_session):
         """Create foundational data for integration tests"""
-        from src.models import Category, StorageLocation, Component
+        from src.models import Category, StorageLocation
 
         # Create categories
         categories = {

@@ -2,10 +2,11 @@
 ComponentLocation model for tracking component inventory across multiple storage locations.
 """
 
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, Numeric
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

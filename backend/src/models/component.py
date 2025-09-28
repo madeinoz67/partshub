@@ -2,11 +2,11 @@
 Component model with JSON specifications field for flexible component data storage.
 """
 
-from sqlalchemy import Column, String, Integer, Text, Numeric, JSON, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql import func
 import uuid
+
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from ..database import Base
 

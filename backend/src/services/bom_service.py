@@ -6,12 +6,12 @@ Generates BOMs from project components and integrates with provider data.
 import csv
 import io
 import json
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Any
 
-from ..models import Component, Project, ProjectComponent, ComponentProviderData
 from ..database import get_session
+from ..models import Component, ComponentProviderData, Project, ProjectComponent
 from .provider_service import ProviderService
 
 logger = logging.getLogger(__name__)
@@ -27,12 +27,12 @@ class BOMExportFormat:
 
 class BOMItem:
     """Individual BOM item with provider integration"""
-    def __init__(self, component: Component, quantity: int, provider_data: Optional[ComponentProviderData] = None):
+    def __init__(self, component: Component, quantity: int, provider_data: ComponentProviderData | None = None):
         self.component = component
         self.quantity = quantity
         self.provider_data = provider_data
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert BOM item to dictionary"""
         item = {
             "component_id": self.component.id,
@@ -87,7 +87,7 @@ class BOMService:
         project_id: str,
         include_provider_data: bool = True,
         refresh_provider_data: bool = False
-    ) -> List[BOMItem]:
+    ) -> list[BOMItem]:
         """
         Generate BOM for a specific project.
 
@@ -141,9 +141,9 @@ class BOMService:
 
     async def generate_component_list_bom(
         self,
-        component_quantities: List[Tuple[str, int]],
+        component_quantities: list[tuple[str, int]],
         include_provider_data: bool = True
-    ) -> List[BOMItem]:
+    ) -> list[BOMItem]:
         """
         Generate BOM from a list of component IDs and quantities.
 
@@ -227,7 +227,7 @@ class BOMService:
         finally:
             session.close()
 
-    def export_bom_csv(self, bom_items: List[BOMItem]) -> str:
+    def export_bom_csv(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to CSV format"""
         output = io.StringIO()
         writer = csv.writer(output)
@@ -260,7 +260,7 @@ class BOMService:
 
         return output.getvalue()
 
-    def export_bom_json(self, bom_items: List[BOMItem]) -> str:
+    def export_bom_json(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to JSON format"""
         bom_data = {
             "generated_at": datetime.utcnow().isoformat(),
@@ -277,7 +277,7 @@ class BOMService:
 
         return json.dumps(bom_data, indent=2)
 
-    def export_bom_kicad(self, bom_items: List[BOMItem]) -> str:
+    def export_bom_kicad(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to KiCad format"""
         output = io.StringIO()
 
@@ -310,7 +310,7 @@ class BOMService:
 
         return output.getvalue()
 
-    def calculate_bom_cost(self, bom_items: List[BOMItem]) -> Dict[str, Any]:
+    def calculate_bom_cost(self, bom_items: list[BOMItem]) -> dict[str, Any]:
         """Calculate total BOM cost and statistics"""
         total_cost = 0
         total_items = len(bom_items)
@@ -338,9 +338,9 @@ class BOMService:
 
     async def export_bom(
         self,
-        bom_items: List[BOMItem],
+        bom_items: list[BOMItem],
         export_format: str = BOMExportFormat.CSV
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """
         Export BOM in specified format.
 

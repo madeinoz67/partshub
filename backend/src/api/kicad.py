@@ -3,26 +3,33 @@ KiCad integration API endpoints.
 Provides KiCad-specific endpoints for component search, symbol/footprint data, and library synchronization.
 """
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends, Query, Response, Header, UploadFile, File
+import shutil
+import uuid
+from pathlib import Path
+from typing import Any
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Header,
+    HTTPException,
+    Query,
+    UploadFile,
+)
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-import uuid
-import os
-import shutil
-from pathlib import Path
 
-from ..database import get_db
-from ..services.kicad_service import KiCadExportService
-from ..services.kicad_library import KiCadLibraryManager
-from ..services.component_service import ComponentService
 from ..auth.dependencies import require_auth
-from ..auth.jwt_auth import get_current_user
+from ..database import get_db
+from ..services.component_service import ComponentService
+from ..services.kicad_library import KiCadLibraryManager
+from ..services.kicad_service import KiCadExportService
 
 # Import EasyEDA services
 try:
-    from ..services.easyeda_service import EasyEDAService
     from ..providers.lcsc_provider import LCSCProvider
+    from ..services.easyeda_service import EasyEDAService
     EASYEDA_API_AVAILABLE = True
 except ImportError:
     EASYEDA_API_AVAILABLE = False
@@ -43,8 +50,8 @@ def validate_uuid(component_id: str) -> None:
 
 
 def kicad_sync_auth(
-    authorization: Optional[str] = Header(None),
-    x_api_key: Optional[str] = Header(None)
+    authorization: str | None = Header(None),
+    x_api_key: str | None = Header(None)
 ) -> dict:
     """
     Custom authentication for KiCad sync endpoint.
@@ -67,13 +74,13 @@ class KiCadComponentResponse(BaseModel):
     # Contract test expected fields
     id: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     library_name: str
-    symbol_name: Optional[str] = None
-    footprint_name: Optional[str] = None
-    datasheet_url: Optional[str] = None
-    keywords: List[str] = []
-    properties: Dict[str, Any] = {}
+    symbol_name: str | None = None
+    footprint_name: str | None = None
+    datasheet_url: str | None = None
+    keywords: list[str] = []
+    properties: dict[str, Any] = {}
     created_at: str
     updated_at: str
 
@@ -81,16 +88,16 @@ class KiCadComponentResponse(BaseModel):
     reference: str
     value: str
     footprint: str
-    symbol_library: Optional[str] = None
-    footprint_library: Optional[str] = None
-    model_3d_path: Optional[str] = None
-    specifications: Dict[str, Any] = {}
-    manufacturer: Optional[str] = None
-    part_number: Optional[str] = None  # Maintained for backward compatibility
-    manufacturer_part_number: Optional[str] = None
-    local_part_id: Optional[str] = None
-    barcode_id: Optional[str] = None
-    provider_sku: Optional[str] = None
+    symbol_library: str | None = None
+    footprint_library: str | None = None
+    model_3d_path: str | None = None
+    specifications: dict[str, Any] = {}
+    manufacturer: str | None = None
+    part_number: str | None = None  # Maintained for backward compatibility
+    manufacturer_part_number: str | None = None
+    local_part_id: str | None = None
+    barcode_id: str | None = None
+    provider_sku: str | None = None
 
 
 class KiCadSymbolResponse(BaseModel):
@@ -98,8 +105,8 @@ class KiCadSymbolResponse(BaseModel):
     symbol_library: str
     symbol_name: str
     symbol_reference: str
-    pin_count: Optional[int] = None
-    symbol_data: Optional[Dict[str, Any]] = None
+    pin_count: int | None = None
+    symbol_data: dict[str, Any] | None = None
 
 
 class KiCadFootprintResponse(BaseModel):
@@ -107,25 +114,25 @@ class KiCadFootprintResponse(BaseModel):
     footprint_library: str
     footprint_name: str
     footprint_reference: str
-    pad_count: Optional[int] = None
-    footprint_data: Optional[Dict[str, Any]] = None
+    pad_count: int | None = None
+    footprint_data: dict[str, Any] | None = None
 
 
 class LibrarySyncRequest(BaseModel):
     """Library synchronization request."""
-    libraries: List[str]
+    libraries: list[str]
     sync_mode: str  # "incremental" or "full" - REQUIRED field
     force_update: bool = False
-    kicad_path: Optional[str] = None
+    kicad_path: str | None = None
 
     # Additional fields for advanced sync options
-    filters: Optional[Dict[str, Any]] = None
-    kicad_installation_path: Optional[str] = None
-    library_table_path: Optional[str] = None
+    filters: dict[str, Any] | None = None
+    kicad_installation_path: str | None = None
+    library_table_path: str | None = None
 
     # Optional legacy fields for backward compatibility
-    library_path: Optional[str] = None
-    categories: Optional[List[str]] = None
+    library_path: str | None = None
+    categories: list[str] | None = None
     include_symbols: bool = True
     include_footprints: bool = True
     include_3d_models: bool = False
@@ -136,7 +143,7 @@ class LibrarySyncResponse(BaseModel):
     # Contract test expected fields
     job_id: str
     status: str  # "completed", "in_progress", "failed"
-    libraries_requested: List[str]
+    libraries_requested: list[str]
     sync_mode: str
     started_at: str
 
@@ -150,23 +157,23 @@ class LibrarySyncResponse(BaseModel):
     message: str = ""
 
     # Optional fields for advanced sync features
-    filters: Optional[Dict[str, Any]] = None
-    configuration: Optional[Dict[str, str]] = None
-    paths_used: Optional[Dict[str, str]] = None
+    filters: dict[str, Any] | None = None
+    configuration: dict[str, str] | None = None
+    paths_used: dict[str, str] | None = None
 
 
 # T064: GET /api/v1/kicad/components - Search components for KiCad
-@router.get("/components", response_model=List[KiCadComponentResponse])
+@router.get("/components", response_model=list[KiCadComponentResponse])
 def search_kicad_components(
-    search: Optional[str] = Query(None, description="Search query for component name, part number, or value"),
-    package: Optional[str] = Query(None, description="Filter by package type (0805, DIP8, etc.)"),
-    category_id: Optional[str] = Query(None, description="Filter by category ID"),
-    manufacturer: Optional[str] = Query(None, description="Filter by manufacturer"),
-    library: Optional[str] = Query(None, description="Filter by KiCad library name"),
-    symbol: Optional[str] = Query(None, description="Filter by symbol name"),
-    footprint: Optional[str] = Query(None, description="Filter by footprint name"),
-    keywords: Optional[str] = Query(None, description="Filter by keywords"),
-    sort: Optional[str] = Query("name", description="Sort by field (name, part_number, manufacturer_part_number, local_part_id, created_at)"),
+    search: str | None = Query(None, description="Search query for component name, part number, or value"),
+    package: str | None = Query(None, description="Filter by package type (0805, DIP8, etc.)"),
+    category_id: str | None = Query(None, description="Filter by category ID"),
+    manufacturer: str | None = Query(None, description="Filter by manufacturer"),
+    library: str | None = Query(None, description="Filter by KiCad library name"),
+    symbol: str | None = Query(None, description="Filter by symbol name"),
+    footprint: str | None = Query(None, description="Filter by footprint name"),
+    keywords: str | None = Query(None, description="Filter by keywords"),
+    sort: str | None = Query("name", description="Sort by field (name, part_number, manufacturer_part_number, local_part_id, created_at)"),
     limit: int = Query(50, le=200, description="Maximum number of results"),
     offset: int = Query(0, ge=0, description="Result offset for pagination"),
     db: Session = Depends(get_db)
@@ -267,7 +274,7 @@ def get_kicad_component(
 @router.get("/components/{component_id}/symbol", response_model=KiCadSymbolResponse)
 def get_kicad_symbol(
     component_id: str,
-    format: Optional[str] = Query("json", description="Response format (json, kicad)"),
+    format: str | None = Query("json", description="Response format (json, kicad)"),
     db: Session = Depends(get_db)
 ):
     """
@@ -484,8 +491,8 @@ class CustomFileUploadResponse(BaseModel):
     """Response model for custom file uploads."""
     success: bool
     message: str
-    file_path: Optional[str] = None
-    source_info: Optional[Dict[str, Any]] = None
+    file_path: str | None = None
+    source_info: dict[str, Any] | None = None
 
 
 @router.post("/components/{component_id}/upload-symbol", response_model=CustomFileUploadResponse)
@@ -823,8 +830,8 @@ class LCSCConversionResponse(BaseModel):
     success: bool
     lcsc_id: str
     message: str
-    easyeda_data: Optional[Dict[str, Any]] = None
-    conversion_result: Optional[Dict[str, Any]] = None
+    easyeda_data: dict[str, Any] | None = None
+    conversion_result: dict[str, Any] | None = None
 
 
 @router.post("/lcsc/{lcsc_id}/convert", response_model=LCSCConversionResponse)
@@ -854,7 +861,7 @@ async def convert_lcsc_component(
     try:
         # Initialize services
         easyeda_service = EasyEDAService()
-        lcsc_provider = LCSCProvider()
+        LCSCProvider()
 
         # Get EasyEDA component data
         easyeda_data = await easyeda_service.get_easyeda_component_info(clean_lcsc_id)

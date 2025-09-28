@@ -6,25 +6,24 @@ Main FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import for startup events
-from .database import get_db
-from .auth.admin import ensure_admin_exists
-
 # Import all models to ensure SQLAlchemy relationships are configured
-from . import models
+from .api.attachments import router as attachments_router
+from .api.auth import router as auth_router
+from .api.bom import router as bom_router
+from .api.categories import router as categories_router
 
 # Import API routers
 from .api.components import router as components_router
-from .api.storage import router as storage_router
 from .api.integrations import router as integrations_router
-from .api.tags import router as tags_router
-from .api.auth import router as auth_router
-from .api.attachments import router as attachments_router
 from .api.kicad import router as kicad_router
 from .api.projects import router as projects_router
 from .api.reports import router as reports_router
-from .api.bom import router as bom_router
-from .api.categories import router as categories_router
+from .api.storage import router as storage_router
+from .api.tags import router as tags_router
+from .auth.admin import ensure_admin_exists
+
+# Import for startup events
+from .database import get_db
 
 app = FastAPI(
     title="PartsHub API",
@@ -82,10 +81,10 @@ async def startup_event():
             result = ensure_admin_exists(db)
             if result:
                 user, password = result
-                print(f"\n🔑 DEFAULT ADMIN CREATED:")
+                print("\n🔑 DEFAULT ADMIN CREATED:")
                 print(f"   Username: {user.username}")
                 print(f"   Password: {password}")
-                print(f"   ⚠️  Please change this password after first login!\n")
+                print("   ⚠️  Please change this password after first login!\n")
         except Exception as e:
             print(f"Error creating default admin user: {e}")
         finally:
@@ -128,7 +127,8 @@ async def health_check():
 
 
 if __name__ == "__main__":
-    import uvicorn
     import os
+
+    import uvicorn
     port = int(os.getenv("PORT", 8000))  # Use PORT env var, default to 8000
     uvicorn.run(app, host="0.0.0.0", port=port, reload=True)

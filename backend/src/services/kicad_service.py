@@ -3,15 +3,14 @@ KiCad library export service.
 Generates KiCad-compatible library files from component database.
 """
 
+import logging
 import os
 import tempfile
 import zipfile
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import logging
+from typing import Any
 
-from ..models import Component, Category
 from ..database import get_session
+from ..models import Category, Component
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ class KiCadExportService:
 
     def export_component_library(
         self,
-        components: List[Component],
+        components: list[Component],
         library_name: str = "PartsHub_Library"
     ) -> bytes:
         """
@@ -63,7 +62,7 @@ class KiCadExportService:
             logger.error(f"Error exporting KiCad library: {e}")
             raise
 
-    def _generate_symbol_library(self, components: List[Component], output_path: str, library_name: str):
+    def _generate_symbol_library(self, components: list[Component], output_path: str, library_name: str):
         """Generate KiCad symbol library file"""
 
         symbol_content = [
@@ -83,7 +82,7 @@ class KiCadExportService:
 
         logger.debug(f"Generated symbol library: {output_path}")
 
-    def _generate_component_symbol(self, component: Component) -> List[str]:
+    def _generate_component_symbol(self, component: Component) -> list[str]:
         """Generate KiCad symbol for a single component"""
 
         # Sanitize symbol name for KiCad
@@ -94,13 +93,13 @@ class KiCadExportService:
         # Basic symbol template - in production, this would be more sophisticated
         symbol = [
             f'  (symbol "{symbol_name}" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)',
-            f'    (property "Reference" "U" (at 0 3.81 0)',
+            '    (property "Reference" "U" (at 0 3.81 0)',
             '      (effects (font (size 1.27 1.27)))',
             '    )',
             f'    (property "Value" "{mpn}" (at 0 -3.81 0)',
             '      (effects (font (size 1.27 1.27)))',
             '    )',
-            f'    (property "Footprint" "" (at 0 0 0)',
+            '    (property "Footprint" "" (at 0 0 0)',
             '      (effects (font (size 1.27 1.27)) hide)',
             '    )',
             f'    (property "Datasheet" "{component.datasheet_url or ""}" (at 0 0 0)',
@@ -118,13 +117,13 @@ class KiCadExportService:
 
         # Add basic symbol graphics (rectangle with pins)
         symbol.extend([
-            '    (symbol "{}_0_1"'.format(symbol_name),
+            f'    (symbol "{symbol_name}_0_1"',
             '      (rectangle (start -7.62 2.54) (end 7.62 -2.54)',
             '        (stroke (width 0.254) (type default))',
             '        (fill (type background))',
             '      )',
             '    )',
-            '    (symbol "{}_1_1"'.format(symbol_name),
+            f'    (symbol "{symbol_name}_1_1"',
             '      (pin passive line (at -10.16 0 0) (length 2.54)',
             '        (name "1" (effects (font (size 1.27 1.27))))',
             '        (number "1" (effects (font (size 1.27 1.27))))',
@@ -139,7 +138,7 @@ class KiCadExportService:
 
         return symbol
 
-    def _generate_footprint_library(self, components: List[Component], output_dir: str, library_name: str):
+    def _generate_footprint_library(self, components: list[Component], output_dir: str, library_name: str):
         """Generate KiCad footprint library"""
 
         for component in components:
@@ -147,7 +146,7 @@ class KiCadExportService:
             if footprint_file:
                 logger.debug(f"Generated footprint: {footprint_file}")
 
-    def _generate_component_footprint(self, component: Component, output_dir: str) -> Optional[str]:
+    def _generate_component_footprint(self, component: Component, output_dir: str) -> str | None:
         """Generate KiCad footprint for a single component"""
 
         # Extract package information from specifications
@@ -165,7 +164,7 @@ class KiCadExportService:
         # Basic footprint template
         footprint_content = [
             f'(footprint "{footprint_name}" (version {self.library_version}) (generator "{self.creator}")',
-            f'  (layer "F.Cu")',
+            '  (layer "F.Cu")',
             f'  (descr "{component.notes or mpn}")',
             f'  (tags "{package} {component.manufacturer if component.manufacturer else ""}")',
             ''
@@ -189,7 +188,7 @@ class KiCadExportService:
 
         return footprint_path
 
-    def _generate_smd_footprint(self, package: str) -> List[str]:
+    def _generate_smd_footprint(self, package: str) -> list[str]:
         """Generate SMD footprint elements"""
         # Package dimensions (simplified)
         dimensions = {
@@ -218,7 +217,7 @@ class KiCadExportService:
             '    (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25))',
         ]
 
-    def _generate_lqfp_footprint(self, package: str) -> List[str]:
+    def _generate_lqfp_footprint(self, package: str) -> list[str]:
         """Generate LQFP footprint elements (simplified)"""
         return [
             '  (fp_text reference "U" (at 0 -6) (layer "F.SilkS")',
@@ -236,7 +235,7 @@ class KiCadExportService:
             '  # Additional pads would be generated based on pin count...',
         ]
 
-    def _generate_generic_footprint(self) -> List[str]:
+    def _generate_generic_footprint(self) -> list[str]:
         """Generate generic footprint elements"""
         return [
             '  (fp_text reference "U" (at 0 -2) (layer "F.SilkS")',
@@ -310,7 +309,7 @@ class KiCadExportService:
         finally:
             session.close()
 
-    def get_export_info(self) -> Dict[str, Any]:
+    def get_export_info(self) -> dict[str, Any]:
         """Get information about the KiCad export service"""
         return {
             "library_version": self.library_version,
@@ -319,7 +318,7 @@ class KiCadExportService:
             "package_types": ["SMD", "Through-hole", "LQFP", "Generic"]
         }
 
-    def format_component_for_kicad(self, component: Component, include_full_specs: bool = False) -> Dict[str, Any]:
+    def format_component_for_kicad(self, component: Component, include_full_specs: bool = False) -> dict[str, Any]:
         """Format component data for KiCad API responses"""
 
         # Determine reference designator based on component type
@@ -416,7 +415,7 @@ class KiCadExportService:
             "provider_sku": component.provider_sku
         }
 
-    def get_symbol_data(self, component: Component) -> Dict[str, Any]:
+    def get_symbol_data(self, component: Component) -> dict[str, Any]:
         """Get KiCad symbol data for a component"""
 
         if not component.kicad_data or not component.kicad_data.has_symbol:
@@ -430,7 +429,7 @@ class KiCadExportService:
             "symbol_data": component.kicad_data.kicad_fields_json
         }
 
-    def get_footprint_data(self, component: Component) -> Dict[str, Any]:
+    def get_footprint_data(self, component: Component) -> dict[str, Any]:
         """Get KiCad footprint data for a component"""
 
         if not component.kicad_data or not component.kicad_data.has_footprint:
@@ -444,7 +443,7 @@ class KiCadExportService:
             "footprint_data": component.kicad_data.kicad_fields_json
         }
 
-    def get_standard_field_mappings(self) -> Dict[str, str]:
+    def get_standard_field_mappings(self) -> dict[str, str]:
         """Get standard KiCad field mappings used by PartsHub"""
         return {
             "Reference": "Component reference designator",

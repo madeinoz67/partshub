@@ -3,9 +3,9 @@ Contract test for GET /api/v1/kicad/components/{id}
 Tests KiCad component details endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestKiCadComponentContract:
@@ -90,10 +90,6 @@ class TestKiCadComponentContract:
             properties = data["properties"]
 
             # Common KiCad properties that might be present
-            common_kicad_properties = [
-                "Value", "Footprint", "Datasheet", "ki_keywords",
-                "ki_description", "ki_fp_filters", "Reference"
-            ]
 
             # Properties should be a dictionary
             assert isinstance(properties, dict)
@@ -250,11 +246,6 @@ class TestKiCadComponentContract:
             assert len(library_name) > 0
 
             # Common KiCad libraries for validation
-            common_libraries = [
-                "Device", "Connector", "Logic_74xx", "MCU_Module",
-                "Amplifier_Operational", "Diode", "Transistor_BJT",
-                "Transistor_FET", "Interface_USB", "Timer"
-            ]
 
             # Library name should be a reasonable KiCad library name
             # (This is just a structural check, not exhaustive)

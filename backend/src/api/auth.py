@@ -3,20 +3,22 @@ Authentication API endpoints.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from ..database import get_db
-from ..auth.jwt_auth import create_user_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from ..auth.admin import authenticate_user, change_password, create_user
 from ..auth.api_tokens import (
-    create_api_token, list_user_tokens, revoke_api_token, get_api_token
+    create_api_token,
+    list_user_tokens,
+    revoke_api_token,
 )
-from ..auth.dependencies import require_auth, require_admin
-from ..models import User, APIToken
+from ..auth.dependencies import require_admin, require_auth
+from ..auth.jwt_auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_user_token
+from ..database import get_db
+from ..models import User
 
 
 # Pydantic schemas
@@ -29,14 +31,14 @@ class Token(BaseModel):
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8)
-    full_name: Optional[str] = None
+    full_name: str | None = None
     is_admin: bool = False
 
 
 class UserResponse(BaseModel):
     id: str
     username: str
-    full_name: Optional[str]
+    full_name: str | None
     is_active: bool
     is_admin: bool
     must_change_password: bool
@@ -53,18 +55,18 @@ class PasswordChange(BaseModel):
 
 class APITokenCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
-    description: Optional[str] = None
-    expires_in_days: Optional[int] = Field(None, gt=0, le=365)
+    description: str | None = None
+    expires_in_days: int | None = Field(None, gt=0, le=365)
 
 
 class APITokenResponse(BaseModel):
     id: str
     name: str
-    description: Optional[str]
+    description: str | None
     prefix: str
     is_active: bool
-    expires_at: Optional[datetime]
-    last_used_at: Optional[datetime]
+    expires_at: datetime | None
+    last_used_at: datetime | None
     created_at: datetime
 
     class Config:
@@ -208,7 +210,7 @@ async def create_user_api_token(
         )
 
 
-@router.get("/api-tokens", response_model=List[APITokenResponse])
+@router.get("/api-tokens", response_model=list[APITokenResponse])
 async def list_api_tokens(
     current_user: dict = Depends(require_auth),
     db: Session = Depends(get_db)

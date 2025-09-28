@@ -3,13 +3,12 @@ KiCad library management service.
 Manages component symbols, footprints, and library metadata.
 """
 
-import json
-from typing import Dict, Any, List, Optional
-from datetime import datetime
 import logging
+import os
+from typing import Any
 
-from ..models import Component
 from ..database import get_session
+from ..models import Component
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 class KiCadSymbol:
     """Represents a KiCad component symbol"""
 
-    def __init__(self, name: str, reference: str, value: str, pins: List[Dict]):
+    def __init__(self, name: str, reference: str, value: str, pins: list[dict]):
         self.name = name
         self.reference = reference  # e.g., "U", "R", "C"
         self.value = value
@@ -75,7 +74,7 @@ class KiCadSymbol:
 class KiCadFootprint:
     """Represents a KiCad component footprint"""
 
-    def __init__(self, name: str, description: str, tags: List[str]):
+    def __init__(self, name: str, description: str, tags: list[str]):
         self.name = name
         self.description = description
         self.tags = tags
@@ -97,7 +96,7 @@ class KiCadFootprint:
         """Convert footprint to KiCad format string"""
         footprint_lines = [
             f'(footprint "{self.name}" (version 20221018) (generator "PartsHub")',
-            f'  (layer "F.Cu")',
+            '  (layer "F.Cu")',
             f'  (descr "{self.description}")',
             f'  (tags "{" ".join(self.tags)}")',
             ''
@@ -138,7 +137,7 @@ class KiCadLibraryManager:
         self.symbol_templates = self._load_symbol_templates()
         self.footprint_templates = self._load_footprint_templates()
 
-    def _load_symbol_templates(self) -> Dict[str, Dict]:
+    def _load_symbol_templates(self) -> dict[str, dict]:
         """Load symbol templates for different component types"""
         return {
             "resistor": {
@@ -189,7 +188,7 @@ class KiCadLibraryManager:
             }
         }
 
-    def _load_footprint_templates(self) -> Dict[str, Dict]:
+    def _load_footprint_templates(self) -> dict[str, dict]:
         """Load footprint templates for different package types"""
         return {
             "0603": {
@@ -350,7 +349,7 @@ class KiCadLibraryManager:
         # Default package
         return "0805"
 
-    async def get_component_library_data(self, component_id: str) -> Dict[str, Any]:
+    async def get_component_library_data(self, component_id: str) -> dict[str, Any]:
         """Get KiCad library data for a specific component"""
         session = get_session()
         try:
@@ -384,7 +383,7 @@ class KiCadLibraryManager:
         finally:
             session.close()
 
-    def get_available_templates(self) -> Dict[str, Any]:
+    def get_available_templates(self) -> dict[str, Any]:
         """Get available symbol and footprint templates"""
         return {
             "symbols": list(self.symbol_templates.keys()),
@@ -394,14 +393,15 @@ class KiCadLibraryManager:
     def sync_libraries(
         self,
         library_path: str,
-        category_filters: Optional[List[str]] = None,
+        category_filters: list[str] | None = None,
         include_symbols: bool = True,
         include_footprints: bool = True,
         include_3d_models: bool = False,
-        limit: Optional[int] = None
-    ) -> Dict[str, Any]:
+        limit: int | None = None
+    ) -> dict[str, Any]:
         """Synchronize components to KiCad library files"""
         import os
+
         from sqlalchemy.orm import selectinload
 
         session = get_session()
@@ -458,7 +458,7 @@ class KiCadLibraryManager:
         finally:
             session.close()
 
-    def _generate_symbol_library_file(self, components: List[Component], output_path: str) -> int:
+    def _generate_symbol_library_file(self, components: list[Component], output_path: str) -> int:
         """Generate KiCad symbol library file"""
         symbol_content = [
             '(kicad_symbol_lib (version 20231120) (generator "PartsHub")',
@@ -483,7 +483,7 @@ class KiCadLibraryManager:
 
         return symbols_created
 
-    def _generate_footprint_library_files(self, components: List[Component], output_dir: str) -> int:
+    def _generate_footprint_library_files(self, components: list[Component], output_dir: str) -> int:
         """Generate KiCad footprint library files"""
         footprints_created = 0
 

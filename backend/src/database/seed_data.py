@@ -3,14 +3,15 @@ Mock data seeding script using Faker for testing the PartsHub database.
 """
 
 import random
-from faker import Faker
-from sqlalchemy.orm import Session
 from decimal import Decimal
 
+from faker import Faker
+from sqlalchemy.orm import Session
+
 from ..database import Base, engine, get_db
+
 # Import all models to ensure they are registered
 from ..models import *
-
 
 fake = Faker()
 

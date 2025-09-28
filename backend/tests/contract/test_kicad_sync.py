@@ -3,7 +3,6 @@ Contract test for POST /api/v1/kicad/libraries/sync
 Tests KiCad library synchronization endpoint according to OpenAPI specification
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -284,4 +283,4 @@ class TestKiCadSyncContract:
             progress_fields = ["estimated_components", "progress_callback_url", "webhook_url"]
 
             # At least some progress information should be available
-            has_progress_info = any(field in data for field in progress_fields)
+            any(field in data for field in progress_fields)

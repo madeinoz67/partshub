@@ -2,11 +2,13 @@
 CustomField and CustomFieldValue models for user-defined component attributes.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Enum as SQLEnum
+import enum
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
-import enum
 
 from ..database import Base
 

@@ -3,9 +3,7 @@ Contract test for POST /api/v1/storage-locations/bulk-create
 Tests bulk storage location creation endpoint according to OpenAPI specification
 """
 
-import pytest
 from fastapi.testclient import TestClient
-import uuid
 
 
 class TestStorageBulkContract:
@@ -81,7 +79,7 @@ class TestStorageBulkContract:
             workshop = next(loc for loc in data if loc["name"] == "Workshop")
             cabinet = next(loc for loc in data if loc["name"] == "Electronics Cabinet A")
             drawer1 = next(loc for loc in data if loc["name"] == "Drawer 1")
-            drawer2 = next(loc for loc in data if loc["name"] == "Drawer 2")
+            next(loc for loc in data if loc["name"] == "Drawer 2")
 
             # Workshop should be root (no parent)
             assert workshop["parent_id"] is None

@@ -3,15 +3,15 @@ Integration test for bulk storage location functionality.
 Tests bulk storage creation, hierarchy management, and location organization.
 """
 
+import os
+import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import tempfile
-import os
-
-from src.main import app
 from src.database.connection import get_db
+from src.main import app
 from src.models import Base
 
 
@@ -21,7 +21,7 @@ class TestBulkStorageIntegration:
     @pytest.fixture
     def db_session(self):
         """Create a shared database session for testing"""
-        from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+        from fastapi.security import HTTPAuthorizationCredentials
         from src.auth.dependencies import get_optional_user
         from src.auth.jwt_auth import get_current_user as get_user_from_token
         from src.models import User

@@ -2,13 +2,12 @@
 JWT authentication utilities for PartsHub.
 """
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any
 import os
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
-from jose import JWTError, jwt
 from fastapi import HTTPException, status
-
+from jose import JWTError, jwt
 
 # JWT Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
@@ -16,7 +15,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     """
     Create a JWT access token.
 
@@ -30,17 +29,17 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
     to_encode = data.copy()
 
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    to_encode.update({"exp": expire, "iat": datetime.now(timezone.utc)})
+    to_encode.update({"exp": expire, "iat": datetime.now(UTC)})
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def verify_token(token: str) -> Optional[Dict[str, Any]]:
+def verify_token(token: str) -> dict[str, Any] | None:
     """
     Verify and decode a JWT token.
 
@@ -59,7 +58,7 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
             return None
 
         # Convert exp timestamp to datetime
-        if datetime.fromtimestamp(exp, timezone.utc) < datetime.now(timezone.utc):
+        if datetime.fromtimestamp(exp, UTC) < datetime.now(UTC):
             return None
 
         return payload
@@ -68,7 +67,7 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def get_current_user_id(token: str) -> Optional[str]:
+def get_current_user_id(token: str) -> str | None:
     """
     Extract user ID from a JWT token.
 
@@ -86,7 +85,7 @@ def get_current_user_id(token: str) -> Optional[str]:
 
 
 def create_user_token(user_id: str, username: str, is_admin: bool = False,
-                     expires_delta: Optional[timedelta] = None) -> str:
+                     expires_delta: timedelta | None = None) -> str:
     """
     Create a JWT token for a user.
 
@@ -109,7 +108,7 @@ def create_user_token(user_id: str, username: str, is_admin: bool = False,
     return create_access_token(token_data, expires_delta)
 
 
-def get_current_user(token: str) -> Dict[str, Any]:
+def get_current_user(token: str) -> dict[str, Any]:
     """
     Get current user data from JWT token, raising exception if invalid.
 

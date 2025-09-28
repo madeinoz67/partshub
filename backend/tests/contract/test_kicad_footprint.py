@@ -3,9 +3,9 @@ Contract test for GET /api/v1/kicad/components/{id}/footprint
 Tests KiCad component footprint endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestKiCadFootprintContract:
@@ -83,14 +83,14 @@ class TestKiCadFootprintContract:
                 # Position should have x, y coordinates
                 assert "x" in pad["position"]
                 assert "y" in pad["position"]
-                assert isinstance(pad["position"]["x"], (int, float))
-                assert isinstance(pad["position"]["y"], (int, float))
+                assert isinstance(pad["position"]["x"], int | float)
+                assert isinstance(pad["position"]["y"], int | float)
 
                 # Size should have width and height
                 assert "width" in pad["size"]
                 assert "height" in pad["size"]
-                assert isinstance(pad["size"]["width"], (int, float))
-                assert isinstance(pad["size"]["height"], (int, float))
+                assert isinstance(pad["size"]["width"], int | float)
+                assert isinstance(pad["size"]["height"], int | float)
                 assert pad["size"]["width"] > 0
                 assert pad["size"]["height"] > 0
 
@@ -116,8 +116,8 @@ class TestKiCadFootprintContract:
                 assert field in dimensions
 
             # Width and height should be positive
-            assert isinstance(dimensions["width"], (int, float))
-            assert isinstance(dimensions["height"], (int, float))
+            assert isinstance(dimensions["width"], int | float)
+            assert isinstance(dimensions["height"], int | float)
             assert dimensions["width"] > 0
             assert dimensions["height"] > 0
 
@@ -127,7 +127,7 @@ class TestKiCadFootprintContract:
 
             for field in bbox_fields:
                 assert field in bounding_box
-                assert isinstance(bounding_box[field], (int, float))
+                assert isinstance(bounding_box[field], int | float)
 
             # Logical constraints
             assert bounding_box["max_x"] >= bounding_box["min_x"]
@@ -148,9 +148,6 @@ class TestKiCadFootprintContract:
                 assert isinstance(model_3d, dict)
 
                 # Common 3D model fields
-                possible_3d_fields = [
-                    "model_path", "offset", "scale", "rotation"
-                ]
 
                 # Model path should be present if 3D model exists
                 if "model_path" in model_3d:
@@ -168,7 +165,7 @@ class TestKiCadFootprintContract:
                         # Should have x, y, z components
                         for axis in ["x", "y", "z"]:
                             if axis in transform_data:
-                                assert isinstance(transform_data[axis], (int, float))
+                                assert isinstance(transform_data[axis], int | float)
 
     def test_get_kicad_footprint_courtyard(self, client: TestClient):
         """Test courtyard information"""
@@ -312,12 +309,6 @@ class TestKiCadFootprintContract:
             pads = data["pads"]
 
             # Common KiCad layer names
-            valid_layers = [
-                "F.Cu", "B.Cu", "F.Paste", "B.Paste", "F.SilkS", "B.SilkS",
-                "F.Mask", "B.Mask", "Dwgs.User", "Cmts.User", "Eco1.User",
-                "Eco2.User", "Edge.Cuts", "Margin", "F.CrtYd", "B.CrtYd",
-                "F.Fab", "B.Fab"
-            ]
 
             for pad in pads:
                 for layer in pad["layers"]:

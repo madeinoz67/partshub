@@ -4,7 +4,7 @@ Admin user management for PartsHub.
 
 import secrets
 import uuid
-from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from ..models import User
@@ -53,7 +53,7 @@ def create_default_admin(db: Session, username: str = "admin") -> tuple[User, st
     return admin_user, temporary_password
 
 
-def ensure_admin_exists(db: Session) -> Optional[tuple[User, str]]:
+def ensure_admin_exists(db: Session) -> tuple[User, str] | None:
     """
     Ensure at least one admin user exists, creating one if necessary.
 
@@ -64,7 +64,7 @@ def ensure_admin_exists(db: Session) -> Optional[tuple[User, str]]:
         tuple: (user, temporary_password) if admin was created, None if admin already exists
     """
     # Check if any admin user exists
-    admin_exists = db.query(User).filter(User.is_admin == True, User.is_active == True).first()
+    admin_exists = db.query(User).filter(User.is_admin is True, User.is_active is True).first()
 
     if admin_exists:
         return None
@@ -77,7 +77,7 @@ def create_user(
     db: Session,
     username: str,
     password: str,
-    full_name: Optional[str] = None,
+    full_name: str | None = None,
     is_admin: bool = False,
     force_password_change: bool = False
 ) -> User:
@@ -147,7 +147,7 @@ def change_password(db: Session, user_id: str, new_password: str) -> bool:
     return True
 
 
-def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
+def authenticate_user(db: Session, username: str, password: str) -> User | None:
     """
     Authenticate a user by username and password.
 

@@ -2,69 +2,69 @@
 Components API endpoints implementing the OpenAPI specification.
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+import math
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-import uuid
-import math
 
+from ..auth.dependencies import require_auth
 from ..database import get_db
 from ..services.component_service import ComponentService
-from ..models import Component, StockTransaction
-from ..auth.dependencies import require_auth, get_optional_user
+
 
 # Pydantic schemas
 class ComponentBase(BaseModel):
     name: str
-    part_number: Optional[str] = None  # Legacy field maintained for backward compatibility
-    local_part_id: Optional[str] = None  # User-friendly local identifier
-    barcode_id: Optional[str] = None  # Auto-generated barcode/QR code ID
-    manufacturer_part_number: Optional[str] = None  # Official manufacturer part number
-    provider_sku: Optional[str] = None  # Provider-specific SKU
-    manufacturer: Optional[str] = None
-    category_id: Optional[str] = None
-    storage_location_id: Optional[str] = None
-    component_type: Optional[str] = None
-    value: Optional[str] = None
-    package: Optional[str] = None
+    part_number: str | None = None  # Legacy field maintained for backward compatibility
+    local_part_id: str | None = None  # User-friendly local identifier
+    barcode_id: str | None = None  # Auto-generated barcode/QR code ID
+    manufacturer_part_number: str | None = None  # Official manufacturer part number
+    provider_sku: str | None = None  # Provider-specific SKU
+    manufacturer: str | None = None
+    category_id: str | None = None
+    storage_location_id: str | None = None
+    component_type: str | None = None
+    value: str | None = None
+    package: str | None = None
     quantity_on_hand: int = 0
     quantity_ordered: int = 0
     minimum_stock: int = 0
-    average_purchase_price: Optional[float] = None
-    total_purchase_value: Optional[float] = None
-    notes: Optional[str] = None
-    specifications: Optional[dict] = None
-    custom_fields: Optional[dict] = None
-    tags: Optional[List[str]] = None  # List of tag IDs
+    average_purchase_price: float | None = None
+    total_purchase_value: float | None = None
+    notes: str | None = None
+    specifications: dict | None = None
+    custom_fields: dict | None = None
+    tags: list[str] | None = None  # List of tag IDs
 
 class ComponentCreate(ComponentBase):
     pass
 
 class ComponentUpdate(BaseModel):
-    name: Optional[str] = None
-    part_number: Optional[str] = None  # Legacy field maintained for backward compatibility
-    local_part_id: Optional[str] = None  # User-friendly local identifier
-    barcode_id: Optional[str] = None  # Auto-generated barcode/QR code ID
-    manufacturer_part_number: Optional[str] = None  # Official manufacturer part number
-    provider_sku: Optional[str] = None  # Provider-specific SKU
-    manufacturer: Optional[str] = None
-    category_id: Optional[str] = None
-    storage_location_id: Optional[str] = None
-    component_type: Optional[str] = None
-    value: Optional[str] = None
-    package: Optional[str] = None
-    minimum_stock: Optional[int] = None
-    notes: Optional[str] = None
-    specifications: Optional[dict] = None
+    name: str | None = None
+    part_number: str | None = None  # Legacy field maintained for backward compatibility
+    local_part_id: str | None = None  # User-friendly local identifier
+    barcode_id: str | None = None  # Auto-generated barcode/QR code ID
+    manufacturer_part_number: str | None = None  # Official manufacturer part number
+    provider_sku: str | None = None  # Provider-specific SKU
+    manufacturer: str | None = None
+    category_id: str | None = None
+    storage_location_id: str | None = None
+    component_type: str | None = None
+    value: str | None = None
+    package: str | None = None
+    minimum_stock: int | None = None
+    notes: str | None = None
+    specifications: dict | None = None
 
 class ComponentResponse(ComponentBase):
     id: str
-    category: Optional[dict] = None
-    storage_location: Optional[dict] = None
-    storage_locations: List[dict] = []
-    tags: List[dict] = []
-    attachments: List[dict] = []
+    category: dict | None = None
+    storage_location: dict | None = None
+    storage_locations: list[dict] = []
+    tags: list[dict] = []
+    attachments: list[dict] = []
     created_at: str
     updated_at: str
 
@@ -75,7 +75,7 @@ class StockTransactionCreate(BaseModel):
     transaction_type: str = Field(..., pattern="^(add|remove|move|adjust)$")
     quantity_change: int
     reason: str
-    reference_id: Optional[str] = None
+    reference_id: str | None = None
 
 class StockTransactionResponse(BaseModel):
     id: str
@@ -85,14 +85,14 @@ class StockTransactionResponse(BaseModel):
     previous_quantity: int
     new_quantity: int
     reason: str
-    reference_id: Optional[str] = None
+    reference_id: str | None = None
     created_at: str
 
     class Config:
         from_attributes = True
 
 class ComponentsListResponse(BaseModel):
-    components: List[ComponentResponse]
+    components: list[ComponentResponse]
     total: int
     page: int
     total_pages: int
@@ -104,11 +104,11 @@ router = APIRouter(prefix="/api/v1/components", tags=["components"])
 
 @router.get("", response_model=ComponentsListResponse)
 def list_components(
-    search: Optional[str] = Query(None, description="Search in name, part number, manufacturer"),
-    category: Optional[str] = Query(None, description="Filter by category name"),
-    storage_location: Optional[str] = Query(None, description="Filter by storage location"),
-    component_type: Optional[str] = Query(None, description="Filter by component type"),
-    stock_status: Optional[str] = Query(None, pattern="^(low|out|available)$", description="Filter by stock status"),
+    search: str | None = Query(None, description="Search in name, part number, manufacturer"),
+    category: str | None = Query(None, description="Filter by category name"),
+    storage_location: str | None = Query(None, description="Filter by storage location"),
+    component_type: str | None = Query(None, description="Filter by component type"),
+    stock_status: str | None = Query(None, pattern="^(low|out|available)$", description="Filter by stock status"),
     sort_by: str = Query("name", pattern="^(name|quantity|created_at)$", description="Sort field"),
     sort_order: str = Query("asc", pattern="^(asc|desc)$", description="Sort order"),
     limit: int = Query(50, ge=1, le=100, description="Number of items to return"),
@@ -258,7 +258,7 @@ def create_component(
         }
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/{component_id}", response_model=ComponentResponse)
@@ -406,7 +406,7 @@ def update_component_stock(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/{component_id}/history", response_model=List[StockTransactionResponse])
+@router.get("/{component_id}/history", response_model=list[StockTransactionResponse])
 def get_component_history(
     component_id: str,
     limit: int = Query(50, ge=1, le=100, description="Number of transactions to return"),

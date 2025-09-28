@@ -3,17 +3,18 @@ External integrations API endpoints.
 Provides endpoints for component providers, barcode scanning, KiCad export, and import functionality.
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Response
-from typing import List, Dict, Any, Optional
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 
-from ..services.provider_service import ProviderService
 from ..services.import_service import ImportService
+from ..services.kicad_library import KiCadLibraryManager
+
 # from ..services.barcode_service import BarcodeService  # Temporarily disabled due to import issues
 from ..services.kicad_service import KiCadExportService
-from ..services.kicad_library import KiCadLibraryManager
 from ..services.provider_attachment_service import provider_attachment_service
-from ..auth.dependencies import require_auth
+from ..services.provider_service import ProviderService
 
 router = APIRouter(prefix="/api/v1", tags=["integrations"])
 
@@ -28,26 +29,26 @@ kicad_library = KiCadLibraryManager()
 # Request/Response models
 class ComponentSearchRequest(BaseModel):
     query: str
-    limit: Optional[int] = 20
-    providers: Optional[List[str]] = None
+    limit: int | None = 20
+    providers: list[str] | None = None
 
 
 class ProviderSkuSearchRequest(BaseModel):
     provider_sku: str
-    providers: Optional[List[str]] = None
+    providers: list[str] | None = None
 
 
 class UnifiedSearchRequest(BaseModel):
     query: str
-    search_type: Optional[str] = "auto"  # "auto", "part_number", "provider_sku"
-    limit: Optional[int] = 50
-    providers: Optional[List[str]] = None
+    search_type: str | None = "auto"  # "auto", "part_number", "provider_sku"
+    limit: int | None = 50
+    providers: list[str] | None = None
 
 
 class ComponentImportRequest(BaseModel):
-    components: List[Dict[str, Any]]
-    default_location_id: Optional[str] = None
-    download_attachments: Optional[Dict[str, bool]] = None  # {'datasheet': True, 'image': True}
+    components: list[dict[str, Any]]
+    default_location_id: str | None = None
+    download_attachments: dict[str, bool] | None = None  # {'datasheet': True, 'image': True}
 
 
 class BarcodeProcessRequest(BaseModel):
@@ -55,10 +56,10 @@ class BarcodeProcessRequest(BaseModel):
 
 
 class KiCadExportRequest(BaseModel):
-    component_ids: Optional[List[str]] = None
-    category_id: Optional[str] = None
-    manufacturer_name: Optional[str] = None
-    library_name: Optional[str] = "PartsHub_Export"
+    component_ids: list[str] | None = None
+    category_id: str | None = None
+    manufacturer_name: str | None = None
+    library_name: str | None = "PartsHub_Export"
 
 
 # Provider endpoints
@@ -134,8 +135,8 @@ async def unified_component_search(
 @router.post("/import/search")
 async def import_from_search(
     request: ComponentSearchRequest,
-    default_location_id: Optional[str] = None,
-    download_attachments: Optional[Dict[str, bool]] = None,
+    default_location_id: str | None = None,
+    download_attachments: dict[str, bool] | None = None,
 
 ):
     """Search and import components from external providers with optional attachment downloads"""
@@ -210,7 +211,9 @@ async def import_components(
                                 search_result = component_data['search_result']
 
                                 # Convert dict to ComponentSearchResult if needed
-                                from ..providers.base_provider import ComponentSearchResult
+                                from ..providers.base_provider import (
+                                    ComponentSearchResult,
+                                )
                                 if isinstance(search_result, dict):
                                     search_result = ComponentSearchResult(**search_result)
 
@@ -236,14 +239,14 @@ async def import_components(
 @router.post("/attachments/download")
 async def download_component_attachments(
     component_id: str,
-    download_options: Optional[Dict[str, bool]] = None,
+    download_options: dict[str, bool] | None = None,
 
 ):
     """Download attachments for a specific component from its provider data"""
     try:
         # Get component's provider data to find URLs
-        from ..models import Component, ComponentProviderData
         from ..database import get_session
+        from ..models import Component, ComponentProviderData
 
         session = get_session()
         try:
@@ -337,14 +340,14 @@ async def download_component_attachments(
 @router.post("/kicad/export")
 async def export_kicad_library(
     request: KiCadExportRequest,
-    
+
 ):
     """Export components to KiCad library format"""
     try:
         if request.component_ids:
             # Export specific components
-            from ..models import Component
             from ..database import get_session
+            from ..models import Component
 
             session = get_session()
             try:
@@ -378,7 +381,7 @@ async def export_kicad_library(
 @router.get("/kicad/component/{component_id}")
 async def get_kicad_component_data(
     component_id: str,
-    
+
 ):
     """Get KiCad library data for a specific component"""
     try:

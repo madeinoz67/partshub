@@ -3,20 +3,19 @@ Unit tests for Component model functionality.
 Tests component model validation, properties, relationships, and business logic.
 """
 
+import uuid
+from decimal import Decimal
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from decimal import Decimal
-import uuid
-from datetime import datetime
-
 from src.database import Base
-from src.models.component import Component
 from src.models.category import Category
-from src.models.storage_location import StorageLocation
+from src.models.component import Component
 from src.models.component_location import ComponentLocation
+from src.models.kicad_data import KiCadDataSource, KiCadLibraryData
+from src.models.storage_location import StorageLocation
 from src.models.tag import Tag
-from src.models.kicad_data import KiCadLibraryData, KiCadDataSource
 
 
 class TestComponentModel:

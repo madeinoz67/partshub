@@ -3,14 +3,14 @@ Component import service for importing components from external providers.
 Handles bulk imports, data validation, and integration with local database.
 """
 
-from typing import List, Dict, Any, Optional
-from uuid import uuid4
 import logging
+from typing import Any
+from uuid import uuid4
 
-from ..models import Component, Category, StorageLocation
+from ..database import get_session
+from ..models import Category, Component
 from ..providers.base_provider import ComponentSearchResult
 from .provider_service import ProviderService
-from ..database import get_session
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +25,8 @@ class ImportService:
         self,
         query: str,
         limit: int = 20,
-        providers: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
+        providers: list[str] | None = None
+    ) -> list[dict[str, Any]]:
         """
         Search providers and prepare components for import.
 
@@ -60,7 +60,7 @@ class ImportService:
             logger.error(f"Error preparing import for '{query}': {e}")
             return []
 
-    async def _prepare_component_for_import(self, search_result: ComponentSearchResult) -> Optional[Dict[str, Any]]:
+    async def _prepare_component_for_import(self, search_result: ComponentSearchResult) -> dict[str, Any] | None:
         """
         Prepare a component search result for import into local database.
 
@@ -113,9 +113,9 @@ class ImportService:
 
     async def import_components(
         self,
-        components_data: List[Dict[str, Any]],
-        default_location_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+        components_data: list[dict[str, Any]],
+        default_location_id: str | None = None
+    ) -> dict[str, Any]:
         """
         Import components into the local database.
 
@@ -191,7 +191,7 @@ class ImportService:
             session.close()
 
 
-    async def _get_or_create_category_id(self, category_name: Optional[str]) -> Optional[str]:
+    async def _get_or_create_category_id(self, category_name: str | None) -> str | None:
         """Get or create category and return its ID"""
         if not category_name:
             return None
@@ -225,9 +225,9 @@ class ImportService:
         self,
         query: str,
         limit: int = 20,
-        default_location_id: Optional[str] = None,
-        providers: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        default_location_id: str | None = None,
+        providers: list[str] | None = None
+    ) -> dict[str, Any]:
         """
         Search and import components in one operation.
 
@@ -258,7 +258,7 @@ class ImportService:
             logger.error(error_msg)
             return {"imported": 0, "failed": 0, "skipped": 0, "errors": [error_msg]}
 
-    async def get_provider_status(self) -> Dict[str, Any]:
+    async def get_provider_status(self) -> dict[str, Any]:
         """Get status of all component providers"""
         try:
             provider_info = self.provider_service.get_provider_info()

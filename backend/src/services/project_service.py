@@ -3,12 +3,19 @@ ProjectService with component allocation tracking.
 Manages project lifecycle, component allocation, and project-based inventory operations.
 """
 
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, func
-from ..models import Project, ProjectComponent, Component, StockTransaction, TransactionType
-import uuid
 import logging
+import uuid
+from typing import Any
+
+from sqlalchemy import and_, func
+from sqlalchemy.orm import Session, selectinload
+
+from ..models import (
+    Component,
+    Project,
+    ProjectComponent,
+    StockTransaction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +26,7 @@ class ProjectService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_project(self, project_data: Dict[str, Any]) -> Project:
+    def create_project(self, project_data: dict[str, Any]) -> Project:
         """Create a new project."""
         # Generate ID if not provided
         if "id" not in project_data:
@@ -34,7 +41,7 @@ class ProjectService:
         logger.info(f"Created project: {project.name} ({project.id})")
         return project
 
-    def get_project(self, project_id: str) -> Optional[Project]:
+    def get_project(self, project_id: str) -> Project | None:
         """Get a project by ID with all relationships loaded."""
         return (
             self.db.query(Project)
@@ -45,7 +52,7 @@ class ProjectService:
             .first()
         )
 
-    def update_project(self, project_id: str, update_data: Dict[str, Any]) -> Optional[Project]:
+    def update_project(self, project_id: str, update_data: dict[str, Any]) -> Project | None:
         """Update a project."""
         project = self.db.query(Project).filter(Project.id == project_id).first()
         if not project:
@@ -94,13 +101,13 @@ class ProjectService:
 
     def list_projects(
         self,
-        status: Optional[str] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        search: str | None = None,
         sort_by: str = "created_at",
         sort_order: str = "desc",
         limit: int = 50,
         offset: int = 0
-    ) -> List[Project]:
+    ) -> list[Project]:
         """List projects with filtering and pagination."""
         query = self.db.query(Project)
 
@@ -138,8 +145,8 @@ class ProjectService:
 
     def count_projects(
         self,
-        status: Optional[str] = None,
-        search: Optional[str] = None
+        status: str | None = None,
+        search: str | None = None
     ) -> int:
         """Count projects with filtering."""
         query = self.db.query(Project)
@@ -162,7 +169,7 @@ class ProjectService:
         project_id: str,
         component_id: str,
         quantity: int,
-        notes: Optional[str] = None
+        notes: str | None = None
     ) -> ProjectComponent:
         """
         Allocate components to a project from inventory.
@@ -238,7 +245,7 @@ class ProjectService:
         project_id: str,
         component_id: str,
         quantity: int,
-        notes: Optional[str] = None
+        notes: str | None = None
     ) -> ProjectComponent:
         """
         Return components from a project to inventory.
@@ -301,7 +308,7 @@ class ProjectService:
         logger.info(f"Returned {quantity} of {component.part_number} from project {project.name}")
         return allocation
 
-    def get_project_components(self, project_id: str) -> List[ProjectComponent]:
+    def get_project_components(self, project_id: str) -> list[ProjectComponent]:
         """Get all component allocations for a project."""
         return (
             self.db.query(ProjectComponent)
@@ -311,7 +318,7 @@ class ProjectService:
             .all()
         )
 
-    def get_component_projects(self, component_id: str) -> List[ProjectComponent]:
+    def get_component_projects(self, component_id: str) -> list[ProjectComponent]:
         """Get all project allocations for a component."""
         return (
             self.db.query(ProjectComponent)
@@ -322,7 +329,7 @@ class ProjectService:
             .all()
         )
 
-    def get_project_statistics(self, project_id: str) -> Dict[str, Any]:
+    def get_project_statistics(self, project_id: str) -> dict[str, Any]:
         """Get project statistics including component counts and costs."""
         project = self.get_project(project_id)
         if not project:
@@ -378,7 +385,7 @@ class ProjectService:
                     "Auto-returned due to project deletion"
                 )
 
-    def close_project(self, project_id: str, return_components: bool = True) -> Optional[Project]:
+    def close_project(self, project_id: str, return_components: bool = True) -> Project | None:
         """
         Close a project and optionally return all components to inventory.
 

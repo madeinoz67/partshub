@@ -3,9 +3,9 @@ Contract test for POST /api/v1/storage-locations
 Tests storage location creation endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestStorageCreateContract:

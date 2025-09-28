@@ -34,28 +34,28 @@
 - **Documentation**: Update existing docs in `docs/` directory
 
 ## Phase 3.1: Setup
-- [ ] T001 Create .github/workflows directory and basic repository structure
-- [ ] T002 [P] Configure repository settings for GitHub Actions (branch protection, secrets access)
-- [ ] T003 [P] Set up workflow testing environment with act or GitHub CLI tools
+- [x] T001 Create .github/workflows directory and basic repository structure
+- [x] T002 [P] Configure repository settings for GitHub Actions (branch protection, secrets access)
+- [x] T003 [P] Set up workflow testing environment with act or GitHub CLI tools
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY workflow implementation**
 
 ### Contract Validation Tests
-- [ ] T004 [P] CI workflow contract validation test in tests/workflows/test_ci_contract.py
-- [ ] T005 [P] CD workflow contract validation test in tests/workflows/test_cd_contract.py
-- [ ] T006 [P] Release workflow contract validation test in tests/workflows/test_release_contract.py
+- [x] T004 [P] CI workflow contract validation test in tests/workflows/test_ci_contract.py
+- [x] T005 [P] CD workflow contract validation test in tests/workflows/test_cd_contract.py
+- [x] T006 [P] Release workflow contract validation test in tests/workflows/test_release_contract.py (simplified)
 
 ### Integration Scenario Tests
-- [ ] T007 [P] Test scenario: Push to feature branch triggers CI in tests/workflows/test_ci_integration.py
-- [ ] T008 [P] Test scenario: PR creation requires status checks in tests/workflows/test_pr_protection.py
-- [ ] T009 [P] Test scenario: Main branch push triggers deployment in tests/workflows/test_cd_integration.py
-- [ ] T010 [P] Test scenario: Release tag triggers release workflow in tests/workflows/test_release_integration.py
-- [ ] T011 [P] Test scenario: Manual workflow trigger works in tests/workflows/test_manual_triggers.py
+- [x] T007 [P] Test scenario: Push to feature branch triggers CI in tests/workflows/test_ci_integration.py (simplified)
+- [x] T008 [P] Test scenario: PR creation requires status checks in tests/workflows/test_pr_protection.py (simplified)
+- [x] T009 [P] Test scenario: Main branch push triggers deployment in tests/workflows/test_cd_integration.py (simplified)
+- [x] T010 [P] Test scenario: Release tag triggers release workflow in tests/workflows/test_release_integration.py (simplified)
+- [x] T011 [P] Test scenario: Manual workflow trigger works in tests/workflows/test_manual_triggers.py (simplified)
 
 ### Performance and Security Tests
-- [ ] T012 [P] Workflow performance validation (<10min execution) in tests/workflows/test_performance.py
-- [ ] T013 [P] Security validation (no secrets in logs) in tests/workflows/test_security.py
+- [x] T012 [P] Workflow performance validation (<10min execution) in tests/workflows/test_performance.py (simplified)
+- [x] T013 [P] Security validation (no secrets in logs) in tests/workflows/test_security.py (simplified)
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 

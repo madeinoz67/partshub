@@ -3,9 +3,9 @@ Contract test for DELETE /api/v1/components/{id}
 Tests component deletion endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestComponentsDeleteContract:
@@ -91,7 +91,7 @@ class TestComponentsDeleteContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # First deletion
-        response1 = client.delete(f"/api/v1/components/{component_id}", headers=headers)
+        client.delete(f"/api/v1/components/{component_id}", headers=headers)
 
         # Second deletion of same component
         response2 = client.delete(f"/api/v1/components/{component_id}", headers=headers)

@@ -5,19 +5,20 @@ files from external provider URLs.
 """
 
 import asyncio
-import aiohttp
 import logging
-import time
-from typing import List, Dict, Optional, Tuple, Any
-from pathlib import Path
-from urllib.parse import urlparse
 import mimetypes
-from collections import defaultdict, deque
+import time
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlparse
 
-from ..providers.base_provider import ComponentSearchResult
-from ..services.file_storage import file_storage
-from ..services.attachment_service import AttachmentService
+import aiohttp
+
 from ..database import get_db
+from ..providers.base_provider import ComponentSearchResult
+from ..services.attachment_service import AttachmentService
+from ..services.file_storage import file_storage
 
 logger = logging.getLogger(__name__)
 
@@ -55,17 +56,17 @@ class ProviderAttachmentService:
     """Service for auto-downloading component attachments from providers."""
 
     def __init__(self):
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
         self.max_file_size = 50 * 1024 * 1024  # 50MB limit
         self.timeout = aiohttp.ClientTimeout(total=30)  # 30 second timeout
 
         # Rate limiting per domain to be good API citizens
-        self.rate_limiters: Dict[str, RateLimiter] = defaultdict(
+        self.rate_limiters: dict[str, RateLimiter] = defaultdict(
             lambda: RateLimiter(requests_per_second=1.0, burst_size=3)
         )
 
         # Track recent downloads to avoid duplicates
-        self.recent_downloads: Dict[str, float] = {}
+        self.recent_downloads: dict[str, float] = {}
         self.download_cache_duration = 3600  # 1 hour cache
 
     async def _get_session(self) -> aiohttp.ClientSession:
@@ -115,7 +116,7 @@ class ProviderAttachmentService:
         except Exception as e:
             logger.warning(f"Could not apply rate limiting for {url}: {e}")
 
-    async def download_file_from_url(self, url: str, max_size: Optional[int] = None) -> Optional[Tuple[bytes, str, str]]:
+    async def download_file_from_url(self, url: str, max_size: int | None = None) -> tuple[bytes, str, str] | None:
         """
         Download file from URL and return content, filename, and MIME type.
         Includes rate limiting and duplicate detection for good API citizenship.
@@ -197,8 +198,8 @@ class ProviderAttachmentService:
         self,
         component_id: str,
         search_result: ComponentSearchResult,
-        download_options: Dict[str, bool] = None
-    ) -> Dict[str, Any]:
+        download_options: dict[str, bool] = None
+    ) -> dict[str, Any]:
         """
         Download attachments for a component based on provider search results.
 
@@ -342,9 +343,9 @@ class ProviderAttachmentService:
 
     async def download_attachments_for_components(
         self,
-        components_with_results: List[Tuple[str, ComponentSearchResult]],
-        download_options: Dict[str, bool] = None
-    ) -> List[Dict[str, Any]]:
+        components_with_results: list[tuple[str, ComponentSearchResult]],
+        download_options: dict[str, bool] = None
+    ) -> list[dict[str, Any]]:
         """
         Download attachments for multiple components concurrently.
 

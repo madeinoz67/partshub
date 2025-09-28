@@ -3,15 +3,15 @@ Integration test for component data provider functionality.
 Tests provider API integration, data import, and provider selection workflows.
 """
 
+import os
+import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import tempfile
-import os
-
+from src.database.connection import Base, get_db
 from src.main import app
-from src.database.connection import get_db, Base
 
 
 class TestProviderIntegration:

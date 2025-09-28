@@ -1,0 +1,272 @@
+name: "Continuous Integration"
+
+"on":
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  UV_CACHE_DIR: /tmp/.uv-cache
+
+jobs:
+  backend_tests:
+    name: "Backend Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.uv-cache
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run linting with ruff
+        run: uv run ruff check .
+
+      - name: Run formatting check
+        run: uv run ruff format --check .
+
+      - name: Run type checking
+        run: uv run mypy backend/src --ignore-missing-imports
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          uv run --project .. pytest --junitxml=test-results.xml --cov=src --cov-report=xml --cov-report=html
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/test-results.xml
+          retention-days: 30
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: backend-coverage-report
+          path: |
+            backend/coverage.xml
+            backend/htmlcov/
+          retention-days: 30
+
+      - name: Check coverage threshold
+        run: |
+          cd backend
+          uv run --project .. coverage report --fail-under=80
+
+  frontend_tests:
+    name: "Frontend Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run frontend linting
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test -- --reporter=junit --outputFile=test-results.xml
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: frontend-test-results
+          path: frontend/test-results.xml
+          retention-days: 30
+
+      - name: Upload build verification
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: frontend-build-verification
+          path: frontend/dist/
+          retention-days: 30
+
+  security_scan:
+    name: "Security Scan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run safety check on Python dependencies
+        run: uv run safety check --json --output safety-report.json
+        continue-on-error: true
+
+      - name: Run bandit security linting
+        run: uv run bandit -r backend/src -f json -o bandit-report.json
+        continue-on-error: true
+
+      - name: Set up Node.js for frontend security scan
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run npm audit
+        run: |
+          cd frontend
+          npm audit --audit-level=critical --json > npm-audit-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-scan-results
+          path: |
+            safety-report.json
+            bandit-report.json
+            frontend/npm-audit-report.json
+          retention-days: 90
+
+      - name: Check for critical vulnerabilities
+        run: |
+          # Check safety report for critical issues
+          if [ -f safety-report.json ]; then
+            if grep -q '"vulnerability_id"' safety-report.json; then
+              echo "Critical vulnerabilities found in Python dependencies"
+              exit 1
+            fi
+          fi
+
+          # Check npm audit for critical issues
+          if [ -f frontend/npm-audit-report.json ]; then
+            critical_count=$(jq '.metadata.vulnerabilities.critical // 0' frontend/npm-audit-report.json)
+            if [ "$critical_count" -gt 0 ]; then
+              echo "Critical vulnerabilities found in npm dependencies"
+              exit 1
+            fi
+          fi
+
+  docker_build:
+    name: "Docker Build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: backend
+          push: false
+          tags: partshub-backend:test
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: frontend
+          push: false
+          tags: partshub-frontend:test
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Test backend container
+        run: |
+          docker run --rm -d --name test-backend partshub-backend:test
+          sleep 5
+          docker logs test-backend
+          docker stop test-backend
+
+      - name: Test frontend container
+        run: |
+          docker run --rm -d --name test-frontend -p 3001:3000 partshub-frontend:test
+          sleep 5
+          docker logs test-frontend
+          docker stop test-frontend
+
+      - name: Upload Docker build logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: docker-build-logs
+          path: /tmp/docker-build-*.log
+          retention-days: 30
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

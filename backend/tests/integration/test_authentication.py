@@ -3,16 +3,15 @@ Integration test for authentication functionality.
 Tests user authentication, authorization, token management, and access control.
 """
 
+import os
+import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import tempfile
-import os
-import time
-
+from src.database.connection import Base, get_db
 from src.main import app
-from src.database.connection import get_db, Base
 
 
 class TestAuthenticationIntegration:

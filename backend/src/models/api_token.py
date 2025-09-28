@@ -2,18 +2,18 @@
 API Token model for API-based authentication.
 """
 
-from datetime import datetime, timezone, timedelta
-from typing import Optional, TYPE_CHECKING
-import secrets
 import hashlib
+import secrets
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 
 from ..database import Base
 
 if TYPE_CHECKING:
-    from .user import User
+    pass
 
 
 class APIToken(Base):
@@ -32,13 +32,13 @@ class APIToken(Base):
     last_used_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False
     )
 
@@ -46,8 +46,8 @@ class APIToken(Base):
     user = relationship("User", back_populates="api_tokens")
 
     @classmethod
-    def generate_token(cls, user_id: str, name: str, description: Optional[str] = None,
-                      expires_in_days: Optional[int] = None) -> tuple[str, "APIToken"]:
+    def generate_token(cls, user_id: str, name: str, description: str | None = None,
+                      expires_in_days: int | None = None) -> tuple[str, "APIToken"]:
         """
         Generate a new API token and return both the raw token and the model instance.
 
@@ -66,7 +66,7 @@ class APIToken(Base):
         # Calculate expiration
         expires_at = None
         if expires_in_days:
-            expires_at = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
+            expires_at = datetime.now(UTC) + timedelta(days=expires_in_days)
 
         # Create the token instance
         token = cls(
@@ -86,7 +86,7 @@ class APIToken(Base):
         if not self.is_active:
             return False
 
-        if self.expires_at and datetime.now(timezone.utc) > self.expires_at:
+        if self.expires_at and datetime.now(UTC) > self.expires_at:
             return False
 
         token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
@@ -94,14 +94,14 @@ class APIToken(Base):
 
     def update_last_used(self) -> None:
         """Update the token's last used timestamp."""
-        self.last_used_at = datetime.now(timezone.utc)
+        self.last_used_at = datetime.now(UTC)
 
     @property
     def is_expired(self) -> bool:
         """Check if the token has expired."""
         if not self.expires_at:
             return False
-        return datetime.now(timezone.utc) > self.expires_at
+        return datetime.now(UTC) > self.expires_at
 
     @property
     def masked_token(self) -> str:

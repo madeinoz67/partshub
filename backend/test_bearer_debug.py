@@ -4,10 +4,11 @@ Debug HTTPBearer dependency specifically in TestClient
 """
 
 import os
+
 os.environ["TESTING"] = "1"
 
-from fastapi import FastAPI, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, FastAPI
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.testclient import TestClient
 
 # Create test app

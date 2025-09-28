@@ -2,10 +2,11 @@
 Substitute model for alternative components.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

@@ -4,16 +4,18 @@ Debug the exact production authentication flow step by step
 """
 
 import os
+
 os.environ["TESTING"] = "1"
 
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.testclient import TestClient
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from tests.conftest import TestingSessionLocal, test_engine
-from src.models import User, Base
 from src.auth.jwt_auth import create_access_token, get_current_user
 from src.database.connection import get_db
+from src.models import Base, User
+
+from tests.conftest import TestingSessionLocal, test_engine
 
 # Create test app with exact production patterns
 app = FastAPI()
@@ -24,7 +26,7 @@ async def debug_get_optional_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    print(f"DEBUG: get_optional_user called")
+    print("DEBUG: get_optional_user called")
     print(f"DEBUG: credentials = {credentials is not None}")
     if credentials:
         print(f"DEBUG: token length = {len(credentials.credentials)}")

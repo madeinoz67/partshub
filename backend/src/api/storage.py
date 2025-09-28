@@ -2,64 +2,65 @@
 Storage locations API endpoints implementing the OpenAPI specification.
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from ..auth.dependencies import require_auth
 from ..database import get_db
 from ..services.storage_service import StorageLocationService
-from ..auth.dependencies import require_auth, get_optional_user
+
 
 # Pydantic schemas
 class StorageLocationBase(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     type: str  # container, room, building, cabinet, drawer, shelf, bin
-    parent_id: Optional[str] = None
-    qr_code_id: Optional[str] = None
+    parent_id: str | None = None
+    qr_code_id: str | None = None
 
 class StorageLocationCreate(StorageLocationBase):
     pass
 
 class StorageLocationUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    type: Optional[str] = None
-    parent_id: Optional[str] = None
-    qr_code_id: Optional[str] = None
+    name: str | None = None
+    description: str | None = None
+    type: str | None = None
+    parent_id: str | None = None
+    qr_code_id: str | None = None
 
 class StorageLocationResponse(StorageLocationBase):
     id: str
     location_hierarchy: str
     created_at: str
     updated_at: str
-    children: Optional[List[dict]] = None
-    component_count: Optional[int] = None
-    full_hierarchy_path: Optional[List[dict]] = None
+    children: list[dict] | None = None
+    component_count: int | None = None
+    full_hierarchy_path: list[dict] | None = None
 
     class Config:
         from_attributes = True
 
 class BulkCreateLocation(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     type: str
-    parent_name: Optional[str] = None  # Reference by name instead of ID
-    qr_code_id: Optional[str] = None
+    parent_name: str | None = None  # Reference by name instead of ID
+    qr_code_id: str | None = None
 
 class BulkCreateRequest(BaseModel):
-    locations: List[BulkCreateLocation]
+    locations: list[BulkCreateLocation]
 
 router = APIRouter(prefix="/api/v1/storage-locations", tags=["storage"])
 
 # Authentication implemented - using real auth system
 
-@router.get("", response_model=List[StorageLocationResponse])
+@router.get("", response_model=list[StorageLocationResponse])
 def list_storage_locations(
-    search: Optional[str] = Query(None, description="Search in name or hierarchy"),
-    type: Optional[str] = Query(None, description="Filter by location type"),
+    search: str | None = Query(None, description="Search in name or hierarchy"),
+    type: str | None = Query(None, description="Filter by location type"),
     include_component_count: bool = Query(False, description="Include component counts"),
     limit: int = Query(100, ge=1, le=200, description="Number of items to return"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
@@ -138,10 +139,10 @@ def create_storage_location(
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/bulk-create", response_model=List[StorageLocationResponse], status_code=status.HTTP_201_CREATED)
+@router.post("/bulk-create", response_model=list[StorageLocationResponse], status_code=status.HTTP_201_CREATED)
 def bulk_create_storage_locations(
     request: BulkCreateRequest,
     current_user=Depends(require_auth),
@@ -164,7 +165,7 @@ def bulk_create_storage_locations(
         return created_locations
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/{location_id}", response_model=StorageLocationResponse)
@@ -269,10 +270,10 @@ def update_storage_location(
 def get_location_components(
     location_id: str,
     include_children: bool = Query(False, description="Include components from child locations"),
-    search: Optional[str] = Query(None, description="Search in component names"),
-    category: Optional[str] = Query(None, description="Filter by category"),
-    component_type: Optional[str] = Query(None, description="Filter by component type"),
-    stock_status: Optional[str] = Query(None, pattern="^(low|out|available)$", description="Filter by stock status"),
+    search: str | None = Query(None, description="Search in component names"),
+    category: str | None = Query(None, description="Filter by category"),
+    component_type: str | None = Query(None, description="Filter by component type"),
+    stock_status: str | None = Query(None, pattern="^(low|out|available)$", description="Filter by stock status"),
     sort_by: str = Query("name", pattern="^(name|quantity)$", description="Sort field"),
     sort_order: str = Query("asc", pattern="^(asc|desc)$", description="Sort order"),
     limit: int = Query(50, ge=1, le=100, description="Number of components to return"),

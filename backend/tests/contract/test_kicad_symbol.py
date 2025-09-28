@@ -3,9 +3,9 @@ Contract test for GET /api/v1/kicad/components/{id}/symbol
 Tests KiCad component symbol endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestKiCadSymbolContract:
@@ -60,7 +60,6 @@ class TestKiCadSymbolContract:
             drawing_data = data["drawing_data"]
 
             # Drawing data should contain graphical elements
-            expected_drawing_fields = ["shapes", "text_elements", "style"]
 
             # At least some drawing elements should be present
             assert isinstance(drawing_data, dict)
@@ -116,8 +115,8 @@ class TestKiCadSymbolContract:
                 # Position should have x, y coordinates
                 assert "x" in pin["position"]
                 assert "y" in pin["position"]
-                assert isinstance(pin["position"]["x"], (int, float))
-                assert isinstance(pin["position"]["y"], (int, float))
+                assert isinstance(pin["position"]["x"], int | float)
+                assert isinstance(pin["position"]["y"], int | float)
 
                 # Orientation validation
                 assert pin["orientation"] in ["right", "left", "up", "down"]
@@ -137,7 +136,7 @@ class TestKiCadSymbolContract:
 
             for field in required_bbox_fields:
                 assert field in bounding_box
-                assert isinstance(bounding_box[field], (int, float))
+                assert isinstance(bounding_box[field], int | float)
 
             # Logical constraints
             assert bounding_box["max_x"] >= bounding_box["min_x"]
@@ -154,9 +153,6 @@ class TestKiCadSymbolContract:
             properties = data["properties"]
 
             # Properties should contain symbol-specific metadata
-            common_symbol_properties = [
-                "Reference", "Value", "Footprint", "ki_keywords", "ki_description"
-            ]
 
             # Properties structure validation
             assert isinstance(properties, dict)

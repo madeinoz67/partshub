@@ -3,7 +3,6 @@ Contract test for GET /api/v1/components
 Tests the components list endpoint according to OpenAPI specification
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 

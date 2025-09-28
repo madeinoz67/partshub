@@ -2,10 +2,11 @@
 Supplier model for vendor information and purchasing history.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, UniqueConstraint
+import uuid
+
+from sqlalchemy import Column, DateTime, String, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

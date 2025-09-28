@@ -3,16 +3,16 @@ Category management API endpoints.
 Provides CRUD operations for hierarchical component categories.
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from ..auth.dependencies import require_auth
 from ..database.connection import get_db
 from ..models.category import Category
 from ..models.component import Component
-from ..auth.dependencies import require_auth, get_optional_user
 
 router = APIRouter(prefix="/api/v1/categories", tags=["categories"])
 
@@ -20,37 +20,37 @@ router = APIRouter(prefix="/api/v1/categories", tags=["categories"])
 class CategoryCreate(BaseModel):
     """Request model for creating a new category."""
     name: str = Field(..., min_length=1, max_length=100, description="Category name")
-    description: Optional[str] = Field(None, description="Optional category description")
-    parent_id: Optional[str] = Field(None, description="Parent category ID for hierarchy")
-    color: Optional[str] = Field(None, pattern="^#[0-9A-Fa-f]{6}$", description="Hex color code")
-    icon: Optional[str] = Field(None, max_length=50, description="Icon identifier")
+    description: str | None = Field(None, description="Optional category description")
+    parent_id: str | None = Field(None, description="Parent category ID for hierarchy")
+    color: str | None = Field(None, pattern="^#[0-9A-Fa-f]{6}$", description="Hex color code")
+    icon: str | None = Field(None, max_length=50, description="Icon identifier")
     sort_order: int = Field(0, description="Sort order within parent category")
 
 
 class CategoryUpdate(BaseModel):
     """Request model for updating an existing category."""
-    name: Optional[str] = Field(None, min_length=1, max_length=100, description="Category name")
-    description: Optional[str] = Field(None, description="Category description")
-    parent_id: Optional[str] = Field(None, description="Parent category ID for hierarchy")
-    color: Optional[str] = Field(None, pattern="^#[0-9A-Fa-f]{6}$", description="Hex color code")
-    icon: Optional[str] = Field(None, max_length=50, description="Icon identifier")
-    sort_order: Optional[int] = Field(None, description="Sort order within parent category")
+    name: str | None = Field(None, min_length=1, max_length=100, description="Category name")
+    description: str | None = Field(None, description="Category description")
+    parent_id: str | None = Field(None, description="Parent category ID for hierarchy")
+    color: str | None = Field(None, pattern="^#[0-9A-Fa-f]{6}$", description="Hex color code")
+    icon: str | None = Field(None, max_length=50, description="Icon identifier")
+    sort_order: int | None = Field(None, description="Sort order within parent category")
 
 
 class CategoryResponse(BaseModel):
     """Response model for category data."""
     id: str
     name: str
-    description: Optional[str] = None
-    parent_id: Optional[str] = None
-    color: Optional[str] = None
-    icon: Optional[str] = None
+    description: str | None = None
+    parent_id: str | None = None
+    color: str | None = None
+    icon: str | None = None
     sort_order: int
     created_at: str
     updated_at: str
     component_count: int = 0
     children_count: int = 0
-    full_path_names: List[str] = []
+    full_path_names: list[str] = []
     breadcrumb: str = ""
     depth: int = 0
 
@@ -62,11 +62,11 @@ class CategoryTreeResponse(BaseModel):
     """Response model for hierarchical category tree."""
     id: str
     name: str
-    description: Optional[str] = None
-    color: Optional[str] = None
-    icon: Optional[str] = None
+    description: str | None = None
+    color: str | None = None
+    icon: str | None = None
     component_count: int = 0
-    children: List["CategoryTreeResponse"] = []
+    children: list["CategoryTreeResponse"] = []
     breadcrumb: str = ""
     depth: int = 0
 
@@ -83,10 +83,10 @@ class ComponentSummary(BaseModel):
     id: str
     name: str
     part_number: str
-    manufacturer: Optional[str] = None
-    component_type: Optional[str] = None
-    value: Optional[str] = None
-    package: Optional[str] = None
+    manufacturer: str | None = None
+    component_type: str | None = None
+    value: str | None = None
+    package: str | None = None
     quantity_on_hand: int = 0
 
     class Config:
@@ -96,7 +96,7 @@ class ComponentSummary(BaseModel):
 class CategoryComponentsResponse(BaseModel):
     """Response model for category components listing."""
     category: CategoryResponse
-    components: List[ComponentSummary]
+    components: list[ComponentSummary]
     total_count: int
 
 
@@ -135,7 +135,7 @@ def category_to_tree_response(category: Category) -> CategoryTreeResponse:
     )
 
 
-@router.get("", response_model=List[CategoryTreeResponse])
+@router.get("", response_model=list[CategoryTreeResponse])
 def get_categories(
     hierarchy: bool = Query(True, description="Return hierarchical tree structure"),
     include_empty: bool = Query(True, description="Include categories with no components"),
@@ -295,7 +295,7 @@ def update_category(
 @router.delete("/{category_id}", status_code=200)
 def delete_category(
     category_id: str,
-    reassign_to: Optional[str] = Query(None, description="Category ID to reassign components to"),
+    reassign_to: str | None = Query(None, description="Category ID to reassign components to"),
     force: bool = Query(False, description="Force delete even with components (reassign_to required)"),
     db: Session = Depends(get_db),
     current_user = Depends(require_auth)

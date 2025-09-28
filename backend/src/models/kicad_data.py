@@ -2,11 +2,12 @@
 KiCadLibraryData model for KiCad-specific component data.
 """
 
-from sqlalchemy import Column, String, Text, ForeignKey, JSON, DateTime, Enum
-from sqlalchemy.orm import relationship
-from datetime import datetime
-import uuid
 import enum
+import uuid
+from datetime import datetime
+
+from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy.orm import relationship
 
 from ..database import Base
 

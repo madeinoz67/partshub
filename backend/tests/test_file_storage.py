@@ -3,13 +3,14 @@ Test-Driven Development tests for FileStorageService.
 Tests written BEFORE implementation to define expected behavior.
 """
 
-import pytest
-import tempfile
-import shutil
-from pathlib import Path
-from unittest.mock import Mock, patch
-from PIL import Image
 import io
+import shutil
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+from PIL import Image
 
 
 class TestFileStorageService:
@@ -82,7 +83,7 @@ startxref
 
         # Create service with non-existent directory
         service_dir = Path(temp_storage_dir) / "new_storage"
-        service = FileStorageService(base_path=str(service_dir))
+        FileStorageService(base_path=str(service_dir))
 
         # Verify directory was created
         assert service_dir.exists()

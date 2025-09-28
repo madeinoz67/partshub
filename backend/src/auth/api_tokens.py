@@ -2,19 +2,19 @@
 API Token management service for PartsHub.
 """
 
-from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from sqlalchemy.orm import Session
 
-from ..models import User, APIToken
+from ..models import APIToken, User
 
 
 def create_api_token(
     db: Session,
     user_id: str,
     name: str,
-    description: Optional[str] = None,
-    expires_in_days: Optional[int] = None
+    description: str | None = None,
+    expires_in_days: int | None = None
 ) -> tuple[str, APIToken]:
     """
     Create a new API token for a user.
@@ -56,7 +56,7 @@ def create_api_token(
     return raw_token, api_token
 
 
-def verify_api_token(raw_token: str, db: Session) -> Optional[User]:
+def verify_api_token(raw_token: str, db: Session) -> User | None:
     """
     Verify an API token and return the associated user.
 
@@ -94,7 +94,7 @@ def verify_api_token(raw_token: str, db: Session) -> Optional[User]:
     return user
 
 
-def list_user_tokens(db: Session, user_id: str, include_inactive: bool = False) -> List[APIToken]:
+def list_user_tokens(db: Session, user_id: str, include_inactive: bool = False) -> list[APIToken]:
     """
     List all API tokens for a user.
 
@@ -109,16 +109,16 @@ def list_user_tokens(db: Session, user_id: str, include_inactive: bool = False) 
     query = db.query(APIToken).filter(APIToken.user_id == user_id)
 
     if not include_inactive:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         query = query.filter(
-            APIToken.is_active == True,
+            APIToken.is_active is True,
             (APIToken.expires_at.is_(None) | (APIToken.expires_at > now))
         )
 
     return query.order_by(APIToken.created_at.desc()).all()
 
 
-def get_api_token(db: Session, token_id: str, user_id: Optional[str] = None) -> Optional[APIToken]:
+def get_api_token(db: Session, token_id: str, user_id: str | None = None) -> APIToken | None:
     """
     Get an API token by ID.
 
@@ -138,7 +138,7 @@ def get_api_token(db: Session, token_id: str, user_id: Optional[str] = None) -> 
     return query.first()
 
 
-def revoke_api_token(db: Session, token_id: str, user_id: Optional[str] = None) -> bool:
+def revoke_api_token(db: Session, token_id: str, user_id: str | None = None) -> bool:
     """
     Revoke (deactivate) an API token.
 
@@ -174,10 +174,10 @@ def cleanup_expired_tokens(db: Session) -> int:
     Returns:
         Number of tokens that were cleaned up
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     expired_tokens = db.query(APIToken).filter(
-        APIToken.is_active == True,
+        APIToken.is_active is True,
         APIToken.expires_at.isnot(None),
         APIToken.expires_at <= now
     ).all()

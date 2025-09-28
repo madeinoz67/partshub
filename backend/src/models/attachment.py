@@ -2,10 +2,11 @@
 Attachment model for component files (datasheets, photos, etc.).
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer, Boolean
+import uuid
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

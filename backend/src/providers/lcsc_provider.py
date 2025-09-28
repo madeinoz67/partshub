@@ -4,10 +4,9 @@ Integrates with LCSC's public API for component search and data.
 """
 
 import asyncio
-import aiohttp
-from typing import List, Optional, Dict, Any
-import re
 import logging
+import re
+from typing import Any
 
 from .base_provider import ComponentDataProvider, ComponentSearchResult
 
@@ -25,7 +24,7 @@ except ImportError:
 class LCSCProvider(ComponentDataProvider):
     """LCSC component data provider"""
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         super().__init__("LCSC", api_key)
         self.base_url = "https://wmsc.lcsc.com/wmsc"
         self.rate_limit_delay = 0.5  # LCSC allows higher rates
@@ -33,7 +32,7 @@ class LCSCProvider(ComponentDataProvider):
         # Initialize EasyEDA service for KiCad data
         self.easyeda_service = EasyEDAService() if EASYEDA_SERVICE_AVAILABLE else None
 
-    async def search_components(self, query: str, limit: int = 10) -> List[ComponentSearchResult]:
+    async def search_components(self, query: str, limit: int = 10) -> list[ComponentSearchResult]:
         """
         Search LCSC for components matching the query.
 
@@ -66,7 +65,7 @@ class LCSCProvider(ComponentDataProvider):
             logger.error(f"LCSC search failed for '{query}': {e}")
             return []
 
-    async def get_component_details(self, part_number: str, manufacturer: Optional[str] = None) -> Optional[ComponentSearchResult]:
+    async def get_component_details(self, part_number: str, manufacturer: str | None = None) -> ComponentSearchResult | None:
         """Get detailed component information from LCSC"""
         try:
             await asyncio.sleep(self.rate_limit_delay)
@@ -106,7 +105,7 @@ class LCSCProvider(ComponentDataProvider):
             logger.error(f"LCSC details failed for '{part_number}': {e}")
             return None
 
-    async def search_by_provider_sku(self, provider_sku: str) -> Optional[ComponentSearchResult]:
+    async def search_by_provider_sku(self, provider_sku: str) -> ComponentSearchResult | None:
         """
         Search for a component by LCSC-specific SKU/part ID.
         LCSC SKUs typically follow patterns like C123456, C12345, etc.
@@ -149,7 +148,7 @@ class LCSCProvider(ComponentDataProvider):
         pattern = r'^C\d{5,7}$'
         return bool(re.match(pattern, sku.upper()))
 
-    def _get_mock_result_by_sku(self, sku: str, sku_number: str) -> Optional[ComponentSearchResult]:
+    def _get_mock_result_by_sku(self, sku: str, sku_number: str) -> ComponentSearchResult | None:
         """Generate mock component result based on LCSC SKU"""
         try:
             # Use SKU number to generate consistent mock data
@@ -249,7 +248,7 @@ class LCSCProvider(ComponentDataProvider):
             # Invalid SKU number
             return None
 
-    def _get_mock_stm32_results(self, query: str, limit: int) -> List[ComponentSearchResult]:
+    def _get_mock_stm32_results(self, query: str, limit: int) -> list[ComponentSearchResult]:
         """Generate mock STM32 microcontroller results"""
         stm32_parts = [
             "STM32F407VGT6", "STM32F103C8T6", "STM32F429ZIT6",
@@ -281,7 +280,7 @@ class LCSCProvider(ComponentDataProvider):
 
         return results
 
-    def _get_mock_resistor_results(self, query: str, limit: int) -> List[ComponentSearchResult]:
+    def _get_mock_resistor_results(self, query: str, limit: int) -> list[ComponentSearchResult]:
         """Generate mock resistor results"""
         resistor_values = ["1K", "2.2K", "4.7K", "10K", "22K", "47K", "100K"]
 
@@ -311,7 +310,7 @@ class LCSCProvider(ComponentDataProvider):
 
         return results
 
-    def _get_mock_capacitor_results(self, query: str, limit: int) -> List[ComponentSearchResult]:
+    def _get_mock_capacitor_results(self, query: str, limit: int) -> list[ComponentSearchResult]:
         """Generate mock capacitor results"""
         cap_values = ["100nF", "1uF", "10uF", "22uF", "47uF", "100uF"]
 
@@ -340,7 +339,7 @@ class LCSCProvider(ComponentDataProvider):
 
         return results
 
-    def _get_mock_generic_results(self, query: str, limit: int) -> List[ComponentSearchResult]:
+    def _get_mock_generic_results(self, query: str, limit: int) -> list[ComponentSearchResult]:
         """Generate mock generic component results"""
         return [
             ComponentSearchResult(
@@ -357,7 +356,7 @@ class LCSCProvider(ComponentDataProvider):
             for i in range(min(limit, 3))
         ]
 
-    async def get_easyeda_data(self, lcsc_id: str) -> Optional[Dict[str, Any]]:
+    async def get_easyeda_data(self, lcsc_id: str) -> dict[str, Any] | None:
         """
         Get EasyEDA component data for KiCad conversion.
 
@@ -393,7 +392,7 @@ class LCSCProvider(ComponentDataProvider):
             logger.error(f"Failed to get EasyEDA data for {lcsc_id}: {e}")
             return None
 
-    async def convert_to_kicad(self, lcsc_id: str, output_dir: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    async def convert_to_kicad(self, lcsc_id: str, output_dir: str | None = None) -> dict[str, Any] | None:
         """
         Convert LCSC component to KiCad format using EasyEDA data.
 
@@ -432,7 +431,7 @@ class LCSCProvider(ComponentDataProvider):
             logger.error(f"Failed to convert {lcsc_id} to KiCad: {e}")
             return None
 
-    def get_provider_info(self) -> Dict[str, Any]:
+    def get_provider_info(self) -> dict[str, Any]:
         """
         Get provider information and capabilities including EasyEDA support.
 
@@ -454,7 +453,7 @@ class LCSCProvider(ComponentDataProvider):
         self,
         lcsc_id: str,
         include_conversion: bool = False
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get component details with EasyEDA/KiCad data.
 

@@ -3,16 +3,16 @@ Unit tests for StorageLocation model hierarchy functionality.
 Tests storage location tree structure, hierarchy validation, and parent-child relationships.
 """
 
+import uuid
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import uuid
-
 from src.database import Base
-from src.models.storage_location import StorageLocation
+from src.models.category import Category
 from src.models.component import Component
 from src.models.component_location import ComponentLocation
-from src.models.category import Category
+from src.models.storage_location import StorageLocation
 
 
 class TestStorageLocationModel:

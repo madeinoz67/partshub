@@ -2,10 +2,11 @@
 StorageLocation model with hierarchy support for organizing components.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, event
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text, event
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

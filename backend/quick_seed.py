@@ -4,12 +4,18 @@ Quick seed script to create basic test data for PartsHub.
 """
 
 import uuid
-from datetime import datetime
-from src.database import SessionLocal, engine, Base
+
+from src.database import Base, SessionLocal, engine
 from src.models import (
-    Component, Category, StorageLocation, ComponentLocation,
-    Tag, component_tags, User
+    Category,
+    Component,
+    ComponentLocation,
+    StorageLocation,
+    Tag,
+    User,
+    component_tags,
 )
+
 
 def create_test_data():
     """Create basic test data for the application."""

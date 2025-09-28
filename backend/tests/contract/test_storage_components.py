@@ -3,9 +3,9 @@ Contract test for GET /api/v1/storage-locations/{id}/components
 Tests storage location components listing endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestStorageComponentsContract:

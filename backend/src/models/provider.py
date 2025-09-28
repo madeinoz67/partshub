@@ -2,10 +2,19 @@
 ComponentDataProvider model for external service configuration.
 """
 
-from sqlalchemy import Column, String, Text, Boolean, Integer, DateTime, UniqueConstraint
+import uuid
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 

@@ -3,7 +3,6 @@ Contract test for POST /api/v1/components
 Tests component creation endpoint according to OpenAPI specification
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 

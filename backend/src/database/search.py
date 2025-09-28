@@ -4,9 +4,10 @@ Enables fast search across component names, part numbers, manufacturers, and not
 """
 
 import logging
-from typing import List, Optional
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
 from ..database import get_session
 
 logger = logging.getLogger(__name__)
@@ -153,7 +154,7 @@ class ComponentSearchService:
         query: str,
         limit: int = 50,
         offset: int = 0
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Search components using FTS5 and return matching component IDs.
 
@@ -278,7 +279,7 @@ def initialize_component_search():
         logger.error(f"Failed to initialize component search service: {e}")
 
 
-def search_components_fts(query: str, limit: int = 50, offset: int = 0) -> List[str]:
+def search_components_fts(query: str, limit: int = 50, offset: int = 0) -> list[str]:
     """
     Convenience function for FTS component search.
 

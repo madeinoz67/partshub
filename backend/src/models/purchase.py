@@ -2,11 +2,21 @@
 Purchase and PurchaseItem models for component acquisition history and pricing.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, Date, Numeric, Integer, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 import uuid
 from decimal import Decimal
+
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+)
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from ..database import Base
 

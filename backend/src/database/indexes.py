@@ -3,9 +3,10 @@ Database indexing optimization for component search performance.
 Creates database indexes to improve query performance for search and filtering operations.
 """
 
-from sqlalchemy import text, Index
-from sqlalchemy.orm import Session
 import logging
+
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 

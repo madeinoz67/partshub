@@ -3,8 +3,8 @@
 Test-Driven Development for stock filtering functionality.
 """
 
+
 import requests
-import json
 
 # Test configuration - use test port following Testing Isolation principle
 BASE_URL = "http://localhost:8005"

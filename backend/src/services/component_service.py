@@ -2,16 +2,26 @@
 ComponentService with CRUD and search operations for components.
 """
 
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, or_, func, desc
-from ..models import Component, StockTransaction, TransactionType, Category, StorageLocation, Tag, ComponentLocation, KiCadLibraryData
 import uuid
+from typing import Any
+
+from sqlalchemy import and_, desc, func, or_
+from sqlalchemy.orm import Session, selectinload
+
+from ..models import (
+    Category,
+    Component,
+    ComponentLocation,
+    KiCadLibraryData,
+    StockTransaction,
+    StorageLocation,
+    Tag,
+)
 
 # Import EasyEDA service for LCSC KiCad conversion
 try:
-    from .easyeda_service import EasyEDAService
     from ..providers.lcsc_provider import LCSCProvider
+    from .easyeda_service import EasyEDAService
     EASYEDA_INTEGRATION_AVAILABLE = True
 except ImportError:
     EASYEDA_INTEGRATION_AVAILABLE = False
@@ -23,7 +33,7 @@ class ComponentService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_component(self, component_data: Dict[str, Any]) -> Component:
+    def create_component(self, component_data: dict[str, Any]) -> Component:
         """Create a new component."""
         # Generate ID if not provided
         if "id" not in component_data:
@@ -63,7 +73,7 @@ class ComponentService:
 
         return component
 
-    def _auto_generate_kicad_data(self, component: Component) -> Optional[KiCadLibraryData]:
+    def _auto_generate_kicad_data(self, component: Component) -> KiCadLibraryData | None:
         """
         Automatically generate KiCad data for a component if it has sufficient information.
 
@@ -100,7 +110,7 @@ class ComponentService:
 
         return None
 
-    async def _try_easyeda_conversion(self, component: Component) -> Optional[KiCadLibraryData]:
+    async def _try_easyeda_conversion(self, component: Component) -> KiCadLibraryData | None:
         """
         Try to convert component using EasyEDA for LCSC components.
 
@@ -120,64 +130,64 @@ class ComponentService:
 
         try:
             # Initialize EasyEDA service
-            easyeda_service = EasyEDAService()
+            EasyEDAService()
 
             # Convert component using EasyEDA
             # Note: This would require an async context, so it's commented out for now
             # conversion_result = await easyeda_service.convert_lcsc_component(lcsc_id)
             return None  # Temporarily disabled until proper async handling is implemented
 
-            if not conversion_result or 'conversions' not in conversion_result:
-                return None
+            # if not conversion_result or 'conversions' not in conversion_result:
+            #     return None
 
-            # Create KiCad data from conversion results
-            kicad_data = KiCadLibraryData(component_id=component.id)
+            # # Create KiCad data from conversion results
+            # kicad_data = KiCadLibraryData(component_id=component.id)
 
-            conversions = conversion_result['conversions']
+            # conversions = conversion_result['conversions']
 
-            # Set symbol data if available
-            if 'symbol' in conversions:
-                symbol_info = conversions['symbol']
-                kicad_data.custom_symbol_file_path = symbol_info.get('file_path')
-                kicad_data.symbol_library = symbol_info.get('library_name', 'EasyEDA_Symbols')
-                kicad_data.symbol_name = symbol_info.get('symbol_name', component.name or 'EasyEDA_Component')
-                kicad_data.symbol_source = kicad_data.symbol_source.PROVIDER
-                kicad_data.symbol_updated_at = kicad_data.symbol_updated_at
+            # # Set symbol data if available
+            # if 'symbol' in conversions:
+            #     symbol_info = conversions['symbol']
+            #     kicad_data.custom_symbol_file_path = symbol_info.get('file_path')
+            #     kicad_data.symbol_library = symbol_info.get('library_name', 'EasyEDA_Symbols')
+            #     kicad_data.symbol_name = symbol_info.get('symbol_name', component.name or 'EasyEDA_Component')
+            #     kicad_data.symbol_source = kicad_data.symbol_source.PROVIDER
+            #     kicad_data.symbol_updated_at = kicad_data.symbol_updated_at
 
-            # Set footprint data if available
-            if 'footprint' in conversions:
-                footprint_info = conversions['footprint']
-                kicad_data.custom_footprint_file_path = footprint_info.get('file_path')
-                kicad_data.footprint_library = footprint_info.get('library_name', 'EasyEDA_Footprints')
-                kicad_data.footprint_name = footprint_info.get('footprint_name', component.name or 'EasyEDA_Component')
-                kicad_data.footprint_source = kicad_data.footprint_source.PROVIDER
-                kicad_data.footprint_updated_at = kicad_data.footprint_updated_at
+            # # Set footprint data if available
+            # if 'footprint' in conversions:
+            #     footprint_info = conversions['footprint']
+            #     kicad_data.custom_footprint_file_path = footprint_info.get('file_path')
+            #     kicad_data.footprint_library = footprint_info.get('library_name', 'EasyEDA_Footprints')
+            #     kicad_data.footprint_name = footprint_info.get('footprint_name', component.name or 'EasyEDA_Component')
+            #     kicad_data.footprint_source = kicad_data.footprint_source.PROVIDER
+            #     kicad_data.footprint_updated_at = kicad_data.footprint_updated_at
 
-            # Set 3D model data if available
-            if 'model_3d' in conversions:
-                model_info = conversions['model_3d']
-                kicad_data.custom_3d_model_file_path = model_info.get('file_path')
-                kicad_data.model_3d_path = model_info.get('file_path')
-                kicad_data.model_3d_source = kicad_data.model_3d_source.PROVIDER
-                kicad_data.model_3d_updated_at = kicad_data.model_3d_updated_at
+            # # Set 3D model data if available
+            # if 'model_3d' in conversions:
+            #     model_info = conversions['model_3d']
+            #     kicad_data.custom_3d_model_file_path = model_info.get('file_path')
+            #     kicad_data.model_3d_path = model_info.get('file_path')
+            #     kicad_data.model_3d_source = kicad_data.model_3d_source.PROVIDER
+            #     kicad_data.model_3d_updated_at = kicad_data.model_3d_updated_at
 
-            # Set provider data using the set_provider_data method
-            kicad_data.set_provider_data(
-                symbol_lib=kicad_data.symbol_library,
-                symbol_name=kicad_data.symbol_name,
-                footprint_lib=kicad_data.footprint_library,
-                footprint_name=kicad_data.footprint_name,
-                model_3d_path=kicad_data.model_3d_path
-            )
+            # # Set provider data using the set_provider_data method
+            # kicad_data.set_provider_data(
+            #     symbol_lib=kicad_data.symbol_library,
+            #     symbol_name=kicad_data.symbol_name,
+            #     footprint_lib=kicad_data.footprint_library,
+            #     footprint_name=kicad_data.footprint_name,
+            #     model_3d_path=kicad_data.model_3d_path
+            # )
 
-            print(f"Successfully converted LCSC component {lcsc_id} using EasyEDA")
-            return kicad_data
+            # print(f"Successfully converted LCSC component {lcsc_id} using EasyEDA")
+            # return kicad_data
 
         except Exception as e:
             print(f"EasyEDA conversion failed for {lcsc_id}: {e}")
             return None
 
-    def _extract_lcsc_id(self, component: Component) -> Optional[str]:
+    def _extract_lcsc_id(self, component: Component) -> str | None:
         """
         Extract LCSC component ID from component data.
 
@@ -212,7 +222,7 @@ class ComponentService:
 
         return None
 
-    def _generate_provider_kicad_data(self, component: Component) -> Optional[KiCadLibraryData]:
+    def _generate_provider_kicad_data(self, component: Component) -> KiCadLibraryData | None:
         """
         Generate KiCad data based on provider component information.
 
@@ -250,7 +260,7 @@ class ComponentService:
 
         return kicad_data
 
-    def _determine_symbol_library(self, component: Component) -> Optional[str]:
+    def _determine_symbol_library(self, component: Component) -> str | None:
         """Determine appropriate symbol library based on component type."""
         if not component.component_type:
             return None
@@ -279,7 +289,7 @@ class ComponentService:
         # Default fallback
         return 'Device'
 
-    def _determine_symbol_name(self, component: Component) -> Optional[str]:
+    def _determine_symbol_name(self, component: Component) -> str | None:
         """Determine appropriate symbol name based on component characteristics."""
         if not component.component_type:
             return None
@@ -311,7 +321,7 @@ class ComponentService:
 
         return 'Generic'
 
-    def _determine_footprint_library(self, component: Component) -> Optional[str]:
+    def _determine_footprint_library(self, component: Component) -> str | None:
         """Determine appropriate footprint library based on package."""
         package = None
 
@@ -344,7 +354,7 @@ class ComponentService:
         # Default fallback
         return 'Package_SMD'
 
-    def _determine_footprint_name(self, component: Component) -> Optional[str]:
+    def _determine_footprint_name(self, component: Component) -> str | None:
         """Determine appropriate footprint name based on package."""
         package = None
 
@@ -371,7 +381,7 @@ class ComponentService:
 
         return footprint_name
 
-    def get_component(self, component_id: str) -> Optional[Component]:
+    def get_component(self, component_id: str) -> Component | None:
         """Get a component by ID with all relationships loaded."""
         return (
             self.db.query(Component)
@@ -387,7 +397,7 @@ class ComponentService:
             .first()
         )
 
-    def update_component(self, component_id: str, update_data: Dict[str, Any]) -> Optional[Component]:
+    def update_component(self, component_id: str, update_data: dict[str, Any]) -> Component | None:
         """Update a component."""
         component = self.db.query(Component).filter(Component.id == component_id).first()
         if not component:
@@ -425,17 +435,17 @@ class ComponentService:
 
     def list_components(
         self,
-        search: Optional[str] = None,
-        category: Optional[str] = None,
-        storage_location: Optional[str] = None,
-        component_type: Optional[str] = None,
-        stock_status: Optional[str] = None,  # low, out, available
-        tags: Optional[List[str]] = None,
+        search: str | None = None,
+        category: str | None = None,
+        storage_location: str | None = None,
+        component_type: str | None = None,
+        stock_status: str | None = None,  # low, out, available
+        tags: list[str] | None = None,
         sort_by: str = "name",
         sort_order: str = "asc",
         limit: int = 50,
         offset: int = 0
-    ) -> List[Component]:
+    ) -> list[Component]:
         """
         List components with filtering and pagination.
 
@@ -568,12 +578,12 @@ class ComponentService:
 
     def count_components(
         self,
-        search: Optional[str] = None,
-        category: Optional[str] = None,
-        storage_location: Optional[str] = None,
-        component_type: Optional[str] = None,
-        stock_status: Optional[str] = None,
-        tags: Optional[List[str]] = None
+        search: str | None = None,
+        category: str | None = None,
+        storage_location: str | None = None,
+        component_type: str | None = None,
+        stock_status: str | None = None,
+        tags: list[str] | None = None
     ) -> int:
         """Count components with filtering (for pagination)."""
         query = self.db.query(Component)
@@ -660,11 +670,11 @@ class ComponentService:
 
     def search_components(
         self,
-        query: Optional[str] = None,
-        filters: Optional[Dict[str, Any]] = None,
+        query: str | None = None,
+        filters: dict[str, Any] | None = None,
         limit: int = 50,
         offset: int = 0
-    ) -> List[Component]:
+    ) -> list[Component]:
         """
         Search components with filters - compatible with KiCad API.
 
@@ -761,7 +771,7 @@ class ComponentService:
 
         return components_query.all()
 
-    def _rank_search_results(self, components: List[Component], search_term: str) -> List[Component]:
+    def _rank_search_results(self, components: list[Component], search_term: str) -> list[Component]:
         """
         Rank search results by field relevance priority.
         Higher priority fields get ranked first.
@@ -807,9 +817,9 @@ class ComponentService:
         transaction_type: str,
         quantity_change: int,
         reason: str,
-        reference_id: Optional[str] = None,
-        reference_type: Optional[str] = None
-    ) -> Optional[StockTransaction]:
+        reference_id: str | None = None,
+        reference_type: str | None = None
+    ) -> StockTransaction | None:
         """Update component stock and create audit transaction."""
         component = self.db.query(Component).filter(Component.id == component_id).first()
         if not component:
@@ -865,7 +875,7 @@ class ComponentService:
         self,
         component_id: str,
         limit: int = 50
-    ) -> List[StockTransaction]:
+    ) -> list[StockTransaction]:
         """Get stock transaction history for a component."""
         return (
             self.db.query(StockTransaction)
@@ -875,27 +885,27 @@ class ComponentService:
             .all()
         )
 
-    def get_low_stock_components(self, limit: int = 100) -> List[Component]:
+    def get_low_stock_components(self, limit: int = 100) -> list[Component]:
         """Get components with low stock."""
         return (
             self.db.query(Component)
             .options(selectinload(Component.storage_location))
-            .filter(Component.quantity_on_hand <= min_stock_subquery)
-            .filter(min_stock_subquery > 0)  # Only components with minimum stock set
+            .filter(Component.quantity_on_hand <= Component.minimum_stock)
+            .filter(Component.minimum_stock > 0)  # Only components with minimum stock set
             .order_by(
-                (Component.quantity_on_hand / func.nullif(min_stock_subquery, 0))
+                Component.quantity_on_hand / func.nullif(Component.minimum_stock, 0)
             )
             .limit(limit)
             .all()
         )
 
-    def get_component_statistics(self) -> Dict[str, int]:
+    def get_component_statistics(self) -> dict[str, int]:
         """Get component statistics."""
         total_components = self.db.query(Component).count()
         low_stock_count = (
             self.db.query(Component)
-            .filter(Component.quantity_on_hand <= min_stock_subquery)
-            .filter(min_stock_subquery > 0)
+            .filter(Component.quantity_on_hand <= Component.minimum_stock)
+            .filter(Component.minimum_stock > 0)
             .count()
         )
         out_of_stock_count = self.db.query(Component).filter(Component.quantity_on_hand == 0).count()

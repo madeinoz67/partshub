@@ -3,9 +3,9 @@ Contract test for PUT /api/v1/storage-locations/{id}
 Tests storage location update endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestStorageUpdateContract:

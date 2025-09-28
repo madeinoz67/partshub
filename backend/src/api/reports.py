@@ -3,16 +3,16 @@ Reports and analytics API endpoints.
 Provides dashboard statistics and comprehensive reporting functionality.
 """
 
-from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Depends, Query, Response
-from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 import json
 from datetime import datetime
+from typing import Any
 
+from fastapi import APIRouter, Depends, Query, Response
+from sqlalchemy.orm import Session
+
+from ..auth.dependencies import require_auth
 from ..database import get_db
 from ..services.report_service import ReportService
-from ..auth.dependencies import require_auth
 
 router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
 
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
 @router.get("/dashboard")
 async def get_dashboard_summary(
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get key metrics for the main dashboard."""
     report_service = ReportService(db)
     return report_service.get_dashboard_summary()
@@ -29,7 +29,7 @@ async def get_dashboard_summary(
 @router.get("/inventory-breakdown")
 async def get_inventory_breakdown(
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get detailed inventory breakdown by categories and locations."""
     report_service = ReportService(db)
     return report_service.get_inventory_breakdown()
@@ -39,7 +39,7 @@ async def get_inventory_breakdown(
 async def get_usage_analytics(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get component usage analytics over specified period."""
     report_service = ReportService(db)
     return report_service.get_usage_analytics(days=days)
@@ -48,7 +48,7 @@ async def get_usage_analytics(
 @router.get("/project-analytics")
 async def get_project_analytics(
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get project-related analytics and statistics."""
     report_service = ReportService(db)
     return report_service.get_project_analytics()
@@ -58,7 +58,7 @@ async def get_project_analytics(
 async def get_financial_summary(
     months: int = Query(12, ge=1, le=60, description="Number of months to analyze"),
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get financial analytics for inventory management."""
     report_service = ReportService(db)
     return report_service.get_financial_summary(months=months)
@@ -67,7 +67,7 @@ async def get_financial_summary(
 @router.get("/search-analytics")
 async def get_search_analytics(
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get analytics about search patterns and popular components."""
     report_service = ReportService(db)
     return report_service.get_search_analytics()
@@ -76,7 +76,7 @@ async def get_search_analytics(
 @router.get("/system-health")
 async def get_system_health_metrics(
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get system health and data quality metrics."""
     report_service = ReportService(db)
     return report_service.get_system_health_metrics()
@@ -364,7 +364,7 @@ async def export_system_health_report(
 async def get_admin_data_quality_report(
     current_user: dict = Depends(require_auth),
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get detailed data quality report (admin only)."""
     # Note: This would need admin check in production
     report_service = ReportService(db)
@@ -381,7 +381,7 @@ async def get_admin_data_quality_report(
     }
 
 
-def _generate_data_quality_recommendations(system_health: Dict[str, Any], search_analytics: Dict[str, Any]) -> list:
+def _generate_data_quality_recommendations(system_health: dict[str, Any], search_analytics: dict[str, Any]) -> list:
     """Generate data quality improvement recommendations."""
     recommendations = []
 

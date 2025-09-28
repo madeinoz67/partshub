@@ -3,15 +3,23 @@ ReportService for dashboard statistics and analytics.
 Provides comprehensive reporting functionality for inventory insights.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, or_, func, desc, text
-from datetime import datetime, timedelta
-from ..models import (
-    Component, StockTransaction, TransactionType, Project, ProjectComponent,
-    Category, StorageLocation, Tag, Purchase, PurchaseItem
-)
 import logging
+from datetime import datetime, timedelta
+from typing import Any
+
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Session
+
+from ..models import (
+    Category,
+    Component,
+    Project,
+    ProjectComponent,
+    Purchase,
+    StockTransaction,
+    StorageLocation,
+    Tag,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +30,7 @@ class ReportService:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_dashboard_summary(self) -> Dict[str, Any]:
+    def get_dashboard_summary(self) -> dict[str, Any]:
         """Get key metrics for the main dashboard."""
         # Component counts
         total_components = self.db.query(Component).count()
@@ -84,7 +92,7 @@ class ReportService:
             "generated_at": datetime.utcnow().isoformat()
         }
 
-    def get_inventory_breakdown(self) -> Dict[str, Any]:
+    def get_inventory_breakdown(self) -> dict[str, Any]:
         """Get detailed inventory breakdown by categories and locations."""
         # By category
         category_breakdown = (
@@ -154,7 +162,7 @@ class ReportService:
             ]
         }
 
-    def get_usage_analytics(self, days: int = 30) -> Dict[str, Any]:
+    def get_usage_analytics(self, days: int = 30) -> dict[str, Any]:
         """Get component usage analytics over specified period."""
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=days)
@@ -229,7 +237,7 @@ class ReportService:
             ]
         }
 
-    def get_project_analytics(self) -> Dict[str, Any]:
+    def get_project_analytics(self) -> dict[str, Any]:
         """Get project-related analytics and statistics."""
         # Project status distribution
         project_status = (
@@ -306,7 +314,7 @@ class ReportService:
             ]
         }
 
-    def get_financial_summary(self, months: int = 12) -> Dict[str, Any]:
+    def get_financial_summary(self, months: int = 12) -> dict[str, Any]:
         """Get financial analytics for inventory management."""
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=months * 30)
@@ -377,7 +385,7 @@ class ReportService:
             "analysis_period_months": months
         }
 
-    def get_search_analytics(self) -> Dict[str, Any]:
+    def get_search_analytics(self) -> dict[str, Any]:
         """Get analytics about search patterns and popular components."""
         # Most popular tags (by component count)
         popular_tags = (
@@ -443,7 +451,7 @@ class ReportService:
             }
         }
 
-    def generate_comprehensive_report(self) -> Dict[str, Any]:
+    def generate_comprehensive_report(self) -> dict[str, Any]:
         """Generate a comprehensive analytical report combining all metrics."""
         try:
             return {
@@ -466,7 +474,7 @@ class ReportService:
                 "generated_at": datetime.utcnow().isoformat()
             }
 
-    def get_system_health_metrics(self) -> Dict[str, Any]:
+    def get_system_health_metrics(self) -> dict[str, Any]:
         """Get system health and data quality metrics."""
         try:
             # Database statistics

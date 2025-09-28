@@ -3,14 +3,10 @@ EasyEDA to KiCad conversion service for handling LCSC/JLCPCB component data.
 Integrates with easyeda2kicad.py library to convert EasyEDA format files to KiCad.
 """
 
-import os
-import tempfile
 import logging
-import asyncio
-import aiohttp
-from typing import Optional, Dict, Any, Tuple
+import tempfile
 from pathlib import Path
-import shutil
+from typing import Any
 
 try:
     from easyeda2kicad.easyeda.easyeda_api import EasyedaApi
@@ -42,8 +38,8 @@ class EasyEDAService:
     async def convert_lcsc_component(
         self,
         lcsc_id: str,
-        output_dir: Optional[str] = None
-    ) -> Dict[str, Any]:
+        output_dir: str | None = None
+    ) -> dict[str, Any]:
         """
         Convert an LCSC component to KiCad format.
 
@@ -110,7 +106,7 @@ class EasyEDAService:
             logger.error(f"Failed to convert {clean_lcsc_id}: {e}")
             raise EasyEDAConversionError(f"Conversion failed: {e}")
 
-    async def _get_component_info(self, lcsc_id: str) -> Optional[Dict[str, Any]]:
+    async def _get_component_info(self, lcsc_id: str) -> dict[str, Any] | None:
         """Get component information from EasyEDA API."""
         try:
             # Use easyeda2kicad API to get component info
@@ -122,9 +118,9 @@ class EasyEDAService:
 
     async def _convert_symbol(
         self,
-        component_info: Dict[str, Any],
+        component_info: dict[str, Any],
         output_path: Path
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Convert EasyEDA symbol to KiCad format."""
         try:
             if 'symbol' not in component_info or not component_info['symbol']:
@@ -159,9 +155,9 @@ class EasyEDAService:
 
     async def _convert_footprint(
         self,
-        component_info: Dict[str, Any],
+        component_info: dict[str, Any],
         output_path: Path
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Convert EasyEDA footprint to KiCad format."""
         try:
             if 'footprint' not in component_info or not component_info['footprint']:
@@ -196,9 +192,9 @@ class EasyEDAService:
 
     async def _convert_3d_model(
         self,
-        component_info: Dict[str, Any],
+        component_info: dict[str, Any],
         output_path: Path
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Convert EasyEDA 3D model to KiCad format."""
         try:
             if '3d_model' not in component_info or not component_info['3d_model']:
@@ -230,7 +226,7 @@ class EasyEDAService:
             logger.error(f"3D model conversion failed: {e}")
             return None
 
-    async def get_easyeda_component_info(self, lcsc_id: str) -> Optional[Dict[str, Any]]:
+    async def get_easyeda_component_info(self, lcsc_id: str) -> dict[str, Any] | None:
         """
         Get component information from EasyEDA without conversion.
 
@@ -273,7 +269,7 @@ class EasyEDAService:
         except Exception as e:
             logger.error(f"Failed to cleanup temp files: {e}")
 
-    def get_conversion_status(self) -> Dict[str, Any]:
+    def get_conversion_status(self) -> dict[str, Any]:
         """Get status of EasyEDA conversion capability."""
         return {
             'easyeda_available': EASYEDA_AVAILABLE,

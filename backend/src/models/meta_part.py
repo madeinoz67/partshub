@@ -2,9 +2,10 @@
 MetaPart and MetaPartComponent models for assembly/BOM management.
 """
 
-from sqlalchemy import Column, String, Text, Integer, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
 import uuid
+
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy.orm import relationship
 
 from ..database import Base
 

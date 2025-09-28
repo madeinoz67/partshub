@@ -3,13 +3,14 @@ StockService for advanced inventory transactions and history tracking.
 Provides enhanced stock management operations beyond basic CRUD.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, or_, func, desc, text
-from datetime import datetime, timedelta
-from ..models import Component, StockTransaction, TransactionType, Project, ProjectComponent
-import uuid
 import logging
+from datetime import datetime, timedelta
+from typing import Any
+
+from sqlalchemy import desc, func
+from sqlalchemy.orm import Session, selectinload
+
+from ..models import Component, StockTransaction, TransactionType
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +23,9 @@ class StockService:
 
     def bulk_stock_update(
         self,
-        updates: List[Dict[str, Any]],
+        updates: list[dict[str, Any]],
         reason: str = "Bulk stock update"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Perform bulk stock updates across multiple components.
 
@@ -121,13 +122,13 @@ class StockService:
 
     def get_stock_movements(
         self,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        transaction_type: Optional[str] = None,
-        component_id: Optional[str] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        transaction_type: str | None = None,
+        component_id: str | None = None,
         limit: int = 100,
         offset: int = 0
-    ) -> List[StockTransaction]:
+    ) -> list[StockTransaction]:
         """Get stock movements with filtering."""
         query = (
             self.db.query(StockTransaction)
@@ -155,9 +156,9 @@ class StockService:
 
     def get_inventory_valuation(
         self,
-        category_id: Optional[str] = None,
-        storage_location_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+        category_id: str | None = None,
+        storage_location_id: str | None = None
+    ) -> dict[str, Any]:
         """Calculate current inventory valuation."""
         query = self.db.query(
             func.sum(Component.quantity_on_hand * Component.average_purchase_price).label('total_value'),
@@ -185,7 +186,7 @@ class StockService:
             )
         }
 
-    def get_stock_alerts(self) -> Dict[str, List[Component]]:
+    def get_stock_alerts(self) -> dict[str, list[Component]]:
         """Get components requiring stock attention."""
         # Low stock components
         low_stock = (
@@ -194,7 +195,7 @@ class StockService:
             .filter(Component.quantity_on_hand <= Component.minimum_stock)
             .filter(Component.minimum_stock > 0)
             .order_by(
-                (Component.quantity_on_hand / func.nullif(Component.minimum_stock, 0))
+                Component.quantity_on_hand / func.nullif(Component.minimum_stock, 0)
             )
             .limit(50)
             .all()
@@ -234,7 +235,7 @@ class StockService:
         self,
         component_id: str,
         days: int = 30
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze stock movement trends for a component."""
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=days)
@@ -294,7 +295,7 @@ class StockService:
         component_id: str,
         days_ahead: int = 30,
         confidence_level: float = 0.8
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Predict when component will reach low stock based on usage trends."""
         component = self.db.query(Component).filter(Component.id == component_id).first()
         if not component:
@@ -379,7 +380,7 @@ class StockService:
         self,
         include_trends: bool = True,
         include_predictions: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate comprehensive stock analysis report."""
         # Basic inventory statistics
         inventory_stats = self.get_inventory_valuation()
@@ -416,7 +417,7 @@ class StockService:
 
         return report
 
-    def _get_most_active_components(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def _get_most_active_components(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get components with most recent stock activity."""
         week_ago = datetime.utcnow() - timedelta(days=7)
 
@@ -449,13 +450,13 @@ class StockService:
 
         return active_components
 
-    def _get_trending_components(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def _get_trending_components(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get components with significant usage trends."""
         # This would need more sophisticated analysis
         # For now, return components with highest recent activity variance
         return []
 
-    def _get_stock_predictions(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def _get_stock_predictions(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get stock predictions for critical components."""
         # Get components with low stock that have sufficient transaction history
         low_stock_components = (

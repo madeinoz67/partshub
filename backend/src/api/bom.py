@@ -3,12 +3,12 @@ BOM (Bill of Materials) API endpoints.
 Provides endpoints for generating and exporting BOMs with provider integration.
 """
 
-from fastapi import APIRouter, HTTPException, Response, Depends
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 
-from ..services.bom_service import BOMService, BOMExportFormat
-from ..auth.dependencies import require_auth
+from ..services.bom_service import BOMExportFormat, BOMService
 
 router = APIRouter(prefix="/api/v1/bom", tags=["bom"])
 
@@ -19,21 +19,21 @@ bom_service = BOMService()
 # Request/Response models
 class ProjectBOMRequest(BaseModel):
     project_id: str
-    include_provider_data: Optional[bool] = True
-    refresh_provider_data: Optional[bool] = False
+    include_provider_data: bool | None = True
+    refresh_provider_data: bool | None = False
 
 
 class ComponentListBOMRequest(BaseModel):
-    components: List[Dict[str, Any]]  # [{"component_id": "id", "quantity": 1}]
-    include_provider_data: Optional[bool] = True
+    components: list[dict[str, Any]]  # [{"component_id": "id", "quantity": 1}]
+    include_provider_data: bool | None = True
 
 
 class BOMExportRequest(BaseModel):
-    project_id: Optional[str] = None
-    components: Optional[List[Dict[str, Any]]] = None
-    export_format: Optional[str] = BOMExportFormat.CSV
-    include_provider_data: Optional[bool] = True
-    refresh_provider_data: Optional[bool] = False
+    project_id: str | None = None
+    components: list[dict[str, Any]] | None = None
+    export_format: str | None = BOMExportFormat.CSV
+    include_provider_data: bool | None = True
+    refresh_provider_data: bool | None = False
 
 
 # BOM Generation endpoints

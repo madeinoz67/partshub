@@ -3,18 +3,18 @@ Project management API endpoints.
 Provides CRUD operations for projects and component allocation tracking.
 """
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends, Query, status
+import math
+import uuid
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from datetime import datetime
-import uuid
-import math
 
+from ..auth.dependencies import require_admin
 from ..database import get_db
-from ..services.project_service import ProjectService
-from ..auth.dependencies import require_auth, require_admin
 from ..models import ProjectStatus
+from ..services.project_service import ProjectService
 
 router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 
@@ -23,37 +23,37 @@ router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 class ProjectCreate(BaseModel):
     """Create project request."""
     name: str = Field(..., min_length=1, max_length=200)
-    description: Optional[str] = None
-    status: Optional[ProjectStatus] = ProjectStatus.PLANNING
-    version: Optional[str] = None
-    client_project_id: Optional[str] = None
-    budget_allocated: Optional[float] = None
+    description: str | None = None
+    status: ProjectStatus | None = ProjectStatus.PLANNING
+    version: str | None = None
+    client_project_id: str | None = None
+    budget_allocated: float | None = None
 
 
 class ProjectUpdate(BaseModel):
     """Update project request."""
-    name: Optional[str] = Field(None, min_length=1, max_length=200)
-    description: Optional[str] = None
-    status: Optional[ProjectStatus] = None
-    version: Optional[str] = None
-    client_project_id: Optional[str] = None
-    budget_allocated: Optional[float] = None
-    notes: Optional[str] = None
+    name: str | None = Field(None, min_length=1, max_length=200)
+    description: str | None = None
+    status: ProjectStatus | None = None
+    version: str | None = None
+    client_project_id: str | None = None
+    budget_allocated: float | None = None
+    notes: str | None = None
 
 
 class ProjectResponse(BaseModel):
     """Project response model."""
     id: str
     name: str
-    description: Optional[str]
+    description: str | None
     status: ProjectStatus
-    version: Optional[str]
-    client_project_id: Optional[str]
-    budget_allocated: Optional[float]
+    version: str | None
+    client_project_id: str | None
+    budget_allocated: float | None
     budget_spent: float
-    start_date: Optional[datetime]
-    target_completion_date: Optional[datetime]
-    actual_completion_date: Optional[datetime]
+    start_date: datetime | None
+    target_completion_date: datetime | None
+    actual_completion_date: datetime | None
     created_at: datetime
     updated_at: datetime
 
@@ -65,14 +65,14 @@ class ComponentAllocationRequest(BaseModel):
     """Component allocation request."""
     component_id: str
     quantity: int = Field(..., gt=0)
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ComponentReturnRequest(BaseModel):
     """Component return request."""
     component_id: str
     quantity: int = Field(..., gt=0)
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ProjectComponentResponse(BaseModel):
@@ -82,15 +82,15 @@ class ProjectComponentResponse(BaseModel):
     quantity_allocated: int
     quantity_used: int
     quantity_reserved: int
-    notes: Optional[str]
-    designator: Optional[str]
-    unit_cost_at_allocation: Optional[float]
+    notes: str | None
+    designator: str | None
+    unit_cost_at_allocation: float | None
     allocated_at: datetime
     updated_at: datetime
 
     # Include component details
-    component_name: Optional[str] = None
-    component_part_number: Optional[str] = None
+    component_name: str | None = None
+    component_part_number: str | None = None
 
     class Config:
         from_attributes = True
@@ -104,13 +104,13 @@ class ProjectStatisticsResponse(BaseModel):
     unique_components: int
     total_allocated_quantity: int
     estimated_cost: float
-    created_at: Optional[str]
-    updated_at: Optional[str]
+    created_at: str | None
+    updated_at: str | None
 
 
 class ProjectsListResponse(BaseModel):
     """Projects list response with pagination."""
-    projects: List[ProjectResponse]
+    projects: list[ProjectResponse]
     total: int
     page: int
     total_pages: int
@@ -147,8 +147,8 @@ async def create_project(
 
 @router.get("/", response_model=ProjectsListResponse)
 async def list_projects(
-    status_filter: Optional[str] = Query(None, alias="status", description="Filter by project status"),
-    search: Optional[str] = Query(None, description="Search in project name and description"),
+    status_filter: str | None = Query(None, alias="status", description="Filter by project status"),
+    search: str | None = Query(None, description="Search in project name and description"),
     sort_by: str = Query("created_at", description="Sort field"),
     sort_order: str = Query("desc", description="Sort order (asc/desc)"),
     limit: int = Query(50, le=200, description="Maximum number of results"),
@@ -330,7 +330,7 @@ async def return_component(
         )
 
 
-@router.get("/{project_id}/components", response_model=List[ProjectComponentResponse])
+@router.get("/{project_id}/components", response_model=list[ProjectComponentResponse])
 async def get_project_components(
     project_id: str,
     db: Session = Depends(get_db)
