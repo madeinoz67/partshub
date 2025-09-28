@@ -53,7 +53,19 @@ target-version = "py311"
 line-length = 88
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501"]
-extend-exclude = ["frontend/", "site/", "docs/"]
+extend-exclude = [
+    "frontend/",
+    "site/",
+    "docs/",
+    "backend/*_debug.py",
+    "backend/add_multi_location_data.py",
+    "backend/reset_multi_location_data.py",
+    "backend/seed_simple.py",
+    "backend/simple_sql_seed.py",
+    "backend/demo_seed.py",
+    "backend/working_seed.py",
+    "backend/migrations/"
+]
 
 [tool.black]
 target-version = ['py311']
