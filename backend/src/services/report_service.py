@@ -90,6 +90,20 @@ class ReportService:
             "generated_at": datetime.utcnow().isoformat(),
         }
 
+    def get_dashboard_stats(self) -> dict[str, Any]:
+        """Get basic dashboard statistics for setup and overview."""
+        # Basic counts that the test expects
+        total_components = self.db.query(Component).count()
+        total_categories = self.db.query(Category).count()
+        total_storage_locations = self.db.query(StorageLocation).count()
+
+        return {
+            "total_components": total_components,
+            "total_categories": total_categories,
+            "total_storage_locations": total_storage_locations,
+            "generated_at": datetime.utcnow().isoformat(),
+        }
+
     def get_inventory_breakdown(self) -> dict[str, Any]:
         """Get detailed inventory breakdown by categories and locations."""
         # By category

@@ -23,6 +23,16 @@ class StorageLocationService:
         if "id" not in location_data:
             location_data["id"] = str(uuid.uuid4())
 
+        # Check for duplicate name
+        if "name" in location_data:
+            existing = (
+                self.db.query(StorageLocation)
+                .filter(StorageLocation.name == location_data["name"])
+                .first()
+            )
+            if existing:
+                raise ValueError(f"Storage location with name '{location_data['name']}' already exists")
+
         # Validate parent exists if specified
         if "parent_id" in location_data and location_data["parent_id"]:
             parent = (
@@ -375,6 +385,11 @@ class StorageLocationService:
         """Create multiple storage locations in a single transaction."""
         if not locations_data:
             raise ValueError("No locations provided")
+
+        # Check for duplicate names in the batch
+        names_in_batch = [loc_data.get("name") for loc_data in locations_data if loc_data.get("name")]
+        if len(names_in_batch) != len(set(names_in_batch)):
+            raise ValueError("Duplicate names found in batch")
 
         created_locations = []
         location_map = {}  # name -> location mapping for parent resolution
