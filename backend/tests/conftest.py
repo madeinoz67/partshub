@@ -11,7 +11,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
 from src.auth.jwt_auth import create_access_token
 from src.database.connection import get_db
 from src.main import app
