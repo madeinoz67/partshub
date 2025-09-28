@@ -22,7 +22,9 @@ class TestProviderIntegration:
         """Create a temporary database for testing"""
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
-        testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        testing_session_local = sessionmaker(
+            autocommit=False, autoflush=False, bind=engine
+        )
 
         Base.metadata.create_all(bind=engine)
 
@@ -48,33 +50,35 @@ class TestProviderIntegration:
     @pytest.fixture
     def admin_headers(self, client):
         """Get admin authentication headers"""
-        login_response = client.post("/api/v1/auth/token", json={
-            "username": "admin", "password": "admin123"
-        })
+        login_response = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+        )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Change password
-        client.post("/api/v1/auth/change-password",
+        client.post(
+            "/api/v1/auth/change-password",
             json={"current_password": "admin123", "new_password": "newPass123!"},
-            headers=headers
+            headers=headers,
         )
 
         # Re-login
-        new_login = client.post("/api/v1/auth/token", json={
-            "username": "admin", "password": "newPass123!"
-        })
+        new_login = client.post(
+            "/api/v1/auth/token", json={"username": "admin", "password": "newPass123!"}
+        )
         return {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 
-    def test_provider_search_functionality(self, client: TestClient, admin_headers: dict):
+    def test_provider_search_functionality(
+        self, client: TestClient, admin_headers: dict
+    ):
         """Test provider search for components"""
 
         # Test provider search without authentication (should work for search)
-        search_response = client.post("/api/v1/providers/search", json={
-            "query": "resistor 10k 0603",
-            "provider": "lcsc",
-            "limit": 10
-        })
+        search_response = client.post(
+            "/api/v1/providers/search",
+            json={"query": "resistor 10k 0603", "provider": "lcsc", "limit": 10},
+        )
 
         # Provider search should work (even without auth for read operations)
         assert search_response.status_code in [200, 503]  # 503 if provider is down
@@ -96,10 +100,13 @@ class TestProviderIntegration:
         """Test provider SKU search functionality"""
 
         # Test LCSC SKU format
-        sku_response = client.post("/api/v1/providers/search-sku", json={
-            "sku": "C25804",  # Known LCSC part number format
-            "provider": "lcsc"
-        })
+        sku_response = client.post(
+            "/api/v1/providers/search-sku",
+            json={
+                "sku": "C25804",  # Known LCSC part number format
+                "provider": "lcsc",
+            },
+        )
 
         # Should work without authentication for search
         assert sku_response.status_code in [200, 503, 404]
@@ -111,15 +118,16 @@ class TestProviderIntegration:
             assert "provider_part_id" in component
             assert component["provider_part_id"] == "C25804"
 
-    def test_component_import_from_provider(self, client: TestClient, admin_headers: dict):
+    def test_component_import_from_provider(
+        self, client: TestClient, admin_headers: dict
+    ):
         """Test importing component from provider data"""
 
         # First search for a component
-        search_response = client.post("/api/v1/providers/search", json={
-            "query": "capacitor 100nF 0603",
-            "provider": "lcsc",
-            "limit": 5
-        })
+        search_response = client.post(
+            "/api/v1/providers/search",
+            json={"query": "capacitor 100nF 0603", "provider": "lcsc", "limit": 5},
+        )
 
         if search_response.status_code != 200:
             pytest.skip("Provider service not available")
@@ -131,15 +139,17 @@ class TestProviderIntegration:
         provider_result = search_data["results"][0]
 
         # Create category and storage for the test
-        category_response = client.post("/api/v1/categories",
+        category_response = client.post(
+            "/api/v1/categories",
             json={"name": "Provider Test", "description": "For provider testing"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         category_id = category_response.json()["id"]
 
-        storage_response = client.post("/api/v1/storage-locations",
+        storage_response = client.post(
+            "/api/v1/storage-locations",
             json={"name": "Provider Storage", "description": "For provider testing"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         storage_id = storage_response.json()["id"]
 
@@ -160,20 +170,23 @@ class TestProviderIntegration:
                 "provider": "lcsc",
                 "provider_part_id": provider_result.get("provider_part_id"),
                 "provider_url": provider_result.get("datasheet_url"),
-                "last_updated": "2025-09-27T12:00:00Z"
-            }
+                "last_updated": "2025-09-27T12:00:00Z",
+            },
         }
 
-        component_response = client.post("/api/v1/components",
-            json=import_data,
-            headers=admin_headers
+        component_response = client.post(
+            "/api/v1/components", json=import_data, headers=admin_headers
         )
         assert component_response.status_code == 201
         component_data = component_response.json()
 
         # Verify component was created with provider data
-        assert component_data["part_number"] == provider_result.get("part_number", "PROVIDER-001")
-        assert component_data["manufacturer"] == provider_result.get("manufacturer", "Unknown")
+        assert component_data["part_number"] == provider_result.get(
+            "part_number", "PROVIDER-001"
+        )
+        assert component_data["manufacturer"] == provider_result.get(
+            "manufacturer", "Unknown"
+        )
 
         # Test retrieval with provider information
         component_id = component_data["id"]
@@ -187,11 +200,7 @@ class TestProviderIntegration:
         """Test provider data caching functionality"""
 
         # Make the same search request twice
-        search_request = {
-            "query": "resistor 1k 0805",
-            "provider": "lcsc",
-            "limit": 5
-        }
+        search_request = {"query": "resistor 1k 0805", "provider": "lcsc", "limit": 5}
 
         # First request
         first_response = client.post("/api/v1/providers/search", json=search_request)
@@ -216,26 +225,27 @@ class TestProviderIntegration:
         """Test provider error handling and fallback behavior"""
 
         # Test with invalid provider
-        invalid_provider_response = client.post("/api/v1/providers/search", json={
-            "query": "test component",
-            "provider": "invalid_provider",
-            "limit": 5
-        })
+        invalid_provider_response = client.post(
+            "/api/v1/providers/search",
+            json={
+                "query": "test component",
+                "provider": "invalid_provider",
+                "limit": 5,
+            },
+        )
         assert invalid_provider_response.status_code == 400
 
         # Test with empty query
-        empty_query_response = client.post("/api/v1/providers/search", json={
-            "query": "",
-            "provider": "lcsc",
-            "limit": 5
-        })
+        empty_query_response = client.post(
+            "/api/v1/providers/search",
+            json={"query": "", "provider": "lcsc", "limit": 5},
+        )
         assert empty_query_response.status_code == 422
 
         # Test with invalid SKU format
-        invalid_sku_response = client.post("/api/v1/providers/search-sku", json={
-            "sku": "",
-            "provider": "lcsc"
-        })
+        invalid_sku_response = client.post(
+            "/api/v1/providers/search-sku", json={"sku": "", "provider": "lcsc"}
+        )
         assert invalid_sku_response.status_code == 422
 
     def test_provider_rate_limiting(self, client: TestClient):
@@ -245,7 +255,7 @@ class TestProviderIntegration:
         search_request = {
             "query": "test component rate limit",
             "provider": "lcsc",
-            "limit": 1
+            "limit": 1,
         }
 
         responses = []
@@ -262,15 +272,20 @@ class TestProviderIntegration:
         # We expect at least one success (rate limiting should not block all requests)
         assert success_count >= 0  # Lenient assertion for testing
 
-    def test_provider_component_specifications_import(self, client: TestClient, admin_headers: dict):
+    def test_provider_component_specifications_import(
+        self, client: TestClient, admin_headers: dict
+    ):
         """Test importing detailed component specifications from provider"""
 
         # Search for a specific component type
-        search_response = client.post("/api/v1/providers/search", json={
-            "query": "STM32F103C8T6",  # Known microcontroller
-            "provider": "lcsc",
-            "limit": 1
-        })
+        search_response = client.post(
+            "/api/v1/providers/search",
+            json={
+                "query": "STM32F103C8T6",  # Known microcontroller
+                "provider": "lcsc",
+                "limit": 1,
+            },
+        )
 
         if search_response.status_code != 200:
             pytest.skip("Provider service not available")
@@ -282,15 +297,17 @@ class TestProviderIntegration:
         provider_result = search_data["results"][0]
 
         # Setup test data
-        category_response = client.post("/api/v1/categories",
+        category_response = client.post(
+            "/api/v1/categories",
             json={"name": "Microcontrollers", "description": "MCU components"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         category_id = category_response.json()["id"]
 
-        storage_response = client.post("/api/v1/storage-locations",
+        storage_response = client.post(
+            "/api/v1/storage-locations",
             json={"name": "IC Storage", "description": "Integrated circuits"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         storage_id = storage_response.json()["id"]
 
@@ -311,15 +328,14 @@ class TestProviderIntegration:
                 "gpio_pins": "37",
                 "operating_voltage": "2.0V - 3.6V",
                 "package": "LQFP48",
-                "provider_imported": True
+                "provider_imported": True,
             },
             "quantity_on_hand": 5,
-            "unit_cost": 2.50
+            "unit_cost": 2.50,
         }
 
-        component_response = client.post("/api/v1/components",
-            json=component_data,
-            headers=admin_headers
+        component_response = client.post(
+            "/api/v1/components", json=component_data, headers=admin_headers
         )
         assert component_response.status_code == 201
         created_component = component_response.json()
@@ -347,11 +363,10 @@ class TestProviderIntegration:
         """Test bulk import functionality from provider search results"""
 
         # Search for multiple components
-        search_response = client.post("/api/v1/providers/search", json={
-            "query": "resistor 0603",
-            "provider": "lcsc",
-            "limit": 3
-        })
+        search_response = client.post(
+            "/api/v1/providers/search",
+            json={"query": "resistor 0603", "provider": "lcsc", "limit": 3},
+        )
 
         if search_response.status_code != 200:
             pytest.skip("Provider service not available")
@@ -361,15 +376,17 @@ class TestProviderIntegration:
             pytest.skip("Insufficient provider results for bulk test")
 
         # Setup category and storage
-        category_response = client.post("/api/v1/categories",
+        category_response = client.post(
+            "/api/v1/categories",
             json={"name": "Bulk Import Test", "description": "Bulk provider import"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         category_id = category_response.json()["id"]
 
-        storage_response = client.post("/api/v1/storage-locations",
+        storage_response = client.post(
+            "/api/v1/storage-locations",
             json={"name": "Bulk Storage", "description": "Bulk import storage"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         storage_id = storage_response.json()["id"]
 
@@ -385,12 +402,11 @@ class TestProviderIntegration:
                 "component_type": "resistor",
                 "package": "0603",
                 "quantity_on_hand": 100,
-                "unit_cost": 0.01
+                "unit_cost": 0.01,
             }
 
-            component_response = client.post("/api/v1/components",
-                json=component_data,
-                headers=admin_headers
+            component_response = client.post(
+                "/api/v1/components", json=component_data, headers=admin_headers
             )
             assert component_response.status_code == 201
             imported_components.append(component_response.json())

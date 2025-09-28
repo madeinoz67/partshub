@@ -28,7 +28,9 @@ class TestInventoryManagement:
 
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
-        testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        testing_session_local = sessionmaker(
+            autocommit=False, autoflush=False, bind=engine
+        )
 
         Base.metadata.create_all(bind=engine)
         session = testing_session_local()
@@ -37,8 +39,7 @@ class TestInventoryManagement:
             yield session
 
         async def test_get_optional_user(
-            credentials: HTTPAuthorizationCredentials = None,
-            db = None
+            credentials: HTTPAuthorizationCredentials = None, db=None
         ):
             """TestClient-compatible version of get_optional_user"""
             if not credentials:
@@ -46,13 +47,15 @@ class TestInventoryManagement:
 
             try:
                 user_data = get_user_from_token(credentials.credentials)
-                user = session.query(User).filter(User.id == user_data["user_id"]).first()
+                user = (
+                    session.query(User).filter(User.id == user_data["user_id"]).first()
+                )
                 if user and user.is_active:
                     return {
                         "user_id": user.id,
                         "username": user.username,
                         "is_admin": user.is_admin,
-                        "auth_type": "jwt"
+                        "auth_type": "jwt",
                     }
             except Exception:
                 pass
@@ -81,10 +84,7 @@ class TestInventoryManagement:
 
         # Create admin user directly in shared test database session
         admin_user = User(
-            username="testadmin",
-            full_name="Test Admin",
-            is_admin=True,
-            is_active=True
+            username="testadmin", full_name="Test Admin", is_admin=True, is_active=True
         )
         admin_user.set_password("testpassword")
 
@@ -93,12 +93,14 @@ class TestInventoryManagement:
         db_session.refresh(admin_user)
 
         # Create JWT token directly
-        token = create_access_token({
-            "sub": admin_user.id,
-            "user_id": admin_user.id,
-            "username": admin_user.username,
-            "is_admin": admin_user.is_admin
-        })
+        token = create_access_token(
+            {
+                "sub": admin_user.id,
+                "user_id": admin_user.id,
+                "username": admin_user.username,
+                "is_admin": admin_user.is_admin,
+            }
+        )
 
         return {"Authorization": f"Bearer {token}"}
 
@@ -109,9 +111,15 @@ class TestInventoryManagement:
 
         # Create categories
         categories = {
-            "resistors": Category(name="Resistors", description="Fixed value resistors"),
-            "capacitors": Category(name="Capacitors", description="Capacitors and supercaps"),
-            "semiconductors": Category(name="Semiconductors", description="ICs, transistors, diodes")
+            "resistors": Category(
+                name="Resistors", description="Fixed value resistors"
+            ),
+            "capacitors": Category(
+                name="Capacitors", description="Capacitors and supercaps"
+            ),
+            "semiconductors": Category(
+                name="Semiconductors", description="ICs, transistors, diodes"
+            ),
         }
 
         for category in categories.values():
@@ -119,9 +127,17 @@ class TestInventoryManagement:
 
         # Create storage locations
         storage_locations = {
-            "main": StorageLocation(name="Main Storage", description="Primary component storage", type="room"),
-            "drawer1": StorageLocation(name="Drawer 1", description="Small parts drawer", type="drawer"),
-            "shelf_a": StorageLocation(name="Shelf A", description="Large components shelf", type="shelf")
+            "main": StorageLocation(
+                name="Main Storage",
+                description="Primary component storage",
+                type="room",
+            ),
+            "drawer1": StorageLocation(
+                name="Drawer 1", description="Small parts drawer", type="drawer"
+            ),
+            "shelf_a": StorageLocation(
+                name="Shelf A", description="Large components shelf", type="shelf"
+            ),
         }
 
         for location in storage_locations.values():
@@ -135,12 +151,11 @@ class TestInventoryManagement:
         for location in storage_locations.values():
             db_session.refresh(location)
 
-        return {
-            "categories": categories,
-            "storage_locations": storage_locations
-        }
+        return {"categories": categories, "storage_locations": storage_locations}
 
-    def test_comprehensive_component_search(self, client: TestClient, admin_headers: dict, seeded_data: dict):
+    def test_comprehensive_component_search(
+        self, client: TestClient, admin_headers: dict, seeded_data: dict
+    ):
         """Test comprehensive component search functionality"""
 
         # Use seeded data instead of creating via API
@@ -150,7 +165,7 @@ class TestInventoryManagement:
         category_ids = {
             "Resistors": categories["resistors"].id,
             "Capacitors": categories["capacitors"].id,
-            "Semiconductors": categories["semiconductors"].id
+            "Semiconductors": categories["semiconductors"].id,
         }
         storage_id = storage_locations["main"].id
 
@@ -169,10 +184,10 @@ class TestInventoryManagement:
                     "resistance": "10000",
                     "tolerance": "5%",
                     "power_rating": "0.1W",
-                    "package": "0603"
+                    "package": "0603",
                 },
                 "quantity_on_hand": 100,
-                "unit_cost": 0.02
+                "unit_cost": 0.02,
             },
             {
                 "name": "1µF Ceramic Capacitor",
@@ -187,10 +202,10 @@ class TestInventoryManagement:
                     "capacitance": "1000000",  # pF
                     "voltage_rating": "50V",
                     "dielectric": "X7R",
-                    "package": "0603"
+                    "package": "0603",
                 },
                 "quantity_on_hand": 50,
-                "unit_cost": 0.05
+                "unit_cost": 0.05,
             },
             {
                 "name": "ESP32-WROOM-32 WiFi Module",
@@ -206,10 +221,10 @@ class TestInventoryManagement:
                     "flash_memory": "4MB",
                     "wifi": "802.11 b/g/n",
                     "bluetooth": "4.2",
-                    "package": "LGA"
+                    "package": "LGA",
                 },
                 "quantity_on_hand": 25,
-                "unit_cost": 3.50
+                "unit_cost": 3.50,
             },
             {
                 "name": "1N4148 Switching Diode",
@@ -223,17 +238,19 @@ class TestInventoryManagement:
                     "forward_voltage": "1.0V",
                     "reverse_voltage": "100V",
                     "forward_current": "300mA",
-                    "package": "SOD-323"
+                    "package": "SOD-323",
                 },
                 "quantity_on_hand": 200,
-                "unit_cost": 0.01
-            }
+                "unit_cost": 0.01,
+            },
         ]
 
         # Create all components
         component_ids = []
         for comp in test_components:
-            response = client.post("/api/v1/components", json=comp, headers=admin_headers)
+            response = client.post(
+                "/api/v1/components", json=comp, headers=admin_headers
+            )
             assert response.status_code == 201
             component_ids.append(response.json()["id"])
 
@@ -257,11 +274,16 @@ class TestInventoryManagement:
         assert part_data["total"] == 1
 
         # Test 4: Category filtering
-        resistor_filter = client.get(f"/api/v1/components?category_id={category_ids['Resistors']}")
+        resistor_filter = client.get(
+            f"/api/v1/components?category_id={category_ids['Resistors']}"
+        )
         assert resistor_filter.status_code == 200
         resistor_data = resistor_filter.json()
         assert resistor_data["total"] >= 1
-        assert all("resistor" in comp["component_type"].lower() for comp in resistor_data["components"])
+        assert all(
+            "resistor" in comp["component_type"].lower()
+            for comp in resistor_data["components"]
+        )
 
         # Test 5: Package filtering
         package_search = client.get("/api/v1/components?search=0603")
@@ -286,20 +308,23 @@ class TestInventoryManagement:
         """Test comprehensive stock management workflows"""
 
         # Setup: Create category and storage
-        category_response = client.post("/api/v1/categories",
+        category_response = client.post(
+            "/api/v1/categories",
             json={"name": "Test Components", "description": "For testing"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         category_id = category_response.json()["id"]
 
-        storage_response = client.post("/api/v1/storage-locations",
+        storage_response = client.post(
+            "/api/v1/storage-locations",
             json={"name": "Test Storage", "description": "For testing"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         storage_id = storage_response.json()["id"]
 
         # Create test component
-        component_response = client.post("/api/v1/components",
+        component_response = client.post(
+            "/api/v1/components",
             json={
                 "name": "Test Resistor",
                 "part_number": "TEST-R-001",
@@ -309,21 +334,22 @@ class TestInventoryManagement:
                 "component_type": "resistor",
                 "value": "1kΩ",
                 "quantity_on_hand": 100,
-                "unit_cost": 0.10
+                "unit_cost": 0.10,
             },
-            headers=admin_headers
+            headers=admin_headers,
         )
         component_id = component_response.json()["id"]
 
         # Test 1: Stock addition (purchase)
-        purchase_response = client.post(f"/api/v1/components/{component_id}/stock",
+        purchase_response = client.post(
+            f"/api/v1/components/{component_id}/stock",
             json={
                 "transaction_type": "purchase",
                 "quantity": 50,
                 "unit_cost": 0.09,
-                "notes": "Bulk purchase discount"
+                "notes": "Bulk purchase discount",
             },
-            headers=admin_headers
+            headers=admin_headers,
         )
         assert purchase_response.status_code == 200
 
@@ -333,13 +359,14 @@ class TestInventoryManagement:
         assert component_data["quantity_on_hand"] == 150
 
         # Test 2: Stock usage
-        usage_response = client.post(f"/api/v1/components/{component_id}/stock",
+        usage_response = client.post(
+            f"/api/v1/components/{component_id}/stock",
             json={
                 "transaction_type": "usage",
                 "quantity": 25,
-                "notes": "Used in project Alpha"
+                "notes": "Used in project Alpha",
             },
-            headers=admin_headers
+            headers=admin_headers,
         )
         assert usage_response.status_code == 200
 
@@ -349,13 +376,14 @@ class TestInventoryManagement:
         assert component_data["quantity_on_hand"] == 125
 
         # Test 3: Stock adjustment
-        adjustment_response = client.post(f"/api/v1/components/{component_id}/stock",
+        adjustment_response = client.post(
+            f"/api/v1/components/{component_id}/stock",
             json={
                 "transaction_type": "adjustment",
                 "quantity": -5,  # Remove 5 (perhaps damaged)
-                "notes": "Damaged components removed"
+                "notes": "Damaged components removed",
             },
-            headers=admin_headers
+            headers=admin_headers,
         )
         assert adjustment_response.status_code == 200
 
@@ -377,29 +405,34 @@ class TestInventoryManagement:
         assert "adjustment" in transaction_types
 
         # Test 5: Error handling - insufficient stock
-        excessive_usage = client.post(f"/api/v1/components/{component_id}/stock",
+        excessive_usage = client.post(
+            f"/api/v1/components/{component_id}/stock",
             json={
                 "transaction_type": "usage",
                 "quantity": 1000,  # More than available
-                "notes": "Should fail"
+                "notes": "Should fail",
             },
-            headers=admin_headers
+            headers=admin_headers,
         )
         assert excessive_usage.status_code == 400
 
-    def test_advanced_filtering_and_sorting(self, client: TestClient, admin_headers: dict):
+    def test_advanced_filtering_and_sorting(
+        self, client: TestClient, admin_headers: dict
+    ):
         """Test advanced filtering and sorting capabilities"""
 
         # Setup test data with varied specifications
-        category_response = client.post("/api/v1/categories",
+        category_response = client.post(
+            "/api/v1/categories",
             json={"name": "Mixed Components", "description": "Various components"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         category_id = category_response.json()["id"]
 
-        storage_response = client.post("/api/v1/storage-locations",
+        storage_response = client.post(
+            "/api/v1/storage-locations",
             json={"name": "Mixed Storage", "description": "Various storage"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         storage_id = storage_response.json()["id"]
 
@@ -412,7 +445,7 @@ class TestInventoryManagement:
                 "category_id": category_id,
                 "storage_location_id": storage_id,
                 "quantity_on_hand": 5,
-                "unit_cost": 25.00
+                "unit_cost": 25.00,
             },
             {
                 "name": "Medium Value Component",
@@ -421,7 +454,7 @@ class TestInventoryManagement:
                 "category_id": category_id,
                 "storage_location_id": storage_id,
                 "quantity_on_hand": 50,
-                "unit_cost": 2.50
+                "unit_cost": 2.50,
             },
             {
                 "name": "Low Value Component",
@@ -430,12 +463,14 @@ class TestInventoryManagement:
                 "category_id": category_id,
                 "storage_location_id": storage_id,
                 "quantity_on_hand": 500,
-                "unit_cost": 0.05
-            }
+                "unit_cost": 0.05,
+            },
         ]
 
         for comp in varied_components:
-            response = client.post("/api/v1/components", json=comp, headers=admin_headers)
+            response = client.post(
+                "/api/v1/components", json=comp, headers=admin_headers
+            )
             assert response.status_code == 201
 
         # Test 1: Sort by cost (ascending)
@@ -446,7 +481,9 @@ class TestInventoryManagement:
         assert costs == sorted(costs)
 
         # Test 2: Sort by quantity (descending)
-        qty_desc = client.get("/api/v1/components?sort_by=quantity_on_hand&sort_order=desc")
+        qty_desc = client.get(
+            "/api/v1/components?sort_by=quantity_on_hand&sort_order=desc"
+        )
         assert qty_desc.status_code == 200
         qty_data = qty_desc.json()
         quantities = [comp["quantity_on_hand"] for comp in qty_data["components"]]
@@ -469,46 +506,55 @@ class TestInventoryManagement:
         assert min(stock_levels) < 50  # Low stock component
         assert max(stock_levels) > 100  # High stock component
 
-    def test_inventory_analytics_and_reporting(self, client: TestClient, admin_headers: dict):
+    def test_inventory_analytics_and_reporting(
+        self, client: TestClient, admin_headers: dict
+    ):
         """Test inventory analytics and reporting features"""
 
         # Get initial dashboard stats
-        initial_stats = client.get("/api/v1/reports/dashboard-stats", headers=admin_headers)
+        initial_stats = client.get(
+            "/api/v1/reports/dashboard-stats", headers=admin_headers
+        )
         assert initial_stats.status_code == 200
         initial_data = initial_stats.json()
 
         # Create test data for analytics
-        category_response = client.post("/api/v1/categories",
+        category_response = client.post(
+            "/api/v1/categories",
             json={"name": "Analytics Test", "description": "For analytics testing"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         category_id = category_response.json()["id"]
 
-        storage_response = client.post("/api/v1/storage-locations",
+        storage_response = client.post(
+            "/api/v1/storage-locations",
             json={"name": "Analytics Storage", "description": "For analytics testing"},
-            headers=admin_headers
+            headers=admin_headers,
         )
         storage_id = storage_response.json()["id"]
 
         # Add several components with different values
         test_components = []
         for i in range(3):
-            comp_response = client.post("/api/v1/components",
+            comp_response = client.post(
+                "/api/v1/components",
                 json={
                     "name": f"Analytics Component {i+1}",
                     "part_number": f"ANLY-{i+1:03d}",
                     "manufacturer": "AnalyticsCorp",
                     "category_id": category_id,
                     "storage_location_id": storage_id,
-                    "quantity_on_hand": (i+1) * 10,
-                    "unit_cost": (i+1) * 1.00
+                    "quantity_on_hand": (i + 1) * 10,
+                    "unit_cost": (i + 1) * 1.00,
                 },
-                headers=admin_headers
+                headers=admin_headers,
             )
             test_components.append(comp_response.json()["id"])
 
         # Get updated dashboard stats
-        updated_stats = client.get("/api/v1/reports/dashboard-stats", headers=admin_headers)
+        updated_stats = client.get(
+            "/api/v1/reports/dashboard-stats", headers=admin_headers
+        )
         assert updated_stats.status_code == 200
         updated_data = updated_stats.json()
 
@@ -518,7 +564,9 @@ class TestInventoryManagement:
         assert updated_data["total_value"] > initial_data["total_value"]
 
         # Test category breakdown
-        category_stats = client.get("/api/v1/reports/category-breakdown", headers=admin_headers)
+        category_stats = client.get(
+            "/api/v1/reports/category-breakdown", headers=admin_headers
+        )
         assert category_stats.status_code == 200
         category_data = category_stats.json()
 
@@ -527,7 +575,9 @@ class TestInventoryManagement:
         assert "Analytics Test" in category_names
 
         # Test inventory value analysis
-        value_analysis = client.get("/api/v1/reports/inventory-value", headers=admin_headers)
+        value_analysis = client.get(
+            "/api/v1/reports/inventory-value", headers=admin_headers
+        )
         assert value_analysis.status_code == 200
         value_data = value_analysis.json()
 

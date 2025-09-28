@@ -15,6 +15,7 @@ from ..database import Base
 
 class ProjectStatus(enum.Enum):
     """Project status enumeration."""
+
     PLANNING = "planning"
     ACTIVE = "active"
     ON_HOLD = "on_hold"
@@ -26,6 +27,7 @@ class Project(Base):
     """
     Project model for tracking component allocation and usage across different builds/designs.
     """
+
     __tablename__ = "projects"
 
     # Primary identification
@@ -34,7 +36,9 @@ class Project(Base):
     description = Column(Text, nullable=True)
 
     # Project metadata
-    status = Column(SQLEnum(ProjectStatus), nullable=False, default=ProjectStatus.PLANNING)
+    status = Column(
+        SQLEnum(ProjectStatus), nullable=False, default=ProjectStatus.PLANNING
+    )
     version = Column(String(20), nullable=True)  # v1.0, rev-A, etc.
     client_project_id = Column(String(100), nullable=True)  # External reference
 
@@ -49,10 +53,14 @@ class Project(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
-    project_components = relationship("ProjectComponent", back_populates="project", cascade="all, delete-orphan")
+    project_components = relationship(
+        "ProjectComponent", back_populates="project", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Project(id='{self.id}', name='{self.name}', status='{self.status.value}')>"
@@ -73,7 +81,9 @@ class Project(Base):
         total_cost = 0
         for pc in self.project_components:
             if pc.component.average_purchase_price:
-                total_cost += pc.component.average_purchase_price * pc.quantity_allocated
+                total_cost += (
+                    pc.component.average_purchase_price * pc.quantity_allocated
+                )
         return total_cost
 
     @property
@@ -95,6 +105,7 @@ class ProjectComponent(Base):
     """
     Junction table tracking component allocation and usage in projects.
     """
+
     __tablename__ = "project_components"
 
     # Composite primary key
@@ -104,19 +115,27 @@ class ProjectComponent(Base):
     # Allocation tracking
     quantity_allocated = Column(Integer, nullable=False, default=1)
     quantity_used = Column(Integer, nullable=False, default=0)
-    quantity_reserved = Column(Integer, nullable=False, default=0)  # Reserved from inventory
+    quantity_reserved = Column(
+        Integer, nullable=False, default=0
+    )  # Reserved from inventory
 
     # Component-specific project notes
     notes = Column(Text, nullable=True)
-    designator = Column(String(50), nullable=True)  # PCB reference designator (R1, C5, U3, etc.)
+    designator = Column(
+        String(50), nullable=True
+    )  # PCB reference designator (R1, C5, U3, etc.)
 
     # Cost tracking
-    unit_cost_at_allocation = Column(Numeric(10, 4), nullable=True)  # Cost when allocated
+    unit_cost_at_allocation = Column(
+        Numeric(10, 4), nullable=True
+    )  # Cost when allocated
     total_cost_allocated = Column(Numeric(10, 2), nullable=True)
 
     # Timestamps
     allocated_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     project = relationship("Project", back_populates="project_components")

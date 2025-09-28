@@ -82,8 +82,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """Authenticate user and return JWT token."""
     user = authenticate_user(db, form_data.username, form_data.password)
@@ -99,13 +98,13 @@ async def login_for_access_token(
         user_id=user.id,
         username=user.username,
         is_admin=user.is_admin,
-        expires_delta=access_token_expires
+        expires_delta=access_token_expires,
     )
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     }
 
 
@@ -113,7 +112,7 @@ async def login_for_access_token(
 async def change_user_password(
     password_data: PasswordChange,
     current_user: dict = Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Change current user's password."""
     # Verify current password
@@ -121,7 +120,7 @@ async def change_user_password(
     if not user or not user.verify_password(password_data.current_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Current password is incorrect"
+            detail="Current password is incorrect",
         )
 
     # Change password
@@ -129,7 +128,7 @@ async def change_user_password(
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to change password"
+            detail="Failed to change password",
         )
 
     return {"message": "Password changed successfully"}
@@ -137,15 +136,13 @@ async def change_user_password(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    current_user: dict = Depends(require_auth),
-    db: Session = Depends(get_db)
+    current_user: dict = Depends(require_auth), db: Session = Depends(get_db)
 ):
     """Get current user information."""
     user = db.query(User).filter(User.id == current_user["user_id"]).first()
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
     return user
@@ -156,7 +153,7 @@ async def get_current_user_info(
 async def create_new_user(
     user_data: UserCreate,
     _: dict = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Create a new user (admin only)."""
     try:
@@ -165,14 +162,11 @@ async def create_new_user(
             username=user_data.username,
             password=user_data.password,
             full_name=user_data.full_name,
-            is_admin=user_data.is_admin
+            is_admin=user_data.is_admin,
         )
         return user
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 # API Token Management
@@ -180,7 +174,7 @@ async def create_new_user(
 async def create_user_api_token(
     token_data: APITokenCreate,
     current_user: dict = Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Create a new API token for the current user."""
     try:
@@ -189,7 +183,7 @@ async def create_user_api_token(
             user_id=current_user["user_id"],
             name=token_data.name,
             description=token_data.description,
-            expires_in_days=token_data.expires_in_days
+            expires_in_days=token_data.expires_in_days,
         )
 
         return APITokenCreated(
@@ -201,19 +195,15 @@ async def create_user_api_token(
             expires_at=api_token.expires_at,
             last_used_at=api_token.last_used_at,
             created_at=api_token.created_at,
-            token=raw_token
+            token=raw_token,
         )
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/api-tokens", response_model=list[APITokenResponse])
 async def list_api_tokens(
-    current_user: dict = Depends(require_auth),
-    db: Session = Depends(get_db)
+    current_user: dict = Depends(require_auth), db: Session = Depends(get_db)
 ):
     """List API tokens for the current user."""
     tokens = list_user_tokens(db, current_user["user_id"])
@@ -226,7 +216,7 @@ async def list_api_tokens(
             is_active=token.is_active,
             expires_at=token.expires_at,
             last_used_at=token.last_used_at,
-            created_at=token.created_at
+            created_at=token.created_at,
         )
         for token in tokens
     ]
@@ -236,14 +226,13 @@ async def list_api_tokens(
 async def revoke_user_api_token(
     token_id: str,
     current_user: dict = Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Revoke an API token."""
     success = revoke_api_token(db, token_id, current_user["user_id"])
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="API token not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="API token not found"
         )
 
     return {"message": "API token revoked successfully"}

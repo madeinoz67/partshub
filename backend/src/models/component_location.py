@@ -18,14 +18,19 @@ class ComponentLocation(Base):
     This allows a single component (same part number) to be stored in multiple locations
     with different quantities, enabling flexible inventory management.
     """
+
     __tablename__ = "component_locations"
 
     # Primary identification
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
 
     # Foreign keys
-    component_id = Column(String, ForeignKey("components.id"), nullable=False, index=True)
-    storage_location_id = Column(String, ForeignKey("storage_locations.id"), nullable=False, index=True)
+    component_id = Column(
+        String, ForeignKey("components.id"), nullable=False, index=True
+    )
+    storage_location_id = Column(
+        String, ForeignKey("storage_locations.id"), nullable=False, index=True
+    )
 
     # Location-specific inventory data
     quantity_on_hand = Column(Integer, nullable=False, default=0)
@@ -34,15 +39,21 @@ class ComponentLocation(Base):
 
     # Location-specific notes and data
     location_notes = Column(Text, nullable=True)  # Notes specific to this location
-    unit_cost_at_location = Column(Numeric(10, 4), nullable=True)  # Location-specific cost
+    unit_cost_at_location = Column(
+        Numeric(10, 4), nullable=True
+    )  # Location-specific cost
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     component = relationship("Component", back_populates="locations")
-    storage_location = relationship("StorageLocation", back_populates="component_locations")
+    storage_location = relationship(
+        "StorageLocation", back_populates="component_locations"
+    )
 
     # Add unique constraint to prevent duplicate component-location pairs
     __table_args__ = ()

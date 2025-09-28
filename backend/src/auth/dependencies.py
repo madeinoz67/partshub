@@ -18,7 +18,7 @@ security = HTTPBearer(auto_error=False)
 
 async def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> dict | None:
     """
     Get current user if authenticated, otherwise return None.
@@ -43,7 +43,7 @@ async def get_optional_user(
                 "user_id": user.id,
                 "username": user.username,
                 "is_admin": user.is_admin,
-                "auth_type": "jwt"
+                "auth_type": "jwt",
             }
     except HTTPException:
         pass
@@ -55,16 +55,14 @@ async def get_optional_user(
             "user_id": user.id,
             "username": user.username,
             "is_admin": user.is_admin,
-            "auth_type": "api_token"
+            "auth_type": "api_token",
         }
 
     # Invalid token but don't raise error (optional auth)
     return None
 
 
-async def require_auth(
-    current_user: dict | None = Depends(get_optional_user)
-) -> dict:
+async def require_auth(current_user: dict | None = Depends(get_optional_user)) -> dict:
     """
     Require authentication. Raises 401 if not authenticated.
     Supports both JWT tokens and API tokens.
@@ -79,9 +77,7 @@ async def require_auth(
     return current_user
 
 
-async def require_admin(
-    current_user: dict = Depends(require_auth)
-) -> dict:
+async def require_admin(current_user: dict = Depends(require_auth)) -> dict:
     """
     Require admin authentication. Raises 403 if not admin.
     """
@@ -92,4 +88,3 @@ async def require_admin(
         )
 
     return current_user
-

@@ -50,7 +50,9 @@ class TestComponentsDeleteContract:
         nonexistent_id = str(uuid.uuid4())
         headers = {"Authorization": "Bearer mock_jwt_token"}
 
-        response = client.delete(f"/api/v1/components/{nonexistent_id}", headers=headers)
+        response = client.delete(
+            f"/api/v1/components/{nonexistent_id}", headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 404

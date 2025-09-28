@@ -15,7 +15,9 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    data: dict[str, Any], expires_delta: timedelta | None = None
+) -> str:
     """
     Create a JWT access token.
 
@@ -84,8 +86,12 @@ def get_current_user_id(token: str) -> str | None:
     return payload.get("sub")  # 'sub' is the standard claim for user ID
 
 
-def create_user_token(user_id: str, username: str, is_admin: bool = False,
-                     expires_delta: timedelta | None = None) -> str:
+def create_user_token(
+    user_id: str,
+    username: str,
+    is_admin: bool = False,
+    expires_delta: timedelta | None = None,
+) -> str:
     """
     Create a JWT token for a user.
 
@@ -102,7 +108,7 @@ def create_user_token(user_id: str, username: str, is_admin: bool = False,
         "sub": user_id,  # Standard JWT claim for subject (user ID)
         "username": username,
         "is_admin": is_admin,
-        "token_type": "access"
+        "token_type": "access",
     }
 
     return create_access_token(token_data, expires_delta)

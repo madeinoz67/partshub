@@ -40,7 +40,7 @@ def create_default_admin(db: Session, username: str = "admin") -> tuple[User, st
         full_name="Default Administrator",
         is_active=True,
         is_admin=True,
-        must_change_password=True  # Force password change on first login
+        must_change_password=True,  # Force password change on first login
     )
 
     admin_user.set_password(temporary_password)
@@ -64,7 +64,9 @@ def ensure_admin_exists(db: Session) -> tuple[User, str] | None:
         tuple: (user, temporary_password) if admin was created, None if admin already exists
     """
     # Check if any admin user exists
-    admin_exists = db.query(User).filter(User.is_admin is True, User.is_active is True).first()
+    admin_exists = (
+        db.query(User).filter(User.is_admin is True, User.is_active is True).first()
+    )
 
     if admin_exists:
         return None
@@ -79,7 +81,7 @@ def create_user(
     password: str,
     full_name: str | None = None,
     is_admin: bool = False,
-    force_password_change: bool = False
+    force_password_change: bool = False,
 ) -> User:
     """
     Create a new user.
@@ -111,7 +113,7 @@ def create_user(
         full_name=full_name,
         is_active=True,
         is_admin=is_admin,
-        must_change_password=force_password_change
+        must_change_password=force_password_change,
     )
 
     user.set_password(password)

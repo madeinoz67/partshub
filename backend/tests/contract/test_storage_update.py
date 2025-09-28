@@ -16,7 +16,9 @@ class TestStorageUpdateContract:
         location_id = str(uuid.uuid4())
         update_data = {"name": "Updated Location Name"}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}", json=update_data
+        )
 
         # This should fail with 401 until auth is implemented
         assert response.status_code == 401
@@ -28,10 +30,14 @@ class TestStorageUpdateContract:
         update_data = {
             "name": "Updated Cabinet Name",
             "description": "Updated description for testing",
-            "qr_code_id": "QR-UPDATED-001"
+            "qr_code_id": "QR-UPDATED-001",
         }
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         # Could be 200 (updated) or 404 (not found)
@@ -50,7 +56,11 @@ class TestStorageUpdateContract:
         headers = {"X-API-Key": "mock_api_key"}
         update_data = {"description": "Updated via API key"}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -61,7 +71,11 @@ class TestStorageUpdateContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Name"}
 
-        response = client.put(f"/api/v1/storage-locations/{nonexistent_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{nonexistent_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 404
@@ -73,14 +87,22 @@ class TestStorageUpdateContract:
 
         # Invalid type change
         invalid_data = {"type": "invalid_type"}
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=invalid_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=invalid_data,
+            headers=headers,
+        )
 
         # This will fail until validation is implemented
         assert response.status_code in [422, 400]
 
         # Empty name
         empty_name_data = {"name": ""}
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=empty_name_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=empty_name_data,
+            headers=headers,
+        )
         assert response.status_code in [422, 400]
 
     def test_update_storage_location_with_invalid_uuid(self, client: TestClient):
@@ -89,7 +111,9 @@ class TestStorageUpdateContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Name"}
 
-        response = client.put(f"/api/v1/storage-locations/{invalid_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{invalid_id}", json=update_data, headers=headers
+        )
 
         # This will fail until validation is implemented
         assert response.status_code == 422
@@ -102,10 +126,18 @@ class TestStorageUpdateContract:
 
         update_data = {"parent_id": new_parent_id}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
-        assert response.status_code in [200, 400, 404]  # Could fail if parent doesn't exist
+        assert response.status_code in [
+            200,
+            400,
+            404,
+        ]  # Could fail if parent doesn't exist
 
         if response.status_code == 200:
             data = response.json()
@@ -120,7 +152,11 @@ class TestStorageUpdateContract:
 
         update_data = {"parent_id": None}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -138,7 +174,11 @@ class TestStorageUpdateContract:
 
         update_data = {"parent_id": nonexistent_parent}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until validation is implemented
         assert response.status_code in [400, 404]  # Should reject nonexistent parent
@@ -150,7 +190,11 @@ class TestStorageUpdateContract:
 
         update_data = {"parent_id": location_id}  # Self as parent
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until validation is implemented
         assert response.status_code in [400, 422]  # Should prevent self-reference
@@ -162,7 +206,11 @@ class TestStorageUpdateContract:
 
         update_data = {"type": "shelf"}  # Change type
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -176,7 +224,11 @@ class TestStorageUpdateContract:
 
         update_data = {"qr_code_id": "QR-NEW-CODE-123"}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -191,7 +243,11 @@ class TestStorageUpdateContract:
         # Only update one field
         update_data = {"description": "Only updating description field"}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -205,15 +261,26 @@ class TestStorageUpdateContract:
         headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Location"}
 
-        response = client.put(f"/api/v1/storage-locations/{location_id}", json=update_data, headers=headers)
+        response = client.put(
+            f"/api/v1/storage-locations/{location_id}",
+            json=update_data,
+            headers=headers,
+        )
 
         if response.status_code == 200:
             data = response.json()
 
             # Should return complete storage location structure
             required_fields = [
-                "id", "name", "description", "type", "location_hierarchy",
-                "parent_id", "qr_code_id", "created_at", "updated_at"
+                "id",
+                "name",
+                "description",
+                "type",
+                "location_hierarchy",
+                "parent_id",
+                "qr_code_id",
+                "created_at",
+                "updated_at",
             ]
 
             for field in required_fields:

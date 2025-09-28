@@ -32,9 +32,17 @@ class TestKiCadComponentContract:
 
             # Required fields for KiCadComponent
             required_fields = [
-                "id", "name", "description", "library_name", "symbol_name",
-                "footprint_name", "datasheet_url", "keywords", "properties",
-                "created_at", "updated_at"
+                "id",
+                "name",
+                "description",
+                "library_name",
+                "symbol_name",
+                "footprint_name",
+                "datasheet_url",
+                "keywords",
+                "properties",
+                "created_at",
+                "updated_at",
             ]
 
             for field in required_fields:
@@ -53,7 +61,9 @@ class TestKiCadComponentContract:
         """Test getting KiCad component with all details"""
         component_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/kicad/components/{component_id}?include_symbol_data=true&include_footprint_data=true")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}?include_symbol_data=true&include_footprint_data=true"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -192,11 +202,15 @@ class TestKiCadComponentContract:
         # This will fail until validation is implemented
         assert response.status_code == 422
 
-    def test_get_kicad_component_with_related_partsdb_components(self, client: TestClient):
+    def test_get_kicad_component_with_related_partsdb_components(
+        self, client: TestClient
+    ):
         """Test getting KiCad component with related PartsHub components"""
         component_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/kicad/components/{component_id}?include_partsdb_matches=true")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}?include_partsdb_matches=true"
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:

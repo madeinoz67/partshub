@@ -18,6 +18,7 @@ class MetaPart(Base):
     components. Enables hierarchical BOM management, cost calculation, and
     availability tracking for complete electronic assemblies.
     """
+
     __tablename__ = "meta_parts"
 
     # Primary identifier
@@ -25,20 +26,26 @@ class MetaPart(Base):
 
     # Assembly information
     name = Column(String(255), nullable=False, index=True)  # Assembly name
-    description = Column(Text, nullable=True)              # Assembly description
-    version = Column(String(50), nullable=True)            # Assembly version (e.g., "v2.1", "rev_A")
+    description = Column(Text, nullable=True)  # Assembly description
+    version = Column(
+        String(50), nullable=True
+    )  # Assembly version (e.g., "v2.1", "rev_A")
 
     # Assembly metadata
-    assembly_type = Column(String(100), nullable=True)     # PCB, mechanical, cable, etc.
-    reference_designator = Column(String(50), nullable=True)  # Circuit reference (e.g., "U1", "PCB1")
+    assembly_type = Column(String(100), nullable=True)  # PCB, mechanical, cable, etc.
+    reference_designator = Column(
+        String(50), nullable=True
+    )  # Circuit reference (e.g., "U1", "PCB1")
     notes = Column(Text, nullable=True)
 
     # Relationships
-    components = relationship("MetaPartComponent", back_populates="meta_part", cascade="all, delete-orphan")
+    components = relationship(
+        "MetaPartComponent", back_populates="meta_part", cascade="all, delete-orphan"
+    )
 
     # Constraints
     __table_args__ = (
-        UniqueConstraint('name', 'version', name='uq_meta_part_name_version'),
+        UniqueConstraint("name", "version", name="uq_meta_part_name_version"),
     )
 
     def __repr__(self):
@@ -73,19 +80,21 @@ class MetaPart(Base):
     def check_availability(self) -> dict:
         """Check if all components are available for assembly."""
         availability = {
-            'can_build': True,
-            'max_quantity': float('inf'),
-            'missing_components': [],
-            'low_stock_components': []
+            "can_build": True,
+            "max_quantity": float("inf"),
+            "missing_components": [],
+            "low_stock_components": [],
         }
 
         for meta_comp in self.components:
             component = meta_comp.component
             if not component:
-                availability['can_build'] = False
-                availability['missing_components'].append({
-                    'component_name': f"Component {meta_comp.component_id} (not found)"
-                })
+                availability["can_build"] = False
+                availability["missing_components"].append(
+                    {
+                        "component_name": f"Component {meta_comp.component_id} (not found)"
+                    }
+                )
                 continue
 
             # Check if we have enough stock
@@ -93,28 +102,34 @@ class MetaPart(Base):
             required_qty = meta_comp.quantity_required
 
             if available_qty < required_qty:
-                availability['can_build'] = False
-                availability['missing_components'].append({
-                    'component_name': component.name,
-                    'required': required_qty,
-                    'available': available_qty,
-                    'shortage': required_qty - available_qty
-                })
+                availability["can_build"] = False
+                availability["missing_components"].append(
+                    {
+                        "component_name": component.name,
+                        "required": required_qty,
+                        "available": available_qty,
+                        "shortage": required_qty - available_qty,
+                    }
+                )
             else:
                 # Calculate how many assemblies we can build
                 possible_assemblies = available_qty // required_qty
-                availability['max_quantity'] = min(availability['max_quantity'], possible_assemblies)
+                availability["max_quantity"] = min(
+                    availability["max_quantity"], possible_assemblies
+                )
 
                 # Check for low stock warning
                 if component.is_low_stock:
-                    availability['low_stock_components'].append({
-                        'component_name': component.name,
-                        'current_stock': available_qty,
-                        'minimum_stock': component.minimum_stock
-                    })
+                    availability["low_stock_components"].append(
+                        {
+                            "component_name": component.name,
+                            "current_stock": available_qty,
+                            "minimum_stock": component.minimum_stock,
+                        }
+                    )
 
-        if availability['max_quantity'] == float('inf'):
-            availability['max_quantity'] = 0
+        if availability["max_quantity"] == float("inf"):
+            availability["max_quantity"] = 0
 
         return availability
 
@@ -126,21 +141,28 @@ class MetaPartComponent(Base):
     Links MetaParts to their constituent Components with quantity requirements.
     Enables BOM tracking, cost calculation, and availability analysis.
     """
+
     __tablename__ = "meta_part_components"
 
     # Primary identifier
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
 
     # Foreign key relationships
-    meta_part_id = Column(String, ForeignKey('meta_parts.id'), nullable=False)
-    component_id = Column(String, ForeignKey('components.id'), nullable=False)
+    meta_part_id = Column(String, ForeignKey("meta_parts.id"), nullable=False)
+    component_id = Column(String, ForeignKey("components.id"), nullable=False)
 
     # Quantity requirements
-    quantity_required = Column(Integer, nullable=False, default=1)  # Required quantity in assembly
+    quantity_required = Column(
+        Integer, nullable=False, default=1
+    )  # Required quantity in assembly
 
     # Component-specific assembly notes
-    assembly_notes = Column(Text, nullable=True)  # Special handling, placement notes, etc.
-    reference_designators = Column(String(255), nullable=True)  # PCB reference designators (e.g., "R1,R2,R3")
+    assembly_notes = Column(
+        Text, nullable=True
+    )  # Special handling, placement notes, etc.
+    reference_designators = Column(
+        String(255), nullable=True
+    )  # PCB reference designators (e.g., "R1,R2,R3")
 
     # Relationships
     meta_part = relationship("MetaPart", back_populates="components")
@@ -148,7 +170,7 @@ class MetaPartComponent(Base):
 
     # Constraints
     __table_args__ = (
-        UniqueConstraint('meta_part_id', 'component_id', name='uq_meta_part_component'),
+        UniqueConstraint("meta_part_id", "component_id", name="uq_meta_part_component"),
     )
 
     def __repr__(self):

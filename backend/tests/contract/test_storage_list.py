@@ -32,15 +32,30 @@ class TestStorageListContract:
 
                 # Required fields for StorageLocation
                 required_fields = [
-                    "id", "name", "description", "type", "location_hierarchy",
-                    "parent_id", "qr_code_id", "created_at", "updated_at"
+                    "id",
+                    "name",
+                    "description",
+                    "type",
+                    "location_hierarchy",
+                    "parent_id",
+                    "qr_code_id",
+                    "created_at",
+                    "updated_at",
                 ]
 
                 for field in required_fields:
                     assert field in location
 
                 # Validate type enum
-                assert location["type"] in ["container", "room", "building", "cabinet", "drawer", "shelf", "bin"]
+                assert location["type"] in [
+                    "container",
+                    "room",
+                    "building",
+                    "cabinet",
+                    "drawer",
+                    "shelf",
+                    "bin",
+                ]
 
                 # Validate UUID fields
                 assert isinstance(location["id"], str)
@@ -108,7 +123,9 @@ class TestStorageListContract:
 
             # Results should contain 'cabinet' in name or hierarchy
             for location in data:
-                search_text = f"{location['name']} {location['location_hierarchy']}".lower()
+                search_text = (
+                    f"{location['name']} {location['location_hierarchy']}".lower()
+                )
                 assert "cabinet" in search_text
 
     def test_get_storage_locations_pagination(self, client: TestClient):
@@ -127,7 +144,10 @@ class TestStorageListContract:
         """Test validation errors for invalid parameters"""
         # Invalid type filter
         response = client.get("/api/v1/storage-locations?type=invalid_type")
-        assert response.status_code in [200, 422]  # Could filter out or return validation error
+        assert response.status_code in [
+            200,
+            422,
+        ]  # Could filter out or return validation error
 
         # Invalid limit (negative)
         response = client.get("/api/v1/storage-locations?limit=-1")

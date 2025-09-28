@@ -10,21 +10,20 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 # Database URL - SQLite with WAL mode for better concurrent access
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./data/partshub.db"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/partshub.db")
 
 # Enable WAL mode and foreign keys for SQLite
 engine_args = {}
 if DATABASE_URL.startswith("sqlite"):
-    engine_args.update({
-        "poolclass": StaticPool,
-        "connect_args": {
-            "check_same_thread": False,
-        },
-        "echo": False  # Set to True for SQL debugging
-    })
+    engine_args.update(
+        {
+            "poolclass": StaticPool,
+            "connect_args": {
+                "check_same_thread": False,
+            },
+            "echo": False,  # Set to True for SQL debugging
+        }
+    )
 
 engine = create_engine(DATABASE_URL, **engine_args)
 
@@ -62,6 +61,7 @@ def init_sqlite_features():
     Initialize SQLite-specific features like FTS5 and foreign keys
     """
     from sqlalchemy import text
+
     with engine.connect() as conn:
         # Enable foreign key constraints
         conn.execute(text("PRAGMA foreign_keys=ON;"))

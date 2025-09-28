@@ -47,9 +47,17 @@ class TestKiCadSearchContract:
 
                 # Required fields for KiCadComponent
                 required_fields = [
-                    "id", "name", "description", "library_name", "symbol_name",
-                    "footprint_name", "datasheet_url", "keywords", "properties",
-                    "created_at", "updated_at"
+                    "id",
+                    "name",
+                    "description",
+                    "library_name",
+                    "symbol_name",
+                    "footprint_name",
+                    "datasheet_url",
+                    "keywords",
+                    "properties",
+                    "created_at",
+                    "updated_at",
                 ]
 
                 for field in required_fields:
@@ -92,7 +100,9 @@ class TestKiCadSearchContract:
 
     def test_get_kicad_components_with_footprint_filter(self, client: TestClient):
         """Test filtering by footprint name"""
-        response = client.get("/api/v1/kicad/components?footprint=Resistor_SMD:R_0805_2012Metric")
+        response = client.get(
+            "/api/v1/kicad/components?footprint=Resistor_SMD:R_0805_2012Metric"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 200
@@ -144,7 +154,9 @@ class TestKiCadSearchContract:
             # All components should have at least one of the keywords
             for component in data:
                 component_keywords = [kw.lower() for kw in component["keywords"]]
-                assert any(keyword in component_keywords for keyword in ["passive", "resistor"])
+                assert any(
+                    keyword in component_keywords for keyword in ["passive", "resistor"]
+                )
 
     def test_get_kicad_components_validation_errors(self, client: TestClient):
         """Test validation errors for invalid parameters"""
@@ -162,7 +174,9 @@ class TestKiCadSearchContract:
 
     def test_get_kicad_components_empty_search(self, client: TestClient):
         """Test search with no results"""
-        response = client.get("/api/v1/kicad/components?search=nonexistent_component_xyz123")
+        response = client.get(
+            "/api/v1/kicad/components?search=nonexistent_component_xyz123"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 200

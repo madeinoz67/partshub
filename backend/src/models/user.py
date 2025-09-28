@@ -33,22 +33,18 @@ class User(Base):
     must_change_password = Column(Boolean, default=False, nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(UTC),
-        nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
-        nullable=False
+        nullable=False,
     )
 
     # Relationships
     api_tokens = relationship(
-        "APIToken",
-        back_populates="user",
-        cascade="all, delete-orphan"
+        "APIToken", back_populates="user", cascade="all, delete-orphan"
     )
 
     def set_password(self, password: str) -> None:

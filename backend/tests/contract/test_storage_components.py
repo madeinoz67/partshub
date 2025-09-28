@@ -40,12 +40,27 @@ class TestStorageComponentsContract:
 
                 # Required fields for Component
                 required_fields = [
-                    "id", "name", "part_number", "manufacturer", "category",
-                    "storage_location", "component_type", "value", "package",
-                    "quantity_on_hand", "quantity_ordered", "minimum_stock",
-                    "average_purchase_price", "total_purchase_value", "notes",
-                    "specifications", "custom_fields", "tags", "attachments",
-                    "created_at", "updated_at"
+                    "id",
+                    "name",
+                    "part_number",
+                    "manufacturer",
+                    "category",
+                    "storage_location",
+                    "component_type",
+                    "value",
+                    "package",
+                    "quantity_on_hand",
+                    "quantity_ordered",
+                    "minimum_stock",
+                    "average_purchase_price",
+                    "total_purchase_value",
+                    "notes",
+                    "specifications",
+                    "custom_fields",
+                    "tags",
+                    "attachments",
+                    "created_at",
+                    "updated_at",
                 ]
 
                 for field in required_fields:
@@ -58,7 +73,9 @@ class TestStorageComponentsContract:
         """Test component listing with pagination parameters"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?limit=10&offset=0")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?limit=10&offset=0"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -72,7 +89,9 @@ class TestStorageComponentsContract:
         """Test component search within storage location"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?search=resistor")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?search=resistor"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -89,7 +108,9 @@ class TestStorageComponentsContract:
         """Test filtering components by category"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?category=passive")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?category=passive"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -106,7 +127,9 @@ class TestStorageComponentsContract:
         location_id = str(uuid.uuid4())
 
         # Test low stock filter
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?stock_status=low")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?stock_status=low"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -119,7 +142,9 @@ class TestStorageComponentsContract:
                 assert component["quantity_on_hand"] <= component["minimum_stock"]
 
         # Test out of stock filter
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?stock_status=out")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?stock_status=out"
+        )
 
         if response.status_code == 200:
             data = response.json()
@@ -132,7 +157,9 @@ class TestStorageComponentsContract:
         """Test component sorting within storage location"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?sort_by=name&sort_order=asc")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?sort_by=name&sort_order=asc"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -149,7 +176,9 @@ class TestStorageComponentsContract:
         """Test including components from child locations"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?include_children=true")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?include_children=true"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -190,19 +219,27 @@ class TestStorageComponentsContract:
         location_id = str(uuid.uuid4())
 
         # Invalid limit (negative)
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?limit=-1")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?limit=-1"
+        )
         assert response.status_code in [200, 404, 422]
 
         # Invalid offset (negative)
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?offset=-1")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?offset=-1"
+        )
         assert response.status_code in [200, 404, 422]
 
         # Invalid sort_order
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?sort_order=invalid")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?sort_order=invalid"
+        )
         assert response.status_code in [200, 404, 422]
 
         # Invalid stock_status
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?stock_status=invalid")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?stock_status=invalid"
+        )
         assert response.status_code in [200, 404, 422]
 
     def test_get_storage_components_empty_location(self, client: TestClient):
@@ -217,12 +254,16 @@ class TestStorageComponentsContract:
             assert isinstance(data, list)
             # Could be empty if no components in this location
 
-    def test_get_storage_components_with_specifications_filter(self, client: TestClient):
+    def test_get_storage_components_with_specifications_filter(
+        self, client: TestClient
+    ):
         """Test filtering components by specifications"""
         location_id = str(uuid.uuid4())
 
         # Filter by component type
-        response = client.get(f"/api/v1/storage-locations/{location_id}/components?component_type=resistor")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}/components?component_type=resistor"
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:

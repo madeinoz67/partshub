@@ -34,7 +34,7 @@ class TestStorageLocationModel:
             id=str(uuid.uuid4()),
             name="Test Storage",
             description="Storage location for testing",
-            type="cabinet"
+            type="cabinet",
         )
 
         db_session.add(location)
@@ -55,7 +55,7 @@ class TestStorageLocationModel:
             name="Electronics Lab",
             description="Main electronics laboratory",
             type="room",
-            location_hierarchy="Electronics Lab"
+            location_hierarchy="Electronics Lab",
         )
 
         # Second level - Cabinet
@@ -65,7 +65,7 @@ class TestStorageLocationModel:
             description="Primary component storage cabinet",
             type="cabinet",
             parent_id=room.id,
-            location_hierarchy="Electronics Lab/Component Cabinet A"
+            location_hierarchy="Electronics Lab/Component Cabinet A",
         )
 
         # Third level - Drawer
@@ -75,7 +75,7 @@ class TestStorageLocationModel:
             description="Top drawer for small components",
             type="drawer",
             parent_id=cabinet.id,
-            location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1"
+            location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1",
         )
 
         # Fourth level - Compartment
@@ -85,7 +85,7 @@ class TestStorageLocationModel:
             description="SMD resistors compartment",
             type="compartment",
             parent_id=drawer.id,
-            location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1/Compartment A1"
+            location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1/Compartment A1",
         )
 
         db_session.add_all([room, cabinet, drawer, compartment])
@@ -99,29 +99,32 @@ class TestStorageLocationModel:
         # Test hierarchy strings
         assert room.location_hierarchy == "Electronics Lab"
         assert cabinet.location_hierarchy == "Electronics Lab/Component Cabinet A"
-        assert drawer.location_hierarchy == "Electronics Lab/Component Cabinet A/Drawer 1"
-        assert compartment.location_hierarchy == "Electronics Lab/Component Cabinet A/Drawer 1/Compartment A1"
+        assert (
+            drawer.location_hierarchy == "Electronics Lab/Component Cabinet A/Drawer 1"
+        )
+        assert (
+            compartment.location_hierarchy
+            == "Electronics Lab/Component Cabinet A/Drawer 1/Compartment A1"
+        )
 
     def test_storage_location_parent_child_relationships(self, db_session):
         """Test parent-child relationships in storage hierarchy"""
         parent = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Parent Storage",
-            type="cabinet"
+            id=str(uuid.uuid4()), name="Parent Storage", type="cabinet"
         )
 
         child1 = StorageLocation(
             id=str(uuid.uuid4()),
             name="Child Storage 1",
             type="drawer",
-            parent_id=parent.id
+            parent_id=parent.id,
         )
 
         child2 = StorageLocation(
             id=str(uuid.uuid4()),
             name="Child Storage 2",
             type="drawer",
-            parent_id=parent.id
+            parent_id=parent.id,
         )
 
         db_session.add_all([parent, child1, child2])
@@ -139,38 +142,22 @@ class TestStorageLocationModel:
     def test_storage_location_hierarchy_depth(self, db_session):
         """Test storage location hierarchy with multiple levels"""
         # Create a 5-level hierarchy
-        level1 = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Building",
-            type="building"
-        )
+        level1 = StorageLocation(id=str(uuid.uuid4()), name="Building", type="building")
 
         level2 = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Room",
-            type="room",
-            parent_id=level1.id
+            id=str(uuid.uuid4()), name="Room", type="room", parent_id=level1.id
         )
 
         level3 = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Cabinet",
-            type="cabinet",
-            parent_id=level2.id
+            id=str(uuid.uuid4()), name="Cabinet", type="cabinet", parent_id=level2.id
         )
 
         level4 = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Shelf",
-            type="shelf",
-            parent_id=level3.id
+            id=str(uuid.uuid4()), name="Shelf", type="shelf", parent_id=level3.id
         )
 
         level5 = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Box",
-            type="box",
-            parent_id=level4.id
+            id=str(uuid.uuid4()), name="Box", type="box", parent_id=level4.id
         )
 
         db_session.add_all([level1, level2, level3, level4, level5])
@@ -191,21 +178,15 @@ class TestStorageLocationModel:
     def test_storage_location_component_relationships(self, db_session):
         """Test storage location relationships with components"""
         category = Category(
-            id=str(uuid.uuid4()),
-            name="Test Category",
-            description="For testing"
+            id=str(uuid.uuid4()), name="Test Category", description="For testing"
         )
 
         location = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Component Storage",
-            type="drawer"
+            id=str(uuid.uuid4()), name="Component Storage", type="drawer"
         )
 
         component = Component(
-            id=str(uuid.uuid4()),
-            name="Test Component",
-            category_id=category.id
+            id=str(uuid.uuid4()), name="Test Component", category_id=category.id
         )
 
         db_session.add_all([category, location, component])
@@ -217,7 +198,7 @@ class TestStorageLocationModel:
             component_id=component.id,
             storage_location_id=location.id,
             quantity_on_hand=100,
-            minimum_stock=10
+            minimum_stock=10,
         )
 
         db_session.add(component_location)
@@ -234,7 +215,7 @@ class TestStorageLocationModel:
             id=str(uuid.uuid4()),
             name="Main Warehouse",
             type="warehouse",
-            location_hierarchy="Main Warehouse"
+            location_hierarchy="Main Warehouse",
         )
 
         section_a = StorageLocation(
@@ -242,7 +223,7 @@ class TestStorageLocationModel:
             name="Section A",
             type="section",
             parent_id=warehouse.id,
-            location_hierarchy="Main Warehouse/Section A"
+            location_hierarchy="Main Warehouse/Section A",
         )
 
         rack_a1 = StorageLocation(
@@ -250,7 +231,7 @@ class TestStorageLocationModel:
             name="Rack A1",
             type="rack",
             parent_id=section_a.id,
-            location_hierarchy="Main Warehouse/Section A/Rack A1"
+            location_hierarchy="Main Warehouse/Section A/Rack A1",
         )
 
         db_session.add_all([warehouse, section_a, rack_a1])
@@ -277,7 +258,7 @@ class TestStorageLocationModel:
             ("bin", "Parts Bin"),
             ("compartment", "SMD Compartment"),
             ("rack", "Equipment Rack"),
-            ("warehouse", "Storage Warehouse")
+            ("warehouse", "Storage Warehouse"),
         ]
 
         locations = []
@@ -286,7 +267,7 @@ class TestStorageLocationModel:
                 id=str(uuid.uuid4()),
                 name=name,
                 type=location_type,
-                description=f"Test {location_type}"
+                description=f"Test {location_type}",
             )
             locations.append(location)
 
@@ -301,16 +282,14 @@ class TestStorageLocationModel:
     def test_storage_location_circular_reference_prevention(self, db_session):
         """Test prevention of circular references in hierarchy"""
         parent = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Parent Location",
-            type="cabinet"
+            id=str(uuid.uuid4()), name="Parent Location", type="cabinet"
         )
 
         child = StorageLocation(
             id=str(uuid.uuid4()),
             name="Child Location",
             type="drawer",
-            parent_id=parent.id
+            parent_id=parent.id,
         )
 
         db_session.add_all([parent, child])
@@ -327,9 +306,7 @@ class TestStorageLocationModel:
     def test_storage_location_string_representation(self, db_session):
         """Test storage location __repr__ method"""
         location = StorageLocation(
-            id="test-uuid-456",
-            name="Test Storage Location",
-            type="drawer"
+            id="test-uuid-456", name="Test Storage Location", type="drawer"
         )
 
         repr_str = repr(location)
@@ -340,16 +317,14 @@ class TestStorageLocationModel:
     def test_storage_location_safe_deletion_checks(self, db_session):
         """Test safe deletion checks for storage locations"""
         parent = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Parent Cabinet",
-            type="cabinet"
+            id=str(uuid.uuid4()), name="Parent Cabinet", type="cabinet"
         )
 
         child = StorageLocation(
             id=str(uuid.uuid4()),
             name="Child Drawer",
             type="drawer",
-            parent_id=parent.id
+            parent_id=parent.id,
         )
 
         db_session.add_all([parent, child])
@@ -361,22 +336,17 @@ class TestStorageLocationModel:
         assert "Can be safely deleted" in reason
 
         # Add a component to make deletion unsafe
-        category = Category(
-            id=str(uuid.uuid4()),
-            name="Test Category"
-        )
+        category = Category(id=str(uuid.uuid4()), name="Test Category")
 
         component = Component(
-            id=str(uuid.uuid4()),
-            name="Test Component",
-            category_id=category.id
+            id=str(uuid.uuid4()), name="Test Component", category_id=category.id
         )
 
         component_location = ComponentLocation(
             id=str(uuid.uuid4()),
             component_id=component.id,
             storage_location_id=child.id,
-            quantity_on_hand=50
+            quantity_on_hand=50,
         )
 
         db_session.add_all([category, component, component_location])
@@ -399,7 +369,7 @@ class TestStorageLocationModel:
             id=str(uuid.uuid4()),
             name="Multi-Drawer Cabinet",
             type="cabinet",
-            location_hierarchy="Multi-Drawer Cabinet"
+            location_hierarchy="Multi-Drawer Cabinet",
         )
 
         db_session.add(cabinet)
@@ -413,7 +383,7 @@ class TestStorageLocationModel:
                 name=f"Drawer {i}",
                 type="drawer",
                 parent_id=cabinet.id,
-                location_hierarchy=f"Multi-Drawer Cabinet/Drawer {i}"
+                location_hierarchy=f"Multi-Drawer Cabinet/Drawer {i}",
             )
             drawers.append(drawer)
 
@@ -423,13 +393,13 @@ class TestStorageLocationModel:
         # Create compartments for each drawer
         compartments = []
         for drawer in drawers:
-            for letter in ['A', 'B', 'C']:
+            for letter in ["A", "B", "C"]:
                 compartment = StorageLocation(
                     id=str(uuid.uuid4()),
                     name=f"Compartment {letter}",
                     type="compartment",
                     parent_id=drawer.id,
-                    location_hierarchy=f"{drawer.location_hierarchy}/Compartment {letter}"
+                    location_hierarchy=f"{drawer.location_hierarchy}/Compartment {letter}",
                 )
                 compartments.append(compartment)
 
@@ -455,7 +425,7 @@ class TestStorageLocationModel:
             id=str(uuid.uuid4()),
             name="Electronics Lab",
             type="room",
-            location_hierarchy="Electronics Lab"
+            location_hierarchy="Electronics Lab",
         )
 
         cabinet = StorageLocation(
@@ -463,7 +433,7 @@ class TestStorageLocationModel:
             name="Cabinet A",
             type="cabinet",
             parent_id=lab.id,
-            location_hierarchy="Electronics Lab/Cabinet A"
+            location_hierarchy="Electronics Lab/Cabinet A",
         )
 
         drawer1 = StorageLocation(
@@ -471,7 +441,7 @@ class TestStorageLocationModel:
             name="Drawer 1",
             type="drawer",
             parent_id=cabinet.id,
-            location_hierarchy="Electronics Lab/Cabinet A/Drawer 1"
+            location_hierarchy="Electronics Lab/Cabinet A/Drawer 1",
         )
 
         drawer2 = StorageLocation(
@@ -479,20 +449,26 @@ class TestStorageLocationModel:
             name="Drawer 2",
             type="drawer",
             parent_id=cabinet.id,
-            location_hierarchy="Electronics Lab/Cabinet A/Drawer 2"
+            location_hierarchy="Electronics Lab/Cabinet A/Drawer 2",
         )
 
         db_session.add_all([lab, cabinet, drawer1, drawer2])
         db_session.commit()
 
         # Search by hierarchy patterns
-        lab_locations = db_session.query(StorageLocation).filter(
-            StorageLocation.location_hierarchy.like("Electronics Lab%")
-        ).all()
+        lab_locations = (
+            db_session.query(StorageLocation)
+            .filter(StorageLocation.location_hierarchy.like("Electronics Lab%"))
+            .all()
+        )
 
-        cabinet_locations = db_session.query(StorageLocation).filter(
-            StorageLocation.location_hierarchy.like("Electronics Lab/Cabinet A%")
-        ).all()
+        cabinet_locations = (
+            db_session.query(StorageLocation)
+            .filter(
+                StorageLocation.location_hierarchy.like("Electronics Lab/Cabinet A%")
+            )
+            .all()
+        )
 
         # Should find all locations under Electronics Lab
         assert len(lab_locations) == 4  # lab + cabinet + 2 drawers
@@ -506,24 +482,19 @@ class TestStorageLocationModel:
             id=str(uuid.uuid4()),
             name="Capacity Test Storage",
             type="drawer",
-            description="Test storage with capacity limits"
+            description="Test storage with capacity limits",
         )
 
         db_session.add(location)
         db_session.commit()
 
         # Test basic capacity tracking through component locations
-        category = Category(
-            id=str(uuid.uuid4()),
-            name="Test Category"
-        )
+        category = Category(id=str(uuid.uuid4()), name="Test Category")
 
         components = []
         for i in range(3):
             component = Component(
-                id=str(uuid.uuid4()),
-                name=f"Component {i+1}",
-                category_id=category.id
+                id=str(uuid.uuid4()), name=f"Component {i+1}", category_id=category.id
             )
             components.append(component)
 
@@ -537,7 +508,7 @@ class TestStorageLocationModel:
                 id=str(uuid.uuid4()),
                 component_id=component.id,
                 storage_location_id=location.id,
-                quantity_on_hand=50
+                quantity_on_hand=50,
             )
             component_locations.append(comp_loc)
 

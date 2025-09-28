@@ -22,10 +22,7 @@ class ImportService:
         self.provider_service = ProviderService()
 
     async def search_and_prepare_import(
-        self,
-        query: str,
-        limit: int = 20,
-        providers: list[str] | None = None
+        self, query: str, limit: int = 20, providers: list[str] | None = None
     ) -> list[dict[str, Any]]:
         """
         Search providers and prepare components for import.
@@ -40,7 +37,9 @@ class ImportService:
         """
         try:
             # Search external providers
-            search_results = await self.provider_service.search_components(query, limit, providers)
+            search_results = await self.provider_service.search_components(
+                query, limit, providers
+            )
 
             if not search_results:
                 logger.info(f"No components found for search: {query}")
@@ -53,14 +52,18 @@ class ImportService:
                 if prepared:
                     import_data.append(prepared)
 
-            logger.info(f"Prepared {len(import_data)} components for import from search: {query}")
+            logger.info(
+                f"Prepared {len(import_data)} components for import from search: {query}"
+            )
             return import_data
 
         except Exception as e:
             logger.error(f"Error preparing import for '{query}': {e}")
             return []
 
-    async def _prepare_component_for_import(self, search_result: ComponentSearchResult) -> dict[str, Any] | None:
+    async def _prepare_component_for_import(
+        self, search_result: ComponentSearchResult
+    ) -> dict[str, Any] | None:
         """
         Prepare a component search result for import into local database.
 
@@ -73,13 +76,19 @@ class ImportService:
         try:
             # Check if component already exists locally
             session = get_session()
-            existing = session.query(Component).filter_by(
-                part_number=search_result.part_number,
-                manufacturer=search_result.manufacturer
-            ).first()
+            existing = (
+                session.query(Component)
+                .filter_by(
+                    part_number=search_result.part_number,
+                    manufacturer=search_result.manufacturer,
+                )
+                .first()
+            )
 
             if existing:
-                logger.debug(f"Component {search_result.part_number} already exists locally")
+                logger.debug(
+                    f"Component {search_result.part_number} already exists locally"
+                )
                 return None
 
             # Prepare component data
@@ -96,13 +105,13 @@ class ImportService:
                     "provider_id": search_result.provider_id,
                     "provider_url": search_result.provider_url,
                     "price_breaks": search_result.price_breaks,
-                    "availability": search_result.availability
+                    "availability": search_result.availability,
                 },
                 "import_source": "external_provider",
                 "quantity_on_hand": 0,
                 "minimum_stock": 0,
                 "location": None,  # User will need to specify
-                "notes": f"Imported from {search_result.provider_id}"
+                "notes": f"Imported from {search_result.provider_id}",
             }
 
             return component_data
@@ -114,7 +123,7 @@ class ImportService:
     async def import_components(
         self,
         components_data: list[dict[str, Any]],
-        default_location_id: str | None = None
+        default_location_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Import components into the local database.
@@ -140,7 +149,9 @@ class ImportService:
             for comp_data in components_data:
                 try:
                     # Get or create category
-                    category_id = await self._get_or_create_category_id(comp_data.get("category"))
+                    category_id = await self._get_or_create_category_id(
+                        comp_data.get("category")
+                    )
 
                     # Prepare component for database
                     component = Component(
@@ -152,8 +163,9 @@ class ImportService:
                         specifications=comp_data["specifications"],
                         quantity_on_hand=comp_data.get("quantity_on_hand", 0),
                         minimum_stock=comp_data.get("minimum_stock", 0),
-                        storage_location_id=default_location_id or comp_data.get("location"),
-                        notes=comp_data.get("notes", "")
+                        storage_location_id=default_location_id
+                        or comp_data.get("location"),
+                        notes=comp_data.get("notes", ""),
                     )
 
                     session.add(component)
@@ -168,13 +180,15 @@ class ImportService:
             # Commit all imports
             session.commit()
 
-            logger.info(f"Import completed: {imported_count} imported, {failed_count} failed, {skipped_count} skipped")
+            logger.info(
+                f"Import completed: {imported_count} imported, {failed_count} failed, {skipped_count} skipped"
+            )
 
             return {
                 "imported": imported_count,
                 "failed": failed_count,
                 "skipped": skipped_count,
-                "errors": errors
+                "errors": errors,
             }
 
         except Exception as e:
@@ -185,11 +199,10 @@ class ImportService:
                 "imported": 0,
                 "failed": len(components_data),
                 "skipped": 0,
-                "errors": [error_msg]
+                "errors": [error_msg],
             }
         finally:
             session.close()
-
 
     async def _get_or_create_category_id(self, category_name: str | None) -> str | None:
         """Get or create category and return its ID"""
@@ -206,7 +219,7 @@ class ImportService:
                 category = Category(
                     id=str(uuid4()),
                     name=category_name,
-                    description=f"Auto-created during import: {category_name}"
+                    description=f"Auto-created during import: {category_name}",
                 )
                 session.add(category)
                 session.commit()
@@ -226,7 +239,7 @@ class ImportService:
         query: str,
         limit: int = 20,
         default_location_id: str | None = None,
-        providers: list[str] | None = None
+        providers: list[str] | None = None,
     ) -> dict[str, Any]:
         """
         Search and import components in one operation.
@@ -242,10 +255,17 @@ class ImportService:
         """
         try:
             # Search and prepare components
-            components_data = await self.search_and_prepare_import(query, limit, providers)
+            components_data = await self.search_and_prepare_import(
+                query, limit, providers
+            )
 
             if not components_data:
-                return {"imported": 0, "failed": 0, "skipped": 0, "errors": ["No components found"]}
+                return {
+                    "imported": 0,
+                    "failed": 0,
+                    "skipped": 0,
+                    "errors": ["No components found"],
+                }
 
             # Import components
             result = await self.import_components(components_data, default_location_id)
@@ -267,10 +287,7 @@ class ImportService:
             # Combine info and status
             status = {}
             for name, info in provider_info.items():
-                status[name] = {
-                    **info,
-                    "connected": provider_status.get(name, False)
-                }
+                status[name] = {**info, "connected": provider_status.get(name, False)}
 
             return status
 

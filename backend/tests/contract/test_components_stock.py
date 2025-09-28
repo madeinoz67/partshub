@@ -17,10 +17,12 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "add",
             "quantity_change": 10,
-            "reason": "New purchase"
+            "reason": "New purchase",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data
+        )
 
         # This should fail with 401 until auth is implemented
         assert response.status_code == 401
@@ -32,10 +34,12 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "add",
             "quantity_change": 50,
-            "reason": "Purchase order PO-2025-001"
+            "reason": "Purchase order PO-2025-001",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -45,8 +49,15 @@ class TestComponentsStockContract:
 
             # Response should be StockTransaction structure
             required_fields = [
-                "id", "component_id", "transaction_type", "quantity_change",
-                "previous_quantity", "new_quantity", "reason", "reference_id", "created_at"
+                "id",
+                "component_id",
+                "transaction_type",
+                "quantity_change",
+                "previous_quantity",
+                "new_quantity",
+                "reason",
+                "reference_id",
+                "created_at",
             ]
 
             for field in required_fields:
@@ -63,10 +74,12 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "remove",
             "quantity_change": -10,
-            "reason": "Used in LED driver project"
+            "reason": "Used in LED driver project",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 400, 404]
@@ -84,10 +97,12 @@ class TestComponentsStockContract:
             "transaction_type": "move",
             "quantity_change": 0,  # Move doesn't change total quantity
             "reason": "Relocated to drawer-2",
-            "reference_id": str(uuid.uuid4())  # Reference to new location
+            "reference_id": str(uuid.uuid4()),  # Reference to new location
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -99,10 +114,12 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "adjust",
             "quantity_change": 5,  # Correction adjustment
-            "reason": "Inventory count correction"
+            "reason": "Inventory count correction",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -116,10 +133,14 @@ class TestComponentsStockContract:
         invalid_data = {
             "transaction_type": "invalid_type",
             "quantity_change": 10,
-            "reason": "Test"
+            "reason": "Test",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=invalid_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock",
+            json=invalid_data,
+            headers=headers,
+        )
 
         # This will fail until validation is implemented
         assert response.status_code == 422
@@ -130,7 +151,11 @@ class TestComponentsStockContract:
             # Missing quantity_change and reason
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=incomplete_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock",
+            json=incomplete_data,
+            headers=headers,
+        )
         assert response.status_code == 422
 
     def test_negative_stock_prevention(self, client: TestClient):
@@ -142,10 +167,12 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "remove",
             "quantity_change": -1000,  # Large negative change
-            "reason": "Test negative prevention"
+            "reason": "Test negative prevention",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers
+        )
 
         # This will fail until business logic is implemented
         # Should return 400 Bad Request if would result in negative stock
@@ -163,10 +190,12 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "add",
             "quantity_change": 25,
-            "reason": "API integration test"
+            "reason": "API integration test",
         }
 
-        response = client.post(f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{component_id}/stock", json=stock_data, headers=headers
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -178,10 +207,14 @@ class TestComponentsStockContract:
         stock_data = {
             "transaction_type": "add",
             "quantity_change": 10,
-            "reason": "Test"
+            "reason": "Test",
         }
 
-        response = client.post(f"/api/v1/components/{nonexistent_id}/stock", json=stock_data, headers=headers)
+        response = client.post(
+            f"/api/v1/components/{nonexistent_id}/stock",
+            json=stock_data,
+            headers=headers,
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 404

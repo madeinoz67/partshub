@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 class ComponentSearchResult(BaseModel):
     """Search result from an external provider"""
+
     part_number: str
     manufacturer: str
     description: str
@@ -18,7 +19,9 @@ class ComponentSearchResult(BaseModel):
     datasheet_url: str | None = None
     image_url: str | None = None
     specifications: dict[str, Any] = {}
-    price_breaks: list[dict[str, Any]] = []  # [{"quantity": 1, "price": 0.10, "currency": "USD"}]
+    price_breaks: list[
+        dict[str, Any]
+    ] = []  # [{"quantity": 1, "price": 0.10, "currency": "USD"}]
     availability: int | None = None
     provider_id: str
     provider_url: str | None = None
@@ -35,7 +38,9 @@ class ComponentDataProvider(ABC):
         self.rate_limit_delay = 1.0  # seconds between requests
 
     @abstractmethod
-    async def search_components(self, query: str, limit: int = 10) -> list[ComponentSearchResult]:
+    async def search_components(
+        self, query: str, limit: int = 10
+    ) -> list[ComponentSearchResult]:
         """
         Search for components by part number or description.
 
@@ -49,7 +54,9 @@ class ComponentDataProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_component_details(self, part_number: str, manufacturer: str | None = None) -> ComponentSearchResult | None:
+    async def get_component_details(
+        self, part_number: str, manufacturer: str | None = None
+    ) -> ComponentSearchResult | None:
         """
         Get detailed information for a specific component.
 
@@ -62,7 +69,9 @@ class ComponentDataProvider(ABC):
         """
         pass
 
-    async def search_by_provider_sku(self, provider_sku: str) -> ComponentSearchResult | None:
+    async def search_by_provider_sku(
+        self, provider_sku: str
+    ) -> ComponentSearchResult | None:
         """
         Search for a component by provider-specific SKU/part ID.
 
@@ -106,5 +115,5 @@ class ComponentDataProvider(ABC):
             "supports_search": True,
             "supports_details": True,
             "rate_limit_delay": self.rate_limit_delay,
-            "requires_api_key": bool(self.api_key)
+            "requires_api_key": bool(self.api_key),
         }

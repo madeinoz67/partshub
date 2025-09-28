@@ -36,7 +36,9 @@ class TestComponentsListContract:
 
     def test_get_components_with_filters(self, client: TestClient):
         """Test components filtering by category and manufacturer"""
-        response = client.get("/api/v1/components?manufacturer=Yageo&component_type=resistor")
+        response = client.get(
+            "/api/v1/components?manufacturer=Yageo&component_type=resistor"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 200
@@ -75,9 +77,18 @@ class TestComponentsListContract:
         if data["components"]:
             component = data["components"][0]
             required_fields = [
-                "id", "name", "part_number", "manufacturer",
-                "component_type", "value", "package", "quantity_on_hand",
-                "minimum_stock", "is_low_stock", "storage_location", "category"
+                "id",
+                "name",
+                "part_number",
+                "manufacturer",
+                "component_type",
+                "value",
+                "package",
+                "quantity_on_hand",
+                "minimum_stock",
+                "is_low_stock",
+                "storage_location",
+                "category",
             ]
             for field in required_fields:
                 assert field in component

@@ -23,9 +23,7 @@ class KiCadExportService:
         self.creator = "PartsHub Electronic Parts Management System"
 
     def export_component_library(
-        self,
-        components: list[Component],
-        library_name: str = "PartsHub_Library"
+        self, components: list[Component], library_name: str = "PartsHub_Library"
     ) -> bytes:
         """
         Export components to KiCad library format.
@@ -50,24 +48,30 @@ class KiCadExportService:
                 self._generate_symbol_library(components, symbol_lib_path, library_name)
 
                 # Generate footprint library
-                self._generate_footprint_library(components, footprint_lib_dir, library_name)
+                self._generate_footprint_library(
+                    components, footprint_lib_dir, library_name
+                )
 
                 # Create ZIP archive
                 zip_buffer = self._create_library_archive(temp_dir, library_name)
 
-                logger.info(f"Generated KiCad library '{library_name}' with {len(components)} components")
+                logger.info(
+                    f"Generated KiCad library '{library_name}' with {len(components)} components"
+                )
                 return zip_buffer
 
         except Exception as e:
             logger.error(f"Error exporting KiCad library: {e}")
             raise
 
-    def _generate_symbol_library(self, components: list[Component], output_path: str, library_name: str):
+    def _generate_symbol_library(
+        self, components: list[Component], output_path: str, library_name: str
+    ):
         """Generate KiCad symbol library file"""
 
         symbol_content = [
             f'(kicad_symbol_lib (version {self.library_version}) (generator "{self.creator}")',
-            ""
+            "",
         ]
 
         for component in components:
@@ -77,8 +81,8 @@ class KiCadExportService:
 
         symbol_content.append(")")
 
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(symbol_content))
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(symbol_content))
 
         logger.debug(f"Generated symbol library: {output_path}")
 
@@ -88,23 +92,25 @@ class KiCadExportService:
         # Sanitize symbol name for KiCad
         # Use manufacturer_part_number for symbol generation, fallback to part_number for backward compatibility
         mpn = component.manufacturer_part_number or component.part_number
-        symbol_name = self._sanitize_name(f"{mpn}_{component.manufacturer if component.manufacturer else 'Unknown'}")
+        symbol_name = self._sanitize_name(
+            f"{mpn}_{component.manufacturer if component.manufacturer else 'Unknown'}"
+        )
 
         # Basic symbol template - in production, this would be more sophisticated
         symbol = [
             f'  (symbol "{symbol_name}" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)',
             '    (property "Reference" "U" (at 0 3.81 0)',
-            '      (effects (font (size 1.27 1.27)))',
-            '    )',
+            "      (effects (font (size 1.27 1.27)))",
+            "    )",
             f'    (property "Value" "{mpn}" (at 0 -3.81 0)',
-            '      (effects (font (size 1.27 1.27)))',
-            '    )',
+            "      (effects (font (size 1.27 1.27)))",
+            "    )",
             '    (property "Footprint" "" (at 0 0 0)',
-            '      (effects (font (size 1.27 1.27)) hide)',
-            '    )',
+            "      (effects (font (size 1.27 1.27)) hide)",
+            "    )",
             f'    (property "Datasheet" "{component.datasheet_url or ""}" (at 0 0 0)',
-            '      (effects (font (size 1.27 1.27)) hide)',
-            '    )',
+            "      (effects (font (size 1.27 1.27)) hide)",
+            "    )",
         ]
 
         # Add custom properties from specifications
@@ -112,33 +118,37 @@ class KiCadExportService:
             for key, value in component.specifications.items():
                 safe_key = self._sanitize_name(key)
                 symbol.append(f'    (property "{safe_key}" "{value}" (at 0 0 0)')
-                symbol.append('      (effects (font (size 1.27 1.27)) hide)')
-                symbol.append('    )')
+                symbol.append("      (effects (font (size 1.27 1.27)) hide)")
+                symbol.append("    )")
 
         # Add basic symbol graphics (rectangle with pins)
-        symbol.extend([
-            f'    (symbol "{symbol_name}_0_1"',
-            '      (rectangle (start -7.62 2.54) (end 7.62 -2.54)',
-            '        (stroke (width 0.254) (type default))',
-            '        (fill (type background))',
-            '      )',
-            '    )',
-            f'    (symbol "{symbol_name}_1_1"',
-            '      (pin passive line (at -10.16 0 0) (length 2.54)',
-            '        (name "1" (effects (font (size 1.27 1.27))))',
-            '        (number "1" (effects (font (size 1.27 1.27))))',
-            '      )',
-            '      (pin passive line (at 10.16 0 180) (length 2.54)',
-            '        (name "2" (effects (font (size 1.27 1.27))))',
-            '        (number "2" (effects (font (size 1.27 1.27))))',
-            '      )',
-            '    )',
-            '  )'
-        ])
+        symbol.extend(
+            [
+                f'    (symbol "{symbol_name}_0_1"',
+                "      (rectangle (start -7.62 2.54) (end 7.62 -2.54)",
+                "        (stroke (width 0.254) (type default))",
+                "        (fill (type background))",
+                "      )",
+                "    )",
+                f'    (symbol "{symbol_name}_1_1"',
+                "      (pin passive line (at -10.16 0 0) (length 2.54)",
+                '        (name "1" (effects (font (size 1.27 1.27))))',
+                '        (number "1" (effects (font (size 1.27 1.27))))',
+                "      )",
+                "      (pin passive line (at 10.16 0 180) (length 2.54)",
+                '        (name "2" (effects (font (size 1.27 1.27))))',
+                '        (number "2" (effects (font (size 1.27 1.27))))',
+                "      )",
+                "    )",
+                "  )",
+            ]
+        )
 
         return symbol
 
-    def _generate_footprint_library(self, components: list[Component], output_dir: str, library_name: str):
+    def _generate_footprint_library(
+        self, components: list[Component], output_dir: str, library_name: str
+    ):
         """Generate KiCad footprint library"""
 
         for component in components:
@@ -146,15 +156,17 @@ class KiCadExportService:
             if footprint_file:
                 logger.debug(f"Generated footprint: {footprint_file}")
 
-    def _generate_component_footprint(self, component: Component, output_dir: str) -> str | None:
+    def _generate_component_footprint(
+        self, component: Component, output_dir: str
+    ) -> str | None:
         """Generate KiCad footprint for a single component"""
 
         # Extract package information from specifications
         package = "Unknown"
-        if component.specifications and 'package' in component.specifications:
-            package = component.specifications['package']
-        elif component.specifications and 'Package' in component.specifications:
-            package = component.specifications['Package']
+        if component.specifications and "package" in component.specifications:
+            package = component.specifications["package"]
+        elif component.specifications and "Package" in component.specifications:
+            package = component.specifications["Package"]
 
         # Sanitize footprint name
         mpn = component.manufacturer_part_number or component.part_number
@@ -167,24 +179,24 @@ class KiCadExportService:
             '  (layer "F.Cu")',
             f'  (descr "{component.notes or mpn}")',
             f'  (tags "{package} {component.manufacturer if component.manufacturer else ""}")',
-            ''
+            "",
         ]
 
         # Add basic footprint elements based on package type
-        if package.upper() in ['0603', '0805', '1206', '1210']:
+        if package.upper() in ["0603", "0805", "1206", "1210"]:
             # SMD resistor/capacitor footprint
             footprint_content.extend(self._generate_smd_footprint(package))
-        elif 'LQFP' in package.upper():
+        elif "LQFP" in package.upper():
             # LQFP package footprint
             footprint_content.extend(self._generate_lqfp_footprint(package))
         else:
             # Generic footprint
             footprint_content.extend(self._generate_generic_footprint())
 
-        footprint_content.append(')')
+        footprint_content.append(")")
 
-        with open(footprint_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(footprint_content))
+        with open(footprint_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(footprint_content))
 
         return footprint_path
 
@@ -192,24 +204,26 @@ class KiCadExportService:
         """Generate SMD footprint elements"""
         # Package dimensions (simplified)
         dimensions = {
-            '0603': (1.6, 0.8, 0.8, 0.8),
-            '0805': (2.0, 1.25, 1.2, 1.2),
-            '1206': (3.2, 1.6, 1.6, 1.6),
-            '1210': (3.2, 2.5, 1.6, 2.5)
+            "0603": (1.6, 0.8, 0.8, 0.8),
+            "0805": (2.0, 1.25, 1.2, 1.2),
+            "1206": (3.2, 1.6, 1.6, 1.6),
+            "1210": (3.2, 2.5, 1.6, 2.5),
         }
 
-        length, width, pad_length, pad_width = dimensions.get(package, (2.0, 1.25, 1.2, 1.2))
+        length, width, pad_length, pad_width = dimensions.get(
+            package, (2.0, 1.25, 1.2, 1.2)
+        )
 
         return [
             f'  (fp_text reference "REF**" (at 0 -{width/2 + 1}) (layer "F.SilkS")',
-            '    (effects (font (size 1 1) (thickness 0.15)))',
-            '  )',
+            "    (effects (font (size 1 1) (thickness 0.15)))",
+            "  )",
             f'  (fp_text value "{package}" (at 0 {width/2 + 1}) (layer "F.Fab")',
-            '    (effects (font (size 1 1) (thickness 0.15)))',
-            '  )',
-            f'  (fp_line (start -{length/2} -{width/2}) (end {length/2} -{width/2})',
+            "    (effects (font (size 1 1) (thickness 0.15)))",
+            "  )",
+            f"  (fp_line (start -{length/2} -{width/2}) (end {length/2} -{width/2})",
             '    (stroke (width 0.12) (type solid)) (layer "F.SilkS"))',
-            f'  (fp_line (start -{length/2} {width/2}) (end {length/2} {width/2})',
+            f"  (fp_line (start -{length/2} {width/2}) (end {length/2} {width/2})",
             '    (stroke (width 0.12) (type solid)) (layer "F.SilkS"))',
             f'  (pad "1" smd roundrect (at -{length/2} 0) (size {pad_length} {pad_width})',
             '    (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25))',
@@ -221,30 +235,30 @@ class KiCadExportService:
         """Generate LQFP footprint elements (simplified)"""
         return [
             '  (fp_text reference "U" (at 0 -6) (layer "F.SilkS")',
-            '    (effects (font (size 1 1) (thickness 0.15)))',
-            '  )',
+            "    (effects (font (size 1 1) (thickness 0.15)))",
+            "  )",
             f'  (fp_text value "{package}" (at 0 6) (layer "F.Fab")',
-            '    (effects (font (size 1 1) (thickness 0.15)))',
-            '  )',
-            '  (fp_rect (start -5 -5) (end 5 5)',
+            "    (effects (font (size 1 1) (thickness 0.15)))",
+            "  )",
+            "  (fp_rect (start -5 -5) (end 5 5)",
             '    (stroke (width 0.12) (type solid)) (layer "F.SilkS"))',
             '  (pad "1" smd rect (at -5.7 -3.75) (size 1.5 0.3)',
             '    (layers "F.Cu" "F.Paste" "F.Mask"))',
             '  (pad "2" smd rect (at -5.7 -3.25) (size 1.5 0.3)',
             '    (layers "F.Cu" "F.Paste" "F.Mask"))',
-            '  # Additional pads would be generated based on pin count...',
+            "  # Additional pads would be generated based on pin count...",
         ]
 
     def _generate_generic_footprint(self) -> list[str]:
         """Generate generic footprint elements"""
         return [
             '  (fp_text reference "U" (at 0 -2) (layer "F.SilkS")',
-            '    (effects (font (size 1 1) (thickness 0.15)))',
-            '  )',
+            "    (effects (font (size 1 1) (thickness 0.15)))",
+            "  )",
             '  (fp_text value "Generic" (at 0 2) (layer "F.Fab")',
-            '    (effects (font (size 1 1) (thickness 0.15)))',
-            '  )',
-            '  (fp_rect (start -2.5 -1) (end 2.5 1)',
+            "    (effects (font (size 1 1) (thickness 0.15)))",
+            "  )",
+            "  (fp_rect (start -2.5 -1) (end 2.5 1)",
             '    (stroke (width 0.12) (type solid)) (layer "F.SilkS"))',
             '  (pad "1" thru_hole circle (at -1.27 0) (size 1.5 1.5) (drill 0.8)',
             '    (layers "*.Cu" "*.Mask"))',
@@ -257,7 +271,7 @@ class KiCadExportService:
 
         zip_buffer = tempfile.NamedTemporaryFile()
 
-        with zipfile.ZipFile(zip_buffer.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(zip_buffer.name, "w", zipfile.ZIP_DEFLATED) as zipf:
             for root, dirs, files in os.walk(temp_dir):
                 for file in files:
                     file_path = os.path.join(root, file)
@@ -265,7 +279,7 @@ class KiCadExportService:
                     zipf.write(file_path, arc_name)
 
         # Read the ZIP file content
-        with open(zip_buffer.name, 'rb') as f:
+        with open(zip_buffer.name, "rb") as f:
             zip_data = f.read()
 
         return zip_data
@@ -273,16 +287,18 @@ class KiCadExportService:
     def _sanitize_name(self, name: str) -> str:
         """Sanitize name for KiCad compatibility"""
         # Replace problematic characters
-        sanitized = name.replace(' ', '_').replace('-', '_').replace('.', '_')
+        sanitized = name.replace(" ", "_").replace("-", "_").replace(".", "_")
         # Remove any other special characters
-        sanitized = ''.join(c for c in sanitized if c.isalnum() or c == '_')
+        sanitized = "".join(c for c in sanitized if c.isalnum() or c == "_")
         return sanitized
 
     async def export_components_by_category(self, category_id: str) -> bytes:
         """Export all components in a specific category"""
         session = get_session()
         try:
-            components = session.query(Component).filter_by(category_id=category_id).all()
+            components = (
+                session.query(Component).filter_by(category_id=category_id).all()
+            )
             category = session.query(Category).filter_by(id=category_id).first()
 
             library_name = f"PartsHub_{category.name if category else 'Category'}"
@@ -294,7 +310,9 @@ class KiCadExportService:
         """Export all components from a specific manufacturer"""
         session = get_session()
         try:
-            components = session.query(Component).filter_by(manufacturer=manufacturer_name).all()
+            components = (
+                session.query(Component).filter_by(manufacturer=manufacturer_name).all()
+            )
             library_name = f"PartsHub_{manufacturer_name.replace(' ', '_') if manufacturer_name else 'Manufacturer'}"
             return self.export_component_library(components, library_name)
         finally:
@@ -315,26 +333,30 @@ class KiCadExportService:
             "library_version": self.library_version,
             "creator": self.creator,
             "supported_formats": ["symbols", "footprints"],
-            "package_types": ["SMD", "Through-hole", "LQFP", "Generic"]
+            "package_types": ["SMD", "Through-hole", "LQFP", "Generic"],
         }
 
-    def format_component_for_kicad(self, component: Component, include_full_specs: bool = False) -> dict[str, Any]:
+    def format_component_for_kicad(
+        self, component: Component, include_full_specs: bool = False
+    ) -> dict[str, Any]:
         """Format component data for KiCad API responses"""
 
         # Determine reference designator based on component type
         reference_map = {
-            'resistor': 'R',
-            'capacitor': 'C',
-            'inductor': 'L',
-            'ic': 'U',
-            'microcontroller': 'U',
-            'diode': 'D',
-            'transistor': 'Q',
-            'connector': 'J',
-            'crystal': 'Y'
+            "resistor": "R",
+            "capacitor": "C",
+            "inductor": "L",
+            "ic": "U",
+            "microcontroller": "U",
+            "diode": "D",
+            "transistor": "Q",
+            "connector": "J",
+            "crystal": "Y",
         }
 
-        reference = reference_map.get(component.component_type.lower() if component.component_type else '', 'U')
+        reference = reference_map.get(
+            component.component_type.lower() if component.component_type else "", "U"
+        )
 
         # Build footprint reference
         footprint = ""
@@ -349,7 +371,7 @@ class KiCadExportService:
         if component.specifications:
             for key, value in component.specifications.items():
                 # Convert specification keys to KiCad-friendly field names
-                field_name = key.replace('_', ' ').title()
+                field_name = key.replace("_", " ").title()
                 fields[field_name] = str(value)
 
         # Add standard fields
@@ -369,13 +391,16 @@ class KiCadExportService:
         # Get datasheet URL from attachments
         datasheet_url = None
         for attachment in component.attachments:
-            if 'datasheet' in attachment.filename.lower() or attachment.attachment_type == 'datasheet':
+            if (
+                "datasheet" in attachment.filename.lower()
+                or attachment.attachment_type == "datasheet"
+            ):
                 datasheet_url = f"http://localhost:8000/api/v1/components/{component.id}/attachments/{attachment.id}/download"
                 break
 
         # Extract keywords from tags if available
         keywords = []
-        if hasattr(component, 'tags') and component.tags:
+        if hasattr(component, "tags") and component.tags:
             keywords = [tag.name for tag in component.tags]
 
         # Get footprint name from kicad_data or generate from package
@@ -390,29 +415,42 @@ class KiCadExportService:
             "id": component.id,
             "name": component.name,
             "description": component.notes,
-            "library_name": component.kicad_data.symbol_library if component.kicad_data else "PartsHub",
-            "symbol_name": component.kicad_data.symbol_name if component.kicad_data else None,
+            "library_name": component.kicad_data.symbol_library
+            if component.kicad_data
+            else "PartsHub",
+            "symbol_name": component.kicad_data.symbol_name
+            if component.kicad_data
+            else None,
             "footprint_name": footprint_name,
             "datasheet_url": datasheet_url,
             "keywords": keywords,
             "properties": fields,  # Rename fields to properties for contract tests
-            "created_at": component.created_at.isoformat() if component.created_at else "",
-            "updated_at": component.updated_at.isoformat() if component.updated_at else "",
-
+            "created_at": component.created_at.isoformat()
+            if component.created_at
+            else "",
+            "updated_at": component.updated_at.isoformat()
+            if component.updated_at
+            else "",
             # Additional KiCad-specific fields
             "reference": reference,
             "value": component.value or component.name,
             "footprint": footprint,
-            "symbol_library": component.kicad_data.symbol_library if component.kicad_data else None,
-            "footprint_library": component.kicad_data.footprint_library if component.kicad_data else None,
-            "model_3d_path": component.kicad_data.model_3d_path if component.kicad_data else None,
+            "symbol_library": component.kicad_data.symbol_library
+            if component.kicad_data
+            else None,
+            "footprint_library": component.kicad_data.footprint_library
+            if component.kicad_data
+            else None,
+            "model_3d_path": component.kicad_data.model_3d_path
+            if component.kicad_data
+            else None,
             "specifications": component.specifications or {},
             "manufacturer": component.manufacturer,
             "part_number": component.part_number,  # Maintain for backward compatibility
             "manufacturer_part_number": component.manufacturer_part_number,
             "local_part_id": component.local_part_id,
             "barcode_id": component.barcode_id,
-            "provider_sku": component.provider_sku
+            "provider_sku": component.provider_sku,
         }
 
     def get_symbol_data(self, component: Component) -> dict[str, Any]:
@@ -426,7 +464,7 @@ class KiCadExportService:
             "symbol_name": component.kicad_data.symbol_name,
             "symbol_reference": component.kicad_data.get_symbol_reference(),
             "pin_count": None,  # Could be extracted from specifications
-            "symbol_data": component.kicad_data.kicad_fields_json
+            "symbol_data": component.kicad_data.kicad_fields_json,
         }
 
     def get_footprint_data(self, component: Component) -> dict[str, Any]:
@@ -440,7 +478,7 @@ class KiCadExportService:
             "footprint_name": component.kicad_data.footprint_name,
             "footprint_reference": component.kicad_data.get_footprint_reference(),
             "pad_count": None,  # Could be extracted from specifications
-            "footprint_data": component.kicad_data.kicad_fields_json
+            "footprint_data": component.kicad_data.kicad_fields_json,
         }
 
     def get_standard_field_mappings(self) -> dict[str, str]:
@@ -456,5 +494,5 @@ class KiCadExportService:
             "Voltage": "Voltage rating",
             "Power": "Power rating",
             "Package": "Physical package type",
-            "TempRange": "Operating temperature range"
+            "TempRange": "Operating temperature range",
         }
