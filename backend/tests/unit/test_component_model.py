@@ -26,8 +26,8 @@ class TestComponentModel:
         """Create an in-memory SQLite database for testing"""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
-        SessionLocal = sessionmaker(bind=engine)
-        session = SessionLocal()
+        session_local = sessionmaker(bind=engine)
+        session = session_local()
         yield session
         session.close()
 

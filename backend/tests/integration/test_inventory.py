@@ -28,10 +28,10 @@ class TestInventoryManagement:
 
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
-        TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
         Base.metadata.create_all(bind=engine)
-        session = TestingSessionLocal()
+        session = testing_session_local()
 
         def override_get_db():
             yield session

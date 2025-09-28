@@ -268,7 +268,6 @@ def create_components(db: Session, category_map: dict, location_map: dict, count
         db.flush()  # Ensure component has an ID
 
         # Create ComponentLocation record with the quantity data
-        from ..models.component_location import ComponentLocation
         location = ComponentLocation(
             component_id=component.id,
             storage_location_id=random.choice(locations).id,
