@@ -50,10 +50,14 @@ def test_stock_filtering_api_structure(client, auth_headers):
     assert isinstance(data["components"], list)
 
     # Test with stock status filter - should maintain same structure
-    response = client.get("/api/v1/components?stock_status=available&limit=5", headers=auth_headers)
+    response = client.get(
+        "/api/v1/components?stock_status=available&limit=5", headers=auth_headers
+    )
     assert response.status_code == 200
     filtered_data = response.json()
 
     # Same structure should be maintained
     for field in required_fields:
-        assert field in filtered_data, f"Required field '{field}' missing from filtered response"
+        assert (
+            field in filtered_data
+        ), f"Required field '{field}' missing from filtered response"
