@@ -13,19 +13,33 @@ class TestKiCadIntegration:
     @pytest.fixture
     def sample_component(self, client, auth_headers):
         """Create a sample component for testing"""
+        import uuid
+
+        test_id = str(uuid.uuid4())[:8]
+
         # Create category and storage
         category_response = client.post(
             "/api/v1/categories",
-            json={"name": "KiCad Test", "description": "For KiCad testing"},
+            json={"name": f"KiCad Test {test_id}", "description": "For KiCad testing"},
             headers=auth_headers,
         )
+        assert (
+            category_response.status_code == 201
+        ), f"Category creation failed: {category_response.text}"
         category_id = category_response.json()["id"]
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": "KiCad Storage", "description": "For KiCad testing"},
+            json={
+                "name": f"KiCad Storage {test_id}",
+                "description": "For KiCad testing",
+                "type": "drawer",
+            },
             headers=auth_headers,
         )
+        assert (
+            storage_response.status_code == 201
+        ), f"Storage creation failed: {storage_response.text}"
         storage_id = storage_response.json()["id"]
 
         # Create component

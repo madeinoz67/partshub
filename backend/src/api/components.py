@@ -28,9 +28,9 @@ class ComponentBase(BaseModel):
     component_type: str | None = None
     value: str | None = None
     package: str | None = None
-    quantity_on_hand: int = 0
-    quantity_ordered: int = 0
-    minimum_stock: int = 0
+    quantity_on_hand: int = Field(default=0, ge=0, description="Must be non-negative")
+    quantity_ordered: int = Field(default=0, ge=0, description="Must be non-negative")
+    minimum_stock: int = Field(default=0, ge=0, description="Must be non-negative")
     average_purchase_price: float | None = None
     total_purchase_value: float | None = None
     notes: str | None = None
@@ -40,7 +40,10 @@ class ComponentBase(BaseModel):
 
 
 class ComponentCreate(ComponentBase):
-    pass
+    # Override fields from ComponentBase to make them required
+    part_number: str  # Required for component identification
+    manufacturer: str  # Required for component sourcing
+    component_type: str  # Required for component categorization
 
 
 class ComponentUpdate(BaseModel):
