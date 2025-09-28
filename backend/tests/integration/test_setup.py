@@ -3,54 +3,14 @@ Integration test for first-time setup and component addition.
 Tests the complete flow from initial setup to adding the first component.
 """
 
-import os
-import tempfile
-
-import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from src.database.connection import Base, get_db
-from src.main import app
+from src.auth.admin import ensure_admin_exists
 
 
 class TestFirstTimeSetup:
     """Integration tests for first-time setup scenario"""
 
-    @pytest.fixture
-    def test_db(self):
-        """Create a temporary database for testing"""
-        db_fd, db_path = tempfile.mkstemp()
-        engine = create_engine(f"sqlite:///{db_path}")
-        testing_session_local = sessionmaker(
-            autocommit=False, autoflush=False, bind=engine
-        )
-
-        # Create all tables
-        Base.metadata.create_all(bind=engine)
-
-        def override_get_db():
-            try:
-                db = testing_session_local()
-                yield db
-            finally:
-                db.close()
-
-        app.dependency_overrides[get_db] = override_get_db
-
-        yield engine
-
-        # Cleanup
-        os.close(db_fd)
-        os.unlink(db_path)
-        app.dependency_overrides.clear()
-
-    @pytest.fixture
-    def client(self, test_db):
-        """Test client with isolated database"""
-        return TestClient(app)
-
-    def test_complete_first_time_setup_flow(self, client: TestClient):
+    def test_complete_first_time_setup_flow(self, client: TestClient, db_session):
         """
         Test complete first-time setup flow:
         1. Check initial admin exists
@@ -61,28 +21,38 @@ class TestFirstTimeSetup:
         6. Verify everything works together
         """
 
-        # Step 1: Verify default admin exists after database initialization
-        # The admin should be created automatically via startup event
+        # Step 1: Ensure admin user exists with default password requirement
+        result = ensure_admin_exists(db_session)
+        if result:
+            admin_user, admin_password = result
+        else:
+            admin_password = "admin123"
         login_response = client.post(
             "/api/v1/auth/token",
-            json={
+            data={
                 "username": "admin",
-                "password": "admin123",  # Default password
+                "password": admin_password,  # Use the actual admin password
             },
         )
         assert login_response.status_code == 200
         login_data = login_response.json()
         assert "access_token" in login_data
-        assert login_data["must_change_password"] is True
+        assert "token_type" in login_data
 
         token = login_data["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
+
+        # Check if password change is required through /me endpoint
+        me_response = client.get("/api/v1/auth/me", headers=headers)
+        assert me_response.status_code == 200
+        user_data = me_response.json()
+        assert user_data["must_change_password"] is True
 
         # Step 2: Change default password (required for first login)
         password_change_response = client.post(
             "/api/v1/auth/change-password",
             json={
-                "current_password": "admin123",
+                "current_password": admin_password,
                 "new_password": "newSecurePassword123!",
             },
             headers=headers,
@@ -92,14 +62,19 @@ class TestFirstTimeSetup:
         # Step 3: Login with new password
         new_login_response = client.post(
             "/api/v1/auth/token",
-            json={"username": "admin", "password": "newSecurePassword123!"},
+            data={"username": "admin", "password": "newSecurePassword123!"},
         )
         assert new_login_response.status_code == 200
         new_login_data = new_login_response.json()
-        assert new_login_data["must_change_password"] is False
+        assert "access_token" in new_login_data
 
+        # Verify password change is no longer required
         new_token = new_login_data["access_token"]
         new_headers = {"Authorization": f"Bearer {new_token}"}
+        new_me_response = client.get("/api/v1/auth/me", headers=new_headers)
+        assert new_me_response.status_code == 200
+        new_user_data = new_me_response.json()
+        assert new_user_data["must_change_password"] is False
 
         # Step 4: Create first storage location
         storage_response = client.post(
@@ -107,7 +82,8 @@ class TestFirstTimeSetup:
             json={
                 "name": "Main Workshop",
                 "description": "Primary electronics workbench",
-                "location_type": "workbench",
+                "type": "cabinet",
+                "parent_id": None,
             },
             headers=new_headers,
         )
@@ -116,9 +92,12 @@ class TestFirstTimeSetup:
         storage_id = storage_data["id"]
 
         # Step 5: Create first category
+        import uuid
+
+        unique_category_name = f"Resistors-{str(uuid.uuid4())[:8]}"
         category_response = client.post(
             "/api/v1/categories",
-            json={"name": "Resistors", "description": "Fixed value resistors"},
+            json={"name": unique_category_name, "description": "Fixed value resistors"},
             headers=new_headers,
         )
         assert category_response.status_code == 201
@@ -177,9 +156,9 @@ class TestFirstTimeSetup:
         stock_response = client.post(
             f"/api/v1/components/{component_id}/stock",
             json={
-                "transaction_type": "usage",
-                "quantity": 5,
-                "notes": "Used in first project",
+                "transaction_type": "remove",
+                "quantity_change": 5,
+                "reason": "Used in first project",
             },
             headers=new_headers,
         )
@@ -201,12 +180,19 @@ class TestFirstTimeSetup:
         assert dashboard_data["total_categories"] >= 1
         assert dashboard_data["total_storage_locations"] >= 1
 
-    def test_setup_with_bulk_storage_creation(self, client: TestClient):
+    def test_setup_with_bulk_storage_creation(self, client: TestClient, db_session):
         """Test setup with bulk storage location creation"""
+
+        # Ensure admin user exists
+        result = ensure_admin_exists(db_session)
+        if result:
+            admin_user, admin_password = result
+        else:
+            admin_password = "admin123"
 
         # Login as admin
         login_response = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+            "/api/v1/auth/token", data={"username": "admin", "password": admin_password}
         )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -214,13 +200,13 @@ class TestFirstTimeSetup:
         # Change password first
         client.post(
             "/api/v1/auth/change-password",
-            json={"current_password": "admin123", "new_password": "newPass123!"},
+            json={"current_password": admin_password, "new_password": "newPass123!"},
             headers=headers,
         )
 
         # Re-login
         new_login = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "newPass123!"}
+            "/api/v1/auth/token", data={"username": "admin", "password": "newPass123!"}
         )
         new_headers = {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 
@@ -229,17 +215,20 @@ class TestFirstTimeSetup:
             {
                 "name": "Drawer A1",
                 "description": "Small components drawer A1",
-                "location_type": "drawer",
+                "type": "drawer",
+                "parent_id": None,
             },
             {
                 "name": "Drawer A2",
                 "description": "Small components drawer A2",
-                "location_type": "drawer",
+                "type": "drawer",
+                "parent_id": None,
             },
             {
                 "name": "Shelf B1",
                 "description": "Large components shelf B1",
-                "location_type": "shelf",
+                "type": "shelf",
+                "parent_id": None,
             },
         ]
 
@@ -261,12 +250,19 @@ class TestFirstTimeSetup:
         assert "Drawer A2" in location_names
         assert "Shelf B1" in location_names
 
-    def test_component_with_attachments_flow(self, client: TestClient):
+    def test_component_with_attachments_flow(self, client: TestClient, db_session):
         """Test adding component with file attachments"""
+
+        # Ensure admin user exists
+        result = ensure_admin_exists(db_session)
+        if result:
+            admin_user, admin_password = result
+        else:
+            admin_password = "admin123"
 
         # Setup authentication
         login_response = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+            "/api/v1/auth/token", data={"username": "admin", "password": admin_password}
         )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -274,13 +270,13 @@ class TestFirstTimeSetup:
         # Change password
         client.post(
             "/api/v1/auth/change-password",
-            json={"current_password": "admin123", "new_password": "newPass123!"},
+            json={"current_password": admin_password, "new_password": "newPass123!"},
             headers=headers,
         )
 
         # Re-login
         new_login = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "newPass123!"}
+            "/api/v1/auth/token", data={"username": "admin", "password": "newPass123!"}
         )
         new_headers = {"Authorization": f"Bearer {new_login.json()['access_token']}"}
 
@@ -337,13 +333,20 @@ class TestFirstTimeSetup:
         spec_search_data = spec_search_response.json()
         assert spec_search_data["total"] >= 1
 
-    def test_error_handling_during_setup(self, client: TestClient):
+    def test_error_handling_during_setup(self, client: TestClient, db_session):
         """Test error handling during setup process"""
+
+        # Ensure admin user exists
+        result = ensure_admin_exists(db_session)
+        if result:
+            admin_user, admin_password = result
+        else:
+            admin_password = "admin123"
 
         # Test invalid login
         invalid_login = client.post(
             "/api/v1/auth/token",
-            json={"username": "admin", "password": "wrongpassword"},
+            data={"username": "admin", "password": "wrongpassword"},
         )
         assert invalid_login.status_code == 401
 
@@ -356,7 +359,7 @@ class TestFirstTimeSetup:
 
         # Login properly
         login_response = client.post(
-            "/api/v1/auth/token", json={"username": "admin", "password": "admin123"}
+            "/api/v1/auth/token", data={"username": "admin", "password": admin_password}
         )
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}

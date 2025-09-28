@@ -188,7 +188,24 @@ def bulk_create_storage_locations(
         created_locations = service.bulk_create_locations(
             [loc.model_dump() for loc in request.locations]
         )
-        return created_locations
+
+        # Convert to response format
+        result = []
+        for location in created_locations:
+            location_dict = {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "type": location.type,
+                "parent_id": location.parent_id,
+                "location_hierarchy": location.location_hierarchy,
+                "qr_code_id": location.qr_code_id,
+                "created_at": location.created_at.isoformat(),
+                "updated_at": location.updated_at.isoformat(),
+            }
+            result.append(location_dict)
+
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception:
