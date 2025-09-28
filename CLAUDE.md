@@ -8,6 +8,8 @@ Auto-generated from all feature plans. Last updated: 2025-09-27
 - SQLite database with SQLAlchemy ORM
 - UV for Python package management
 - Consolidated pyproject.toml structure
+- YAML (GitHub Actions), Shell scripting, Python 3.11+ (for tooling) + GitHub Actions, Docker, MkDocs, pytest, ruff, uv, Node.js/npm (002-github-workflows)
+- GitHub Container Registry, GitHub Artifacts, GitHub Pages (002-github-workflows)
 
 ## Project Structure
 ```
@@ -34,6 +36,7 @@ make docs         # Start documentation server
 - Use consolidated dependency management
 
 ## Recent Changes
+- 002-github-workflows: Added YAML (GitHub Actions), Shell scripting, Python 3.11+ (for tooling) + GitHub Actions, Docker, MkDocs, pytest, ruff, uv, Node.js/npm
 - 2025-09-27: Consolidated pyproject.toml structure for unified version management
 - 001-mvp-electronic-parts: Core MVP implementation completed (~98%)
 

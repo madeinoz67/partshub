@@ -1,0 +1,185 @@
+# Release Workflow Contract
+# Defines the expected behavior of the release automation workflow
+
+workflow_name: "Release Automation"
+file_location: ".github/workflows/release.yml"
+
+# Triggers (FR-005: System MUST create release builds when git tags are manually created)
+triggers:
+  - event: "push"
+    tags: ["v*.*.*"]  # Semantic versioning tags
+    conditions:
+      - tag_format_valid: true
+      - main_branch_only: true
+
+# Required Jobs
+jobs:
+  validate_release:
+    purpose: "Validate release prerequisites"
+    requirements:
+      - "FR-005: Create release builds when version tags are created"
+      - "FR-019: Manage version information in pyproject.toml as single source"
+    outputs:
+      - version_validation
+      - changelog_validation
+    success_criteria:
+      - tag_matches_pyproject: true
+      - changelog_exists: true
+      - all_tests_pass: true
+
+  build_artifacts:
+    purpose: "Create release artifacts"
+    requirements:
+      - "FR-012: Generate and store build artifacts for successful releases"
+    dependencies:
+      - "validate_release"
+    outputs:
+      - backend_artifact
+      - frontend_artifact
+      - source_archive
+    success_criteria:
+      - all_builds_succeed: true
+      - artifacts_signed: true
+
+  build_docker_images:
+    purpose: "Build and publish Docker images"
+    requirements:
+      - "FR-021: Build and publish Docker images to GitHub Container Registry"
+    dependencies:
+      - "validate_release"
+    outputs:
+      - backend_image
+      - frontend_image
+    success_criteria:
+      - images_built: true
+      - images_tagged_correctly: true
+      - images_pushed_to_ghcr: true
+
+  generate_release_notes:
+    purpose: "Create automated release notes"
+    requirements:
+      - "FR-020: Automatically generate and update release notes"
+    dependencies:
+      - "validate_release"
+    outputs:
+      - release_notes_content
+    success_criteria:
+      - notes_generated: true
+      - commit_history_included: true
+      - pr_information_included: true
+
+  build_versioned_docs:
+    purpose: "Build and publish versioned documentation"
+    requirements:
+      - "FR-017: Publish versioned documentation when releases are created"
+      - "FR-018: Ensure documentation is accessible and properly versioned"
+    dependencies:
+      - "validate_release"
+    outputs:
+      - versioned_docs
+      - docs_url
+    success_criteria:
+      - docs_built: true
+      - version_tagged_correctly: true
+      - docs_accessible: true
+
+  create_github_release:
+    purpose: "Create GitHub release with all artifacts"
+    requirements:
+      - "FR-012: Generate and store build artifacts"
+      - "FR-020: Automatically generate release notes"
+    dependencies:
+      - "build_artifacts"
+      - "build_docker_images"
+      - "generate_release_notes"
+      - "build_versioned_docs"
+    outputs:
+      - release_url
+      - release_id
+    success_criteria:
+      - release_created: true
+      - artifacts_attached: true
+      - release_notes_included: true
+
+# Version Management (FR-019: pyproject.toml as single source of truth)
+version_management:
+  source_file: "pyproject.toml"
+  version_field: "tool.poetry.version"
+  synchronization_targets:
+    - "package.json:version"
+    - "frontend/package.json:version"
+    - "docs/mkdocs.yml:site_name"
+  validation_rules:
+    - semver_compliance: true
+    - no_pre_release_in_main: true
+    - version_increment_valid: true
+
+# Docker Image Configuration
+docker_images:
+  backend:
+    registry: "ghcr.io"
+    repository: "owner/partshub-backend"
+    tags:
+      - "latest"
+      - "${VERSION}"
+      - "${GITHUB_SHA:0:7}"
+  frontend:
+    registry: "ghcr.io"
+    repository: "owner/partshub-frontend"
+    tags:
+      - "latest"
+      - "${VERSION}"
+      - "${GITHUB_SHA:0:7}"
+
+# Documentation Versioning (FR-017, FR-018)
+documentation:
+  build_tool: "mkdocs"
+  deployment_target: "github_pages"
+  versioning_strategy: "subdirectory"  # /v1.0.0/, /v1.1.0/, etc.
+  latest_alias: true  # /latest/ points to newest version
+
+# Performance Requirements
+performance:
+  max_build_time: "15 minutes"
+  docker_build_parallel: true
+  artifact_compression: true
+
+# Failure Handling
+failure_handling:
+  cleanup_on_failure: true
+  notification_method: "github_issue_creation"
+  include_logs: true
+  retry_policy: "manual_only"
+
+# Security Requirements
+security:
+  artifact_signing: true
+  image_vulnerability_scan: true
+  provenance_attestation: true
+  supply_chain_verification: true
+
+# Expected Outputs
+artifacts:
+  release_assets:
+    - "partshub-backend-${VERSION}.tar.gz"
+    - "partshub-frontend-${VERSION}.tar.gz"
+    - "source-code.zip"
+    - "checksums.txt"
+    - "signatures.asc"
+  docker_images:
+    - "ghcr.io/owner/partshub-backend:${VERSION}"
+    - "ghcr.io/owner/partshub-frontend:${VERSION}"
+  documentation:
+    - "docs-${VERSION}.tar.gz"
+    - "versioned-docs-url"
+
+# Contract Validation Points
+validation_points:
+  - trigger_on_version_tag: "Workflow must execute on semantic version tags only"
+  - version_consistency: "Git tag must match pyproject.toml version"
+  - artifact_completeness: "All required artifacts are built and attached"
+  - docker_image_publishing: "Images pushed to GitHub Container Registry with correct tags"
+  - release_notes_generation: "Automated release notes from commits and PRs"
+  - versioned_docs_deployment: "Documentation deployed with version-specific URLs"
+  - security_compliance: "All artifacts signed and scanned for vulnerabilities"
+  - rollback_capability: "Previous version remains available if new release fails"
