@@ -21,10 +21,9 @@ class TestComponentsUpdateContract:
         # This should fail with 401 until auth is implemented
         assert response.status_code == 401
 
-    def test_update_component_with_jwt_token(self, client: TestClient):
+    def test_update_component_with_jwt_token(self, client: TestClient, auth_headers):
         """Test component update with JWT token"""
         component_id = str(uuid.uuid4())
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {
             "name": "Updated Resistor 10kΩ 1% 0805",
             "notes": "Updated notes for testing",
@@ -32,7 +31,7 @@ class TestComponentsUpdateContract:
         }
 
         response = client.put(
-            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+            f"/api/v1/components/{component_id}", json=update_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
@@ -46,63 +45,64 @@ class TestComponentsUpdateContract:
             assert data["minimum_stock"] == update_data["minimum_stock"]
             assert "updated_at" in data
 
-    def test_update_component_with_api_key(self, client: TestClient):
+    def test_update_component_with_api_key(self, client: TestClient, api_token_headers):
         """Test component update with API key"""
         component_id = str(uuid.uuid4())
-        headers = {"X-API-Key": "mock_api_key"}
         update_data = {"notes": "Updated via API key"}
 
         response = client.put(
-            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+            f"/api/v1/components/{component_id}",
+            json=update_data,
+            headers=api_token_headers,
         )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
 
-    def test_update_nonexistent_component(self, client: TestClient):
+    def test_update_nonexistent_component(self, client: TestClient, auth_headers):
         """Test 404 response for nonexistent component"""
         nonexistent_id = str(uuid.uuid4())
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Name"}
 
         response = client.put(
-            f"/api/v1/components/{nonexistent_id}", json=update_data, headers=headers
+            f"/api/v1/components/{nonexistent_id}",
+            json=update_data,
+            headers=auth_headers,
         )
 
         # This will fail until endpoint is implemented
         assert response.status_code == 404
 
-    def test_update_component_validation_errors(self, client: TestClient):
+    def test_update_component_validation_errors(self, client: TestClient, auth_headers):
         """Test validation errors for invalid update data"""
         component_id = str(uuid.uuid4())
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # Invalid data (negative minimum_stock)
         invalid_data = {"minimum_stock": -5}
         response = client.put(
-            f"/api/v1/components/{component_id}", json=invalid_data, headers=headers
+            f"/api/v1/components/{component_id}",
+            json=invalid_data,
+            headers=auth_headers,
         )
 
         # This will fail until validation is implemented
         assert response.status_code in [422, 400]
 
-    def test_update_component_with_invalid_uuid(self, client: TestClient):
+    def test_update_component_with_invalid_uuid(self, client: TestClient, auth_headers):
         """Test 422 response for invalid UUID"""
         invalid_id = "not-a-uuid"
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Name"}
 
         response = client.put(
-            f"/api/v1/components/{invalid_id}", json=update_data, headers=headers
+            f"/api/v1/components/{invalid_id}", json=update_data, headers=auth_headers
         )
 
         # This will fail until validation is implemented
         assert response.status_code == 422
 
-    def test_update_component_specifications(self, client: TestClient):
+    def test_update_component_specifications(self, client: TestClient, auth_headers):
         """Test updating JSON specifications field"""
         component_id = str(uuid.uuid4())
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         update_data = {
             "specifications": {
@@ -113,7 +113,7 @@ class TestComponentsUpdateContract:
         }
 
         response = client.put(
-            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+            f"/api/v1/components/{component_id}", json=update_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
@@ -121,16 +121,15 @@ class TestComponentsUpdateContract:
             data = response.json()
             assert data["specifications"] == update_data["specifications"]
 
-    def test_update_component_partial_update(self, client: TestClient):
+    def test_update_component_partial_update(self, client: TestClient, auth_headers):
         """Test partial component updates"""
         component_id = str(uuid.uuid4())
-        headers = {"Authorization": "Bearer mock_jwt_token"}
 
         # Only update one field
         update_data = {"notes": "Only updating notes field"}
 
         response = client.put(
-            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+            f"/api/v1/components/{component_id}", json=update_data, headers=auth_headers
         )
 
         # This will fail until endpoint is implemented
@@ -139,14 +138,15 @@ class TestComponentsUpdateContract:
             assert data["notes"] == update_data["notes"]
             # Other fields should remain unchanged
 
-    def test_update_component_response_structure(self, client: TestClient):
+    def test_update_component_response_structure(
+        self, client: TestClient, auth_headers
+    ):
         """Test response structure matches OpenAPI spec"""
         component_id = str(uuid.uuid4())
-        headers = {"Authorization": "Bearer mock_jwt_token"}
         update_data = {"name": "Updated Component"}
 
         response = client.put(
-            f"/api/v1/components/{component_id}", json=update_data, headers=headers
+            f"/api/v1/components/{component_id}", json=update_data, headers=auth_headers
         )
 
         if response.status_code == 200:
