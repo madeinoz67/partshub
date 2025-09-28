@@ -19,7 +19,7 @@ def wait_for_server():
             if response.status_code == 200:
                 print("✅ Server is ready!")
                 return True
-        except:
+        except (requests.RequestException, requests.Timeout):
             time.sleep(1)
     print("❌ Server not responding")
     return False

@@ -20,7 +20,6 @@ from ..models import (
 
 # Import EasyEDA service for LCSC KiCad conversion
 try:
-    from ..providers.lcsc_provider import LCSCProvider
     from .easyeda_service import EasyEDAService
     EASYEDA_INTEGRATION_AVAILABLE = True
 except ImportError:

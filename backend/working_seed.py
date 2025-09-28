@@ -7,7 +7,13 @@ Creates tables first, then adds test data.
 import uuid
 
 from src.database import Base, SessionLocal, engine
-from src.models import *
+from src.models import (
+    Category,
+    Component,
+    ComponentLocation,
+    StorageLocation,
+    Tag,
+)
 
 
 def create_working_test_data():

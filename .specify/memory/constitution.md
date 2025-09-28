@@ -1,15 +1,15 @@
 # PartsHub Constitution
 <!--
 Sync Impact Report:
-Version change: 1.0.0 → 1.1.0
+Version change: 1.1.0 → 1.2.0
 Modified principles: None
-Added sections: VI. Testing Isolation (new principle added)
+Added sections: VII. Anonymous Contribution (new principle added)
 Removed sections: None
 Templates requiring updates:
-  ✅ plan-template.md - version reference corrected (line 212: v2.1.1 → v1.1.0)
+  ✅ plan-template.md - agent references remain generic for flexibility
   ✅ spec-template.md - no changes needed
   ✅ tasks-template.md - no changes needed
-Follow-up TODOs: None - all testing isolation requirements incorporated
+Follow-up TODOs: None - commit authorship requirements incorporated
 -->
 
 ## Core Principles
@@ -44,6 +44,11 @@ All tests MUST use isolated test fixtures with proper setup and teardown procedu
 
 **Rationale**: Test isolation prevents data corruption, ensures reproducible test results, eliminates environmental dependencies, and protects production systems from test interference.
 
+### VII. Anonymous Contribution (NON-NEGOTIABLE)
+All commits, pull requests, and git history MUST NOT contain references to AI assistants, automated tools, or external contributors in commit messages, co-author tags, or acknowledgments. Contributions MUST appear as originating from human project members only. Generated code markers and tool acknowledgments are prohibited in version control.
+
+**Rationale**: Maintains professional project appearance, ensures clear human accountability for all changes, and prevents confusion about actual code authorship and responsibility.
+
 ## Development Workflow
 
 All development MUST follow the /specify → /plan → /tasks → /implement workflow. Features cannot proceed to implementation without passing constitution compliance checks. Code reviews MUST verify adherence to these principles, and complexity violations MUST be documented and justified.
@@ -66,6 +71,6 @@ This constitution supersedes all other development practices and guidelines. Ame
 
 **Compliance Reviews**: Constitution adherence MUST be verified at each workflow gate
 **Violation Handling**: Complexity deviations MUST be documented in plan.md with justification
-**Runtime Guidance**: See agent-specific guidance files (CLAUDE.md, etc.) for implementation details
+**Runtime Guidance**: See agent-specific guidance files for implementation details
 
-**Version**: 1.1.0 | **Ratified**: 2025-09-25 | **Last Amended**: 2025-09-27
+**Version**: 1.2.0 | **Ratified**: 2025-09-25 | **Last Amended**: 2025-09-28
