@@ -224,41 +224,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Build backend Docker image
+      - name: Build all-in-one Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile
-          target: backend
+          target: development
           push: false
-          tags: partshub-backend:test
+          tags: partshub:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Build frontend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile
-          target: frontend
-          push: false
-          tags: partshub-frontend:test
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Test backend container
+      - name: Test all-in-one container
         run: |
-          docker run --rm -d --name test-backend partshub-backend:test
-          sleep 5
-          docker logs test-backend
-          docker stop test-backend
-
-      - name: Test frontend container
-        run: |
-          docker run --rm -d --name test-frontend -p 3001:3000 partshub-frontend:test
-          sleep 5
-          docker logs test-frontend
-          docker stop test-frontend
+          docker run --rm -d --name test-partshub -p 8000:8000 -p 3000:3000 partshub:test
+          sleep 10
+          echo "=== Container logs ==="
+          docker logs test-partshub
+          echo "=== Testing backend health ==="
+          curl -f http://localhost:8000/health || echo "Backend health check failed"
+          echo "=== Testing frontend ==="
+          curl -f http://localhost:3000 || echo "Frontend check failed"
+          docker stop test-partshub
 
       - name: Upload Docker build logs
         uses: actions/upload-artifact@v4
