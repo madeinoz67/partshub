@@ -25,7 +25,7 @@ RUN pip install uv
 COPY pyproject.toml uv.lock* ./
 
 # Install Python dependencies
-RUN uv sync --all-extras --system
+RUN uv sync --all-extras
 
 # Copy backend source code
 COPY backend/ ./backend/
@@ -116,7 +116,7 @@ RUN pip3 install uv --break-system-packages
 
 # Copy and install Python dependencies (consolidated)
 COPY pyproject.toml uv.lock* ./
-RUN uv sync --all-extras --system --break-system-packages
+RUN uv sync --all-extras
 
 # Copy backend source
 COPY backend/ ./backend/
