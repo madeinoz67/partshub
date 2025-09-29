@@ -29,7 +29,8 @@ def get_inventory_breakdown_optimized(self) -> dict[str, Any]:
     """
     try:
         # Single optimized query with CTEs for all breakdowns
-        optimized_query = text("""
+        optimized_query = text(
+            """
             WITH inventory_aggregates AS (
                 -- Base aggregation with all necessary joins
                 SELECT
@@ -119,40 +120,43 @@ def get_inventory_breakdown_optimized(self) -> dict[str, Any]:
                 total_value
             FROM type_breakdown
             ORDER BY breakdown_type, component_count DESC
-        """)
+        """
+        )
 
         results = self.db.execute(optimized_query).fetchall()
 
         # Organize results by breakdown type
-        breakdowns = {
-            "by_category": [],
-            "by_location": [],
-            "by_type": []
-        }
+        breakdowns = {"by_category": [], "by_location": [], "by_type": []}
 
         for row in results:
             breakdown_type = row.breakdown_type
 
             if breakdown_type == "category":
-                breakdowns["by_category"].append({
-                    "category": row.breakdown_key,
-                    "component_count": int(row.component_count or 0),
-                    "total_quantity": int(row.total_quantity or 0),
-                    "total_value": float(row.total_value or 0),
-                })
+                breakdowns["by_category"].append(
+                    {
+                        "category": row.breakdown_key,
+                        "component_count": int(row.component_count or 0),
+                        "total_quantity": int(row.total_quantity or 0),
+                        "total_value": float(row.total_value or 0),
+                    }
+                )
             elif breakdown_type == "location":
-                breakdowns["by_location"].append({
-                    "location": row.breakdown_key,
-                    "hierarchy": row.hierarchy,
-                    "component_count": int(row.component_count or 0),
-                    "total_quantity": int(row.total_quantity or 0),
-                })
+                breakdowns["by_location"].append(
+                    {
+                        "location": row.breakdown_key,
+                        "hierarchy": row.hierarchy,
+                        "component_count": int(row.component_count or 0),
+                        "total_quantity": int(row.total_quantity or 0),
+                    }
+                )
             elif breakdown_type == "type":
-                breakdowns["by_type"].append({
-                    "component_type": row.breakdown_key,
-                    "component_count": int(row.component_count or 0),
-                    "total_quantity": int(row.total_quantity or 0),
-                })
+                breakdowns["by_type"].append(
+                    {
+                        "component_type": row.breakdown_key,
+                        "component_count": int(row.component_count or 0),
+                        "total_quantity": int(row.total_quantity or 0),
+                    }
+                )
 
         return breakdowns
 
@@ -160,13 +164,12 @@ def get_inventory_breakdown_optimized(self) -> dict[str, Any]:
         logger.error(f"Database error in get_inventory_breakdown_optimized: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Failed to retrieve inventory breakdown due to database error"
+            detail="Failed to retrieve inventory breakdown due to database error",
         )
     except Exception as e:
         logger.error(f"Unexpected error in get_inventory_breakdown_optimized: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve inventory breakdown"
+            status_code=500, detail="Failed to retrieve inventory breakdown"
         )
 
 
