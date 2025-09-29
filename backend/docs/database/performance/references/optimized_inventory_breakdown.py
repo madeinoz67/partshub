@@ -7,8 +7,14 @@ Memory Usage: Reduced due to single query plan
 Index Utilization: Optimal with new composite indexes
 """
 
-from sqlalchemy import text
+import logging
 from typing import Any
+
+from fastapi import HTTPException
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+logger = logging.getLogger(__name__)
 
 
 def get_inventory_breakdown_optimized(self) -> dict[str, Any]:
