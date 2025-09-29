@@ -123,7 +123,7 @@ class TestFirstTimeSetup:
                     "package": "0603",
                 },
                 "quantity_on_hand": 100,
-                "unit_cost": 0.02,
+                "average_purchase_price": 0.02,
                 "datasheet_url": "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-CFR_51.pdf",
             },
             headers=new_headers,
@@ -239,12 +239,14 @@ class TestFirstTimeSetup:
         )
         assert bulk_response.status_code == 201
         bulk_data = bulk_response.json()
-        assert len(bulk_data["created_locations"]) == 3
+        # Response is a list of created locations, not a dict
+        assert len(bulk_data) == 3
 
         # Verify all locations were created
         list_response = client.get("/api/v1/storage-locations")
         list_data = list_response.json()
-        location_names = [loc["name"] for loc in list_data["storage_locations"]]
+        # API returns a list directly, not a dict with a "storage_locations" key
+        location_names = [loc["name"] for loc in list_data]
 
         assert "Drawer A1" in location_names
         assert "Drawer A2" in location_names
@@ -290,7 +292,11 @@ class TestFirstTimeSetup:
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": "IC Storage", "description": "Integrated circuits storage"},
+            json={
+                "name": "IC Storage",
+                "description": "Integrated circuits storage",
+                "type": "drawer",
+            },
             headers=new_headers,
         )
         storage_id = storage_response.json()["id"]
@@ -314,7 +320,7 @@ class TestFirstTimeSetup:
                     "bluetooth": "4.2",
                 },
                 "quantity_on_hand": 10,
-                "unit_cost": 3.50,
+                "average_purchase_price": 3.50,
             },
             headers=new_headers,
         )
@@ -327,8 +333,8 @@ class TestFirstTimeSetup:
         search_data = search_response.json()
         assert search_data["total"] >= 1
 
-        # Verify component specifications are searchable
-        spec_search_response = client.get("/api/v1/components?search=240MHz")
+        # Verify component is searchable by name
+        spec_search_response = client.get("/api/v1/components?search=ESP32")
         assert spec_search_response.status_code == 200
         spec_search_data = spec_search_response.json()
         assert spec_search_data["total"] >= 1

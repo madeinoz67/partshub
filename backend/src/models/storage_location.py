@@ -4,7 +4,15 @@ StorageLocation model with hierarchy support for organizing components.
 
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, Text, event
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    event,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -53,6 +61,14 @@ class StorageLocation(Base):
         "ComponentLocation",
         back_populates="storage_location",
         cascade="save-update, merge",
+    )
+
+    # Table constraints
+    __table_args__ = (
+        CheckConstraint(
+            "type IN ('container', 'room', 'building', 'cabinet', 'drawer', 'shelf', 'bin')",
+            name="ck_storage_location_type_valid",
+        ),
     )
 
     def __repr__(self):
@@ -137,6 +153,18 @@ class StorageLocation(Base):
                 blockers.append(f"Child '{child.name}': {'; '.join(child_blockers)}")
 
         return blockers
+
+    def is_ancestor_of(self, other):
+        """Check if this location is an ancestor of another location."""
+        if not other:
+            return False
+
+        current = other.parent
+        while current:
+            if current.id == self.id:
+                return True
+            current = current.parent
+        return False
 
 
 # Event listener to automatically update location_hierarchy

@@ -63,6 +63,16 @@ def create_search_indexes(session: Session) -> None:
         # Purchase tracking indexes
         "CREATE INDEX IF NOT EXISTS idx_purchase_items_component_id ON purchase_items(component_id)",
         "CREATE INDEX IF NOT EXISTS idx_purchases_created_at ON purchases(created_at)",
+        # ComponentLocation indexes for multi-location inventory support
+        "CREATE INDEX IF NOT EXISTS idx_component_locations_component_id ON component_locations(component_id)",
+        "CREATE INDEX IF NOT EXISTS idx_component_locations_storage_location_id ON component_locations(storage_location_id)",
+        "CREATE INDEX IF NOT EXISTS idx_component_locations_quantity_on_hand ON component_locations(quantity_on_hand)",
+        "CREATE INDEX IF NOT EXISTS idx_component_locations_minimum_stock ON component_locations(minimum_stock)",
+        # Composite index for stock status queries
+        "CREATE INDEX IF NOT EXISTS idx_component_locations_component_quantity ON component_locations(component_id, quantity_on_hand)",
+        # Storage location type index for filtering
+        "CREATE INDEX IF NOT EXISTS idx_storage_locations_type ON storage_locations(type)",
+        "CREATE INDEX IF NOT EXISTS idx_storage_locations_hierarchy ON storage_locations(location_hierarchy)",
         # KiCad integration indexes
         "CREATE INDEX IF NOT EXISTS idx_kicad_library_data_component_id ON kicad_library_data(component_id)",
         # Note: has_symbol and has_footprint columns don't exist in current schema

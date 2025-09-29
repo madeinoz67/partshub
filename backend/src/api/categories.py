@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..auth.dependencies import require_auth
-from ..database.connection import get_db
+from ..database import get_db
 from ..models.category import Category
 from ..models.component import Component
 

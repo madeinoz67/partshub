@@ -117,18 +117,29 @@ class TestProviderIntegration:
         unique_suffix = uuid.uuid4().hex[:8]
         category_response = client.post(
             "/api/v1/categories",
-            json={"name": f"Provider Test {unique_suffix}", "description": "For provider testing"},
+            json={
+                "name": f"Provider Test {unique_suffix}",
+                "description": "For provider testing",
+            },
             headers=admin_headers,
         )
-        assert category_response.status_code == 201, f"Category creation failed: {category_response.text}"
+        assert (
+            category_response.status_code == 201
+        ), f"Category creation failed: {category_response.text}"
         category_id = category_response.json()["id"]
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": f"Provider Storage {unique_suffix}", "description": "For provider testing", "type": "cabinet"},
+            json={
+                "name": f"Provider Storage {unique_suffix}",
+                "description": "For provider testing",
+                "type": "cabinet",
+            },
             headers=admin_headers,
         )
-        assert storage_response.status_code == 201, f"Storage creation failed: {storage_response.text}"
+        assert (
+            storage_response.status_code == 201
+        ), f"Storage creation failed: {storage_response.text}"
         storage_id = storage_response.json()["id"]
 
         # Import component using provider data
@@ -219,7 +230,10 @@ class TestProviderIntegration:
             "/api/v1/providers/search",
             json={"query": "", "provider": "lcsc", "limit": 5},
         )
-        assert empty_query_response.status_code in [200, 422]  # Some APIs return empty results for empty queries
+        assert empty_query_response.status_code in [
+            200,
+            422,
+        ]  # Some APIs return empty results for empty queries
 
         # Test with invalid SKU format
         invalid_sku_response = client.post(
@@ -279,18 +293,29 @@ class TestProviderIntegration:
         unique_suffix = uuid.uuid4().hex[:8]
         category_response = client.post(
             "/api/v1/categories",
-            json={"name": f"Microcontrollers {unique_suffix}", "description": "MCU components"},
+            json={
+                "name": f"Microcontrollers {unique_suffix}",
+                "description": "MCU components",
+            },
             headers=admin_headers,
         )
-        assert category_response.status_code == 201, f"Category creation failed: {category_response.text}"
+        assert (
+            category_response.status_code == 201
+        ), f"Category creation failed: {category_response.text}"
         category_id = category_response.json()["id"]
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": f"IC Storage {unique_suffix}", "description": "Integrated circuits", "type": "cabinet"},
+            json={
+                "name": f"IC Storage {unique_suffix}",
+                "description": "Integrated circuits",
+                "type": "cabinet",
+            },
             headers=admin_headers,
         )
-        assert storage_response.status_code == 201, f"Storage creation failed: {storage_response.text}"
+        assert (
+            storage_response.status_code == 201
+        ), f"Storage creation failed: {storage_response.text}"
         storage_id = storage_response.json()["id"]
 
         # Create component with detailed specifications from provider
@@ -329,7 +354,9 @@ class TestProviderIntegration:
 
         # Test searching by component name instead of internal specifications
         # (specifications search may not be implemented or may require specific search syntax)
-        search_response = client.get(f"/api/v1/components?search={created_component['name'][:10]}")
+        search_response = client.get(
+            f"/api/v1/components?search={created_component['name'][:10]}"
+        )
         search_results = search_response.json()
 
         # Should find the component by name (more reliable than specification search)
@@ -342,7 +369,9 @@ class TestProviderIntegration:
         # If name search doesn't work either, that's okay - the main functionality (importing with specs) works
         # The key test was that the component was created with specifications
         if search_results["total"] == 0 or found_component is None:
-            pytest.skip("Component search not finding results - main import functionality works")
+            pytest.skip(
+                "Component search not finding results - main import functionality works"
+            )
 
     def test_bulk_provider_import(self, client: TestClient, admin_headers: dict):
         """Test bulk import functionality from provider search results"""
@@ -364,18 +393,29 @@ class TestProviderIntegration:
         unique_suffix = uuid.uuid4().hex[:8]
         category_response = client.post(
             "/api/v1/categories",
-            json={"name": f"Bulk Import Test {unique_suffix}", "description": "Bulk provider import"},
+            json={
+                "name": f"Bulk Import Test {unique_suffix}",
+                "description": "Bulk provider import",
+            },
             headers=admin_headers,
         )
-        assert category_response.status_code == 201, f"Category creation failed: {category_response.text}"
+        assert (
+            category_response.status_code == 201
+        ), f"Category creation failed: {category_response.text}"
         category_id = category_response.json()["id"]
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": f"Bulk Storage {unique_suffix}", "description": "Bulk import storage", "type": "cabinet"},
+            json={
+                "name": f"Bulk Storage {unique_suffix}",
+                "description": "Bulk import storage",
+                "type": "cabinet",
+            },
             headers=admin_headers,
         )
-        assert storage_response.status_code == 201, f"Storage creation failed: {storage_response.text}"
+        assert (
+            storage_response.status_code == 201
+        ), f"Storage creation failed: {storage_response.text}"
         storage_id = storage_response.json()["id"]
 
         # Import multiple components

@@ -4,7 +4,7 @@ Provides enhanced stock management operations beyond basic CRUD.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import desc, func
@@ -251,7 +251,7 @@ class StockService:
 
     def analyze_stock_trends(self, component_id: str, days: int = 30) -> dict[str, Any]:
         """Analyze stock movement trends for a component."""
-        end_date = datetime.utcnow()
+        end_date = datetime.now(UTC)
         start_date = end_date - timedelta(days=days)
 
         # Get transactions in date range
@@ -361,7 +361,7 @@ class StockService:
             "prediction_status": prediction_status,
             "confidence": confidence,
             "recommended_reorder_date": (
-                datetime.utcnow() + timedelta(days=max(0, days_until_low_stock - 7))
+                datetime.now(UTC) + timedelta(days=max(0, days_until_low_stock - 7))
             ).isoformat()
             if days_until_low_stock > 7
             else None,
@@ -412,11 +412,11 @@ class StockService:
         alerts = self.get_stock_alerts()
 
         # Recent stock movements (last 7 days)
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = datetime.now(UTC) - timedelta(days=7)
         recent_movements = self.get_stock_movements(start_date=week_ago, limit=50)
 
         report = {
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "inventory_valuation": inventory_stats,
             "stock_alerts": {
                 "low_stock_count": len(alerts["low_stock"]),
@@ -439,7 +439,7 @@ class StockService:
 
     def _get_most_active_components(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get components with most recent stock activity."""
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = datetime.now(UTC) - timedelta(days=7)
 
         # Query for most active components
         result = (

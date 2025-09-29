@@ -82,11 +82,11 @@ class ComponentProviderData(Base):
     @property
     def is_cached_recently(self, hours: int = 24) -> bool:
         """Check if data was cached recently (within specified hours)."""
-        from datetime import datetime, timedelta
+        from datetime import UTC, datetime, timedelta
 
         if not self.cached_at:
             return False
-        return self.cached_at > (datetime.utcnow() - timedelta(hours=hours))
+        return self.cached_at > (datetime.now(UTC) - timedelta(hours=hours))
 
     def update_cache(
         self,

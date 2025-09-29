@@ -488,6 +488,7 @@ class ComponentService:
         self,
         search: str | None = None,
         category: str | None = None,
+        category_id: str | None = None,
         storage_location: str | None = None,
         component_type: str | None = None,
         stock_status: str | None = None,  # low, out, available
@@ -546,9 +547,16 @@ class ComponentService:
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
 
+        if category_id:
+            query = query.filter(Component.category_id == category_id)
+
         if storage_location:
-            query = query.join(StorageLocation).filter(
-                StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+            query = (
+                query.join(ComponentLocation)
+                .join(StorageLocation)
+                .filter(
+                    StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+                )
             )
 
         if component_type:
@@ -643,6 +651,7 @@ class ComponentService:
         self,
         search: str | None = None,
         category: str | None = None,
+        category_id: str | None = None,
         storage_location: str | None = None,
         component_type: str | None = None,
         stock_status: str | None = None,
@@ -674,9 +683,16 @@ class ComponentService:
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
 
+        if category_id:
+            query = query.filter(Component.category_id == category_id)
+
         if storage_location:
-            query = query.join(StorageLocation).filter(
-                StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+            query = (
+                query.join(ComponentLocation)
+                .join(StorageLocation)
+                .filter(
+                    StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+                )
             )
 
         if component_type:

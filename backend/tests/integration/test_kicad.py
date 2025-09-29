@@ -207,12 +207,10 @@ class TestKiCadIntegration:
         sync_request = {
             "libraries": ["test_library"],
             "sync_mode": "incremental",  # Required field
-            "force_update": False
+            "force_update": False,
         }
         sync_response = client.post(
-            "/api/v1/kicad/libraries/sync",
-            json=sync_request,
-            headers=auth_headers
+            "/api/v1/kicad/libraries/sync", json=sync_request, headers=auth_headers
         )
 
         if sync_response.status_code == 200:
