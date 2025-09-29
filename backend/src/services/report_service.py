@@ -194,7 +194,8 @@ class ReportService:
         """
         try:
             # Single optimized query with CTEs for all breakdowns
-            optimized_query = text("""
+            optimized_query = text(
+                """
                 WITH inventory_aggregates AS (
                     -- Base aggregation with all necessary joins
                     SELECT
@@ -284,40 +285,43 @@ class ReportService:
                     total_value
                 FROM type_breakdown
                 ORDER BY breakdown_type, component_count DESC
-            """)
+            """
+            )
 
             results = self.db.execute(optimized_query).fetchall()
 
             # Organize results by breakdown type
-            breakdowns = {
-                "by_category": [],
-                "by_location": [],
-                "by_type": []
-            }
+            breakdowns = {"by_category": [], "by_location": [], "by_type": []}
 
             for row in results:
                 breakdown_type = row.breakdown_type
 
                 if breakdown_type == "category":
-                    breakdowns["by_category"].append({
-                        "category": row.breakdown_key,
-                        "component_count": int(row.component_count or 0),
-                        "total_quantity": int(row.total_quantity or 0),
-                        "total_value": float(row.total_value or 0),
-                    })
+                    breakdowns["by_category"].append(
+                        {
+                            "category": row.breakdown_key,
+                            "component_count": int(row.component_count or 0),
+                            "total_quantity": int(row.total_quantity or 0),
+                            "total_value": float(row.total_value or 0),
+                        }
+                    )
                 elif breakdown_type == "location":
-                    breakdowns["by_location"].append({
-                        "location": row.breakdown_key,
-                        "hierarchy": row.hierarchy,
-                        "component_count": int(row.component_count or 0),
-                        "total_quantity": int(row.total_quantity or 0),
-                    })
+                    breakdowns["by_location"].append(
+                        {
+                            "location": row.breakdown_key,
+                            "hierarchy": row.hierarchy,
+                            "component_count": int(row.component_count or 0),
+                            "total_quantity": int(row.total_quantity or 0),
+                        }
+                    )
                 elif breakdown_type == "type":
-                    breakdowns["by_type"].append({
-                        "component_type": row.breakdown_key,
-                        "component_count": int(row.component_count or 0),
-                        "total_quantity": int(row.total_quantity or 0),
-                    })
+                    breakdowns["by_type"].append(
+                        {
+                            "component_type": row.breakdown_key,
+                            "component_count": int(row.component_count or 0),
+                            "total_quantity": int(row.total_quantity or 0),
+                        }
+                    )
 
             return breakdowns
 
@@ -566,7 +570,8 @@ class ReportService:
             start_date = end_date - timedelta(days=months * 30)
 
             # Single CTE for all financial calculations - major optimization
-            financial_cte = text("""
+            financial_cte = text(
+                """
                 WITH financial_aggregates AS (
                     SELECT
                         c.id as component_id,
@@ -612,7 +617,8 @@ class ReportService:
                     tc.component_value as value
                 FROM top_components tc
                 ORDER BY metric_type, value DESC
-            """)
+            """
+            )
 
             results = self.db.execute(financial_cte).fetchall()
 
@@ -621,15 +627,17 @@ class ReportService:
             top_components = []
 
             for row in results:
-                if row.metric_type == 'total_value':
+                if row.metric_type == "total_value":
                     total_value = float(row.value or 0)
-                elif row.metric_type == 'top_component':
-                    top_components.append({
-                        "component_id": row.component_id,
-                        "part_number": row.part_number or "N/A",
-                        "name": row.name or "Unknown",
-                        "inventory_value": float(row.value or 0),
-                    })
+                elif row.metric_type == "top_component":
+                    top_components.append(
+                        {
+                            "component_id": row.component_id,
+                            "part_number": row.part_number or "N/A",
+                            "name": row.name or "Unknown",
+                            "inventory_value": float(row.value or 0),
+                        }
+                    )
 
             # Purchase trends (handled separately for optimal performance)
             monthly_spending = []
