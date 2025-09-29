@@ -55,6 +55,14 @@ PartsHub is built with modern technologies:
 
     [:octicons-arrow-right-24: Backend](backend/)
 
+-   :material-database: __Database Performance__
+
+    ---
+
+    Detailed performance optimization and analysis
+
+    [:octicons-arrow-right-24: Database Performance](database/performance/)
+
 -   :material-vuejs: __Frontend__
 
     ---
