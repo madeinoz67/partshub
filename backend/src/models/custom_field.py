@@ -20,6 +20,7 @@ class FieldType(enum.Enum):
     NUMBER = "number"
     BOOLEAN = "boolean"
     DATE = "date"
+    URL = "url"
     SELECT = "select"  # Single choice from options
     MULTI_SELECT = "multi_select"  # Multiple choices from options
 

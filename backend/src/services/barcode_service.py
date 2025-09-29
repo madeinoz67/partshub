@@ -26,6 +26,7 @@ try:
 except ImportError:
     PYZBAR_AVAILABLE = False
     # pyzbar not available - using mock barcode scanning
+    pyzbar = None
 
 
 class BarcodeResult:
@@ -150,13 +151,120 @@ class BarcodeService:
                 )
             )
 
-        if width > 200 and height < 100:
+        if width > 200 and height < 200:
             # Simulate finding a linear barcode with part number
             mock_results.append(
                 BarcodeResult(data="LM358P", format_type="CODE128", confidence=0.90)
             )
+        elif width <= 200 and height <= 100:
+            # Small image - simulate finding a simple code
+            mock_results.append(
+                BarcodeResult(data="R1234", format_type="CODE39", confidence=0.85)
+            )
 
         return mock_results
+
+    def search_component_by_barcode(self, barcode_data: str) -> dict[str, Any] | None:
+        """Search for component by barcode data (synchronous version)."""
+        with get_session() as session:
+            # First try to parse structured data
+            parsed_data = self.parse_structured_barcode_data(barcode_data)
+
+            # Use parsed part number if available, otherwise use original data
+            search_data = parsed_data.get("part_number", barcode_data)
+
+            # Search for component by various fields, checking each one individually
+            # to determine match type
+            match_type = None
+            component = None
+
+            # Try part_number first
+            component = (
+                session.query(Component)
+                .filter(Component.part_number == search_data)
+                .first()
+            )
+            if component:
+                match_type = "part_number"
+            else:
+                # Try manufacturer_part_number
+                component = (
+                    session.query(Component)
+                    .filter(Component.manufacturer_part_number == search_data)
+                    .first()
+                )
+                if component:
+                    match_type = "manufacturer_part_number"
+                else:
+                    # Try barcode_id
+                    component = (
+                        session.query(Component)
+                        .filter(Component.barcode_id == search_data)
+                        .first()
+                    )
+                    if component:
+                        match_type = "barcode_id"
+                    else:
+                        # Try local_part_id
+                        component = (
+                            session.query(Component)
+                            .filter(Component.local_part_id == search_data)
+                            .first()
+                        )
+                        if component:
+                            match_type = "local_part_id"
+                        else:
+                            # Try provider_sku
+                            component = (
+                                session.query(Component)
+                                .filter(Component.provider_sku == search_data)
+                                .first()
+                            )
+                            if component:
+                                match_type = "provider_sku"
+
+            if component:
+                return {
+                    "component_id": component.id,
+                    "component_name": component.name,
+                    "part_number": component.part_number,
+                    "manufacturer": component.manufacturer,
+                    "barcode_data": barcode_data,
+                    "match_type": match_type,
+                }
+
+            return None
+
+    def parse_structured_barcode_data(self, data: str) -> dict[str, Any]:
+        """Parse structured barcode data into components."""
+        result = {}
+
+        # Try JSON format first
+        if data.startswith("{"):
+            try:
+                import json
+
+                parsed = json.loads(data)
+                if isinstance(parsed, dict):
+                    result.update(parsed)
+                    return result
+            except (json.JSONDecodeError, ValueError):
+                # Invalid JSON should return empty dict
+                return {}
+
+        # Try pipe-separated format: PART|MANUFACTURER|DESCRIPTION
+        if "|" in data:
+            parts = data.split("|")
+            if len(parts) >= 1:
+                result["part_number"] = parts[0].strip()
+            if len(parts) >= 2:
+                result["manufacturer"] = parts[1].strip()
+            if len(parts) >= 3:
+                result["description"] = parts[2].strip()
+            return result
+
+        # Plain text - return empty dict (no structured data found)
+        return {}
 
     async def identify_component_from_barcode(
         self, barcode_data: str

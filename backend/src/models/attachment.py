@@ -52,3 +52,8 @@ class Attachment(Base):
 
     def __repr__(self):
         return f"<Attachment(id='{self.id}', filename='{self.filename}', component_id='{self.component_id}')>"
+
+    @property
+    def display_name(self):
+        """Get display name, preferring original filename."""
+        return self.original_filename or self.filename

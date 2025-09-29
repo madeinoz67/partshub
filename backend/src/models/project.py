@@ -100,6 +100,13 @@ class Project(Base):
             return None
         return self.budget_allocated - self.budget_spent
 
+    @property
+    def display_name(self):
+        """Get display name with version if available."""
+        if self.version:
+            return f"{self.name} {self.version}"
+        return self.name
+
 
 class ProjectComponent(Base):
     """

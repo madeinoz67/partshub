@@ -43,6 +43,9 @@ class StorageLocation(Base):
 
     # QR code for physical identification
     qr_code_id = Column(String(50), nullable=True, unique=True, index=True)
+    location_code = Column(
+        String(20), nullable=True, index=True
+    )  # Short identifier like "A1", "B2-3"
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -73,6 +76,13 @@ class StorageLocation(Base):
 
     def __repr__(self):
         return f"<StorageLocation(id='{self.id}', name='{self.name}', type='{self.type}', hierarchy='{self.location_hierarchy}')>"
+
+    @property
+    def display_name(self):
+        """Get display name with location code if available."""
+        if self.location_code:
+            return f"{self.name} ({self.location_code})"
+        return self.name
 
     @property
     def full_path(self):
