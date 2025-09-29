@@ -10,16 +10,16 @@
       :loading="loading"
       label="Tags"
       hint="Type to search tags or create new ones"
-      @filter="filterTags"
-      @new-value="createNewTag"
       behavior="menu"
       emit-value
       map-options
       option-value="id"
       option-label="name"
       clearable
+      @filter="filterTags"
+      @new-value="createNewTag"
     >
-      <template v-slot:selected-item="scope">
+      <template #selected-item="scope">
         <q-chip
           removable
           dense
@@ -30,7 +30,7 @@
         />
       </template>
 
-      <template v-slot:option="scope">
+      <template #option="scope">
         <q-item v-bind="scope.itemProps">
           <q-item-section avatar>
             <q-icon
@@ -40,14 +40,14 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>{{ scope.opt.name }}</q-item-label>
-            <q-item-label caption v-if="scope.opt.description">
+            <q-item-label v-if="scope.opt.description" caption>
               {{ scope.opt.description }}
             </q-item-label>
-            <q-item-label caption v-if="scope.opt.component_count !== undefined">
+            <q-item-label v-if="scope.opt.component_count !== undefined" caption>
               Used by {{ scope.opt.component_count }} components
             </q-item-label>
           </q-item-section>
-          <q-item-section side v-if="scope.opt.is_system_tag">
+          <q-item-section v-if="scope.opt.is_system_tag" side>
             <q-chip
               dense
               color="info"
@@ -59,7 +59,7 @@
         </q-item>
       </template>
 
-      <template v-slot:no-option>
+      <template #no-option>
         <q-item>
           <q-item-section class="text-grey">
             No tags found
@@ -77,11 +77,11 @@
 
         <q-card-section class="q-pt-none">
           <q-input
+            ref="tagNameInput"
             v-model="newTagForm.name"
             label="Tag Name"
             autofocus
             :rules="[val => !!val || 'Tag name is required']"
-            ref="tagNameInput"
             @keyup.enter="confirmCreateTag"
           />
 
@@ -102,10 +102,10 @@
                 size="sm"
                 round
                 :outline="newTagForm.color !== color.value"
-                @click="newTagForm.color = color.value"
                 :title="color.name"
+                @click="newTagForm.color = color.value"
               >
-                <q-icon name="circle" v-if="newTagForm.color === color.value" />
+                <q-icon v-if="newTagForm.color === color.value" name="circle" />
               </q-btn>
             </div>
           </div>
@@ -117,8 +117,8 @@
             flat
             label="Create"
             color="primary"
-            @click="confirmCreateTag"
             :loading="creatingTag"
+            @click="confirmCreateTag"
           />
         </q-card-actions>
       </q-card>

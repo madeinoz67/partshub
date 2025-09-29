@@ -25,7 +25,8 @@
     </div>
 
     <!-- Specifications -->
-    <div v-if="result.specifications && Object.keys(result.specifications).length > 0"
+    <div
+v-if="result.specifications && Object.keys(result.specifications).length > 0"
          class="q-mt-md">
       <q-expansion-item
         label="Specifications"
@@ -42,7 +43,8 @@
     </div>
 
     <!-- Pricing -->
-    <div v-if="result.price_breaks && result.price_breaks.length > 0"
+    <div
+v-if="result.price_breaks && result.price_breaks.length > 0"
          class="q-mt-md">
       <q-expansion-item
         label="Pricing"
@@ -66,8 +68,8 @@
         label="Import Component"
         color="primary"
         size="sm"
-        @click="$emit('import', result)"
         :loading="importing"
+        @click="$emit('import', result)"
       />
       <q-btn
         v-if="result.datasheet_url"

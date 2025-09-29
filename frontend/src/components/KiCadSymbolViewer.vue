@@ -15,7 +15,7 @@
 
     <!-- Error state -->
     <q-banner v-if="error && !loading" class="text-white bg-negative q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
@@ -39,7 +39,7 @@
             <div class="col">
               <strong>Reference:</strong> {{ symbolData.symbol_reference }}
             </div>
-            <div class="col" v-if="symbolData.symbol_library">
+            <div v-if="symbolData.symbol_library" class="col">
               <strong>Library:</strong> {{ symbolData.symbol_library }}
             </div>
           </div>
@@ -49,7 +49,7 @@
       <!-- SVG Symbol Display -->
       <q-card flat bordered>
         <q-card-section class="symbol-display">
-          <div class="svg-container" ref="svgContainer">
+          <div ref="svgContainer" class="svg-container">
             <!-- SVG will be dynamically inserted here -->
             <div v-if="!svgContent" class="svg-placeholder">
               <q-icon name="code" size="3em" color="grey-5" />
@@ -57,7 +57,7 @@
                 Symbol visualization will appear here
               </div>
             </div>
-            <div v-else v-html="svgContent" class="symbol-svg"></div>
+            <div v-else class="symbol-svg" v-html="svgContent"></div>
           </div>
         </q-card-section>
       </q-card>
@@ -74,7 +74,7 @@
             :pagination="{ rowsPerPage: 10 }"
             class="pin-table"
           >
-            <template v-slot:body-cell-pin_type="props">
+            <template #body-cell-pin_type="props">
               <q-td :props="props">
                 <q-chip
                   :color="getPinTypeColor(props.value)"

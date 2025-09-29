@@ -11,24 +11,24 @@
           Your password must be changed before you can continue using the application.
         </div>
 
-        <q-form @submit="changePassword" class="q-gutter-md" ref="passwordForm">
+        <q-form ref="passwordForm" class="q-gutter-md" @submit="changePassword">
           <q-input
-            filled
             v-model="currentPassword"
+            filled
             label="Current Password"
             type="password"
             lazy-rules
             :rules="[val => val && val.length > 0 || 'Current password is required']"
             :readonly="isChanging"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="lock" />
             </template>
           </q-input>
 
           <q-input
-            filled
             v-model="newPassword"
+            filled
             label="New Password"
             type="password"
             lazy-rules
@@ -38,14 +38,14 @@
             ]"
             :readonly="isChanging"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="vpn_key" />
             </template>
           </q-input>
 
           <q-input
-            filled
             v-model="confirmPassword"
+            filled
             label="Confirm New Password"
             type="password"
             lazy-rules
@@ -55,7 +55,7 @@
             ]"
             :readonly="isChanging"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="verified_user" />
             </template>
           </q-input>
@@ -71,8 +71,8 @@
           unelevated
           color="primary"
           label="Change Password"
-          @click="changePassword"
           :loading="isChanging"
+          @click="changePassword"
         />
       </q-card-actions>
     </q-card>

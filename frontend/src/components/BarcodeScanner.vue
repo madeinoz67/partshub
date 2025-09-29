@@ -10,7 +10,7 @@
       @show="onScannerShow"
       @hide="onScannerHide"
     >
-      <template v-slot:header>
+      <template #header>
         <q-item-section avatar>
           <q-icon :name="scannerIcon" :color="scannerIconColor" />
         </q-item-section>
@@ -62,9 +62,9 @@
                 <q-icon name="videocam_off" size="4em" color="grey-5" />
                 <div class="text-h6 q-mt-md text-grey-6">Camera Error</div>
                 <div class="text-body2 text-grey-5 q-mb-md">{{ cameraError }}</div>
-                <q-btn color="primary" @click="startCamera" label="Retry Camera" />
+                <q-btn color="primary" label="Retry Camera" @click="startCamera" />
                 <br />
-                <q-btn flat @click="showManualInput = true" label="Enter Manually" class="q-mt-sm" />
+                <q-btn flat label="Enter Manually" class="q-mt-sm" @click="showManualInput = true" />
               </div>
               <div v-else class="text-center">
                 <q-spinner-dots size="3em" color="primary" />
@@ -76,13 +76,13 @@
             <!-- Scan Results -->
             <div v-if="scanResult" class="scan-result q-mt-md">
               <q-banner class="bg-positive text-white">
-                <template v-slot:avatar>
+                <template #avatar>
                   <q-icon name="qr_code_scanner" />
                 </template>
                 <div class="text-subtitle1">Barcode Detected!</div>
                 <div class="text-body2">{{ scanResult.data }}</div>
                 <div class="text-caption">Format: {{ scanResult.format }}</div>
-                <template v-slot:action>
+                <template #action>
                   <q-btn flat label="Use This" @click="useBarcode" />
                   <q-btn flat label="Scan Again" @click="clearResult" />
                 </template>
@@ -98,13 +98,13 @@
                 dense
                 @keyup.enter="useManualBarcode"
               >
-                <template v-slot:append>
+                <template #append>
                   <q-btn
                     flat
                     dense
                     icon="check"
-                    @click="useManualBarcode"
                     :disable="!manualBarcode"
+                    @click="useManualBarcode"
                   />
                 </template>
               </q-input>
@@ -141,12 +141,12 @@
     </q-expansion-item>
 
     <!-- Component Search Results (if enabled) -->
-    <q-dialog v-model="showSearchResults" v-if="searchComponents">
+    <q-dialog v-if="searchComponents" v-model="showSearchResults">
       <q-card style="width: 800px; max-width: 90vw;">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Component Search Results</div>
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn v-close-popup icon="close" flat round dense />
         </q-card-section>
 
         <q-card-section>
@@ -187,13 +187,13 @@
             <q-icon name="search_off" size="3em" color="grey-5" />
             <div class="text-h6 q-mt-md text-grey-6">No Components Found</div>
             <div class="text-body2 text-grey-5">No components match the scanned barcode: {{ lastScannedCode }}</div>
-            <q-btn color="primary" @click="createNewComponent" label="Create New Component" class="q-mt-md" />
+            <q-btn color="primary" label="Create New Component" class="q-mt-md" @click="createNewComponent" />
           </div>
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Scan Again" @click="showSearchResults = false; startScanning()" />
-          <q-btn flat label="Close" v-close-popup />
+          <q-btn v-close-popup flat label="Close" />
         </q-card-actions>
       </q-card>
     </q-dialog>

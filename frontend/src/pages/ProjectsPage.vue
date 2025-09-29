@@ -14,8 +14,8 @@
             color="primary"
             icon="add"
             label="New Project"
-            @click="showCreateDialog = true"
             class="q-mr-sm"
+            @click="showCreateDialog = true"
           />
           <q-btn
             color="secondary"
@@ -39,10 +39,10 @@
                 debounce="300"
                 @update:model-value="searchProjects"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <q-icon name="search" />
                 </template>
-                <template v-slot:append>
+                <template #append>
                   <q-icon
                     v-if="searchQuery"
                     name="clear"
@@ -182,7 +182,7 @@
             clearable
             @update:model-value="onStatusFilterChange"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="filter_list" />
             </template>
           </q-select>
@@ -202,22 +202,22 @@
       <!-- Project List View -->
       <div v-if="viewMode === 'list'">
         <q-table
+          v-model:pagination="tablePagination"
+          v-model:expanded="expanded"
           :rows="projects"
           :columns="tableColumns"
           :loading="loading"
-          :pagination.sync="tablePagination"
           :rows-per-page-options="[25, 50, 100]"
-          v-model:expanded="expanded"
           row-key="id"
           flat
           bordered
-          @request="onTableRequest"
           :grid="$q.screen.xs"
           class="projects-table responsive-table compact-table"
           dense
+          @request="onTableRequest"
         >
           <!-- Use body slot for internal expansion model -->
-          <template v-slot:body="props">
+          <template #body="props">
             <!-- Regular row -->
             <q-tr :props="props">
               <!-- Expand button column -->
@@ -228,8 +228,8 @@
                   round
                   dense
                   flat
-                  @click="toggleExpand(props)"
                   :icon="props.expand ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
+                  @click="toggleExpand(props)"
                 />
               </q-td>
 
@@ -277,7 +277,7 @@
               <q-td key="budget" :props="props">
                 <div class="text-right">
                   <div class="text-body2">${{ formatCurrency(props.row.budget_spent || 0) }}</div>
-                  <div class="text-caption text-grey-6" v-if="props.row.budget_allocated">
+                  <div v-if="props.row.budget_allocated" class="text-caption text-grey-6">
                     of ${{ formatCurrency(props.row.budget_allocated) }}
                   </div>
                 </div>
@@ -329,13 +329,13 @@
                   <div class="q-pa-md">
                     <div class="row q-col-gutter-md">
                       <!-- Project Description -->
-                      <div class="col-12" v-if="props.row.description">
+                      <div v-if="props.row.description" class="col-12">
                         <div class="text-subtitle2 q-mb-sm">Description</div>
                         <div class="text-body2 text-grey-8">{{ props.row.description }}</div>
                       </div>
 
                       <!-- Project Notes -->
-                      <div class="col-12" v-if="props.row.notes">
+                      <div v-if="props.row.notes" class="col-12">
                         <div class="text-subtitle2 q-mb-sm">Notes</div>
                         <div class="text-body2 text-grey-8">{{ props.row.notes }}</div>
                       </div>
@@ -350,7 +350,7 @@
                       </div>
 
                       <!-- Budget Details -->
-                      <div class="col-md-6 col-12" v-if="props.row.budget_allocated || props.row.budget_spent">
+                      <div v-if="props.row.budget_allocated || props.row.budget_spent" class="col-md-6 col-12">
                         <div class="text-subtitle2 q-mb-sm">Budget Breakdown</div>
                         <div class="text-body2">
                           <div v-if="props.row.budget_allocated">
@@ -372,7 +372,7 @@
           </template>
 
           <!-- Custom grid template for mobile -->
-          <template v-slot:item="props">
+          <template #item="props">
             <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
               <q-card>
                 <q-card-section>
@@ -495,7 +495,7 @@
                 </div>
               </div>
 
-              <div class="text-body2 text-grey-8 q-mb-md" v-if="project.description">
+              <div v-if="project.description" class="text-body2 text-grey-8 q-mb-md">
                 {{ truncateText(project.description, 100) }}
               </div>
 
@@ -515,7 +515,7 @@
               </div>
 
               <!-- Budget Info -->
-              <div class="row items-center" v-if="project.budget_allocated || project.budget_spent">
+              <div v-if="project.budget_allocated || project.budget_spent" class="row items-center">
                 <div class="col">
                   <div class="text-caption text-grey-6">Budget</div>
                   <div class="text-body2">

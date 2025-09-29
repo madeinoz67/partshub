@@ -6,12 +6,12 @@
         unelevated
         round
         icon="close"
-        @click="$emit('close')"
         aria-label="Close dialog"
         color="red"
         text-color="white"
         size="lg"
         style="position: sticky; top: 0; right: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.3);"
+        @click="$emit('close')"
       />
     </div>
 
@@ -36,8 +36,8 @@
             color="primary"
             icon="edit"
             label="Edit Project"
-            @click="editProject"
             class="q-mr-sm"
+            @click="editProject"
           />
           <q-btn
             v-if="project"
@@ -112,7 +112,7 @@
           flat
           :pagination="{ rowsPerPage: 10 }"
         >
-          <template v-slot:body-cell-component="props">
+          <template #body-cell-component="props">
             <q-td :props="props">
               <div>
                 <div class="text-weight-medium">{{ props.row.component_part_number || 'No Part Number' }}</div>
@@ -121,7 +121,7 @@
             </q-td>
           </template>
 
-          <template v-slot:body-cell-allocated="props">
+          <template #body-cell-allocated="props">
             <q-td :props="props">
               <q-chip
                 color="blue"
@@ -131,7 +131,7 @@
             </q-td>
           </template>
 
-          <template v-slot:body-cell-actions="props">
+          <template #body-cell-actions="props">
             <q-td :props="props">
               <q-btn
                 flat
@@ -177,11 +177,11 @@
               label="Select Component"
               use-input
               input-debounce="300"
+              clearable
               @filter="filterComponents"
               @update:model-value="onComponentSelected"
-              clearable
             >
-              <template v-slot:option="scope">
+              <template #option="scope">
                 <q-item v-bind="scope.itemProps">
                   <q-item-section>
                     <q-item-label>{{ scope.opt.part_number }}</q-item-label>
@@ -220,8 +220,8 @@
           <q-btn
             color="primary"
             label="Allocate"
-            @click="allocateComponent"
             :disabled="!selectedComponent || !allocationQuantity"
+            @click="allocateComponent"
           />
         </q-card-actions>
       </q-card>
@@ -267,8 +267,8 @@
           <q-btn
             color="negative"
             label="Return"
-            @click="confirmReturn"
             :disabled="!returnQuantity"
+            @click="confirmReturn"
           />
         </q-card-actions>
       </q-card>

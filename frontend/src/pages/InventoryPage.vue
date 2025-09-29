@@ -14,8 +14,8 @@
             color="primary"
             icon="add"
             label="Add Component"
-            @click="showAddDialog = true"
             class="q-mr-sm"
+            @click="showAddDialog = true"
           />
           <q-btn
             color="secondary"
@@ -41,17 +41,17 @@
                 debounce="300"
                 @update:model-value="searchComponents"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <q-icon name="search" />
                 </template>
-                <template v-slot:append>
+                <template #append>
                   <q-btn
                     icon="qr_code_scanner"
                     flat
                     round
                     dense
-                    @click="openBarcodeScanner"
                     color="primary"
+                    @click="openBarcodeScanner"
                   >
                     <q-tooltip>Scan barcode to search components</q-tooltip>
                   </q-btn>
@@ -295,7 +295,7 @@
             label="Select CSV file"
             @update:model-value="previewImport"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="upload_file" />
             </template>
           </q-file>

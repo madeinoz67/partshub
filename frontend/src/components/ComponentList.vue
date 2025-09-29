@@ -4,10 +4,10 @@
     <div v-if="showBarcodeScanner" class="q-mb-sm">
       <BarcodeScanner
         ref="barcodeScannerRef"
-        @scan-result="handleBarcodeScanned"
-        @close-scanner="closeBarcodeScanner"
         :search-components="false"
         class="barcode-scanner-compact"
+        @scan-result="handleBarcodeScanned"
+        @close-scanner="closeBarcodeScanner"
       />
     </div>
 
@@ -24,19 +24,19 @@
               debounce="300"
               @update:model-value="onSearch"
             >
-              <template v-slot:prepend>
+              <template #prepend>
                 <q-icon name="search" />
               </template>
-              <template v-slot:append>
+              <template #append>
                 <q-btn
                   v-if="!searchQuery"
                   icon="qr_code_scanner"
                   flat
                   round
                   dense
-                  @click="openBarcodeScanner"
                   color="primary"
                   class="q-mr-xs"
+                  @click="openBarcodeScanner"
                 >
                   <q-tooltip>Scan barcode to search components</q-tooltip>
                 </q-btn>
@@ -64,7 +64,7 @@
             />
           </div>
 
-          <div class="col-md-1 col-xs-6" v-if="canPerformCrud()">
+          <div v-if="canPerformCrud()" class="col-md-1 col-xs-6">
             <q-btn
               class="add-button-primary"
               icon="add"
@@ -141,33 +141,33 @@
 
     <!-- Error message -->
     <q-banner v-if="error" class="text-white bg-negative q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
-      <template v-slot:action>
+      <template #action>
         <q-btn flat color="white" label="Dismiss" @click="clearError" />
       </template>
     </q-banner>
 
     <!-- Components Table -->
     <q-table
+      v-model:expanded="expanded"
       :rows="components"
       :columns="columns"
       row-key="id"
       :loading="loading"
       :pagination="{ sortBy: 'updated_at', descending: true, page: 1, rowsPerPage: 25 }"
       :rows-per-page-options="[25, 50, 100]"
-      v-model:expanded="expanded"
       dense
       flat
       bordered
       :grid="$q.screen.xs"
-      @row-click="onRowClick"
       class="compact-table responsive-table"
+      @row-click="onRowClick"
     >
       <!-- Use body slot for internal expansion model -->
-      <template v-slot:body="props">
+      <template #body="props">
         <!-- Regular row -->
         <q-tr :props="props">
           <!-- Expand button column -->
@@ -178,8 +178,8 @@
               round
               dense
               flat
-              @click="toggleExpand(props)"
               :icon="props.expand ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
+              @click="toggleExpand(props)"
             />
           </q-td>
 
@@ -286,8 +286,8 @@
             >
               <q-list>
                 <q-item
-                  clickable
                   v-close-popup
+                  clickable
                   @click="$emit('view-component', props.row)"
                 >
                   <q-item-section avatar>
@@ -298,8 +298,8 @@
 
                 <template v-if="canPerformCrud()">
                   <q-item
-                    clickable
                     v-close-popup
+                    clickable
                     @click="$emit('edit-component', props.row)"
                   >
                     <q-item-section avatar>
@@ -309,8 +309,8 @@
                   </q-item>
 
                   <q-item
-                    clickable
                     v-close-popup
+                    clickable
                     @click="$emit('update-stock', props.row)"
                   >
                     <q-item-section avatar>
@@ -322,10 +322,10 @@
                   <q-separator />
 
                   <q-item
-                    clickable
                     v-close-popup
-                    @click="$emit('delete-component', props.row)"
+                    clickable
                     class="text-negative"
+                    @click="$emit('delete-component', props.row)"
                   >
                     <q-item-section avatar>
                       <q-icon name="delete" />
@@ -346,7 +346,7 @@
                 <!-- PartsBox-style Menu -->
                 <div class="col-auto" style="width: 200px; background: #ffffff; border-right: 1px solid #e0e0e0;">
                   <q-list separator>
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'info')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'info' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'info' }" @click="setActiveTab(props.row.id, 'info')">
                       <q-item-section avatar>
                         <q-icon name="info" color="primary" />
                       </q-item-section>
@@ -355,7 +355,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'images')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'images' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'images' }" @click="setActiveTab(props.row.id, 'images')">
                       <q-item-section avatar>
                         <q-icon name="image" color="primary" />
                       </q-item-section>
@@ -364,7 +364,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'datasheets')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'datasheets' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'datasheets' }" @click="setActiveTab(props.row.id, 'datasheets')">
                       <q-item-section avatar>
                         <q-icon name="description" color="primary" />
                       </q-item-section>
@@ -373,7 +373,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'stock' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'stock' }" @click="setActiveTab(props.row.id, 'stock')">
                       <q-item-section avatar>
                         <q-icon name="inventory_2" color="primary" />
                       </q-item-section>
@@ -382,7 +382,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'add-stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'add-stock' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'add-stock' }" @click="setActiveTab(props.row.id, 'add-stock')">
                       <q-item-section avatar>
                         <q-icon name="add_box" color="primary" />
                       </q-item-section>
@@ -391,7 +391,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'remove-stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'remove-stock' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'remove-stock' }" @click="setActiveTab(props.row.id, 'remove-stock')">
                       <q-item-section avatar>
                         <q-icon name="remove_circle" color="primary" />
                       </q-item-section>
@@ -400,7 +400,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'move-stock')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'move-stock' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'move-stock' }" @click="setActiveTab(props.row.id, 'move-stock')">
                       <q-item-section avatar>
                         <q-icon name="move_up" color="primary" />
                       </q-item-section>
@@ -409,7 +409,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'history')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'history' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'history' }" @click="setActiveTab(props.row.id, 'history')">
                       <q-item-section avatar>
                         <q-icon name="history" color="primary" />
                       </q-item-section>
@@ -418,7 +418,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-ripple @click="setActiveTab(props.row.id, 'purchasing')" :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'purchasing' }">
+                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'purchasing' }" @click="setActiveTab(props.row.id, 'purchasing')">
                       <q-item-section avatar>
                         <q-icon name="shopping_cart" color="primary" />
                       </q-item-section>
@@ -445,39 +445,39 @@
                       <div class="col-8">
                         <div class="q-gutter-sm">
                           <!-- Identification Fields -->
-                          <div class="row" v-if="props.row.local_part_id">
+                          <div v-if="props.row.local_part_id" class="row">
                             <div class="col-4 text-weight-medium">Local Part ID:</div>
                             <div class="col-8">{{ props.row.local_part_id }}</div>
                           </div>
-                          <div class="row" v-if="props.row.manufacturer_part_number">
+                          <div v-if="props.row.manufacturer_part_number" class="row">
                             <div class="col-4 text-weight-medium">Manufacturer PN:</div>
                             <div class="col-8">{{ props.row.manufacturer_part_number }}</div>
                           </div>
-                          <div class="row" v-if="props.row.part_number">
+                          <div v-if="props.row.part_number" class="row">
                             <div class="col-4 text-weight-medium">Part Number:</div>
                             <div class="col-8">{{ props.row.part_number }}</div>
                           </div>
-                          <div class="row" v-if="props.row.barcode_id">
+                          <div v-if="props.row.barcode_id" class="row">
                             <div class="col-4 text-weight-medium">Barcode/QR ID:</div>
                             <div class="col-8">{{ props.row.barcode_id }}</div>
                           </div>
-                          <div class="row" v-if="props.row.provider_sku">
+                          <div v-if="props.row.provider_sku" class="row">
                             <div class="col-4 text-weight-medium">Provider SKU:</div>
                             <div class="col-8">{{ props.row.provider_sku }}</div>
                           </div>
-                          <div class="row" v-if="props.row.manufacturer">
+                          <div v-if="props.row.manufacturer" class="row">
                             <div class="col-4 text-weight-medium">Manufacturer:</div>
                             <div class="col-8">{{ props.row.manufacturer }}</div>
                           </div>
-                          <div class="row" v-if="props.row.component_type">
+                          <div v-if="props.row.component_type" class="row">
                             <div class="col-4 text-weight-medium">Type:</div>
                             <div class="col-8">{{ props.row.component_type }}</div>
                           </div>
-                          <div class="row" v-if="props.row.value">
+                          <div v-if="props.row.value" class="row">
                             <div class="col-4 text-weight-medium">Value:</div>
                             <div class="col-8">{{ props.row.value }}</div>
                           </div>
-                          <div class="row" v-if="props.row.package">
+                          <div v-if="props.row.package" class="row">
                             <div class="col-4 text-weight-medium">Package:</div>
                             <div class="col-8">{{ props.row.package }}</div>
                           </div>
@@ -651,8 +651,8 @@
                                   color="negative"
                                   icon="delete"
                                   size="sm"
-                                  @click.stop="confirmDeleteAttachment(image, props.row.id)"
                                   class="delete-btn"
+                                  @click.stop="confirmDeleteAttachment(image, props.row.id)"
                                 >
                                   <q-tooltip>Delete Image</q-tooltip>
                                 </q-btn>
@@ -919,7 +919,7 @@
 
 
       <!-- Custom grid template for mobile -->
-      <template v-slot:item="props">
+      <template #item="props">
         <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
           <q-card>
             <q-card-section>
@@ -1075,7 +1075,7 @@
       </template>
 
       <!-- No data message -->
-      <template v-slot:no-data="{ message }">
+      <template #no-data="{ message }">
         <div class="full-width row flex-center q-gutter-sm">
           <q-icon size="2em" name="inventory_2" />
           <span>{{ message || 'No components found' }}</span>
