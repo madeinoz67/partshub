@@ -52,7 +52,7 @@ CMD ["uvicorn", "backend.src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 # ==============================================================================
 # Frontend Build Stage
 # ==============================================================================
-FROM node:18-alpine AS frontend-build
+FROM node:20-alpine AS frontend-build
 
 # Set working directory
 WORKDIR /app/frontend
@@ -61,7 +61,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Copy frontend source
 COPY frontend/ ./
@@ -103,7 +103,7 @@ CMD ["nginx", "-g", "daemon off;"]
 # ==============================================================================
 # Development Stage (Combined for local development)
 # ==============================================================================
-FROM node:18-alpine AS development
+FROM node:20-alpine AS development
 
 # Install Python and required build tools + libmagic for file type detection + zbar for barcode scanning
 RUN apk add --no-cache python3 py3-pip python3-dev make g++ curl file-dev libmagic zbar zbar-dev
