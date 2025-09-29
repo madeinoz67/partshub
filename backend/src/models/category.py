@@ -54,6 +54,11 @@ class Category(Base):
         return f"<Category(id='{self.id}', name='{self.name}', parent_id='{self.parent_id}')>"
 
     @property
+    def display_name(self):
+        """Get display name for the category."""
+        return self.name
+
+    @property
     def full_path(self):
         """Get the full hierarchical path as a list of Category objects."""
         path = []

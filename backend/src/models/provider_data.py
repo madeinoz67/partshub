@@ -79,7 +79,6 @@ class ComponentProviderData(Base):
         """Return specifications as dictionary."""
         return self.specifications_json if self.specifications_json else {}
 
-    @property
     def is_cached_recently(self, hours: int = 24) -> bool:
         """Check if data was cached recently (within specified hours)."""
         from datetime import UTC, datetime, timedelta

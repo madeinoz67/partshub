@@ -97,6 +97,16 @@ class StockTransaction(Base):
         """Get absolute value of quantity change."""
         return abs(self.quantity_change)
 
+    @property
+    def display_description(self):
+        """Get human-readable description of the transaction."""
+        sign = "+" if self.quantity_change >= 0 else ""
+        qty_str = f"{sign}{self.quantity_change}"
+        base = f"{self.transaction_type.value.upper()} {qty_str}"
+        if self.notes:
+            return f"{base} - {self.notes}"
+        return base
+
     @classmethod
     def create_add_transaction(
         cls, component, quantity, reason, reference_id=None, reference_type=None
