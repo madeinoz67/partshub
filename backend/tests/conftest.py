@@ -8,7 +8,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.auth.jwt_auth import create_access_token
@@ -26,12 +26,12 @@ os.environ["PORT"] = "8005"  # Use different port for tests (production uses 800
 # Test database URL - in-memory database for complete isolation
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
-# Create test engine
+# Create test engine with proper configuration
 test_engine = create_engine(
     TEST_DATABASE_URL,
     poolclass=StaticPool,
     connect_args={"check_same_thread": False},
-    echo=False,
+    echo=False,  # Set to True for debugging SQL issues
 )
 
 # Create test session
@@ -54,28 +54,45 @@ def apply_migrations():
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_database():
     """
-    Set up fresh in-memory test database for each test
+    Set up fresh in-memory test database for each test with proper model loading
     """
-    # Use the Base from database module to ensure consistency
+    # Import the Base from the correct database module
     from src.database import Base
 
+    # Import all models to ensure they are registered with SQLAlchemy
+    # This is critical for table creation to work properly
+
+    # Enable SQLite-specific features for test database
+    with test_engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys=ON"))
+        conn.execute(text("PRAGMA journal_mode=MEMORY"))  # Use memory mode for tests
+        conn.commit()
+
+    # Create all tables with proper metadata
     Base.metadata.create_all(bind=test_engine)
 
     yield
 
-    # Drop all tables after test for clean state
+    # Clean up: Drop all tables after test for complete isolation
     Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Create a database session for each test
+    Create a database session for each test with proper transaction management
     """
     session = TestingSessionLocal()
     try:
+        # Start a transaction that will be rolled back after the test
+        session.begin()
         yield session
+    except Exception:
+        # Rollback on any exception
+        session.rollback()
+        raise
     finally:
+        # Always close the session to release resources
         session.close()
 
 
@@ -90,18 +107,21 @@ def client(db_session):
     """
 
     def override_get_db():
+        """Override database dependency with the test session"""
         try:
             yield db_session
         finally:
-            pass  # Don't close the session here, let the test manage it
+            pass  # Session cleanup is handled by the db_session fixture
 
+    # Override the database dependency for the test
     app.dependency_overrides[get_db] = override_get_db
 
-    with TestClient(app) as test_client:
-        yield test_client
-
-    # Clean up
-    app.dependency_overrides.clear()
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        # Always clean up dependency overrides after test
+        app.dependency_overrides.clear()
 
 
 @pytest.fixture

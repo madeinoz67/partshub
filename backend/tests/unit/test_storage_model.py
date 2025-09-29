@@ -78,23 +78,23 @@ class TestStorageLocationModel:
             location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1",
         )
 
-        # Fourth level - Compartment
-        compartment = StorageLocation(
+        # Fourth level - Bin
+        bin_location = StorageLocation(
             id=str(uuid.uuid4()),
-            name="Compartment A1",
-            description="SMD resistors compartment",
-            type="compartment",
+            name="Bin A1",
+            description="SMD resistors bin",
+            type="bin",
             parent_id=drawer.id,
-            location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1/Compartment A1",
+            location_hierarchy="Electronics Lab/Component Cabinet A/Drawer 1/Bin A1",
         )
 
-        db_session.add_all([room, cabinet, drawer, compartment])
+        db_session.add_all([room, cabinet, drawer, bin_location])
         db_session.commit()
 
         # Test hierarchy relationships
         assert cabinet.parent_id == room.id
         assert drawer.parent_id == cabinet.id
-        assert compartment.parent_id == drawer.id
+        assert bin_location.parent_id == drawer.id
 
         # Test hierarchy strings
         assert room.location_hierarchy == "Electronics Lab"
@@ -103,8 +103,8 @@ class TestStorageLocationModel:
             drawer.location_hierarchy == "Electronics Lab/Component Cabinet A/Drawer 1"
         )
         assert (
-            compartment.location_hierarchy
-            == "Electronics Lab/Component Cabinet A/Drawer 1/Compartment A1"
+            bin_location.location_hierarchy
+            == "Electronics Lab/Component Cabinet A/Drawer 1/Bin A1"
         )
 
     def test_storage_location_parent_child_relationships(self, db_session):
@@ -157,7 +157,7 @@ class TestStorageLocationModel:
         )
 
         level5 = StorageLocation(
-            id=str(uuid.uuid4()), name="Box", type="box", parent_id=level4.id
+            id=str(uuid.uuid4()), name="Bin", type="bin", parent_id=level4.id
         )
 
         db_session.add_all([level1, level2, level3, level4, level5])
@@ -214,14 +214,14 @@ class TestStorageLocationModel:
         warehouse = StorageLocation(
             id=str(uuid.uuid4()),
             name="Main Warehouse",
-            type="warehouse",
+            type="building",
             location_hierarchy="Main Warehouse",
         )
 
         section_a = StorageLocation(
             id=str(uuid.uuid4()),
             name="Section A",
-            type="section",
+            type="room",
             parent_id=warehouse.id,
             location_hierarchy="Main Warehouse/Section A",
         )
@@ -229,7 +229,7 @@ class TestStorageLocationModel:
         rack_a1 = StorageLocation(
             id=str(uuid.uuid4()),
             name="Rack A1",
-            type="rack",
+            type="cabinet",
             parent_id=section_a.id,
             location_hierarchy="Main Warehouse/Section A/Rack A1",
         )
@@ -254,11 +254,8 @@ class TestStorageLocationModel:
             ("cabinet", "Storage Cabinet"),
             ("shelf", "Component Shelf"),
             ("drawer", "Small Parts Drawer"),
-            ("box", "Component Box"),
             ("bin", "Parts Bin"),
-            ("compartment", "SMD Compartment"),
-            ("rack", "Equipment Rack"),
-            ("warehouse", "Storage Warehouse"),
+            ("container", "Storage Container"),
         ]
 
         locations = []
@@ -390,20 +387,20 @@ class TestStorageLocationModel:
         db_session.add_all(drawers)
         db_session.commit()
 
-        # Create compartments for each drawer
-        compartments = []
+        # Create bins for each drawer
+        bins = []
         for drawer in drawers:
             for letter in ["A", "B", "C"]:
-                compartment = StorageLocation(
+                bin_location = StorageLocation(
                     id=str(uuid.uuid4()),
-                    name=f"Compartment {letter}",
-                    type="compartment",
+                    name=f"Bin {letter}",
+                    type="bin",
                     parent_id=drawer.id,
-                    location_hierarchy=f"{drawer.location_hierarchy}/Compartment {letter}",
+                    location_hierarchy=f"{drawer.location_hierarchy}/Bin {letter}",
                 )
-                compartments.append(compartment)
+                bins.append(bin_location)
 
-        db_session.add_all(compartments)
+        db_session.add_all(bins)
         db_session.commit()
 
         # Verify the hierarchy was created correctly
@@ -412,11 +409,11 @@ class TestStorageLocationModel:
 
         for drawer in cabinet.children:
             db_session.refresh(drawer)
-            assert len(drawer.children) == 3  # 3 compartments each
+            assert len(drawer.children) == 3  # 3 bins each
 
-        # Total compartments should be 9 (3 drawers × 3 compartments)
-        total_compartments = sum(len(drawer.children) for drawer in cabinet.children)
-        assert total_compartments == 9
+        # Total bins should be 9 (3 drawers × 3 bins)
+        total_bins = sum(len(drawer.children) for drawer in cabinet.children)
+        assert total_bins == 9
 
     def test_storage_location_search_by_hierarchy(self, db_session):
         """Test searching storage locations by hierarchy path"""

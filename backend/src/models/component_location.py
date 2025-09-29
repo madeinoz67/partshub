@@ -4,7 +4,16 @@ ComponentLocation model for tracking component inventory across multiple storage
 
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -55,8 +64,12 @@ class ComponentLocation(Base):
         "StorageLocation", back_populates="component_locations"
     )
 
-    # Add unique constraint to prevent duplicate component-location pairs
-    __table_args__ = ()
+    # Table constraints
+    __table_args__ = (
+        UniqueConstraint(
+            "component_id", "storage_location_id", name="uq_component_location"
+        ),
+    )
 
     def __repr__(self):
         return f"<ComponentLocation(component_id='{self.component_id}', location_id='{self.storage_location_id}', quantity={self.quantity_on_hand})>"

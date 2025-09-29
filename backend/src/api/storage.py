@@ -3,9 +3,11 @@ Storage locations API endpoints implementing the OpenAPI specification.
 """
 
 import uuid
+from enum import Enum
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..auth.dependencies import require_auth
@@ -13,13 +15,51 @@ from ..database import get_db
 from ..services.storage_service import StorageLocationService
 
 
+# Enums for validation and OpenAPI documentation
+class StorageLocationType(str, Enum):
+    """Valid storage location types matching database constraints."""
+
+    CONTAINER = "container"
+    ROOM = "room"
+    BUILDING = "building"
+    CABINET = "cabinet"
+    DRAWER = "drawer"
+    SHELF = "shelf"
+    BIN = "bin"
+
+
 # Pydantic schemas
 class StorageLocationBase(BaseModel):
-    name: str
-    description: str | None = None
-    type: str  # container, room, building, cabinet, drawer, shelf, bin
-    parent_id: str | None = None
-    qr_code_id: str | None = None
+    name: str = Field(
+        ..., min_length=1, max_length=100, description="Storage location name"
+    )
+    description: str | None = Field(
+        None, max_length=500, description="Optional description"
+    )
+    type: StorageLocationType = Field(..., description="Storage location type")
+    parent_id: str | None = Field(None, description="Parent storage location ID")
+    qr_code_id: str | None = Field(
+        None, max_length=50, description="QR code identifier"
+    )
+
+    @field_validator("parent_id")
+    @classmethod
+    def validate_parent_id(cls, v):  # noqa: N805
+        """Validate parent_id is a valid UUID if provided."""
+        if v is not None:
+            try:
+                uuid.UUID(v)
+            except ValueError:
+                raise ValueError("parent_id must be a valid UUID")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v):  # noqa: N805
+        """Ensure name is not empty after stripping whitespace."""
+        if not v or not v.strip():
+            raise ValueError("name cannot be empty")
+        return v.strip()
 
 
 class StorageLocationCreate(StorageLocationBase):
@@ -27,11 +67,38 @@ class StorageLocationCreate(StorageLocationBase):
 
 
 class StorageLocationUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    type: str | None = None
-    parent_id: str | None = None
-    qr_code_id: str | None = None
+    name: str | None = Field(
+        None, min_length=1, max_length=100, description="Storage location name"
+    )
+    description: str | None = Field(
+        None, max_length=500, description="Optional description"
+    )
+    type: StorageLocationType | None = Field(None, description="Storage location type")
+    parent_id: str | None = Field(None, description="Parent storage location ID")
+    qr_code_id: str | None = Field(
+        None, max_length=50, description="QR code identifier"
+    )
+
+    @field_validator("parent_id")
+    @classmethod
+    def validate_parent_id(cls, v):  # noqa: N805
+        """Validate parent_id is a valid UUID if provided."""
+        if v is not None:
+            try:
+                uuid.UUID(v)
+            except ValueError:
+                raise ValueError("parent_id must be a valid UUID")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v):  # noqa: N805
+        """Ensure name is not empty after stripping whitespace."""
+        if v is not None:
+            if not v or not v.strip():
+                raise ValueError("name cannot be empty")
+            return v.strip()
+        return v
 
 
 class StorageLocationResponse(StorageLocationBase):
@@ -48,11 +115,27 @@ class StorageLocationResponse(StorageLocationBase):
 
 
 class BulkCreateLocation(BaseModel):
-    name: str
-    description: str | None = None
-    type: str
-    parent_name: str | None = None  # Reference by name instead of ID
-    qr_code_id: str | None = None
+    name: str = Field(
+        ..., min_length=1, max_length=100, description="Storage location name"
+    )
+    description: str | None = Field(
+        None, max_length=500, description="Optional description"
+    )
+    type: StorageLocationType = Field(..., description="Storage location type")
+    parent_name: str | None = Field(
+        None, description="Reference parent by name instead of ID"
+    )
+    qr_code_id: str | None = Field(
+        None, max_length=50, description="QR code identifier"
+    )
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v):  # noqa: N805
+        """Ensure name is not empty after stripping whitespace."""
+        if not v or not v.strip():
+            raise ValueError("name cannot be empty")
+        return v.strip()
 
 
 class BulkCreateRequest(BaseModel):
@@ -67,7 +150,9 @@ router = APIRouter(prefix="/api/v1/storage-locations", tags=["storage"])
 @router.get("", response_model=list[StorageLocationResponse])
 def list_storage_locations(
     search: str | None = Query(None, description="Search in name or hierarchy"),
-    type: str | None = Query(None, description="Filter by location type"),
+    type: StorageLocationType | None = Query(
+        None, description="Filter by location type"
+    ),
     include_component_count: bool = Query(
         False, description="Include component counts"
     ),
@@ -76,17 +161,11 @@ def list_storage_locations(
     db: Session = Depends(get_db),
 ):
     """List storage locations with filtering and pagination."""
-    # Validate type if provided
-    valid_types = ["container", "room", "building", "cabinet", "drawer", "shelf", "bin"]
-    if type and type not in valid_types:
-        raise HTTPException(
-            status_code=422, detail=f"Invalid type. Must be one of: {valid_types}"
-        )
 
     service = StorageLocationService(db)
     locations = service.list_storage_locations(
         search=search,
-        location_type=type,
+        location_type=type.value if type else None,
         include_component_count=include_component_count,
         limit=limit,
         offset=offset,
@@ -124,24 +203,14 @@ def create_storage_location(
     db: Session = Depends(get_db),
 ):
     """Create a new storage location."""
-    # Validate type
-    valid_types = ["container", "room", "building", "cabinet", "drawer", "shelf", "bin"]
-    if location.type not in valid_types:
-        raise HTTPException(
-            status_code=422, detail=f"Invalid type. Must be one of: {valid_types}"
-        )
-
-    # Validate parent_id if provided
-    if location.parent_id:
-        try:
-            uuid.UUID(location.parent_id)
-        except ValueError:
-            raise HTTPException(status_code=422, detail="Invalid parent_id format")
 
     service = StorageLocationService(db)
 
     try:
-        created_location = service.create_storage_location(location.model_dump())
+        # Convert enum to string value for service layer
+        location_data = location.model_dump()
+        location_data["type"] = location.type.value
+        created_location = service.create_storage_location(location_data)
         return {
             "id": created_location.id,
             "name": created_location.name,
@@ -155,6 +224,21 @@ def create_storage_location(
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except IntegrityError as e:
+        # Handle database constraint violations
+        if "ck_storage_location_type_valid" in str(e):
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid storage location type. Must be one of: {', '.join([t.value for t in StorageLocationType])}",
+            )
+        elif "UNIQUE constraint failed" in str(e):
+            if "name" in str(e):
+                raise HTTPException(
+                    status_code=409, detail="Storage location name already exists"
+                )
+            elif "qr_code_id" in str(e):
+                raise HTTPException(status_code=409, detail="QR code ID already exists")
+        raise HTTPException(status_code=400, detail="Database constraint violation")
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
@@ -173,21 +257,17 @@ def bulk_create_storage_locations(
     if not request.locations:
         raise HTTPException(status_code=422, detail="No locations provided")
 
-    # Validate all locations
-    valid_types = ["container", "room", "building", "cabinet", "drawer", "shelf", "bin"]
-    for location in request.locations:
-        if location.type not in valid_types:
-            raise HTTPException(
-                status_code=422,
-                detail=f"Invalid type '{location.type}'. Must be one of: {valid_types}",
-            )
-
     service = StorageLocationService(db)
 
     try:
-        created_locations = service.bulk_create_locations(
-            [loc.model_dump() for loc in request.locations]
-        )
+        # Convert enum values to strings for service layer
+        locations_data = []
+        for loc in request.locations:
+            loc_data = loc.model_dump()
+            loc_data["type"] = loc.type.value
+            locations_data.append(loc_data)
+
+        created_locations = service.bulk_create_locations(locations_data)
 
         # Convert to response format
         result = []
@@ -208,6 +288,23 @@ def bulk_create_storage_locations(
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except IntegrityError as e:
+        # Handle database constraint violations
+        if "ck_storage_location_type_valid" in str(e):
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid storage location type. Must be one of: {', '.join([t.value for t in StorageLocationType])}",
+            )
+        elif "UNIQUE constraint failed" in str(e):
+            if "name" in str(e):
+                raise HTTPException(
+                    status_code=409, detail="Duplicate storage location name in request"
+                )
+            elif "qr_code_id" in str(e):
+                raise HTTPException(
+                    status_code=409, detail="Duplicate QR code ID in request"
+                )
+        raise HTTPException(status_code=400, detail="Database constraint violation")
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
@@ -285,45 +382,21 @@ def update_storage_location(
     except ValueError:
         raise HTTPException(status_code=422, detail="Invalid location ID format")
 
-    # Filter out None values
-    update_data = {
-        k: v for k, v in location_update.model_dump().items() if v is not None
-    }
+    # Filter out None values and convert enum to string
+    update_data = {}
+    for k, v in location_update.model_dump().items():
+        if v is not None:
+            if k == "type" and isinstance(v, StorageLocationType):
+                update_data[k] = v.value
+            else:
+                update_data[k] = v
 
     if not update_data:
         raise HTTPException(status_code=422, detail="No data provided for update")
 
-    # Validate name if provided
-    if "name" in update_data:
-        if not update_data["name"] or not update_data["name"].strip():
-            raise HTTPException(status_code=422, detail="Name cannot be empty")
-
-    # Validate type if provided
-    if "type" in update_data:
-        valid_types = [
-            "container",
-            "room",
-            "building",
-            "cabinet",
-            "drawer",
-            "shelf",
-            "bin",
-        ]
-        if update_data["type"] not in valid_types:
-            raise HTTPException(
-                status_code=422, detail=f"Invalid type. Must be one of: {valid_types}"
-            )
-
-    # Validate parent_id if provided
-    if "parent_id" in update_data and update_data["parent_id"]:
-        try:
-            uuid.UUID(update_data["parent_id"])
-        except ValueError:
-            raise HTTPException(status_code=422, detail="Invalid parent_id format")
-
-        # Prevent self-reference
-        if update_data["parent_id"] == location_id:
-            raise HTTPException(status_code=422, detail="Location cannot be its own parent")
+    # Prevent self-reference if parent_id is being updated
+    if "parent_id" in update_data and update_data["parent_id"] == location_id:
+        raise HTTPException(status_code=422, detail="Location cannot be its own parent")
 
     service = StorageLocationService(db)
 
@@ -331,9 +404,41 @@ def update_storage_location(
         updated_location = service.update_storage_location(location_id, update_data)
         if not updated_location:
             raise HTTPException(status_code=404, detail="Storage location not found")
-        return updated_location
+
+        # Convert to response format
+        return {
+            "id": updated_location.id,
+            "name": updated_location.name,
+            "description": updated_location.description,
+            "type": updated_location.type,
+            "parent_id": updated_location.parent_id,
+            "location_hierarchy": updated_location.location_hierarchy,
+            "qr_code_id": updated_location.qr_code_id,
+            "created_at": updated_location.created_at.isoformat(),
+            "updated_at": updated_location.updated_at.isoformat(),
+        }
+    except HTTPException:
+        # Re-raise HTTPExceptions as-is
+        raise
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except IntegrityError as e:
+        # Handle database constraint violations
+        if "ck_storage_location_type_valid" in str(e):
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid storage location type. Must be one of: {', '.join([t.value for t in StorageLocationType])}",
+            )
+        elif "UNIQUE constraint failed" in str(e):
+            if "name" in str(e):
+                raise HTTPException(
+                    status_code=409, detail="Storage location name already exists"
+                )
+            elif "qr_code_id" in str(e):
+                raise HTTPException(status_code=409, detail="QR code ID already exists")
+        raise HTTPException(status_code=400, detail="Database constraint violation")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/{location_id}/components")

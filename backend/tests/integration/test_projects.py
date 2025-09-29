@@ -243,7 +243,11 @@ class TestProjectManagement:
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Secure Storage", "description": "High value storage"},
+            json={
+                "name": "Secure Storage",
+                "description": "High value storage",
+                "type": "cabinet",
+            },
             headers=auth_headers,
         )
         storage_id = storage_response.json()["id"]
@@ -341,7 +345,11 @@ class TestProjectManagement:
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Shared Storage", "description": "Shared component storage"},
+            json={
+                "name": "Shared Storage",
+                "description": "Shared component storage",
+                "type": "container",
+            },
             headers=auth_headers,
         )
         storage_id = storage_response.json()["id"]
@@ -501,7 +509,11 @@ class TestProjectManagement:
 
         storage_response = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Delete Test Storage", "description": "For deletion testing"},
+            json={
+                "name": "Delete Test Storage",
+                "description": "For deletion testing",
+                "type": "shelf",
+            },
             headers=auth_headers,
         )
         storage_id = storage_response.json()["id"]
@@ -511,6 +523,8 @@ class TestProjectManagement:
             json={
                 "name": "Delete Test Component",
                 "part_number": "DELETE-001",
+                "manufacturer": "TestCorp",
+                "component_type": "resistor",
                 "category_id": category_id,
                 "storage_location_id": storage_id,
                 "quantity_on_hand": 50,

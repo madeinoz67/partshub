@@ -139,7 +139,7 @@ class TestComponentModel:
 
         # Create another storage location for multiple location testing
         location2_storage = StorageLocation(
-            id=str(uuid.uuid4()), name="Second Storage", type="box"
+            id=str(uuid.uuid4()), name="Second Storage", type="bin"
         )
         db_session.add(location2_storage)
 

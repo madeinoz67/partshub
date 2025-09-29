@@ -9,7 +9,7 @@ from sqlalchemy import engine_from_config, pool
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 # Import Base and models
-from database.connection import Base
+from database import Base
 
 # this is the Alembic Config object
 config = context.config

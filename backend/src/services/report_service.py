@@ -4,7 +4,7 @@ Provides comprehensive reporting functionality for inventory insights.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import func, or_
@@ -55,7 +55,7 @@ class ReportService:
         )
 
         # Recent activity (last 7 days)
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = datetime.now(UTC) - timedelta(days=7)
         recent_transactions = (
             self.db.query(StockTransaction)
             .filter(StockTransaction.created_at >= week_ago)
@@ -87,7 +87,7 @@ class ReportService:
                 "transactions_last_week": recent_transactions,
                 "total_inventory_value": total_inventory_value,
             },
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
         }
 
     def get_dashboard_stats(self) -> dict[str, Any]:
@@ -101,7 +101,7 @@ class ReportService:
             "total_components": total_components,
             "total_categories": total_categories,
             "total_storage_locations": total_storage_locations,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
         }
 
     def get_inventory_breakdown(self) -> dict[str, Any]:
@@ -182,7 +182,7 @@ class ReportService:
 
     def get_usage_analytics(self, days: int = 30) -> dict[str, Any]:
         """Get component usage analytics over specified period."""
-        end_date = datetime.utcnow()
+        end_date = datetime.now(UTC)
         start_date = end_date - timedelta(days=days)
 
         # Most used components (by transaction frequency)
@@ -339,7 +339,7 @@ class ReportService:
 
     def get_financial_summary(self, months: int = 12) -> dict[str, Any]:
         """Get financial analytics for inventory management."""
-        end_date = datetime.utcnow()
+        end_date = datetime.now(UTC)
         start_date = end_date - timedelta(days=months * 30)
 
         # Current inventory valuation
@@ -478,7 +478,7 @@ class ReportService:
         try:
             return {
                 "report_metadata": {
-                    "generated_at": datetime.utcnow().isoformat(),
+                    "generated_at": datetime.now(UTC).isoformat(),
                     "report_type": "comprehensive_analytics",
                 },
                 "dashboard_summary": self.get_dashboard_summary(),
@@ -493,7 +493,7 @@ class ReportService:
             return {
                 "error": "Failed to generate comprehensive report",
                 "message": str(e),
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.now(UTC).isoformat(),
             }
 
     def get_system_health_metrics(self) -> dict[str, Any]:

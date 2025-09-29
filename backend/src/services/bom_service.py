@@ -7,7 +7,7 @@ import csv
 import io
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from ..database import get_session
@@ -253,7 +253,7 @@ class BOMService:
                     "price_breaks": result.price_breaks,
                     "currency": "USD",
                 }
-                provider_data.last_updated = datetime.utcnow()
+                provider_data.last_updated = datetime.now(UTC)
 
                 session.commit()
                 logger.debug(f"Refreshed provider data for component {component_id}")
@@ -310,7 +310,7 @@ class BOMService:
     def export_bom_json(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to JSON format"""
         bom_data = {
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "total_items": len(bom_items),
             "items": [item.to_dict() for item in bom_items],
         }
@@ -328,7 +328,7 @@ class BOMService:
         # KiCad BOM header
         output.write("# Bill of Materials\n")
         output.write(
-            f"# Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"# Generated on {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}\n"
         )
         output.write("#\n")
 

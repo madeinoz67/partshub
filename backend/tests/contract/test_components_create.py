@@ -115,9 +115,31 @@ class TestComponentsCreateContract:
             assert field in data
 
     def test_create_component_with_json_specifications(
-        self, client: TestClient, auth_headers
+        self, client: TestClient, auth_headers, db_session
     ):
         """Test component creation with JSON specifications field"""
+
+        # Import models needed for test data setup
+        from src.models.category import Category
+        from src.models.storage_location import StorageLocation
+
+        # Create test category
+        test_category = Category(
+            id="550e8400-e29b-41d4-a716-446655440000",
+            name="Microcontrollers",
+            description="Microcontroller components",
+        )
+        db_session.add(test_category)
+
+        # Create test storage location
+        test_storage = StorageLocation(
+            id="550e8400-e29b-41d4-a716-446655440001",
+            name="IC Storage Drawer",
+            description="Storage for integrated circuits",
+            type="drawer",
+        )
+        db_session.add(test_storage)
+        db_session.commit()
 
         component_data = {
             "name": "STM32F103C8T6 Microcontroller",

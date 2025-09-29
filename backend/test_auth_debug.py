@@ -16,7 +16,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.auth.jwt_auth import create_access_token, get_current_user
-from src.database.connection import get_db
+from src.database import get_db
 from src.models import Base, User
 
 # Create test database

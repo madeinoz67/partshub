@@ -14,6 +14,9 @@ from ..models import Component, StorageLocation
 class StorageLocationService:
     """Service layer for storage location operations."""
 
+    # Valid storage location types
+    VALID_TYPES = {"container", "room", "building", "cabinet", "drawer", "shelf", "bin"}
+
     def __init__(self, db: Session):
         self.db = db
 
@@ -23,6 +26,13 @@ class StorageLocationService:
         if "id" not in location_data:
             location_data["id"] = str(uuid.uuid4())
 
+        # Validate storage location type
+        if "type" in location_data and location_data["type"] not in self.VALID_TYPES:
+            raise ValueError(
+                f"Invalid storage location type '{location_data['type']}'. "
+                f"Valid types are: {', '.join(sorted(self.VALID_TYPES))}"
+            )
+
         # Check for duplicate name
         if "name" in location_data:
             existing = (
@@ -31,7 +41,9 @@ class StorageLocationService:
                 .first()
             )
             if existing:
-                raise ValueError(f"Storage location with name '{location_data['name']}' already exists")
+                raise ValueError(
+                    f"Storage location with name '{location_data['name']}' already exists"
+                )
 
         # Validate parent exists if specified
         if "parent_id" in location_data and location_data["parent_id"]:
@@ -103,6 +115,13 @@ class StorageLocationService:
         )
         if not location:
             return None
+
+        # Validate storage location type if being updated
+        if "type" in update_data and update_data["type"] not in self.VALID_TYPES:
+            raise ValueError(
+                f"Invalid storage location type '{update_data['type']}'. "
+                f"Valid types are: {', '.join(sorted(self.VALID_TYPES))}"
+            )
 
         # Handle parent change
         if "parent_id" in update_data:
@@ -387,7 +406,9 @@ class StorageLocationService:
             raise ValueError("No locations provided")
 
         # Check for duplicate names in the batch
-        names_in_batch = [loc_data.get("name") for loc_data in locations_data if loc_data.get("name")]
+        names_in_batch = [
+            loc_data.get("name") for loc_data in locations_data if loc_data.get("name")
+        ]
         if len(names_in_batch) != len(set(names_in_batch)):
             raise ValueError("Duplicate names found in batch")
 

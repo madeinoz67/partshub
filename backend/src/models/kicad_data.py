@@ -4,7 +4,7 @@ KiCadLibraryData model for KiCad-specific component data.
 
 import enum
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
@@ -73,9 +73,15 @@ class KiCadLibraryData(Base):
     )
 
     # Timestamps for tracking changes
-    symbol_updated_at = Column(DateTime, default=datetime.utcnow, nullable=True)
-    footprint_updated_at = Column(DateTime, default=datetime.utcnow, nullable=True)
-    model_3d_updated_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    symbol_updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), nullable=True
+    )
+    footprint_updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), nullable=True
+    )
+    model_3d_updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), nullable=True
+    )
 
     # Additional KiCad-specific fields stored as JSON
     kicad_fields_json = Column(JSON, nullable=True)  # Additional KiCad-specific fields
@@ -156,37 +162,37 @@ class KiCadLibraryData(Base):
         """Set custom symbol file and update source tracking."""
         self.custom_symbol_file_path = file_path
         self.symbol_source = KiCadDataSource.CUSTOM
-        self.symbol_updated_at = datetime.utcnow()
+        self.symbol_updated_at = datetime.now(UTC)
 
     def set_custom_footprint(self, file_path: str) -> None:
         """Set custom footprint file and update source tracking."""
         self.custom_footprint_file_path = file_path
         self.footprint_source = KiCadDataSource.CUSTOM
-        self.footprint_updated_at = datetime.utcnow()
+        self.footprint_updated_at = datetime.now(UTC)
 
     def set_custom_3d_model(self, file_path: str) -> None:
         """Set custom 3D model file and update source tracking."""
         self.custom_3d_model_file_path = file_path
         self.model_3d_source = KiCadDataSource.CUSTOM
-        self.model_3d_updated_at = datetime.utcnow()
+        self.model_3d_updated_at = datetime.now(UTC)
 
     def reset_symbol_to_auto(self) -> None:
         """Reset symbol to auto-generated, removing custom override."""
         self.custom_symbol_file_path = None
         self.symbol_source = KiCadDataSource.AUTO_GENERATED
-        self.symbol_updated_at = datetime.utcnow()
+        self.symbol_updated_at = datetime.now(UTC)
 
     def reset_footprint_to_auto(self) -> None:
         """Reset footprint to auto-generated, removing custom override."""
         self.custom_footprint_file_path = None
         self.footprint_source = KiCadDataSource.AUTO_GENERATED
-        self.footprint_updated_at = datetime.utcnow()
+        self.footprint_updated_at = datetime.now(UTC)
 
     def reset_3d_model_to_auto(self) -> None:
         """Reset 3D model to auto-generated, removing custom override."""
         self.custom_3d_model_file_path = None
         self.model_3d_source = KiCadDataSource.AUTO_GENERATED
-        self.model_3d_updated_at = datetime.utcnow()
+        self.model_3d_updated_at = datetime.now(UTC)
 
     def set_provider_data(
         self,
@@ -201,7 +207,7 @@ class KiCadLibraryData(Base):
             self.symbol_library = symbol_lib
             self.symbol_name = symbol_name
             self.symbol_source = KiCadDataSource.PROVIDER
-            self.symbol_updated_at = datetime.utcnow()
+            self.symbol_updated_at = datetime.now(UTC)
 
         if (
             self.footprint_source != KiCadDataSource.CUSTOM
@@ -211,12 +217,12 @@ class KiCadLibraryData(Base):
             self.footprint_library = footprint_lib
             self.footprint_name = footprint_name
             self.footprint_source = KiCadDataSource.PROVIDER
-            self.footprint_updated_at = datetime.utcnow()
+            self.footprint_updated_at = datetime.now(UTC)
 
         if self.model_3d_source != KiCadDataSource.CUSTOM and model_3d_path:
             self.model_3d_path = model_3d_path
             self.model_3d_source = KiCadDataSource.PROVIDER
-            self.model_3d_updated_at = datetime.utcnow()
+            self.model_3d_updated_at = datetime.now(UTC)
 
     @property
     def has_custom_symbol(self) -> bool:

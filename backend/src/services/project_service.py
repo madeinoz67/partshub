@@ -14,6 +14,7 @@ from ..models import (
     Component,
     Project,
     ProjectComponent,
+    ProjectStatus,
     StockTransaction,
 )
 
@@ -426,7 +427,7 @@ class ProjectService:
         if return_components:
             self._return_all_project_components(project_id)
 
-        project.status = "completed"
+        project.status = ProjectStatus.COMPLETED
         self.db.commit()
         self.db.refresh(project)
 

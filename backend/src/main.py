@@ -3,6 +3,9 @@ PartsHub - Electronic Parts Inventory Management System
 Main FastAPI application entry point
 """
 
+import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -25,47 +28,14 @@ from .auth.admin import ensure_admin_exists
 # Import for startup events
 from .database import get_db
 
-app = FastAPI(
-    title="PartsHub API",
-    description="Electronic parts inventory management system",
-    version="0.1.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-)
 
-# CORS middleware for frontend integration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "http://localhost:9000",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8080",
-        "http://127.0.0.1:9000",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include API routers
-app.include_router(auth_router)
-app.include_router(components_router)
-app.include_router(storage_router)
-app.include_router(integrations_router)
-app.include_router(tags_router)
-app.include_router(attachments_router)
-app.include_router(kicad_router)
-app.include_router(projects_router)
-app.include_router(reports_router)
-app.include_router(bom_router)
-app.include_router(categories_router)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize application on startup."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan event handler for startup and shutdown.
+    Replaces deprecated @app.on_event decorators.
+    """
+    # Startup
     # Configure SQLAlchemy registry to ensure all relationships are properly initialized
     from sqlalchemy.orm import configure_mappers
 
@@ -75,8 +45,6 @@ async def startup_event():
         print(f"Warning: SQLAlchemy mapper configuration issue: {e}")
 
     # Ensure default admin user exists (skip during tests)
-    import os
-
     if not os.getenv("TESTING"):
         db = next(get_db())
         try:
@@ -115,6 +83,50 @@ async def startup_event():
     finally:
         db.close()
 
+    yield
+
+    # Shutdown (if needed)
+    # Add any cleanup code here
+
+
+app = FastAPI(
+    title="PartsHub API",
+    description="Electronic parts inventory management system",
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
+
+# CORS middleware for frontend integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://localhost:9000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
+        "http://127.0.0.1:9000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include API routers
+app.include_router(auth_router)
+app.include_router(components_router)
+app.include_router(storage_router)
+app.include_router(integrations_router)
+app.include_router(tags_router)
+app.include_router(attachments_router)
+app.include_router(kicad_router)
+app.include_router(projects_router)
+app.include_router(reports_router)
+app.include_router(bom_router)
+app.include_router(categories_router)
+
 
 @app.get("/")
 async def root():
@@ -129,8 +141,6 @@ async def health_check():
 
 
 if __name__ == "__main__":
-    import os
-
     import uvicorn
 
     port = int(os.getenv("PORT", 8000))  # Use PORT env var, default to 8000

@@ -144,7 +144,7 @@ async def create_project(
     project_service = ProjectService(db)
 
     try:
-        project = project_service.create_project(project_data.dict())
+        project = project_service.create_project(project_data.model_dump())
         return ProjectResponse.model_validate(project)
     except Exception as e:
         raise HTTPException(
@@ -224,7 +224,9 @@ async def update_project(
     project_service = ProjectService(db)
 
     # Filter out None values
-    update_data = {k: v for k, v in project_update.dict().items() if v is not None}
+    update_data = {
+        k: v for k, v in project_update.model_dump().items() if v is not None
+    }
 
     project = project_service.update_project(project_id, update_data)
 

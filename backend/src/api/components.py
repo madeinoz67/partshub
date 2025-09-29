@@ -119,6 +119,7 @@ def list_components(
         None, description="Search in name, part number, manufacturer"
     ),
     category: str | None = Query(None, description="Filter by category name"),
+    category_id: str | None = Query(None, description="Filter by category ID"),
     storage_location: str | None = Query(
         None, description="Filter by storage location"
     ),
@@ -141,6 +142,7 @@ def list_components(
     total_count = service.count_components(
         search=search,
         category=category,
+        category_id=category_id,
         storage_location=storage_location,
         component_type=component_type,
         stock_status=stock_status,
@@ -149,6 +151,7 @@ def list_components(
     components = service.list_components(
         search=search,
         category=category,
+        category_id=category_id,
         storage_location=storage_location,
         component_type=component_type,
         stock_status=stock_status,
@@ -470,13 +473,17 @@ def update_component_stock(
         return {
             "id": transaction.id,
             "component_id": transaction.component_id,
-            "transaction_type": transaction.transaction_type.value if hasattr(transaction.transaction_type, 'value') else str(transaction.transaction_type),
+            "transaction_type": transaction.transaction_type.value
+            if hasattr(transaction.transaction_type, "value")
+            else str(transaction.transaction_type),
             "quantity_change": transaction.quantity_change,
             "previous_quantity": transaction.previous_quantity,
             "new_quantity": transaction.new_quantity,
             "reason": transaction.reason,
             "reference_id": transaction.reference_id,
-            "created_at": transaction.created_at.isoformat() if hasattr(transaction.created_at, 'isoformat') else str(transaction.created_at),
+            "created_at": transaction.created_at.isoformat()
+            if hasattr(transaction.created_at, "isoformat")
+            else str(transaction.created_at),
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -510,13 +517,17 @@ def get_component_history(
         {
             "id": transaction.id,
             "component_id": transaction.component_id,
-            "transaction_type": transaction.transaction_type.value if hasattr(transaction.transaction_type, 'value') else str(transaction.transaction_type),
+            "transaction_type": transaction.transaction_type.value
+            if hasattr(transaction.transaction_type, "value")
+            else str(transaction.transaction_type),
             "quantity_change": transaction.quantity_change,
             "previous_quantity": transaction.previous_quantity,
             "new_quantity": transaction.new_quantity,
             "reason": transaction.reason,
             "reference_id": transaction.reference_id,
-            "created_at": transaction.created_at.isoformat() if hasattr(transaction.created_at, 'isoformat') else str(transaction.created_at),
+            "created_at": transaction.created_at.isoformat()
+            if hasattr(transaction.created_at, "isoformat")
+            else str(transaction.created_at),
         }
         for transaction in transactions
     ]

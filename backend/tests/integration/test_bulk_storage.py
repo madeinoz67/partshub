@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.database.connection import get_db
+from src.database import get_db
 from src.main import app
 from src.models import Base
 
@@ -294,7 +294,11 @@ class TestBulkStorageIntegration:
         """Test bulk creation of hierarchical storage locations"""
 
         # First create a parent location
-        parent_data = {"name": "Storage Room A", "description": "Main storage room", "type": "room"}
+        parent_data = {
+            "name": "Storage Room A",
+            "description": "Main storage room",
+            "type": "room",
+        }
 
         parent_response = client.post(
             "/api/v1/storage-locations", json=parent_data, headers=admin_headers
@@ -302,7 +306,10 @@ class TestBulkStorageIntegration:
         if parent_response.status_code != 201:
             # Parent creation might fail due to validation - skip the hierarchical test
             import pytest
-            pytest.skip(f"Parent storage creation failed with {parent_response.status_code}: {parent_response.text}")
+
+            pytest.skip(
+                f"Parent storage creation failed with {parent_response.status_code}: {parent_response.text}"
+            )
         parent_id = parent_response.json()["id"]
 
         # Create bulk child locations
@@ -453,7 +460,12 @@ class TestBulkStorageIntegration:
         preview_response = client.post(
             "/api/v1/storage-locations/bulk-create/preview", json=bulk_data
         )
-        assert preview_response.status_code in [401, 404, 501, 422]  # 422 for validation errors
+        assert preview_response.status_code in [
+            401,
+            404,
+            501,
+            422,
+        ]  # 422 for validation errors
 
     def test_bulk_storage_error_handling(self, client: TestClient, admin_headers: dict):
         """Test bulk storage creation error handling"""
