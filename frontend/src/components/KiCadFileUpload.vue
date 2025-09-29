@@ -3,7 +3,7 @@
     <div class="text-h6 q-mb-md">KiCad File Management</div>
 
     <!-- Source Information Display -->
-    <q-card flat bordered class="q-mb-md" v-if="sourceInfo">
+    <q-card v-if="sourceInfo" flat bordered class="q-mb-md">
       <q-card-section>
         <div class="text-subtitle2 q-mb-md">Current Sources</div>
         <div class="row q-gutter-md">
@@ -22,10 +22,10 @@
                     size="sm"
                   />
                 </div>
-                <div class="text-body2" v-if="sourceInfo.symbol.has_library || sourceInfo.symbol.has_custom">
+                <div v-if="sourceInfo.symbol.has_library || sourceInfo.symbol.has_custom" class="text-body2">
                   {{ sourceInfo.symbol.effective_path || 'Available' }}
                 </div>
-                <div class="text-caption text-grey" v-else>
+                <div v-else class="text-caption text-grey">
                   No symbol data
                 </div>
               </q-card-section>
@@ -47,10 +47,10 @@
                     size="sm"
                   />
                 </div>
-                <div class="text-body2" v-if="sourceInfo.footprint.has_library || sourceInfo.footprint.has_custom">
+                <div v-if="sourceInfo.footprint.has_library || sourceInfo.footprint.has_custom" class="text-body2">
                   {{ sourceInfo.footprint.effective_path || 'Available' }}
                 </div>
-                <div class="text-caption text-grey" v-else>
+                <div v-else class="text-caption text-grey">
                   No footprint data
                 </div>
               </q-card-section>
@@ -72,10 +72,10 @@
                     size="sm"
                   />
                 </div>
-                <div class="text-body2" v-if="sourceInfo.model_3d.has_library || sourceInfo.model_3d.has_custom">
+                <div v-if="sourceInfo.model_3d.has_library || sourceInfo.model_3d.has_custom" class="text-body2">
                   {{ sourceInfo.model_3d.effective_path || 'Available' }}
                 </div>
-                <div class="text-caption text-grey" v-else>
+                <div v-else class="text-caption text-grey">
                   No 3D model data
                 </div>
               </q-card-section>
@@ -102,8 +102,8 @@
                 color="negative"
                 icon="refresh"
                 label="Reset"
-                @click="resetSymbol"
                 :loading="resetting.symbol"
+                @click="resetSymbol"
               />
             </div>
 
@@ -121,8 +121,8 @@
                 ref="symbolFileInput"
                 type="file"
                 accept=".kicad_sym"
-                @change="onFileSelect('symbol', $event)"
                 style="display: none"
+                @change="onFileSelect('symbol', $event)"
               />
 
               <div class="upload-drop-zone__content">
@@ -166,8 +166,8 @@
                 color="negative"
                 icon="refresh"
                 label="Reset"
-                @click="resetFootprint"
                 :loading="resetting.footprint"
+                @click="resetFootprint"
               />
             </div>
 
@@ -185,8 +185,8 @@
                 ref="footprintFileInput"
                 type="file"
                 accept=".kicad_mod"
-                @change="onFileSelect('footprint', $event)"
                 style="display: none"
+                @change="onFileSelect('footprint', $event)"
               />
 
               <div class="upload-drop-zone__content">
@@ -230,8 +230,8 @@
                 color="negative"
                 icon="refresh"
                 label="Reset"
-                @click="reset3DModel"
                 :loading="resetting.model_3d"
+                @click="reset3DModel"
               />
             </div>
 
@@ -249,8 +249,8 @@
                 ref="model3dFileInput"
                 type="file"
                 accept=".wrl,.step,.stp"
-                @change="onFileSelect('model_3d', $event)"
                 style="display: none"
+                @change="onFileSelect('model_3d', $event)"
               />
 
               <div class="upload-drop-zone__content">

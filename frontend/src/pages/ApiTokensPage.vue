@@ -12,8 +12,8 @@
           color="primary"
           icon="add"
           label="Create Token"
-          @click="showCreateDialog = true"
           unelevated
+          @click="showCreateDialog = true"
         />
       </div>
     </div>
@@ -28,13 +28,13 @@
       flat
       class="q-mt-md"
     >
-      <template v-slot:body-cell-prefix="props">
+      <template #body-cell-prefix="props">
         <q-td :props="props">
           <code class="text-primary">{{ props.value }}***</code>
         </q-td>
       </template>
 
-      <template v-slot:body-cell-status="props">
+      <template #body-cell-status="props">
         <q-td :props="props">
           <q-badge
             :color="getStatusColor(props.row)"
@@ -43,7 +43,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-expires_at="props">
+      <template #body-cell-expires_at="props">
         <q-td :props="props">
           <span v-if="props.value">
             {{ formatDate(props.value) }}
@@ -52,7 +52,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-last_used_at="props">
+      <template #body-cell-last_used_at="props">
         <q-td :props="props">
           <span v-if="props.value">
             {{ formatDate(props.value) }}
@@ -61,7 +61,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-actions="props">
+      <template #body-cell-actions="props">
         <q-td :props="props">
           <q-btn
             flat
@@ -69,15 +69,15 @@
             round
             icon="delete"
             color="negative"
-            @click="confirmDelete(props.row)"
             :disable="!props.row.is_active"
+            @click="confirmDelete(props.row)"
           >
             <q-tooltip>Revoke Token</q-tooltip>
           </q-btn>
         </q-td>
       </template>
 
-      <template v-slot:no-data>
+      <template #no-data>
         <div class="full-width row flex-center q-gutter-sm text-grey-6">
           <q-icon size="2em" name="key_off" />
           <span>No API tokens found</span>
@@ -94,38 +94,38 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit="createToken" class="q-gutter-md" ref="createForm">
+          <q-form ref="createForm" class="q-gutter-md" @submit="createToken">
             <q-input
-              filled
               v-model="newToken.name"
+              filled
               label="Token Name"
               hint="A descriptive name for this token"
               lazy-rules
               :rules="[ val => val && val.length > 0 || 'Token name is required']"
               :readonly="isCreating"
             >
-              <template v-slot:prepend>
+              <template #prepend>
                 <q-icon name="label" />
               </template>
             </q-input>
 
             <q-input
-              filled
               v-model="newToken.description"
+              filled
               label="Description (Optional)"
               hint="Additional details about this token's purpose"
               type="textarea"
               rows="3"
               :readonly="isCreating"
             >
-              <template v-slot:prepend>
+              <template #prepend>
                 <q-icon name="description" />
               </template>
             </q-input>
 
             <q-select
-              filled
               v-model="selectedExpiryOption"
+              filled
               :options="expiryOptions"
               option-label="label"
               option-value="value"
@@ -135,17 +135,17 @@
               clearable
               @update:model-value="updateExpiryDays"
             >
-              <template v-slot:prepend>
+              <template #prepend>
                 <q-icon name="schedule" />
               </template>
 
-              <template v-slot:option="scope">
+              <template #option="scope">
                 <q-item v-bind="scope.itemProps">
                   <q-item-section>
                     <q-item-label>{{ scope.opt.label }}</q-item-label>
                     <q-item-label caption>{{ scope.opt.description }}</q-item-label>
                   </q-item-section>
-                  <q-item-section side v-if="scope.opt.value === null">
+                  <q-item-section v-if="scope.opt.value === null" side>
                     <q-icon name="warning" color="orange" size="xs">
                       <q-tooltip>Not recommended for production</q-tooltip>
                     </q-icon>
@@ -164,15 +164,15 @@
           <q-btn
             flat
             label="Cancel"
-            @click="cancelCreate"
             :disable="isCreating"
+            @click="cancelCreate"
           />
           <q-btn
             unelevated
             color="primary"
             label="Create Token"
-            @click="createToken"
             :loading="isCreating"
+            @click="createToken"
           />
         </q-card-actions>
       </q-card>
@@ -193,19 +193,19 @@
           </div>
 
           <q-input
-            filled
             v-model="createdTokenValue"
+            filled
             label="API Token"
             readonly
             class="q-mb-md"
           >
-            <template v-slot:append>
+            <template #append>
               <q-btn
                 flat
                 dense
                 icon="content_copy"
-                @click="copyToken"
                 color="primary"
+                @click="copyToken"
               >
                 <q-tooltip>Copy Token</q-tooltip>
               </q-btn>
@@ -253,15 +253,15 @@
           <q-btn
             flat
             label="Cancel"
-            @click="showDeleteDialog = false"
             :disable="isDeleting"
+            @click="showDeleteDialog = false"
           />
           <q-btn
             unelevated
             color="negative"
             label="Revoke Token"
-            @click="deleteToken"
             :loading="isDeleting"
+            @click="deleteToken"
           />
         </q-card-actions>
       </q-card>

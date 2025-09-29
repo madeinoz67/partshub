@@ -17,10 +17,10 @@
     <div v-if="showBarcodeScanner" class="q-mb-sm">
       <BarcodeScanner
         ref="barcodeScannerRef"
-        @scan-result="handleBarcodeScanned"
-        @close-scanner="closeBarcodeScanner"
         :search-components="false"
         class="barcode-scanner-compact"
+        @scan-result="handleBarcodeScanned"
+        @close-scanner="closeBarcodeScanner"
       />
     </div>
 
@@ -31,22 +31,22 @@
       dense
       placeholder="Search locations..."
       debounce="300"
-      @update:model-value="onSearch"
       class="q-mb-md"
+      @update:model-value="onSearch"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <q-icon name="search" />
       </template>
-      <template v-slot:append>
+      <template #append>
         <q-btn
           v-if="!searchQuery"
           icon="qr_code_scanner"
           flat
           round
           dense
-          @click="openBarcodeScanner"
           color="primary"
           class="q-mr-xs"
+          @click="openBarcodeScanner"
         >
           <q-tooltip>Scan barcode to search locations</q-tooltip>
         </q-btn>
@@ -66,11 +66,11 @@
 
     <!-- Error message -->
     <q-banner v-if="error" class="text-white bg-negative q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
-      <template v-slot:action>
+      <template #action>
         <q-btn flat color="white" label="Dismiss" @click="clearError" />
       </template>
     </q-banner>
@@ -80,14 +80,14 @@
       :nodes="treeNodes"
       node-key="id"
       :expanded="expanded"
-      @update:expanded="expanded = $event"
       :selected="selectedLocationId"
-      @update:selected="onLocationSelected"
       :filter="searchQuery"
       :filter-method="filterMethod"
       default-expand-all
+      @update:expanded="expanded = $event"
+      @update:selected="onLocationSelected"
     >
-      <template v-slot:default-header="prop">
+      <template #default-header="prop">
         <div class="row items-center full-width">
           <div class="col">
             <div class="row items-center q-gutter-xs">
@@ -120,8 +120,8 @@
             >
               <q-list>
                 <q-item
-                  clickable
                   v-close-popup
+                  clickable
                   @click="$emit('view-location', prop.node.data)"
                 >
                   <q-item-section avatar>
@@ -131,8 +131,8 @@
                 </q-item>
 
                 <q-item
-                  clickable
                   v-close-popup
+                  clickable
                   @click="$emit('edit-location', prop.node.data)"
                 >
                   <q-item-section avatar>
@@ -142,8 +142,8 @@
                 </q-item>
 
                 <q-item
-                  clickable
                   v-close-popup
+                  clickable
                   @click="$emit('add-child-location', prop.node.data)"
                 >
                   <q-item-section avatar>
@@ -155,10 +155,10 @@
                 <q-separator />
 
                 <q-item
-                  clickable
                   v-close-popup
-                  @click="$emit('delete-location', prop.node.data)"
+                  clickable
                   class="text-negative"
+                  @click="$emit('delete-location', prop.node.data)"
                 >
                   <q-item-section avatar>
                     <q-icon name="delete" />
@@ -172,7 +172,7 @@
       </template>
 
       <!-- Empty state when no locations -->
-      <template v-slot:no-nodes v-if="!loading && treeNodes.length === 0">
+      <template v-if="!loading && treeNodes.length === 0" #no-nodes>
         <div class="text-center q-pa-lg">
           <q-icon name="folder_open" size="4em" color="grey-4" />
           <div class="text-h6 text-grey q-mt-md">No Storage Locations</div>

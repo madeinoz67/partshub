@@ -15,7 +15,7 @@
 
     <!-- Error state -->
     <q-banner v-if="error && !loading" class="text-white bg-negative q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
@@ -39,7 +39,7 @@
             <div class="col">
               <strong>Reference:</strong> {{ footprintData.footprint_reference }}
             </div>
-            <div class="col" v-if="footprintData.footprint_library">
+            <div v-if="footprintData.footprint_library" class="col">
               <strong>Library:</strong> {{ footprintData.footprint_library }}
             </div>
           </div>
@@ -74,23 +74,23 @@
               <q-btn
                 flat
                 icon="zoom_in"
-                @click="zoomIn"
                 size="sm"
                 title="Zoom In"
+                @click="zoomIn"
               />
               <q-btn
                 flat
                 icon="zoom_out"
-                @click="zoomOut"
                 size="sm"
                 title="Zoom Out"
+                @click="zoomOut"
               />
               <q-btn
                 flat
                 icon="center_focus_strong"
-                @click="resetZoom"
                 size="sm"
                 title="Reset Zoom"
+                @click="resetZoom"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@
       <!-- SVG Footprint Display -->
       <q-card flat bordered>
         <q-card-section class="footprint-display">
-          <div class="svg-container" ref="svgContainer">
+          <div ref="svgContainer" class="svg-container">
             <div v-if="!svgContent" class="svg-placeholder">
               <q-icon name="memory" size="3em" color="grey-5" />
               <div class="text-body2 text-grey q-mt-sm">
@@ -109,9 +109,9 @@
             </div>
             <div
               v-else
-              v-html="svgContent"
               class="footprint-svg"
               :style="{ transform: `scale(${zoomLevel})` }"
+              v-html="svgContent"
             ></div>
           </div>
         </q-card-section>
@@ -129,7 +129,7 @@
             :pagination="{ rowsPerPage: 15 }"
             class="pad-table"
           >
-            <template v-slot:body-cell-pad_type="props">
+            <template #body-cell-pad_type="props">
               <q-td :props="props">
                 <q-chip
                   :color="getPadTypeColor(props.value)"
@@ -139,13 +139,13 @@
                 />
               </q-td>
             </template>
-            <template v-slot:body-cell-drill="props">
+            <template #body-cell-drill="props">
               <q-td :props="props">
                 <span v-if="props.value">{{ props.value }}mm</span>
                 <span v-else class="text-grey">—</span>
               </q-td>
             </template>
-            <template v-slot:body-cell-size="props">
+            <template #body-cell-size="props">
               <q-td :props="props">
                 {{ props.value }}
               </q-td>

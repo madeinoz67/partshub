@@ -14,13 +14,13 @@
       </div>
       <div class="col-md-3 col-12">
         <q-select
+          v-if="selectedReportType?.timeRangeEnabled"
           v-model="timeRange"
           :options="timeRanges"
           label="Time Range"
           outlined
           dense
           @update:model-value="loadReportData"
-          v-if="selectedReportType?.timeRangeEnabled"
         />
       </div>
       <div class="col-md-3 col-12 q-pl-md">
@@ -28,18 +28,18 @@
           color="primary"
           icon="refresh"
           label="Refresh"
-          @click="loadReportData"
           :loading="loading"
           dense
+          @click="loadReportData"
         />
         <q-btn
           color="secondary"
           icon="download"
           label="Export"
-          @click="exportReport"
           :disable="!reportData"
           dense
           class="q-ml-sm"
+          @click="exportReport"
         />
       </div>
     </div>
@@ -52,11 +52,11 @@
 
     <!-- Error State -->
     <q-banner v-else-if="error" dense class="bg-negative text-white q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
-      <template v-slot:action>
+      <template #action>
         <q-btn flat label="Retry" @click="loadReportData" />
       </template>
     </q-banner>
@@ -67,13 +67,13 @@
       <div v-if="selectedReportType.value === 'dashboard'">
         <div class="text-h6 q-mb-md">System Dashboard</div>
         <div class="row q-col-gutter-md">
-          <div class="col-lg-3 col-md-6 col-12" v-for="(stat, key) in dashboardStats" :key="key">
+          <div v-for="(stat, key) in dashboardStats" :key="key" class="col-lg-3 col-md-6 col-12">
             <q-card class="stat-card">
               <q-card-section>
                 <div class="text-h6" :class="stat.color">{{ stat.icon }}</div>
                 <div class="text-h4 q-mt-sm">{{ stat.value }}</div>
                 <div class="text-caption text-grey-6">{{ stat.label }}</div>
-                <div class="text-body2 q-mt-xs" v-if="stat.sublabel">{{ stat.sublabel }}</div>
+                <div v-if="stat.sublabel" class="text-body2 q-mt-xs">{{ stat.sublabel }}</div>
               </q-card-section>
             </q-card>
           </div>
@@ -264,7 +264,7 @@
           <q-card-section>
             <div class="text-subtitle1 q-mb-md">Data Quality</div>
             <div class="row q-col-gutter-md">
-              <div class="col-md-4 col-12" v-for="(metric, key) in reportData.data_quality" :key="key">
+              <div v-for="(metric, key) in reportData.data_quality" :key="key" class="col-md-4 col-12">
                 <div class="text-center">
                   <q-circular-progress
                     :value="metric"

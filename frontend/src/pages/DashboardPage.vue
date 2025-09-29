@@ -86,22 +86,22 @@
                 color="primary"
                 icon="add"
                 label="Add Component"
-                @click="$router.push('/components')"
                 class="full-width q-mb-sm"
+                @click="$router.push('/components')"
               />
               <q-btn
                 color="secondary"
                 icon="folder_open"
                 label="Manage Locations"
-                @click="$router.push('/storage')"
                 class="full-width q-mb-sm"
+                @click="$router.push('/storage')"
               />
               <q-btn
                 color="accent"
                 icon="inventory"
                 label="Update Stock"
-                @click="$router.push('/components')"
                 class="full-width"
+                @click="$router.push('/components')"
               />
             </div>
           </q-card-section>

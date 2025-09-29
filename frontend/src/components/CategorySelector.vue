@@ -23,27 +23,27 @@
     @input-value="onInputValue"
     @update:model-value="onUpdateValue"
   >
-    <template v-slot:prepend v-if="prependIcon">
+    <template v-if="prependIcon" #prepend>
       <q-icon :name="prependIcon" />
     </template>
 
-    <template v-slot:append v-if="showCreateButton && canCreate">
+    <template v-if="showCreateButton && canCreate" #append>
       <q-btn
         flat
         round
         dense
         icon="add"
         color="primary"
-        @click.stop="createNewCategory"
         :disable="disable || loading"
+        @click.stop="createNewCategory"
       >
         <q-tooltip>Create new category</q-tooltip>
       </q-btn>
     </template>
 
-    <template v-slot:option="scope">
+    <template #option="scope">
       <q-item v-bind="scope.itemProps">
-        <q-item-section avatar v-if="scope.opt.icon">
+        <q-item-section v-if="scope.opt.icon" avatar>
           <q-icon
             :name="scope.opt.icon"
             :color="scope.opt.color || 'primary'"
@@ -53,7 +53,7 @@
           <q-item-label>{{ scope.opt.name }}</q-item-label>
           <q-item-label caption>{{ scope.opt.breadcrumb }}</q-item-label>
         </q-item-section>
-        <q-item-section side v-if="scope.opt.component_count !== undefined">
+        <q-item-section v-if="scope.opt.component_count !== undefined" side>
           <q-badge
             :color="scope.opt.component_count > 0 ? 'primary' : 'grey-5'"
             :label="scope.opt.component_count"
@@ -62,7 +62,7 @@
       </q-item>
     </template>
 
-    <template v-slot:no-option>
+    <template #no-option>
       <q-item>
         <q-item-section class="text-grey">
           <div v-if="searchInput && canCreate" class="text-center">
@@ -71,8 +71,8 @@
               flat
               color="primary"
               :label="`Create '${searchInput}'`"
-              @click="createCategoryFromSearch"
               class="q-mt-sm"
+              @click="createCategoryFromSearch"
             />
           </div>
           <div v-else>
@@ -82,7 +82,7 @@
       </q-item>
     </template>
 
-    <template v-slot:selected-item="scope" v-if="selectedCategoryData">
+    <template v-if="selectedCategoryData" #selected-item="scope">
       <div class="row items-center q-gutter-xs no-wrap">
         <q-icon
           v-if="selectedCategoryData.icon"
@@ -91,7 +91,7 @@
           size="18px"
         />
         <span>{{ selectedCategoryData.name }}</span>
-        <span class="text-caption text-grey-6" v-if="selectedCategoryData.breadcrumb !== selectedCategoryData.name">
+        <span v-if="selectedCategoryData.breadcrumb !== selectedCategoryData.name" class="text-caption text-grey-6">
           ({{ selectedCategoryData.breadcrumb }})
         </span>
       </div>
@@ -221,7 +221,7 @@ export default defineComponent({
 
     const allCategoriesFlat = computed(() => {
       const flattenCategories = (cats, prefix = '', depth = 0) => {
-        let result = []
+        const result = []
         for (const cat of cats) {
           result.push({
             id: cat.id,

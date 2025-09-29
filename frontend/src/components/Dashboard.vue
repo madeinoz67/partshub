@@ -13,8 +13,8 @@
           color="primary"
           icon="refresh"
           label="Refresh"
-          @click="loadDashboardData"
           :loading="loading"
+          @click="loadDashboardData"
         />
       </div>
     </div>

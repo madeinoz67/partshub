@@ -11,8 +11,8 @@
             flat
             round
             icon="close"
-            @click="$emit('cancelled')"
             aria-label="Close dialog"
+            @click="$emit('cancelled')"
           />
         </div>
       </div>
@@ -28,7 +28,7 @@
             dense
             debounce="300"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="search" />
             </template>
           </q-input>
@@ -51,7 +51,7 @@
         bordered
         :loading="loading"
       >
-        <template v-slot:body-cell-actions="props">
+        <template #body-cell-actions="props">
           <q-td :props="props">
             <q-btn
               flat
@@ -71,7 +71,7 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-status="props">
+        <template #body-cell-status="props">
           <q-td :props="props">
             <q-chip
               :color="getStatusColor(props.row.status)"
@@ -106,11 +106,11 @@
                 map-options
                 use-input
                 input-debounce="300"
-                @filter="filterComponents"
                 clearable
                 :loading="components.length === 0"
+                @filter="filterComponents"
               >
-                <template v-slot:option="scope">
+                <template #option="scope">
                   <q-item v-bind="scope.itemProps">
                     <q-item-section>
                       <q-item-label>{{ scope.opt.part_number }}</q-item-label>
@@ -121,7 +121,7 @@
                     </q-item-section>
                   </q-item>
                 </template>
-                <template v-slot:no-option>
+                <template #no-option>
                   <q-item>
                     <q-item-section class="text-grey">
                       {{ components.length === 0 ? 'Loading components...' : 'No matching components' }}
@@ -150,7 +150,7 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn v-close-popup flat label="Cancel" />
             <q-btn
               :label="editMode ? 'Update' : 'Add'"
               type="submit"
