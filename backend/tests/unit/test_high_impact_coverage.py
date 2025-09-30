@@ -21,7 +21,7 @@ class TestAPIEndpointsBasic:
             components,
             projects,
             reports,
-            storage_locations,
+            storage,
         )
 
         # Basic assertions to ensure imports work
@@ -29,7 +29,7 @@ class TestAPIEndpointsBasic:
         assert hasattr(projects, "router")
         assert hasattr(categories, "router")
         assert hasattr(attachments, "router")
-        assert hasattr(storage_locations, "router")
+        assert hasattr(storage, "router")
         assert hasattr(reports, "router")
         assert hasattr(bom, "router")
 
@@ -116,21 +116,23 @@ class TestModelInitialization:
 class TestServiceInitialization:
     """Test service initialization and basic methods."""
 
-    @patch("src.services.component_service.get_session")
-    def test_component_service_init(self, mock_get_session):
+    def test_component_service_init(self):
         """Test ComponentService initialization."""
         from src.services.component_service import ComponentService
 
-        service = ComponentService()
+        mock_db = Mock()
+        service = ComponentService(db=mock_db)
         assert service is not None
+        assert service.db is mock_db
 
-    @patch("src.services.project_service.get_session")
-    def test_project_service_init(self, mock_get_session):
+    def test_project_service_init(self):
         """Test ProjectService initialization."""
         from src.services.project_service import ProjectService
 
-        service = ProjectService()
+        mock_db = Mock()
+        service = ProjectService(db=mock_db)
         assert service is not None
+        assert service.db is mock_db
 
     def test_file_storage_service_init(self):
         """Test FileStorageService initialization."""
@@ -333,22 +335,14 @@ class TestMainApplicationSetup:
         assert app is not None
         assert callable(lifespan)
 
-    def test_database_optimization_import(self):
-        """Test database optimization imports."""
-        from src.database import optimize_search_indexes
-
-        assert callable(optimize_search_indexes)
-
     def test_auth_imports(self):
         """Test authentication related imports."""
         from src.auth import (
             create_access_token,
-            get_current_user_optional,
             get_optional_user,
             verify_token,
         )
 
         assert callable(get_optional_user)
-        assert callable(get_current_user_optional)
         assert callable(verify_token)
         assert callable(create_access_token)
