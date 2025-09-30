@@ -201,18 +201,26 @@ import type { KiCadFootprintData, KiCadPad } from '../types/kicad'
 
 interface Props {
   componentId: string
+  footprintData?: KiCadFootprintData | null
 }
 
 // Using KiCadFootprintData from types/kicad.ts
 
 
 const props = defineProps<Props>()
+const emit = defineEmits<{
+  (e: 'error', error: string): void
+  (e: 'loaded', data: KiCadFootprintData): void
+}>()
 
 // Reactive state
 const loading = ref(false)
 const error = ref<string | null>(null)
-const footprintData = ref<KiCadFootprintData | null>(null)
+const internalFootprintData = ref<KiCadFootprintData | null>(null)
 const svgContent = ref<string | null>(null)
+
+// Use prop data if provided, otherwise use internal data
+const footprintData = computed(() => props.footprintData ?? internalFootprintData.value)
 const svgContainer = ref<HTMLElement>()
 const viewMode = ref('top')
 const showDimensions = ref(true)
@@ -287,6 +295,12 @@ const padColumns = [
 
 // Methods
 const fetchFootprintData = async () => {
+  // Skip fetch if footprintData prop is provided (testing mode)
+  if (props.footprintData !== undefined) {
+    generateFootprintSVG()
+    return
+  }
+
   if (!props.componentId) return
 
   loading.value = true
@@ -294,7 +308,8 @@ const fetchFootprintData = async () => {
 
   try {
     const response = await api.get(`/api/v1/kicad/components/${props.componentId}/footprint`)
-    footprintData.value = response.data
+    internalFootprintData.value = response.data
+    emit('loaded', response.data)
 
     // Generate SVG visualization
     generateFootprintSVG()
@@ -305,7 +320,9 @@ const fetchFootprintData = async () => {
       error.value = null // No footprint data is not an error, just show no-data state
     } else {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load footprint data'
-      error.value = response?.data?.detail || errorMessage
+      const errorMsg = response?.data?.detail || errorMessage
+      error.value = errorMsg
+      emit('error', errorMsg)
     }
   } finally {
     loading.value = false
@@ -314,6 +331,12 @@ const fetchFootprintData = async () => {
 
 const generateFootprintSVG = () => {
   if (!footprintData.value) return
+
+  // If footprint has svg_content, use it directly
+  if (footprintData.value.svg_content) {
+    svgContent.value = footprintData.value.svg_content
+    return
+  }
 
   const pads = padData.value
   if (pads.length === 0) {
@@ -626,11 +649,27 @@ const resetZoom = () => {
 
 // Watchers
 watch(() => props.componentId, fetchFootprintData, { immediate: true })
+watch(() => props.footprintData, () => {
+  if (props.footprintData !== undefined) {
+    generateFootprintSVG()
+  }
+}, { immediate: true })
 watch([viewMode, showDimensions, showPadNumbers], generateFootprintSVG)
 
 // Lifecycle
 onMounted(() => {
   fetchFootprintData()
+})
+
+// Expose refs for testing
+defineExpose({
+  loading,
+  error,
+  footprintData,
+  zoomLevel,
+  viewMode,
+  showDimensions,
+  showPadNumbers
 })
 </script>
 
