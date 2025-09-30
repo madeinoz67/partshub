@@ -127,7 +127,7 @@ class TestComponentProviderData:
 
         assert provider_data.is_cached_recently() is False
 
-    @patch("src.models.provider_data.func")
+    @patch("backend.src.models.provider_data.func")
     def test_update_cache_all_fields(self, mock_func):
         """Test update_cache updates all fields correctly."""
         provider_data = ComponentProviderData(
@@ -152,7 +152,7 @@ class TestComponentProviderData:
         # cached_at should be updated to func.now()
         mock_func.now.assert_called_once()
 
-    @patch("src.models.provider_data.func")
+    @patch("backend.src.models.provider_data.func")
     def test_update_cache_partial_fields(self, mock_func):
         """Test update_cache with only some fields provided."""
         provider_data = ComponentProviderData(

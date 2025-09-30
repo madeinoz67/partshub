@@ -140,7 +140,7 @@ class TestServiceInitialization:
             service = FileStorageService(temp_dir)
             assert service.base_path == Path(temp_dir)
 
-    @patch("src.services.provider_service.LCSCProvider")
+    @patch("backend.src.services.provider_service.LCSCProvider")
     def test_provider_service_init(self, mock_lcsc):
         """Test ProviderService initialization."""
         from backend.src.services.provider_service import ProviderService
@@ -225,7 +225,7 @@ class TestErrorHandling:
         result = service.scan_barcode_from_base64("invalid_data")
         assert result == []
 
-    @patch("src.services.file_storage.Path")
+    @patch("backend.src.services.file_storage.Path")
     def test_file_storage_error_handling(self, mock_path):
         """Test file storage error handling."""
         from backend.src.services.file_storage import FileStorageService
