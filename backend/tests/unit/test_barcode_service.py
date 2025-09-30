@@ -98,7 +98,7 @@ class TestBarcodeService:
         result = service.scan_barcode_from_base64("invalid_base64_data")
         assert result == []
 
-    @patch("src.services.barcode_service.PYZBAR_AVAILABLE", False)
+    @patch("backend.src.services.barcode_service.PYZBAR_AVAILABLE", False)
     def test_scan_barcode_from_image_uses_mock_when_pyzbar_unavailable(self):
         """Test that mock scanning is used when pyzbar is not available."""
         service = BarcodeService()
@@ -110,8 +110,8 @@ class TestBarcodeService:
 
             mock_scan.assert_called_once_with(image)
 
-    @patch("src.services.barcode_service.PYZBAR_AVAILABLE", True)
-    @patch("src.services.barcode_service.pyzbar")
+    @patch("backend.src.services.barcode_service.PYZBAR_AVAILABLE", True)
+    @patch("backend.src.services.barcode_service.pyzbar")
     def test_scan_barcode_from_image_with_pyzbar_success(self, mock_pyzbar):
         """Test successful barcode scanning with pyzbar."""
         service = BarcodeService()
@@ -130,8 +130,8 @@ class TestBarcodeService:
         assert results[0].format == "CODE128"
         assert results[0].confidence == 1.0
 
-    @patch("src.services.barcode_service.PYZBAR_AVAILABLE", True)
-    @patch("src.services.barcode_service.pyzbar")
+    @patch("backend.src.services.barcode_service.PYZBAR_AVAILABLE", True)
+    @patch("backend.src.services.barcode_service.pyzbar")
     def test_scan_barcode_from_image_converts_non_rgb_image(self, mock_pyzbar):
         """Test that non-RGB images are converted to RGB."""
         service = BarcodeService()
@@ -147,8 +147,8 @@ class TestBarcodeService:
         called_image = mock_pyzbar.decode.call_args[0][0]
         assert called_image.mode == "RGB"
 
-    @patch("src.services.barcode_service.PYZBAR_AVAILABLE", True)
-    @patch("src.services.barcode_service.pyzbar")
+    @patch("backend.src.services.barcode_service.PYZBAR_AVAILABLE", True)
+    @patch("backend.src.services.barcode_service.pyzbar")
     def test_scan_barcode_from_image_handles_decode_error(self, mock_pyzbar):
         """Test error handling during barcode decoding."""
         service = BarcodeService()
@@ -164,8 +164,8 @@ class TestBarcodeService:
         results = service.scan_barcode_from_image(image)
         assert results == []
 
-    @patch("src.services.barcode_service.PYZBAR_AVAILABLE", True)
-    @patch("src.services.barcode_service.pyzbar")
+    @patch("backend.src.services.barcode_service.PYZBAR_AVAILABLE", True)
+    @patch("backend.src.services.barcode_service.pyzbar")
     def test_scan_barcode_from_image_handles_pyzbar_exception(self, mock_pyzbar):
         """Test error handling when pyzbar raises exception."""
         service = BarcodeService()
@@ -216,7 +216,7 @@ class TestBarcodeService:
         """Test searching components by barcode data."""
         service = BarcodeService()
 
-        with patch("src.services.barcode_service.get_session") as mock_get_session:
+        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 
@@ -242,7 +242,7 @@ class TestBarcodeService:
         """Test searching components when no match found."""
         service = BarcodeService()
 
-        with patch("src.services.barcode_service.get_session") as mock_get_session:
+        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 
@@ -262,7 +262,7 @@ class TestBarcodeService:
         # Test structured data format: "part_number|manufacturer|description"
         barcode_data = "STM32F407VGT6|STMicroelectronics|ARM Cortex-M4 MCU"
 
-        with patch("src.services.barcode_service.get_session") as mock_get_session:
+        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 
@@ -338,7 +338,7 @@ class TestBarcodeService:
         img_bytes = img_buffer.getvalue()
         base64_data = base64.b64encode(img_bytes).decode("utf-8")
 
-        with patch("src.services.barcode_service.get_session") as mock_get_session:
+        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 

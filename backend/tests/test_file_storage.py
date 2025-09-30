@@ -245,7 +245,7 @@ startxref
         assert file_storage_service.get_file_path(file_path1).exists()
         assert file_storage_service.get_file_path(file_path2).exists()
 
-    @patch("src.services.file_storage.Image.open")
+    @patch("backend.src.services.file_storage.Image.open")
     def test_generate_thumbnail_failure_handling(
         self, mock_image_open, file_storage_service
     ):
