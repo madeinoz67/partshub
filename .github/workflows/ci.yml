@@ -239,15 +239,32 @@ jobs:
 
       - name: Test all-in-one container
         run: |
-          docker run --rm -d --name test-partshub -p 8000:8000 -p 3000:3000 partshub:test
+          # Don't use --rm so we can get logs even if container crashes
+          docker run -d --name test-partshub -p 8000:8000 -p 3000:3000 partshub:test
+
+          # Wait and check if container is still running
           sleep 10
+
+          echo "=== Container status ==="
+          docker ps -a | grep test-partshub
+
           echo "=== Container logs ==="
-          docker logs test-partshub
-          echo "=== Testing backend health ==="
-          curl -f http://localhost:8000/health || echo "Backend health check failed"
-          echo "=== Testing frontend ==="
-          curl -f http://localhost:3000 || echo "Frontend check failed"
-          docker stop test-partshub
+          docker logs test-partshub || echo "Failed to get logs"
+
+          # Check if container is running
+          if docker ps | grep -q test-partshub; then
+            echo "=== Testing backend health ==="
+            curl -f http://localhost:8000/health || echo "Backend health check failed"
+            echo "=== Testing frontend ==="
+            curl -f http://localhost:3000 || echo "Frontend check failed"
+          else
+            echo "Container is not running!"
+            exit 1
+          fi
+
+          # Clean up
+          docker stop test-partshub || true
+          docker rm test-partshub || true
 
       - name: Upload Docker build logs
         uses: actions/upload-artifact@v4
