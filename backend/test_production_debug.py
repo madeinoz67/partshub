@@ -11,11 +11,11 @@ from fastapi import Depends, FastAPI
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.auth.jwt_auth import create_access_token, get_current_user
-from src.database import get_db
-from src.models import Base, User
+from backend.src.auth.jwt_auth import create_access_token, get_current_user
+from backend.src.database import get_db
+from backend.src.models import Base, User
 
-from tests.conftest import TestingSessionLocal, test_engine
+from backend.tests.conftest import TestingSessionLocal, test_engine
 
 # Create test app with exact production patterns
 app = FastAPI()

@@ -1,8 +1,8 @@
-"""Initial database schema with all tables
+"""complete_database_schema_with_indexes
 
-Revision ID: 587c37774a38
+Revision ID: 8d9e6ce58998
 Revises: 
-Create Date: 2025-09-30 20:59:34.196029
+Create Date: 2025-09-30 22:03:32.410230
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '587c37774a38'
+revision: str = '8d9e6ce58998'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,7 +33,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['parent_id'], ['categories.id'], name=op.f('fk_categories_parent_id_categories')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_categories'))
     )
-    op.create_index(op.f('ix_categories_name'), 'categories', ['name'], unique=False)
+    with op.batch_alter_table('categories', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_categories_name'), ['name'], unique=False)
+
     op.create_table('component_data_providers',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
@@ -60,7 +62,9 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_custom_fields'))
     )
-    op.create_index(op.f('ix_custom_fields_name'), 'custom_fields', ['name'], unique=False)
+    with op.batch_alter_table('custom_fields', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_custom_fields_name'), ['name'], unique=False)
+
     op.create_table('meta_parts',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
@@ -72,7 +76,9 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', name=op.f('pk_meta_parts')),
     sa.UniqueConstraint('name', 'version', name='uq_meta_part_name_version')
     )
-    op.create_index(op.f('ix_meta_parts_name'), 'meta_parts', ['name'], unique=False)
+    with op.batch_alter_table('meta_parts', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_meta_parts_name'), ['name'], unique=False)
+
     op.create_table('projects',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('name', sa.String(length=200), nullable=False),
@@ -89,7 +95,9 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_projects'))
     )
-    op.create_index(op.f('ix_projects_name'), 'projects', ['name'], unique=False)
+    with op.batch_alter_table('projects', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_projects_name'), ['name'], unique=False)
+
     op.create_table('storage_locations',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
@@ -105,10 +113,12 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['parent_id'], ['storage_locations.id'], name=op.f('fk_storage_locations_parent_id_storage_locations')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_storage_locations'))
     )
-    op.create_index(op.f('ix_storage_locations_location_code'), 'storage_locations', ['location_code'], unique=False)
-    op.create_index(op.f('ix_storage_locations_location_hierarchy'), 'storage_locations', ['location_hierarchy'], unique=False)
-    op.create_index(op.f('ix_storage_locations_name'), 'storage_locations', ['name'], unique=False)
-    op.create_index(op.f('ix_storage_locations_qr_code_id'), 'storage_locations', ['qr_code_id'], unique=True)
+    with op.batch_alter_table('storage_locations', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_storage_locations_location_code'), ['location_code'], unique=False)
+        batch_op.create_index(batch_op.f('ix_storage_locations_location_hierarchy'), ['location_hierarchy'], unique=False)
+        batch_op.create_index(batch_op.f('ix_storage_locations_name'), ['name'], unique=False)
+        batch_op.create_index(batch_op.f('ix_storage_locations_qr_code_id'), ['qr_code_id'], unique=True)
+
     op.create_table('suppliers',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
@@ -131,7 +141,9 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_tags'))
     )
-    op.create_index(op.f('ix_tags_name'), 'tags', ['name'], unique=True)
+    with op.batch_alter_table('tags', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_tags_name'), ['name'], unique=True)
+
     op.create_table('users',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('username', sa.String(length=50), nullable=False),
@@ -145,7 +157,9 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_users'))
     )
-    op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
+    with op.batch_alter_table('users', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_users_username'), ['username'], unique=True)
+
     op.create_table('api_tokens',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('user_id', sa.String(), nullable=False),
@@ -186,14 +200,16 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], name=op.f('fk_components_category_id_categories')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_components'))
     )
-    op.create_index(op.f('ix_components_barcode_id'), 'components', ['barcode_id'], unique=True)
-    op.create_index(op.f('ix_components_component_type'), 'components', ['component_type'], unique=False)
-    op.create_index(op.f('ix_components_local_part_id'), 'components', ['local_part_id'], unique=True)
-    op.create_index(op.f('ix_components_manufacturer'), 'components', ['manufacturer'], unique=False)
-    op.create_index(op.f('ix_components_manufacturer_part_number'), 'components', ['manufacturer_part_number'], unique=False)
-    op.create_index(op.f('ix_components_name'), 'components', ['name'], unique=False)
-    op.create_index(op.f('ix_components_part_number'), 'components', ['part_number'], unique=True)
-    op.create_index(op.f('ix_components_provider_sku'), 'components', ['provider_sku'], unique=False)
+    with op.batch_alter_table('components', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_components_barcode_id'), ['barcode_id'], unique=True)
+        batch_op.create_index(batch_op.f('ix_components_component_type'), ['component_type'], unique=False)
+        batch_op.create_index(batch_op.f('ix_components_local_part_id'), ['local_part_id'], unique=True)
+        batch_op.create_index(batch_op.f('ix_components_manufacturer'), ['manufacturer'], unique=False)
+        batch_op.create_index(batch_op.f('ix_components_manufacturer_part_number'), ['manufacturer_part_number'], unique=False)
+        batch_op.create_index(batch_op.f('ix_components_name'), ['name'], unique=False)
+        batch_op.create_index(batch_op.f('ix_components_part_number'), ['part_number'], unique=True)
+        batch_op.create_index(batch_op.f('ix_components_provider_sku'), ['provider_sku'], unique=False)
+
     op.create_table('purchases',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('supplier_id', sa.String(), nullable=False),
@@ -242,8 +258,10 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', name=op.f('pk_component_locations')),
     sa.UniqueConstraint('component_id', 'storage_location_id', name='uq_component_location')
     )
-    op.create_index(op.f('ix_component_locations_component_id'), 'component_locations', ['component_id'], unique=False)
-    op.create_index(op.f('ix_component_locations_storage_location_id'), 'component_locations', ['storage_location_id'], unique=False)
+    with op.batch_alter_table('component_locations', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_component_locations_component_id'), ['component_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_component_locations_storage_location_id'), ['storage_location_id'], unique=False)
+
     op.create_table('component_provider_data',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('component_id', sa.String(), nullable=False),
@@ -260,7 +278,9 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', name=op.f('pk_component_provider_data')),
     sa.UniqueConstraint('component_id', 'provider_id', name='uq_component_provider')
     )
-    op.create_index('ix_component_provider_cached_at', 'component_provider_data', ['component_id', 'cached_at'], unique=False)
+    with op.batch_alter_table('component_provider_data', schema=None) as batch_op:
+        batch_op.create_index('ix_component_provider_cached_at', ['component_id', 'cached_at'], unique=False)
+
     op.create_table('component_tags',
     sa.Column('component_id', sa.String(), nullable=False),
     sa.Column('tag_id', sa.String(), nullable=False),
@@ -389,40 +409,60 @@ def downgrade() -> None:
     op.drop_table('kicad_library_data')
     op.drop_table('custom_field_values')
     op.drop_table('component_tags')
-    op.drop_index('ix_component_provider_cached_at', table_name='component_provider_data')
+    with op.batch_alter_table('component_provider_data', schema=None) as batch_op:
+        batch_op.drop_index('ix_component_provider_cached_at')
+
     op.drop_table('component_provider_data')
-    op.drop_index(op.f('ix_component_locations_storage_location_id'), table_name='component_locations')
-    op.drop_index(op.f('ix_component_locations_component_id'), table_name='component_locations')
+    with op.batch_alter_table('component_locations', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_component_locations_storage_location_id'))
+        batch_op.drop_index(batch_op.f('ix_component_locations_component_id'))
+
     op.drop_table('component_locations')
     op.drop_table('attachments')
     op.drop_table('purchases')
-    op.drop_index(op.f('ix_components_provider_sku'), table_name='components')
-    op.drop_index(op.f('ix_components_part_number'), table_name='components')
-    op.drop_index(op.f('ix_components_name'), table_name='components')
-    op.drop_index(op.f('ix_components_manufacturer_part_number'), table_name='components')
-    op.drop_index(op.f('ix_components_manufacturer'), table_name='components')
-    op.drop_index(op.f('ix_components_local_part_id'), table_name='components')
-    op.drop_index(op.f('ix_components_component_type'), table_name='components')
-    op.drop_index(op.f('ix_components_barcode_id'), table_name='components')
+    with op.batch_alter_table('components', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_components_provider_sku'))
+        batch_op.drop_index(batch_op.f('ix_components_part_number'))
+        batch_op.drop_index(batch_op.f('ix_components_name'))
+        batch_op.drop_index(batch_op.f('ix_components_manufacturer_part_number'))
+        batch_op.drop_index(batch_op.f('ix_components_manufacturer'))
+        batch_op.drop_index(batch_op.f('ix_components_local_part_id'))
+        batch_op.drop_index(batch_op.f('ix_components_component_type'))
+        batch_op.drop_index(batch_op.f('ix_components_barcode_id'))
+
     op.drop_table('components')
     op.drop_table('api_tokens')
-    op.drop_index(op.f('ix_users_username'), table_name='users')
+    with op.batch_alter_table('users', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_users_username'))
+
     op.drop_table('users')
-    op.drop_index(op.f('ix_tags_name'), table_name='tags')
+    with op.batch_alter_table('tags', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_tags_name'))
+
     op.drop_table('tags')
     op.drop_table('suppliers')
-    op.drop_index(op.f('ix_storage_locations_qr_code_id'), table_name='storage_locations')
-    op.drop_index(op.f('ix_storage_locations_name'), table_name='storage_locations')
-    op.drop_index(op.f('ix_storage_locations_location_hierarchy'), table_name='storage_locations')
-    op.drop_index(op.f('ix_storage_locations_location_code'), table_name='storage_locations')
+    with op.batch_alter_table('storage_locations', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_storage_locations_qr_code_id'))
+        batch_op.drop_index(batch_op.f('ix_storage_locations_name'))
+        batch_op.drop_index(batch_op.f('ix_storage_locations_location_hierarchy'))
+        batch_op.drop_index(batch_op.f('ix_storage_locations_location_code'))
+
     op.drop_table('storage_locations')
-    op.drop_index(op.f('ix_projects_name'), table_name='projects')
+    with op.batch_alter_table('projects', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_projects_name'))
+
     op.drop_table('projects')
-    op.drop_index(op.f('ix_meta_parts_name'), table_name='meta_parts')
+    with op.batch_alter_table('meta_parts', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_meta_parts_name'))
+
     op.drop_table('meta_parts')
-    op.drop_index(op.f('ix_custom_fields_name'), table_name='custom_fields')
+    with op.batch_alter_table('custom_fields', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_custom_fields_name'))
+
     op.drop_table('custom_fields')
     op.drop_table('component_data_providers')
-    op.drop_index(op.f('ix_categories_name'), table_name='categories')
+    with op.batch_alter_table('categories', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_categories_name'))
+
     op.drop_table('categories')
     # ### end Alembic commands ###

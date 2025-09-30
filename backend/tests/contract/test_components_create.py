@@ -120,8 +120,8 @@ class TestComponentsCreateContract:
         """Test component creation with JSON specifications field"""
 
         # Import models needed for test data setup
-        from src.models.category import Category
-        from src.models.storage_location import StorageLocation
+        from backend.src.models.category import Category
+        from backend.src.models.storage_location import StorageLocation
 
         # Create test category
         test_category = Category(

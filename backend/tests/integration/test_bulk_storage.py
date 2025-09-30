@@ -10,9 +10,9 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.database import get_db
-from src.main import app
-from src.models import Base
+from backend.src.database import get_db
+from backend.src.main import app
+from backend.src.models import Base
 
 
 class TestBulkStorageIntegration:
@@ -22,9 +22,9 @@ class TestBulkStorageIntegration:
     def db_session(self):
         """Create a shared database session for testing"""
         from fastapi.security import HTTPAuthorizationCredentials
-        from src.auth.dependencies import get_optional_user
-        from src.auth.jwt_auth import get_current_user as get_user_from_token
-        from src.models import User
+        from backend.src.auth.dependencies import get_optional_user
+        from backend.src.auth.jwt_auth import get_current_user as get_user_from_token
+        from backend.src.models import User
 
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
@@ -79,8 +79,8 @@ class TestBulkStorageIntegration:
     @pytest.fixture
     def admin_headers(self, db_session):
         """Get admin authentication headers using direct token creation"""
-        from src.auth.jwt_auth import create_access_token
-        from src.models import User
+        from backend.src.auth.jwt_auth import create_access_token
+        from backend.src.models import User
 
         # Create admin user directly in shared test database session
         admin_user = User(

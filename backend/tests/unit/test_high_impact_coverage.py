@@ -14,7 +14,7 @@ class TestAPIEndpointsBasic:
     def test_api_imports_work(self):
         """Test that API modules can be imported successfully."""
         # These imports alone will increase coverage
-        from src.api import (
+        from backend.src.api import (
             attachments,
             bom,
             categories,
@@ -35,7 +35,7 @@ class TestAPIEndpointsBasic:
 
     def test_database_connection_setup(self):
         """Test database connection setup functions."""
-        from src.database import Base, get_session
+        from backend.src.database import Base, get_session
 
         # Test that Base is a proper SQLAlchemy base
         assert hasattr(Base, "metadata")
@@ -49,7 +49,7 @@ class TestModelInitialization:
 
     def test_component_model_basic(self):
         """Test Component model basic initialization."""
-        from src.models.component import Component
+        from backend.src.models.component import Component
 
         component = Component(
             name="Test Component", part_number="TEST123", manufacturer="TestCorp"
@@ -61,7 +61,7 @@ class TestModelInitialization:
 
     def test_project_model_basic(self):
         """Test Project model basic initialization."""
-        from src.models.project import Project, ProjectStatus
+        from backend.src.models.project import Project, ProjectStatus
 
         project = Project(
             name="Test Project",
@@ -75,7 +75,7 @@ class TestModelInitialization:
 
     def test_category_model_basic(self):
         """Test Category model basic initialization."""
-        from src.models.category import Category
+        from backend.src.models.category import Category
 
         category = Category(name="Electronics", description="Electronic components")
 
@@ -84,7 +84,7 @@ class TestModelInitialization:
 
     def test_storage_location_model_basic(self):
         """Test StorageLocation model basic initialization."""
-        from src.models.storage_location import StorageLocation
+        from backend.src.models.storage_location import StorageLocation
 
         location = StorageLocation(name="Shelf A", location_code="A1", type="shelf")
 
@@ -94,7 +94,7 @@ class TestModelInitialization:
 
     def test_attachment_model_basic(self):
         """Test Attachment model basic initialization."""
-        from src.models.attachment import Attachment
+        from backend.src.models.attachment import Attachment
 
         attachment = Attachment(
             filename="test.pdf",
@@ -116,7 +116,7 @@ class TestServiceInitialization:
 
     def test_component_service_init(self):
         """Test ComponentService initialization."""
-        from src.services.component_service import ComponentService
+        from backend.src.services.component_service import ComponentService
 
         mock_db = Mock()
         service = ComponentService(db=mock_db)
@@ -125,7 +125,7 @@ class TestServiceInitialization:
 
     def test_project_service_init(self):
         """Test ProjectService initialization."""
-        from src.services.project_service import ProjectService
+        from backend.src.services.project_service import ProjectService
 
         mock_db = Mock()
         service = ProjectService(db=mock_db)
@@ -134,7 +134,7 @@ class TestServiceInitialization:
 
     def test_file_storage_service_init(self):
         """Test FileStorageService initialization."""
-        from src.services.file_storage import FileStorageService
+        from backend.src.services.file_storage import FileStorageService
 
         with tempfile.TemporaryDirectory() as temp_dir:
             service = FileStorageService(temp_dir)
@@ -143,7 +143,7 @@ class TestServiceInitialization:
     @patch("src.services.provider_service.LCSCProvider")
     def test_provider_service_init(self, mock_lcsc):
         """Test ProviderService initialization."""
-        from src.services.provider_service import ProviderService
+        from backend.src.services.provider_service import ProviderService
 
         service = ProviderService()
         assert service is not None
@@ -156,9 +156,9 @@ class TestUtilityFunctions:
 
     def test_enum_values_coverage(self):
         """Test various enum values for coverage."""
-        from src.models.custom_field import FieldType
-        from src.models.project import ProjectStatus
-        from src.models.stock_transaction import TransactionType
+        from backend.src.models.custom_field import FieldType
+        from backend.src.models.project import ProjectStatus
+        from backend.src.models.stock_transaction import TransactionType
 
         # Test ProjectStatus enum
         assert ProjectStatus.PLANNING.value == "planning"
@@ -181,9 +181,9 @@ class TestUtilityFunctions:
 
     def test_model_repr_methods(self):
         """Test __repr__ methods for coverage."""
-        from src.models.category import Category
-        from src.models.component import Component
-        from src.models.project import Project, ProjectStatus
+        from backend.src.models.category import Category
+        from backend.src.models.component import Component
+        from backend.src.models.project import Project, ProjectStatus
 
         component = Component(name="Test", part_number="123")
         repr_str = repr(component)
@@ -200,7 +200,7 @@ class TestUtilityFunctions:
 
     def test_model_properties_basic(self):
         """Test model properties for coverage."""
-        from src.models.component import Component
+        from backend.src.models.component import Component
 
         component = Component(name="Resistor", part_number="R123")
 
@@ -217,7 +217,7 @@ class TestErrorHandling:
 
     def test_service_error_handling(self):
         """Test basic error handling in services."""
-        from src.services.barcode_service import BarcodeService
+        from backend.src.services.barcode_service import BarcodeService
 
         service = BarcodeService()
 
@@ -228,7 +228,7 @@ class TestErrorHandling:
     @patch("src.services.file_storage.Path")
     def test_file_storage_error_handling(self, mock_path):
         """Test file storage error handling."""
-        from src.services.file_storage import FileStorageService
+        from backend.src.services.file_storage import FileStorageService
 
         mock_path.return_value.exists.return_value = True
 
@@ -253,7 +253,7 @@ class TestJSONSerializationMethods:
 
     def test_component_to_dict_coverage(self):
         """Test various model to_dict methods for coverage."""
-        from src.models.provider_data import ComponentProviderData
+        from backend.src.models.provider_data import ComponentProviderData
 
         provider_data = ComponentProviderData(
             component_id="comp-123", provider_id="prov-456", provider_part_id="PART789"
@@ -267,7 +267,7 @@ class TestJSONSerializationMethods:
 
     def test_kicad_data_methods_coverage(self):
         """Test KiCad data methods for coverage."""
-        from src.models.kicad_data import KiCadDataSource, KiCadLibraryData
+        from backend.src.models.kicad_data import KiCadDataSource, KiCadLibraryData
 
         kicad_data = KiCadLibraryData(
             component_id="comp-kicad",
@@ -297,7 +297,7 @@ class TestProviderImplementations:
 
     def test_lcsc_provider_init(self):
         """Test LCSC provider initialization."""
-        from src.providers.lcsc_provider import LCSCProvider
+        from backend.src.providers.lcsc_provider import LCSCProvider
 
         provider = LCSCProvider()
         assert provider.name == "LCSC"
@@ -305,7 +305,7 @@ class TestProviderImplementations:
 
     def test_base_provider_methods(self):
         """Test base provider methods."""
-        from src.providers.base_provider import ComponentSearchResult
+        from backend.src.providers.base_provider import ComponentSearchResult
 
         # Test ComponentSearchResult (provider_id is required, not provider_name)
         result = ComponentSearchResult(
@@ -322,7 +322,7 @@ class TestProviderImplementations:
         assert result.manufacturer == "TestCorp"
 
         # ComponentDataProvider is abstract, so we test that it's importable
-        from src.providers.base_provider import ComponentDataProvider
+        from backend.src.providers.base_provider import ComponentDataProvider
 
         assert ComponentDataProvider is not None
 
@@ -332,14 +332,14 @@ class TestMainApplicationSetup:
 
     def test_main_app_imports(self):
         """Test main application imports."""
-        from src.main import app, lifespan
+        from backend.src.main import app, lifespan
 
         assert app is not None
         assert callable(lifespan)
 
     def test_auth_imports(self):
         """Test authentication related imports."""
-        from src.auth import (
+        from backend.src.auth import (
             create_access_token,
             get_optional_user,
             verify_token,

@@ -5,7 +5,7 @@ Tests all methods, properties, and assembly management functionality.
 
 from unittest.mock import Mock
 
-from src.models.meta_part import MetaPart, MetaPartComponent
+from backend.src.models.meta_part import MetaPart, MetaPartComponent
 
 
 class TestMetaPart:

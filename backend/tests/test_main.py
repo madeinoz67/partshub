@@ -3,7 +3,7 @@ Basic tests for main application
 """
 
 from fastapi.testclient import TestClient
-from src.main import app
+from backend.src.main import app
 
 client = TestClient(app)
 

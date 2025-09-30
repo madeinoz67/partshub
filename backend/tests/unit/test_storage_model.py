@@ -8,11 +8,11 @@ import uuid
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.database import Base
-from src.models.category import Category
-from src.models.component import Component
-from src.models.component_location import ComponentLocation
-from src.models.storage_location import StorageLocation
+from backend.src.database import Base
+from backend.src.models.category import Category
+from backend.src.models.component import Component
+from backend.src.models.component_location import ComponentLocation
+from backend.src.models.storage_location import StorageLocation
 
 
 class TestStorageLocationModel:

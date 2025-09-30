@@ -9,13 +9,13 @@ from decimal import Decimal
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.database import Base
-from src.models.category import Category
-from src.models.component import Component
-from src.models.component_location import ComponentLocation
-from src.models.kicad_data import KiCadDataSource, KiCadLibraryData
-from src.models.storage_location import StorageLocation
-from src.models.tag import Tag
+from backend.src.database import Base
+from backend.src.models.category import Category
+from backend.src.models.component import Component
+from backend.src.models.component_location import ComponentLocation
+from backend.src.models.kicad_data import KiCadDataSource, KiCadLibraryData
+from backend.src.models.storage_location import StorageLocation
+from backend.src.models.tag import Tag
 
 
 class TestComponentModel:

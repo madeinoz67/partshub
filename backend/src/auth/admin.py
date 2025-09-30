@@ -2,12 +2,64 @@
 Admin user management for PartsHub.
 """
 
+import os
 import secrets
+import stat
 import uuid
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
 from ..models import User
+
+
+def _write_credentials_file(username: str, password: str) -> Path:
+    """
+    Write admin credentials to a secure file.
+
+    Args:
+        username: Admin username
+        password: Admin password
+
+    Returns:
+        Path to the credentials file
+    """
+    # Determine credentials file path (in backend/data directory)
+    data_dir = Path(__file__).parent.parent.parent / "data"
+    data_dir.mkdir(exist_ok=True)
+
+    credentials_file = data_dir / ".admin_credentials.txt"
+
+    # Write credentials with warning banner
+    content = f"""
+{'=' * 70}
+    PARTSHUB ADMIN CREDENTIALS - FIRST TIME SETUP
+{'=' * 70}
+
+Username: {username}
+Password: {password}
+
+IMPORTANT SECURITY NOTICES:
+- This file was automatically created during first-time setup
+- DELETE THIS FILE immediately after reading the credentials
+- Change the admin password after your first login
+- Never commit this file to version control (.gitignore should exclude it)
+
+To manually delete this file, run:
+    rm {credentials_file}
+
+{'=' * 70}
+"""
+
+    credentials_file.write_text(content)
+
+    # Set restrictive permissions (owner read/write only)
+    try:
+        credentials_file.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 600 permissions
+    except Exception:
+        pass  # Windows or permission error - skip
+
+    return credentials_file
 
 
 def create_default_admin(db: Session, username: str = "admin") -> tuple[User, str]:
@@ -49,6 +101,13 @@ def create_default_admin(db: Session, username: str = "admin") -> tuple[User, st
     db.add(admin_user)
     db.commit()
     db.refresh(admin_user)
+
+    # Write credentials to secure file
+    try:
+        credentials_file = _write_credentials_file(username, temporary_password)
+        print(f"\n📄 Credentials also saved to: {credentials_file}")
+    except Exception as e:
+        print(f"\n⚠️  Warning: Could not write credentials file: {e}")
 
     return admin_user, temporary_password
 
@@ -176,3 +235,45 @@ def authenticate_user(db: Session, username: str, password: str) -> User | None:
     db.commit()
 
     return user
+
+
+def reset_admin_password(db: Session, username: str = "admin") -> tuple[User, str]:
+    """
+    Reset admin user password to a new random password.
+
+    Args:
+        db: Database session
+        username: Admin username to reset (default: "admin")
+
+    Returns:
+        tuple: (user, new_password)
+
+    Raises:
+        ValueError: If user not found or is not an admin
+    """
+    # Find the admin user
+    user = db.query(User).filter(User.username == username).first()
+
+    if not user:
+        raise ValueError(f"User '{username}' not found")
+
+    if not user.is_admin:
+        raise ValueError(f"User '{username}' is not an admin")
+
+    # Generate new random password
+    new_password = secrets.token_urlsafe(16)
+
+    # Update password and force change on next login
+    user.set_password(new_password)
+    user.must_change_password = True
+    db.commit()
+    db.refresh(user)
+
+    # Write to credentials file
+    try:
+        credentials_file = _write_credentials_file(username, new_password)
+        print(f"\n📄 Credentials saved to: {credentials_file}")
+    except Exception as e:
+        print(f"\n⚠️  Warning: Could not write credentials file: {e}")
+
+    return user, new_password
