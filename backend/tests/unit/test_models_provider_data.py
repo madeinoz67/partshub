@@ -64,13 +64,10 @@ class TestComponentProviderData:
 
         assert provider_data.specifications == {}
 
-    @patch("src.models.provider_data.datetime")
-    def test_is_cached_recently_true_default_24h(self, mock_datetime):
+    def test_is_cached_recently_true_default_24h(self):
         """Test is_cached_recently returns True for recent cache (default 24h)."""
-        # Mock current time
-        current_time = datetime(2023, 1, 15, 12, 0, 0, tzinfo=UTC)
-        mock_datetime.now.return_value = current_time
-
+        # Use real datetime since datetime is imported inside the method
+        current_time = datetime.now(UTC)
         # Cache time 12 hours ago (within 24h default)
         cache_time = current_time - timedelta(hours=12)
 
@@ -83,13 +80,10 @@ class TestComponentProviderData:
 
         assert provider_data.is_cached_recently() is True
 
-    @patch("src.models.provider_data.datetime")
-    def test_is_cached_recently_false_default_24h(self, mock_datetime):
+    def test_is_cached_recently_false_default_24h(self):
         """Test is_cached_recently returns False for old cache (default 24h)."""
-        # Mock current time
-        current_time = datetime(2023, 1, 15, 12, 0, 0, tzinfo=UTC)
-        mock_datetime.now.return_value = current_time
-
+        # Use real datetime since datetime is imported inside the method
+        current_time = datetime.now(UTC)
         # Cache time 36 hours ago (beyond 24h default)
         cache_time = current_time - timedelta(hours=36)
 
@@ -102,13 +96,10 @@ class TestComponentProviderData:
 
         assert provider_data.is_cached_recently() is False
 
-    @patch("src.models.provider_data.datetime")
-    def test_is_cached_recently_custom_hours(self, mock_datetime):
+    def test_is_cached_recently_custom_hours(self):
         """Test is_cached_recently with custom hours parameter."""
-        # Mock current time
-        current_time = datetime(2023, 1, 15, 12, 0, 0, tzinfo=UTC)
-        mock_datetime.now.return_value = current_time
-
+        # Use real datetime since datetime is imported inside the method
+        current_time = datetime.now(UTC)
         # Cache time 6 hours ago
         cache_time = current_time - timedelta(hours=6)
 
@@ -217,51 +208,61 @@ class TestComponentProviderData:
 
     def test_to_dict_include_component(self):
         """Test to_dict includes component data when requested."""
+        from unittest.mock import PropertyMock, patch
+
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
             provider_part_id="PART-789",
         )
 
-        # Mock component relationship
+        # Mock component relationship using patch
         mock_component = Mock()
         mock_component.id = "component-123"
         mock_component.name = "Test Resistor"
         mock_component.part_number = "R-1234"
         mock_component.manufacturer = "Test Corp"
-        provider_data.component = mock_component
 
-        result = provider_data.to_dict(include_component=True)
+        with patch.object(
+            type(provider_data), "component", new_callable=PropertyMock
+        ) as mock_comp_prop:
+            mock_comp_prop.return_value = mock_component
+            result = provider_data.to_dict(include_component=True)
 
-        assert "component" in result
-        component_data = result["component"]
-        assert component_data["id"] == "component-123"
-        assert component_data["name"] == "Test Resistor"
-        assert component_data["part_number"] == "R-1234"
-        assert component_data["manufacturer"] == "Test Corp"
+            assert "component" in result
+            component_data = result["component"]
+            assert component_data["id"] == "component-123"
+            assert component_data["name"] == "Test Resistor"
+            assert component_data["part_number"] == "R-1234"
+            assert component_data["manufacturer"] == "Test Corp"
 
     def test_to_dict_include_provider(self):
         """Test to_dict includes provider data when requested."""
+        from unittest.mock import PropertyMock, patch
+
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
             provider_part_id="PART-789",
         )
 
-        # Mock provider relationship
+        # Mock provider relationship using patch
         mock_provider = Mock()
         mock_provider.id = "provider-456"
         mock_provider.name = "Test Provider"
         mock_provider.is_enabled = True
-        provider_data.provider = mock_provider
 
-        result = provider_data.to_dict(include_provider=True)
+        with patch.object(
+            type(provider_data), "provider", new_callable=PropertyMock
+        ) as mock_prov_prop:
+            mock_prov_prop.return_value = mock_provider
+            result = provider_data.to_dict(include_provider=True)
 
-        assert "provider" in result
-        provider_info = result["provider"]
-        assert provider_info["id"] == "provider-456"
-        assert provider_info["name"] == "Test Provider"
-        assert provider_info["is_enabled"] is True
+            assert "provider" in result
+            provider_info = result["provider"]
+            assert provider_info["id"] == "provider-456"
+            assert provider_info["name"] == "Test Provider"
+            assert provider_info["is_enabled"] is True
 
     def test_to_dict_no_component_relationship(self):
         """Test to_dict handles missing component relationship gracefully."""
