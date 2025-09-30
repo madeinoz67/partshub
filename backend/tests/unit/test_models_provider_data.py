@@ -3,9 +3,9 @@ Unit tests for ComponentProviderData model.
 Tests all methods, properties, and caching functionality.
 """
 
-import pytest
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
+
 from src.models.provider_data import ComponentProviderData
 
 
@@ -20,7 +20,7 @@ class TestComponentProviderData:
             provider_part_id="PROV-PART-789",
             datasheet_url="https://example.com/datasheet.pdf",
             image_url="https://example.com/image.jpg",
-            specifications_json={"voltage": "5V", "current": "1A"}
+            specifications_json={"voltage": "5V", "current": "1A"},
         )
 
         assert provider_data.component_id == "component-123"
@@ -37,7 +37,7 @@ class TestComponentProviderData:
             component_id="component-123",
             provider_id="provider-456",
             provider_part_id="PART-123",
-            specifications_json=spec_data
+            specifications_json=spec_data,
         )
 
         assert provider_data.specifications == spec_data
@@ -47,7 +47,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-123"
+            provider_part_id="PART-123",
             # No specifications_json
         )
 
@@ -59,12 +59,12 @@ class TestComponentProviderData:
             component_id="component-123",
             provider_id="provider-456",
             provider_part_id="PART-123",
-            specifications_json=None
+            specifications_json=None,
         )
 
         assert provider_data.specifications == {}
 
-    @patch('src.models.provider_data.datetime')
+    @patch("src.models.provider_data.datetime")
     def test_is_cached_recently_true_default_24h(self, mock_datetime):
         """Test is_cached_recently returns True for recent cache (default 24h)."""
         # Mock current time
@@ -77,13 +77,13 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-123"
+            provider_part_id="PART-123",
         )
         provider_data.cached_at = cache_time
 
         assert provider_data.is_cached_recently() is True
 
-    @patch('src.models.provider_data.datetime')
+    @patch("src.models.provider_data.datetime")
     def test_is_cached_recently_false_default_24h(self, mock_datetime):
         """Test is_cached_recently returns False for old cache (default 24h)."""
         # Mock current time
@@ -96,13 +96,13 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-123"
+            provider_part_id="PART-123",
         )
         provider_data.cached_at = cache_time
 
         assert provider_data.is_cached_recently() is False
 
-    @patch('src.models.provider_data.datetime')
+    @patch("src.models.provider_data.datetime")
     def test_is_cached_recently_custom_hours(self, mock_datetime):
         """Test is_cached_recently with custom hours parameter."""
         # Mock current time
@@ -115,7 +115,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-123"
+            provider_part_id="PART-123",
         )
         provider_data.cached_at = cache_time
 
@@ -130,19 +130,19 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-123"
+            provider_part_id="PART-123",
         )
         # cached_at is None by default
 
         assert provider_data.is_cached_recently() is False
 
-    @patch('src.models.provider_data.func')
+    @patch("src.models.provider_data.func")
     def test_update_cache_all_fields(self, mock_func):
         """Test update_cache updates all fields correctly."""
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="OLD-PART"
+            provider_part_id="OLD-PART",
         )
 
         new_specs = {"voltage": "5V", "current": "2A"}
@@ -151,7 +151,7 @@ class TestComponentProviderData:
             provider_part_id="NEW-PART-123",
             datasheet_url="https://new.com/datasheet.pdf",
             image_url="https://new.com/image.png",
-            specifications=new_specs
+            specifications=new_specs,
         )
 
         assert provider_data.provider_part_id == "NEW-PART-123"
@@ -161,7 +161,7 @@ class TestComponentProviderData:
         # cached_at should be updated to func.now()
         mock_func.now.assert_called_once()
 
-    @patch('src.models.provider_data.func')
+    @patch("src.models.provider_data.func")
     def test_update_cache_partial_fields(self, mock_func):
         """Test update_cache with only some fields provided."""
         provider_data = ComponentProviderData(
@@ -169,7 +169,7 @@ class TestComponentProviderData:
             provider_id="provider-456",
             provider_part_id="OLD-PART",
             datasheet_url="old-url.com",
-            image_url="old-image.com"
+            image_url="old-image.com",
         )
 
         provider_data.update_cache(
@@ -191,7 +191,7 @@ class TestComponentProviderData:
             provider_part_id="PART-789",
             datasheet_url="https://example.com/datasheet.pdf",
             image_url="https://example.com/image.jpg",
-            specifications_json={"voltage": "3.3V"}
+            specifications_json={"voltage": "3.3V"},
         )
 
         # Mock timestamps
@@ -220,7 +220,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-789"
+            provider_part_id="PART-789",
         )
 
         # Mock component relationship
@@ -245,7 +245,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-789"
+            provider_part_id="PART-789",
         )
 
         # Mock provider relationship
@@ -268,7 +268,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-789"
+            provider_part_id="PART-789",
         )
         provider_data.component = None
 
@@ -282,7 +282,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-789"
+            provider_part_id="PART-789",
         )
         provider_data.provider = None
 
@@ -296,7 +296,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-789"
+            provider_part_id="PART-789",
         )
         # Timestamps are None by default
 
@@ -311,7 +311,7 @@ class TestComponentProviderData:
         provider_data = ComponentProviderData(
             component_id="component-123",
             provider_id="provider-456",
-            provider_part_id="PART-789"
+            provider_part_id="PART-789",
         )
 
         repr_str = repr(provider_data)

@@ -3,12 +3,12 @@ Unit tests for StockService.
 Tests advanced inventory transaction and stock history functionality.
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
+from unittest.mock import Mock, patch
+
 from sqlalchemy.orm import Session
+from src.models import TransactionType
 from src.services.stock_service import StockService
-from src.models import Component, StockTransaction, TransactionType
 
 
 class TestStockService:
@@ -32,13 +32,15 @@ class TestStockService:
         mock_component.quantity_on_hand = 50
         mock_component.average_purchase_price = 10.0
 
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_component
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_component
+        )
 
         updates = [
             {
                 "component_id": "comp-123",
                 "quantity_change": 25,
-                "transaction_type": TransactionType.PURCHASE
+                "transaction_type": TransactionType.PURCHASE,
             }
         ]
 
@@ -60,7 +62,7 @@ class TestStockService:
             {
                 "component_id": "nonexistent-comp",
                 "quantity_change": 10,
-                "transaction_type": TransactionType.PURCHASE
+                "transaction_type": TransactionType.PURCHASE,
             }
         ]
 
@@ -91,19 +93,21 @@ class TestStockService:
             else:
                 return None
 
-        mock_db.query.return_value.filter.return_value.first.side_effect = mock_query_filter_first
+        mock_db.query.return_value.filter.return_value.first.side_effect = (
+            mock_query_filter_first
+        )
 
         updates = [
             {
                 "component_id": "comp-success",
                 "quantity_change": 15,
-                "transaction_type": TransactionType.PURCHASE
+                "transaction_type": TransactionType.PURCHASE,
             },
             {
                 "component_id": "comp-fail",
                 "quantity_change": 10,
-                "transaction_type": TransactionType.PURCHASE
-            }
+                "transaction_type": TransactionType.PURCHASE,
+            },
         ]
 
         result = service.bulk_stock_update(updates, "Test mixed update")
@@ -122,12 +126,16 @@ class TestStockService:
         mock_transaction.transaction_type = TransactionType.PURCHASE
         mock_transaction.quantity_change = 10
 
-        mock_db.query.return_value.options.return_value.order_by.return_value.limit.return_value.all.return_value = [mock_transaction]
+        mock_db.query.return_value.options.return_value.order_by.return_value.limit.return_value.all.return_value = [
+            mock_transaction
+        ]
 
         result = service.get_stock_movement_history()
 
         # Should query with default limit of 100
-        mock_db.query.return_value.options.return_value.order_by.return_value.limit.assert_called_with(100)
+        mock_db.query.return_value.options.return_value.order_by.return_value.limit.assert_called_with(
+            100
+        )
         assert len(result["transactions"]) == 1
         assert result["total_count"] == 1
 
@@ -169,7 +177,9 @@ class TestStockService:
         mock_component.quantity_on_hand = 5
         mock_component.minimum_stock = 10
 
-        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [mock_component]
+        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [
+            mock_component
+        ]
 
         result = service.get_low_stock_components()
 
@@ -199,7 +209,9 @@ class TestStockService:
         mock_usage[0] = "comp-123"  # component_id
         mock_usage[1] = 50  # total_usage
 
-        mock_db.query.return_value.filter.return_value.group_by.return_value.all.return_value = [mock_usage]
+        mock_db.query.return_value.filter.return_value.group_by.return_value.all.return_value = [
+            mock_usage
+        ]
 
         # Mock component with average stock
         mock_component = Mock()
@@ -207,7 +219,9 @@ class TestStockService:
         mock_component.quantity_on_hand = 25
         mock_component.name = "Test Component"
 
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_component
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_component
+        )
 
         result = service.calculate_stock_turnover(days=30)
 
@@ -228,7 +242,9 @@ class TestStockService:
         mock_usage[0] = "comp-456"  # component_id
         mock_usage[1] = 30  # total_usage
 
-        mock_db.query.return_value.filter.return_value.group_by.return_value.all.return_value = [mock_usage]
+        mock_db.query.return_value.filter.return_value.group_by.return_value.all.return_value = [
+            mock_usage
+        ]
 
         # Mock component with zero stock
         mock_component = Mock()
@@ -236,12 +252,14 @@ class TestStockService:
         mock_component.quantity_on_hand = 0
         mock_component.name = "Zero Stock Component"
 
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_component
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_component
+        )
 
         result = service.calculate_stock_turnover(days=30)
 
         turnover_item = result["turnover_data"][0]
-        assert turnover_item["turnover_ratio"] == float('inf')
+        assert turnover_item["turnover_ratio"] == float("inf")
 
     def test_predict_stock_depletion_with_usage_trend(self):
         """Test predicting stock depletion with usage trend data."""
@@ -254,7 +272,9 @@ class TestStockService:
         mock_component.name = "Depleting Component"
         mock_component.quantity_on_hand = 100
 
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_component
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_component
+        )
 
         # Mock usage data (daily usage over last 30 days)
         mock_usage = [(datetime.now(UTC) - timedelta(days=i), 2) for i in range(30)]
@@ -278,7 +298,9 @@ class TestStockService:
         mock_component.name = "Unused Component"
         mock_component.quantity_on_hand = 50
 
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_component
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_component
+        )
 
         # Mock no usage data
         mock_db.query.return_value.filter.return_value.order_by.return_value.all.return_value = []
@@ -286,7 +308,7 @@ class TestStockService:
         result = service.predict_stock_depletion("comp-unused")
 
         assert result["average_daily_usage"] == 0
-        assert result["predicted_days_remaining"] == float('inf')
+        assert result["predicted_days_remaining"] == float("inf")
 
     def test_predict_stock_depletion_component_not_found(self):
         """Test predicting stock depletion for non-existent component."""
@@ -314,7 +336,9 @@ class TestStockService:
         mock_component.preferred_order_quantity = 100
         mock_component.average_purchase_price = 15.0
 
-        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [mock_component]
+        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [
+            mock_component
+        ]
 
         result = service.generate_reorder_suggestions()
 
@@ -340,10 +364,12 @@ class TestStockService:
         mock_component.preferred_order_quantity = None
         mock_component.average_purchase_price = 8.0
 
-        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [mock_component]
+        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [
+            mock_component
+        ]
 
         # Mock daily usage calculation
-        with patch.object(service, '_calculate_average_daily_usage') as mock_calc:
+        with patch.object(service, "_calculate_average_daily_usage") as mock_calc:
             mock_calc.return_value = 3.0  # 3 units per day
 
             result = service.generate_reorder_suggestions(lead_time_days=14)
@@ -400,7 +426,9 @@ class TestStockService:
         mock_transaction.created_at = datetime.now(UTC) - timedelta(days=60)
 
         # Setup complex mock for the query
-        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [mock_component]
+        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [
+            mock_component
+        ]
         mock_db.query.return_value.filter.return_value.order_by.return_value.first.return_value = mock_transaction
 
         result = service.get_stock_aging_analysis()
@@ -422,7 +450,9 @@ class TestStockService:
         mock_component.name = "No Transaction Component"
         mock_component.quantity_on_hand = 50
 
-        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [mock_component]
+        mock_db.query.return_value.options.return_value.filter.return_value.all.return_value = [
+            mock_component
+        ]
         mock_db.query.return_value.filter.return_value.order_by.return_value.first.return_value = None
 
         result = service.get_stock_aging_analysis()

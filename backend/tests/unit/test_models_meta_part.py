@@ -3,8 +3,8 @@ Unit tests for MetaPart and MetaPartComponent models.
 Tests all methods, properties, and assembly management functionality.
 """
 
-import pytest
 from unittest.mock import Mock
+
 from src.models.meta_part import MetaPart, MetaPartComponent
 
 
@@ -19,7 +19,7 @@ class TestMetaPart:
             version="v2.1",
             assembly_type="PCB",
             reference_designator="PCB1",
-            notes="Test notes"
+            notes="Test notes",
         )
 
         assert meta_part.name == "Power Supply Board"
@@ -31,10 +31,7 @@ class TestMetaPart:
 
     def test_display_name_with_version(self):
         """Test display_name property includes version when available."""
-        meta_part = MetaPart(
-            name="Test Assembly",
-            version="v1.0"
-        )
+        meta_part = MetaPart(name="Test Assembly", version="v1.0")
 
         assert meta_part.display_name == "Test Assembly v1.0"
 
@@ -66,7 +63,6 @@ class TestMetaPart:
 
         # Can't directly assign to components due to SQLAlchemy, test the calculation
         # by temporarily overriding the property method
-        original_components = meta_part.components
         meta_part.components = [comp1, comp2, comp3]
 
         assert meta_part.total_component_count == 18  # 5 + 3 + 10
@@ -260,7 +256,7 @@ class TestMetaPartComponent:
             component_id="component-456",
             quantity_required=5,
             assembly_notes="Handle with care",
-            reference_designators="R1,R2,R3"
+            reference_designators="R1,R2,R3",
         )
 
         assert meta_comp.meta_part_id == "meta-part-123"
@@ -272,8 +268,7 @@ class TestMetaPartComponent:
     def test_default_quantity_required(self):
         """Test quantity_required defaults to 1."""
         meta_comp = MetaPartComponent(
-            meta_part_id="meta-part-123",
-            component_id="component-456"
+            meta_part_id="meta-part-123", component_id="component-456"
         )
 
         assert meta_comp.quantity_required == 1
@@ -283,7 +278,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=3
+            quantity_required=3,
         )
 
         # Mock component with pricing
@@ -298,7 +293,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=3
+            quantity_required=3,
         )
         meta_comp.component = None
 
@@ -309,7 +304,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=3
+            quantity_required=3,
         )
 
         # Mock component without pricing
@@ -323,7 +318,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=5
+            quantity_required=5,
         )
 
         # Mock component with sufficient stock
@@ -337,7 +332,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=10
+            quantity_required=10,
         )
 
         # Mock component with insufficient stock
@@ -351,7 +346,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=5
+            quantity_required=5,
         )
         meta_comp.component = None
 
@@ -362,7 +357,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=3
+            quantity_required=3,
         )
 
         # Mock component with stock
@@ -376,7 +371,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=3
+            quantity_required=3,
         )
         meta_comp.component = None
 
@@ -387,7 +382,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=0
+            quantity_required=0,
         )
 
         # Mock component with stock
@@ -401,7 +396,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=5
+            quantity_required=5,
         )
 
         # Mock component with insufficient stock
@@ -415,7 +410,7 @@ class TestMetaPartComponent:
         meta_comp = MetaPartComponent(
             meta_part_id="meta-part-123",
             component_id="component-456",
-            quantity_required=5
+            quantity_required=5,
         )
 
         repr_str = repr(meta_comp)

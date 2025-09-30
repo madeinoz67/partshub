@@ -107,7 +107,7 @@ jobs:
       - name: Run frontend tests
         run: |
           cd frontend
-          npm test -- --reporter=junit --outputFile=test-results.xml
+          npm test -- --run --reporter=junit --outputFile=test-results.xml
 
       - name: Build frontend
         run: |
@@ -232,6 +232,7 @@ jobs:
           file: Dockerfile
           target: development
           push: false
+          load: true
           tags: partshub:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max

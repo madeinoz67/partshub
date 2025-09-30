@@ -3,12 +3,9 @@ High-impact unit tests designed specifically for coverage gains.
 Targets methods and classes with highest line counts and lowest current coverage.
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock, mock_open
-from pathlib import Path
 import tempfile
-import json
-import io
+from pathlib import Path
+from unittest.mock import Mock, patch
 
 
 class TestAPIEndpointsBasic:
@@ -17,24 +14,31 @@ class TestAPIEndpointsBasic:
     def test_api_imports_work(self):
         """Test that API modules can be imported successfully."""
         # These imports alone will increase coverage
-        from src.api import components, projects, categories, attachments
-        from src.api import storage_locations, reports, bom
+        from src.api import (
+            attachments,
+            bom,
+            categories,
+            components,
+            projects,
+            reports,
+            storage_locations,
+        )
 
         # Basic assertions to ensure imports work
-        assert hasattr(components, 'router')
-        assert hasattr(projects, 'router')
-        assert hasattr(categories, 'router')
-        assert hasattr(attachments, 'router')
-        assert hasattr(storage_locations, 'router')
-        assert hasattr(reports, 'router')
-        assert hasattr(bom, 'router')
+        assert hasattr(components, "router")
+        assert hasattr(projects, "router")
+        assert hasattr(categories, "router")
+        assert hasattr(attachments, "router")
+        assert hasattr(storage_locations, "router")
+        assert hasattr(reports, "router")
+        assert hasattr(bom, "router")
 
     def test_database_connection_setup(self):
         """Test database connection setup functions."""
         from src.database import Base, get_session
 
         # Test that Base is a proper SQLAlchemy base
-        assert hasattr(Base, 'metadata')
+        assert hasattr(Base, "metadata")
 
         # Test get_session function exists and is callable
         assert callable(get_session)
@@ -48,9 +52,7 @@ class TestModelInitialization:
         from src.models.component import Component
 
         component = Component(
-            name="Test Component",
-            part_number="TEST123",
-            manufacturer="TestCorp"
+            name="Test Component", part_number="TEST123", manufacturer="TestCorp"
         )
 
         assert component.name == "Test Component"
@@ -64,7 +66,7 @@ class TestModelInitialization:
         project = Project(
             name="Test Project",
             description="A test project",
-            status=ProjectStatus.PLANNING
+            status=ProjectStatus.PLANNING,
         )
 
         assert project.name == "Test Project"
@@ -75,10 +77,7 @@ class TestModelInitialization:
         """Test Category model basic initialization."""
         from src.models.category import Category
 
-        category = Category(
-            name="Electronics",
-            description="Electronic components"
-        )
+        category = Category(name="Electronics", description="Electronic components")
 
         assert category.name == "Electronics"
         assert category.description == "Electronic components"
@@ -88,9 +87,7 @@ class TestModelInitialization:
         from src.models.storage_location import StorageLocation
 
         location = StorageLocation(
-            name="Shelf A",
-            location_code="A1",
-            storage_type="shelf"
+            name="Shelf A", location_code="A1", storage_type="shelf"
         )
 
         assert location.name == "Shelf A"
@@ -106,7 +103,7 @@ class TestModelInitialization:
             original_filename="test_file.pdf",
             file_path="/path/to/test.pdf",
             mime_type="application/pdf",
-            file_size=12345
+            file_size=12345,
         )
 
         assert attachment.filename == "test.pdf"
@@ -119,7 +116,7 @@ class TestModelInitialization:
 class TestServiceInitialization:
     """Test service initialization and basic methods."""
 
-    @patch('src.services.component_service.get_session')
+    @patch("src.services.component_service.get_session")
     def test_component_service_init(self, mock_get_session):
         """Test ComponentService initialization."""
         from src.services.component_service import ComponentService
@@ -127,7 +124,7 @@ class TestServiceInitialization:
         service = ComponentService()
         assert service is not None
 
-    @patch('src.services.project_service.get_session')
+    @patch("src.services.project_service.get_session")
     def test_project_service_init(self, mock_get_session):
         """Test ProjectService initialization."""
         from src.services.project_service import ProjectService
@@ -143,15 +140,15 @@ class TestServiceInitialization:
             service = FileStorageService(temp_dir)
             assert service.base_path == Path(temp_dir)
 
-    @patch('src.services.provider_service.LCSCProvider')
+    @patch("src.services.provider_service.LCSCProvider")
     def test_provider_service_init(self, mock_lcsc):
         """Test ProviderService initialization."""
         from src.services.provider_service import ProviderService
 
         service = ProviderService()
         assert service is not None
-        assert hasattr(service, 'providers')
-        assert hasattr(service, 'enabled_providers')
+        assert hasattr(service, "providers")
+        assert hasattr(service, "enabled_providers")
 
 
 class TestUtilityFunctions:
@@ -159,9 +156,9 @@ class TestUtilityFunctions:
 
     def test_enum_values_coverage(self):
         """Test various enum values for coverage."""
+        from src.models.custom_field import FieldType
         from src.models.project import ProjectStatus
         from src.models.stock_transaction import TransactionType
-        from src.models.custom_field import FieldType
 
         # Test ProjectStatus enum
         assert ProjectStatus.PLANNING.value == "planning"
@@ -185,9 +182,9 @@ class TestUtilityFunctions:
 
     def test_model_repr_methods(self):
         """Test __repr__ methods for coverage."""
+        from src.models.category import Category
         from src.models.component import Component
         from src.models.project import Project
-        from src.models.category import Category
 
         component = Component(name="Test", part_number="123")
         repr_str = repr(component)
@@ -229,7 +226,7 @@ class TestErrorHandling:
         result = service.scan_barcode_from_base64("invalid_data")
         assert result == []
 
-    @patch('src.services.file_storage.Path')
+    @patch("src.services.file_storage.Path")
     def test_file_storage_error_handling(self, mock_path):
         """Test file storage error handling."""
         from src.services.file_storage import FileStorageService
@@ -256,9 +253,7 @@ class TestJSONSerializationMethods:
         from src.models.provider_data import ComponentProviderData
 
         provider_data = ComponentProviderData(
-            component_id="comp-123",
-            provider_id="prov-456",
-            provider_part_id="PART789"
+            component_id="comp-123", provider_id="prov-456", provider_part_id="PART789"
         )
 
         # Test basic to_dict
@@ -269,7 +264,7 @@ class TestJSONSerializationMethods:
 
     def test_kicad_data_methods_coverage(self):
         """Test KiCad data methods for coverage."""
-        from src.models.kicad_data import KiCadLibraryData, KiCadDataSource
+        from src.models.kicad_data import KiCadDataSource, KiCadLibraryData
 
         kicad_data = KiCadLibraryData(component_id="comp-kicad")
 
@@ -302,7 +297,10 @@ class TestProviderImplementations:
 
     def test_base_provider_methods(self):
         """Test base provider methods."""
-        from src.providers.base_provider import ComponentDataProvider, ComponentSearchResult
+        from src.providers.base_provider import (
+            ComponentDataProvider,
+            ComponentSearchResult,
+        )
 
         # Test ComponentSearchResult
         result = ComponentSearchResult(
@@ -312,7 +310,7 @@ class TestProviderImplementations:
             description="Test component",
             datasheet_url="http://example.com/datasheet.pdf",
             availability=100,
-            unit_price=5.99
+            unit_price=5.99,
         )
 
         assert result.provider_name == "TestProvider"
@@ -330,22 +328,25 @@ class TestMainApplicationSetup:
 
     def test_main_app_imports(self):
         """Test main application imports."""
-        from src.main import app
-        from src.main import lifespan
+        from src.main import app, lifespan
 
         assert app is not None
         assert callable(lifespan)
 
     def test_database_optimization_import(self):
         """Test database optimization imports."""
-        from src.database import Base, get_session, optimize_search_indexes
+        from src.database import optimize_search_indexes
 
         assert callable(optimize_search_indexes)
 
     def test_auth_imports(self):
         """Test authentication related imports."""
-        from src.auth import get_optional_user, get_current_user_optional
-        from src.auth import verify_token, create_access_token
+        from src.auth import (
+            create_access_token,
+            get_current_user_optional,
+            get_optional_user,
+            verify_token,
+        )
 
         assert callable(get_optional_user)
         assert callable(get_current_user_optional)
