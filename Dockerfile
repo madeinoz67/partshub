@@ -34,7 +34,7 @@ COPY backend/ ./backend/
 RUN mkdir -p /app/data /app/data/attachments
 
 # Set environment variables
-ENV DATABASE_URL=sqlite:///./data/partshub.db
+ENV DATABASE_URL=sqlite:////app/data/partshub.db
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8000
@@ -134,7 +134,7 @@ WORKDIR /app
 RUN mkdir -p /app/data /app/data/attachments
 
 # Set environment variables
-ENV DATABASE_URL=sqlite:///./data/partshub.db
+ENV DATABASE_URL=sqlite:////app/data/partshub.db
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8000
