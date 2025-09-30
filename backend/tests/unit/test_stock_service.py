@@ -40,7 +40,7 @@ class TestStockService:
             {
                 "component_id": "comp-123",
                 "quantity_change": 25,
-                "transaction_type": TransactionType.PURCHASE,
+                "transaction_type": TransactionType.ADD,
             }
         ]
 
@@ -62,7 +62,7 @@ class TestStockService:
             {
                 "component_id": "nonexistent-comp",
                 "quantity_change": 10,
-                "transaction_type": TransactionType.PURCHASE,
+                "transaction_type": TransactionType.ADD,
             }
         ]
 
@@ -101,12 +101,12 @@ class TestStockService:
             {
                 "component_id": "comp-success",
                 "quantity_change": 15,
-                "transaction_type": TransactionType.PURCHASE,
+                "transaction_type": TransactionType.ADD,
             },
             {
                 "component_id": "comp-fail",
                 "quantity_change": 10,
-                "transaction_type": TransactionType.PURCHASE,
+                "transaction_type": TransactionType.ADD,
             },
         ]
 
@@ -123,7 +123,7 @@ class TestStockService:
         # Mock transaction results
         mock_transaction = Mock()
         mock_transaction.id = "trans-123"
-        mock_transaction.transaction_type = TransactionType.PURCHASE
+        mock_transaction.transaction_type = TransactionType.ADD
         mock_transaction.quantity_change = 10
 
         mock_db.query.return_value.options.return_value.order_by.return_value.limit.return_value.all.return_value = [
