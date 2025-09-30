@@ -285,8 +285,9 @@ def create_default_tags(db: Session):
 
 def initialize_database():
     """Initialize database with all tables and default data."""
-    print("Creating database tables...")
-    Base.metadata.create_all(bind=engine)
+    # NOTE: Tables should be created via Alembic migrations, not create_all()
+    # This function only populates default data
+    print("Checking database...")
 
     print("Adding default data...")
     from ..database import SessionLocal

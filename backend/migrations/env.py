@@ -5,11 +5,45 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# Add src to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
+# Add the parent directory of backend to sys.path so we can import src as a package
+backend_path = os.path.dirname(os.path.dirname(__file__))
+src_parent = os.path.dirname(backend_path)
+if src_parent not in sys.path:
+    sys.path.insert(0, src_parent)
 
-# Import Base and models
-from database import Base
+# Now we can import src.models which will work with relative imports
+# First import the database to get Base
+from backend.src.database import Base
+
+# Import all models to register them with Base.metadata
+from backend.src.models import (
+    APIToken,
+    Attachment,
+    Category,
+    Component,
+    ComponentDataProvider,
+    ComponentLocation,
+    ComponentProviderData,
+    CustomField,
+    CustomFieldValue,
+    FieldType,
+    KiCadLibraryData,
+    MetaPart,
+    MetaPartComponent,
+    Project,
+    ProjectComponent,
+    ProjectStatus,
+    Purchase,
+    PurchaseItem,
+    StockTransaction,
+    StorageLocation,
+    Substitute,
+    Supplier,
+    Tag,
+    TransactionType,
+    User,
+    component_tags,
+)
 
 # this is the Alembic Config object
 config = context.config
