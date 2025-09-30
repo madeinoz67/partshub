@@ -8,8 +8,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 from sqlalchemy.orm import Session
-from src.models import TransactionType
-from src.services.stock_service import StockService
+from backend.src.models import TransactionType
+from backend.src.services.stock_service import StockService
 
 
 class TestStockService:

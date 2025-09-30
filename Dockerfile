@@ -47,8 +47,17 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start backend application
-CMD ["uvicorn", "backend.src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Create entrypoint script that runs migrations before starting the backend
+RUN echo '#!/bin/sh\n\
+set -e\n\
+echo "Running database migrations..."\n\
+cd /app/backend && uv run --project .. alembic upgrade head\n\
+echo "Starting backend..."\n\
+cd /app && exec uvicorn backend.src.main:app --host 0.0.0.0 --port 8000\n\
+' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+
+# Start backend application with migrations
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # ==============================================================================
 # Frontend Build Stage

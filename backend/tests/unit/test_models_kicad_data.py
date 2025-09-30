@@ -5,7 +5,7 @@ Tests all methods, properties, and data source management functionality.
 
 from datetime import UTC, datetime
 
-from src.models.kicad_data import KiCadDataSource, KiCadLibraryData
+from backend.src.models.kicad_data import KiCadDataSource, KiCadLibraryData
 
 
 class TestKiCadLibraryData:

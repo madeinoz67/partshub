@@ -623,17 +623,17 @@ class ComponentService:
         if sort_order.lower() == "desc":
             if sort_by == "name":
                 query = query.order_by(desc(Component.name))
-            elif sort_by == "quantity":
-                query = query.order_by(desc(Component.quantity_on_hand))
             elif sort_by == "created_at":
                 query = query.order_by(desc(Component.created_at))
+            # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
+            # and cannot be used directly in SQL ORDER BY
         else:
             if sort_by == "name":
                 query = query.order_by(Component.name)
-            elif sort_by == "quantity":
-                query = query.order_by(Component.quantity_on_hand)
             elif sort_by == "created_at":
                 query = query.order_by(Component.created_at)
+            # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
+            # and cannot be used directly in SQL ORDER BY
 
         # Get results before pagination for search ranking
         if search and sort_by == "name" and sort_order == "asc":

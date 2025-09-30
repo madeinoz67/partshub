@@ -26,7 +26,7 @@ class TestFileStorageService:
     @pytest.fixture
     def file_storage_service(self, temp_storage_dir):
         """Create FileStorageService instance with temp directory."""
-        from src.services.file_storage import FileStorageService
+        from backend.src.services.file_storage import FileStorageService
 
         return FileStorageService(base_path=temp_storage_dir)
 
@@ -80,7 +80,7 @@ startxref
 
     def test_init_creates_base_directory(self, temp_storage_dir):
         """Test that FileStorageService creates base directory on initialization."""
-        from src.services.file_storage import FileStorageService
+        from backend.src.services.file_storage import FileStorageService
 
         # Create service with non-existent directory
         service_dir = Path(temp_storage_dir) / "new_storage"

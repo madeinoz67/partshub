@@ -11,7 +11,7 @@ class TestKiCadDataMethods:
 
     def test_kicad_data_source_enum_values(self):
         """Test KiCadDataSource enum values."""
-        from src.models.kicad_data import KiCadDataSource
+        from backend.src.models.kicad_data import KiCadDataSource
 
         assert KiCadDataSource.CUSTOM.value == "custom"
         assert KiCadDataSource.PROVIDER.value == "provider"
@@ -19,7 +19,7 @@ class TestKiCadDataMethods:
 
     def test_kicad_has_symbol_logic(self):
         """Test has_symbol property logic."""
-        from src.models.kicad_data import KiCadLibraryData
+        from backend.src.models.kicad_data import KiCadLibraryData
 
         # Test with both values
         kicad = KiCadLibraryData(component_id="test")
@@ -38,7 +38,7 @@ class TestKiCadDataMethods:
 
     def test_kicad_get_symbol_reference(self):
         """Test get_symbol_reference method."""
-        from src.models.kicad_data import KiCadLibraryData
+        from backend.src.models.kicad_data import KiCadLibraryData
 
         kicad = KiCadLibraryData(component_id="test")
         kicad.symbol_library = "MyLib"
@@ -52,7 +52,7 @@ class TestMetaPartMethods:
 
     def test_display_name_logic(self):
         """Test display_name property logic."""
-        from src.models.meta_part import MetaPart
+        from backend.src.models.meta_part import MetaPart
 
         # With version
         meta = MetaPart(name="Test", version="v1.0")
@@ -64,7 +64,7 @@ class TestMetaPartMethods:
 
     def test_total_component_count_calculation(self):
         """Test total_component_count calculation logic."""
-        from src.models.meta_part import MetaPart
+        from backend.src.models.meta_part import MetaPart
 
         meta = MetaPart(name="Test")
 
@@ -81,7 +81,7 @@ class TestProviderDataMethods:
 
     def test_specifications_property(self):
         """Test specifications property returns correct data."""
-        from src.models.provider_data import ComponentProviderData
+        from backend.src.models.provider_data import ComponentProviderData
 
         # With data
         provider_data = ComponentProviderData(
@@ -96,7 +96,7 @@ class TestProviderDataMethods:
 
     def test_is_cached_recently_logic(self):
         """Test is_cached_recently method logic."""
-        from src.models.provider_data import ComponentProviderData
+        from backend.src.models.provider_data import ComponentProviderData
 
         provider_data = ComponentProviderData(
             component_id="test", provider_id="test", provider_part_id="test"
@@ -123,7 +123,7 @@ class TestComponentModelMethods:
 
     def test_component_display_name(self):
         """Test Component display_name property."""
-        from src.models.component import Component
+        from backend.src.models.component import Component
 
         # With part number
         component = Component(name="Resistor", part_number="R123")
@@ -139,7 +139,7 @@ class TestProjectModelMethods:
 
     def test_project_display_name(self):
         """Test Project display_name property."""
-        from src.models.project import Project
+        from backend.src.models.project import Project
 
         # With version
         project = Project(name="My Project", version="v2.0")
@@ -151,7 +151,7 @@ class TestProjectModelMethods:
 
     def test_project_status_enum(self):
         """Test ProjectStatus enum values."""
-        from src.models.project import ProjectStatus
+        from backend.src.models.project import ProjectStatus
 
         assert ProjectStatus.PLANNING.value == "planning"
         assert ProjectStatus.ACTIVE.value == "active"
@@ -165,14 +165,14 @@ class TestCategoryModelMethods:
 
     def test_category_display_name(self):
         """Test Category display_name property."""
-        from src.models.category import Category
+        from backend.src.models.category import Category
 
         category = Category(name="Resistors", description="Test desc")
         assert category.display_name == "Resistors"
 
     def test_category_full_path_simple(self):
         """Test Category full_path without parent."""
-        from src.models.category import Category
+        from backend.src.models.category import Category
 
         category = Category(name="Electronics")
         # Mock the parent relationship
@@ -189,7 +189,7 @@ class TestStorageLocationMethods:
 
     def test_storage_location_display_name(self):
         """Test StorageLocation display_name property."""
-        from src.models.storage_location import StorageLocation
+        from backend.src.models.storage_location import StorageLocation
 
         # With code
         location = StorageLocation(name="Shelf A", location_code="A1")
@@ -201,7 +201,7 @@ class TestStorageLocationMethods:
 
     def test_storage_location_full_path_simple(self):
         """Test StorageLocation full_path without parent."""
-        from src.models.storage_location import StorageLocation
+        from backend.src.models.storage_location import StorageLocation
 
         location = StorageLocation(name="Lab")
         # Mock the parent relationship
@@ -218,7 +218,7 @@ class TestCustomFieldMethods:
 
     def test_field_type_enum(self):
         """Test FieldType enum values."""
-        from src.models.custom_field import FieldType
+        from backend.src.models.custom_field import FieldType
 
         assert FieldType.TEXT.value == "text"
         assert FieldType.NUMBER.value == "number"
@@ -232,7 +232,7 @@ class TestStockTransactionMethods:
 
     def test_transaction_type_enum(self):
         """Test TransactionType enum values."""
-        from src.models.stock_transaction import TransactionType
+        from backend.src.models.stock_transaction import TransactionType
 
         assert TransactionType.ADD.value == "add"
         assert TransactionType.REMOVE.value == "remove"
@@ -241,7 +241,7 @@ class TestStockTransactionMethods:
 
     def test_transaction_display_description(self):
         """Test StockTransaction display_description property."""
-        from src.models.stock_transaction import StockTransaction, TransactionType
+        from backend.src.models.stock_transaction import StockTransaction, TransactionType
 
         transaction = StockTransaction(
             transaction_type=TransactionType.ADD,
@@ -260,7 +260,7 @@ class TestAttachmentMethods:
 
     def test_attachment_display_name(self):
         """Test Attachment display_name property."""
-        from src.models.attachment import Attachment
+        from backend.src.models.attachment import Attachment
 
         attachment = Attachment(
             filename="datasheet.pdf", original_filename="Original Datasheet.pdf"

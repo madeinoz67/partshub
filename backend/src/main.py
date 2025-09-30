@@ -36,6 +36,12 @@ async def lifespan(app: FastAPI):
     Replaces deprecated @app.on_event decorators.
     """
     # Startup
+    # Note: Database migrations must be run separately before starting the app
+    # Run: cd backend && uv run --project .. alembic upgrade head
+    #
+    # Automatic migrations during app startup were removed due to SQLite connection
+    # conflicts that cause migrations to hang (60+ seconds vs <1 second when run separately)
+
     # Configure SQLAlchemy registry to ensure all relationships are properly initialized
     from sqlalchemy.orm import configure_mappers
 

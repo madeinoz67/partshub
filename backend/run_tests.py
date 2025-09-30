@@ -31,7 +31,9 @@ def main():
     # Run pytest with the test environment using uv
     try:
         result = subprocess.run(
-            ["uv", "run", "pytest"] + sys.argv[1:], env=test_env, check=False
+            ["uv", "run", "--project", "..", "pytest"] + sys.argv[1:],
+            env=test_env,
+            check=False,
         )
 
         return result.returncode

@@ -11,10 +11,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from src.auth.jwt_auth import create_access_token
-from src.database import get_db
-from src.main import app
-from src.models import APIToken, User
+from backend.src.auth.jwt_auth import create_access_token
+from backend.src.database import get_db
+from backend.src.main import app
+from backend.src.models import APIToken, User
 
 # Set testing environment variables to ensure complete isolation
 os.environ["TESTING"] = "1"
@@ -57,7 +57,7 @@ def setup_test_database():
     Set up fresh in-memory test database for each test with proper model loading
     """
     # Import the Base from the correct database module
-    from src.database import Base
+    from backend.src.database import Base
 
     # Import all models to ensure they are registered with SQLAlchemy
     # This is critical for table creation to work properly

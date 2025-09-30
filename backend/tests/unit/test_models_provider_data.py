@@ -6,7 +6,7 @@ Tests all methods, properties, and caching functionality.
 from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
 
-from src.models.provider_data import ComponentProviderData
+from backend.src.models.provider_data import ComponentProviderData
 
 
 class TestComponentProviderData:

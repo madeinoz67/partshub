@@ -13,9 +13,10 @@ if src_parent not in sys.path:
 
 # Now we can import src.models which will work with relative imports
 # First import the database to get Base
-from backend.src.database import Base
+from backend.src.database import Base  # noqa: E402
 
 # Import all models to register them with Base.metadata
+# ruff: noqa: F401, E402
 from backend.src.models import (
     APIToken,
     Attachment,
@@ -78,14 +79,33 @@ def run_migrations_online() -> None:
     if "DATABASE_URL" in os.environ:
         configuration["sqlalchemy.url"] = os.environ["DATABASE_URL"]
 
+    # Add SQLite-specific connection args for migrations
+    # Match settings from main application to avoid conflicts
+    configuration["connect_args"] = {
+        "check_same_thread": False,
+        "timeout": 60,  # Longer timeout for migrations
+    }
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
+        poolclass=pool.NullPool,  # Use NullPool to avoid connection pool conflicts
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        # Enable SQLite pragmas for migration compatibility
+        from sqlalchemy import text
+        connection.execute(text("PRAGMA foreign_keys=ON"))
+        connection.execute(text("PRAGMA journal_mode=WAL"))
+        connection.execute(text("PRAGMA synchronous=NORMAL"))
+        connection.commit()
+
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            transaction_per_migration=True,  # Commit after each migration step
+            render_as_batch=True,  # Better handling for SQLite ALTER operations
+        )
 
         with context.begin_transaction():
             context.run_migrations()

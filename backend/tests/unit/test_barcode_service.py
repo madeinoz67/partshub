@@ -8,7 +8,7 @@ import io
 from unittest.mock import Mock, patch
 
 from PIL import Image
-from src.services.barcode_service import BarcodeResult, BarcodeService
+from backend.src.services.barcode_service import BarcodeResult, BarcodeService
 
 
 class TestBarcodeResult:
