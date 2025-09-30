@@ -8,7 +8,7 @@ Create Date: 2025-09-27 21:57:44.906926
 from collections.abc import Sequence
 
 # revision identifiers, used by Alembic.
-revision: str = '94401df84656'
+revision: str = "94401df84656"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
