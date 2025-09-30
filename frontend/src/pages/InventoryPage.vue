@@ -370,7 +370,7 @@ import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from '../services/api'
 import ComponentList from '../components/ComponentList.vue'
-import ComponentCard from '../components/ComponentCard.vue'
+// import ComponentCard from '../components/ComponentCard.vue' // TODO: Create ComponentCard component
 import ComponentForm from '../components/ComponentForm.vue'
 import BarcodeScanner from '../components/BarcodeScanner.vue'
 
