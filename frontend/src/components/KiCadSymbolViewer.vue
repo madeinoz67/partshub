@@ -118,22 +118,49 @@ import type { KiCadSymbolData, KiCadPin } from '../types/kicad'
 
 interface Props {
   componentId: string
+  symbolData?: KiCadSymbolData | null
+  pinData?: Array<{
+    pin_number: string
+    pin_name: string
+    pin_type: string
+    position: { x: number; y: number }
+    [key: string]: unknown
+  }>
 }
 
 // Using KiCadSymbolData from types/kicad.ts
 
 
 const props = defineProps<Props>()
+const emit = defineEmits<{
+  (e: 'error', error: string): void
+  (e: 'loaded', data: KiCadSymbolData): void
+}>()
 
 // Reactive state
 const loading = ref(false)
 const error = ref<string | null>(null)
-const symbolData = ref<KiCadSymbolData | null>(null)
+const internalSymbolData = ref<KiCadSymbolData | null>(null)
 const svgContent = ref<string | null>(null)
 const svgContainer = ref<HTMLElement>()
 
+// Use prop data if provided, otherwise use internal data
+const symbolData = computed(() => props.symbolData ?? internalSymbolData.value)
+
 // Computed properties
 const pinData = computed(() => {
+  // If pinData prop is provided, use it directly
+  if (props.pinData && props.pinData.length > 0) {
+    return props.pinData.map(pin => ({
+      number: pin.pin_number,
+      name: pin.pin_name,
+      pin_type: pin.pin_type,
+      electrical_type: pin.electrical_type || '',
+      position: pin.position,
+      ...pin
+    }))
+  }
+
   if (!symbolData.value?.symbol_data?.pins) return []
 
   return Object.entries(symbolData.value.symbol_data.pins).map(([number, pinInfo]: [string, KiCadPin]) => ({
@@ -183,6 +210,12 @@ const pinColumns = [
 
 // Methods
 const fetchSymbolData = async () => {
+  // Skip fetch if symbolData prop is provided (testing mode)
+  if (props.symbolData !== undefined) {
+    generateSymbolSVG()
+    return
+  }
+
   if (!props.componentId) return
 
   loading.value = true
@@ -190,7 +223,8 @@ const fetchSymbolData = async () => {
 
   try {
     const response = await api.get(`/api/v1/kicad/components/${props.componentId}/symbol`)
-    symbolData.value = response.data
+    internalSymbolData.value = response.data
+    emit('loaded', response.data)
 
     // Generate SVG visualization
     generateSymbolSVG()
@@ -201,7 +235,9 @@ const fetchSymbolData = async () => {
       error.value = null // No symbol data is not an error, just show no-data state
     } else {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load symbol data'
-      error.value = response?.data?.detail || errorMessage
+      const errorMsg = response?.data?.detail || errorMessage
+      error.value = errorMsg
+      emit('error', errorMsg)
     }
   } finally {
     loading.value = false
@@ -210,6 +246,12 @@ const fetchSymbolData = async () => {
 
 const generateSymbolSVG = () => {
   if (!symbolData.value) return
+
+  // If symbol has svg_content, use it directly
+  if (symbolData.value.svg_content) {
+    svgContent.value = symbolData.value.svg_content
+    return
+  }
 
   // Enhanced SVG generation with better pin distribution and visual elements
   const pins = pinData.value
@@ -411,10 +453,28 @@ const formatPropertyValue = (value: unknown) => {
 
 // Watchers
 watch(() => props.componentId, fetchSymbolData, { immediate: true })
+watch(() => props.symbolData, () => {
+  if (props.symbolData !== undefined) {
+    generateSymbolSVG()
+  }
+}, { immediate: true })
+watch(() => props.pinData, () => {
+  if (props.pinData !== undefined) {
+    generateSymbolSVG()
+  }
+}, { immediate: true })
 
 // Lifecycle
 onMounted(() => {
   fetchSymbolData()
+})
+
+// Expose refs for testing
+defineExpose({
+  loading,
+  error,
+  symbolData,
+  pinData
 })
 </script>
 
