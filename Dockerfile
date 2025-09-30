@@ -30,8 +30,9 @@ RUN uv sync --all-extras
 # Copy backend source code
 COPY backend/ ./backend/
 
-# Create data directories
-RUN mkdir -p /app/data /app/data/attachments
+# Create data directories with proper permissions
+RUN mkdir -p /app/data /app/data/attachments && \
+    chmod -R 777 /app/data
 
 # Set environment variables
 ENV DATABASE_URL=sqlite:////app/data/partshub.db
@@ -131,7 +132,8 @@ COPY frontend/ ./
 
 # Create directories for SQLite database and file storage
 WORKDIR /app
-RUN mkdir -p /app/data /app/data/attachments
+RUN mkdir -p /app/data /app/data/attachments && \
+    chmod -R 777 /app/data
 
 # Set environment variables
 ENV DATABASE_URL=sqlite:////app/data/partshub.db
