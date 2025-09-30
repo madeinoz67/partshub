@@ -4,14 +4,9 @@ set -e
 echo "Starting FastAPI backend on port ${PORT:-8000}..."
 cd /app
 
-# Run database migrations (if alembic is configured with migrations)
-if [ -f "backend/alembic.ini" ] && [ -d "backend/migrations/versions" ]; then
-    echo "Running database migrations..."
-    cd backend && uv run --project .. alembic upgrade head
-    cd /app
-else
-    echo "No Alembic migrations found (or migrations directory missing), skipping..."
-fi
+# Skip migrations for now - they require writable database directory
+# TODO: Fix database permissions in Docker to enable migrations
+echo "Skipping Alembic migrations (database will be created on first request)..."
 
 # Seed database with mock data if SEED_DB environment variable is set
 if [ "$SEED_DB" = "true" ]; then
