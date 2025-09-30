@@ -645,7 +645,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { APIService } from '../services/api'
 import ProjectForm from '../components/ProjectForm.vue'
@@ -653,7 +652,6 @@ import ProjectView from '../components/ProjectView.vue'
 import ComponentAllocation from '../components/ComponentAllocation.vue'
 import ProjectReports from '../components/ProjectReports.vue'
 
-const router = useRouter()
 const $q = useQuasar()
 
 // Reactive data
@@ -689,14 +687,6 @@ const showReportsDialog = ref(false)
 const selectedProject = ref(null)
 
 // Filter options
-const statusOptions = [
-  { label: 'All Statuses', value: null },
-  { label: 'Planning', value: 'planning' },
-  { label: 'Active', value: 'active' },
-  { label: 'On Hold', value: 'on_hold' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' }
-]
 
 const statusDropdownOptions = computed(() => [
   { label: `All Projects (${totalProjects.value})`, value: null },
@@ -849,10 +839,6 @@ const searchProjects = () => {
   loadProjects()
 }
 
-const filterProjects = () => {
-  tablePagination.value.page = 1
-  loadProjects()
-}
 
 const clearFilters = () => {
   searchQuery.value = ''

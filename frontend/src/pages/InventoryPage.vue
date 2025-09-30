@@ -366,7 +366,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from '../services/api'
 import ComponentList from '../components/ComponentList.vue'
@@ -375,7 +375,6 @@ import ComponentForm from '../components/ComponentForm.vue'
 import BarcodeScanner from '../components/BarcodeScanner.vue'
 
 const route = useRoute()
-const router = useRouter()
 const $q = useQuasar()
 
 // Reactive data

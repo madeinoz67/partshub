@@ -114,7 +114,7 @@ const deleteComponent = (component: Component) => {
   showDeleteDialog.value = true
 }
 
-const onComponentSaved = (component: Component) => {
+const onComponentSaved = (_component: Component) => {
   $q.notify({
     type: 'positive',
     message: isEditMode.value ? 'Component updated successfully' : 'Component created successfully',

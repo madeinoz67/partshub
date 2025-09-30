@@ -51,13 +51,15 @@
         <q-card-section class="symbol-display">
           <div ref="svgContainer" class="svg-container">
             <!-- SVG will be dynamically inserted here -->
-            <div v-if="!svgContent" class="svg-placeholder">
+            <div v-if="!sanitizedSvgContent" class="svg-placeholder">
               <q-icon name="code" size="3em" color="grey-5" />
               <div class="text-body2 text-grey q-mt-sm">
                 Symbol visualization will appear here
               </div>
             </div>
-            <div v-else class="symbol-svg" v-html="svgContent"></div>
+            <!-- eslint-disable vue/no-v-html -->
+            <div v-else class="symbol-svg" v-html="sanitizedSvgContent"></div>
+            <!-- eslint-enable vue/no-v-html -->
           </div>
         </q-card-section>
       </q-card>
@@ -74,12 +76,12 @@
             :pagination="{ rowsPerPage: 10 }"
             class="pin-table"
           >
-            <template #body-cell-pin_type="props">
-              <q-td :props="props">
+            <template #body-cell-pin_type="slotProps">
+              <q-td :props="slotProps">
                 <q-chip
-                  :color="getPinTypeColor(props.value)"
+                  :color="getPinTypeColor(slotProps.value)"
                   text-color="white"
-                  :label="props.value"
+                  :label="slotProps.value"
                   size="sm"
                 />
               </q-td>
@@ -111,25 +113,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { api } from '../boot/axios'
+import { sanitizeSvgContent } from '../utils/htmlSanitizer'
+import type { KiCadSymbolData, KiCadPin } from '../types/kicad'
 
 interface Props {
   componentId: string
 }
 
-interface KiCadSymbolData {
-  symbol_library: string
-  symbol_name: string
-  symbol_reference: string
-  symbol_data?: Record<string, any>
-}
+// Using KiCadSymbolData from types/kicad.ts
 
-interface PinData {
-  number: string
-  name: string
-  pin_type: string
-  electrical_type?: string
-  position?: { x: number; y: number }
-}
 
 const props = defineProps<Props>()
 
@@ -144,13 +136,19 @@ const svgContainer = ref<HTMLElement>()
 const pinData = computed(() => {
   if (!symbolData.value?.symbol_data?.pins) return []
 
-  return Object.entries(symbolData.value.symbol_data.pins).map(([number, pinInfo]: [string, any]) => ({
+  return Object.entries(symbolData.value.symbol_data.pins).map(([number, pinInfo]: [string, KiCadPin]) => ({
     number,
     name: pinInfo.name || '',
     pin_type: pinInfo.type || 'passive',
     electrical_type: pinInfo.electrical_type || '',
     position: pinInfo.position
   }))
+})
+
+// Sanitized SVG content for safe rendering
+const sanitizedSvgContent = computed(() => {
+  if (!svgContent.value) return ''
+  return sanitizeSvgContent(svgContent.value)
 })
 
 const pinColumns = [
@@ -196,11 +194,14 @@ const fetchSymbolData = async () => {
 
     // Generate SVG visualization
     generateSymbolSVG()
-  } catch (err: any) {
-    if (err.response?.status === 404) {
+  } catch (err: unknown) {
+    const hasResponse = typeof err === 'object' && err !== null && 'response' in err
+    const response = hasResponse ? (err as { response?: { status?: number; data?: { detail?: string } } }).response : undefined
+    if (response?.status === 404) {
       error.value = null // No symbol data is not an error, just show no-data state
     } else {
-      error.value = err.response?.data?.detail || 'Failed to load symbol data'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load symbol data'
+      error.value = response?.data?.detail || errorMessage
     }
   } finally {
     loading.value = false
@@ -215,7 +216,6 @@ const generateSymbolSVG = () => {
   const pinCount = pins.length
 
   // Calculate optimal dimensions based on pin count
-  const minWidth = 400
   const minHeight = 300
   const pinSpacing = 25
   const symbolPadding = 60
@@ -402,7 +402,7 @@ const formatPropertyKey = (key: string) => {
   return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
-const formatPropertyValue = (value: any) => {
+const formatPropertyValue = (value: unknown) => {
   if (typeof value === 'object') {
     return JSON.stringify(value, null, 2)
   }

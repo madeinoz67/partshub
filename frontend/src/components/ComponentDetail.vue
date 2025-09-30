@@ -457,28 +457,28 @@
               flat
               :pagination="{ rowsPerPage: 10 }"
             >
-              <template #body-cell-transaction_type="props">
-                <q-td :props="props">
+              <template #body-cell-transaction_type="slotProps">
+                <q-td :props="slotProps">
                   <q-chip
-                    :color="getTransactionColor(props.row.transaction_type)"
+                    :color="getTransactionColor(slotProps.row.transaction_type)"
                     text-color="white"
-                    :label="props.row.transaction_type.toUpperCase()"
+                    :label="slotProps.row.transaction_type.toUpperCase()"
                     size="sm"
                   />
                 </q-td>
               </template>
 
-              <template #body-cell-quantity_change="props">
-                <q-td :props="props">
-                  <span :class="props.row.quantity_change > 0 ? 'text-positive' : 'text-negative'">
-                    {{ props.row.quantity_change > 0 ? '+' : '' }}{{ props.row.quantity_change }}
+              <template #body-cell-quantity_change="slotProps">
+                <q-td :props="slotProps">
+                  <span :class="slotProps.row.quantity_change > 0 ? 'text-positive' : 'text-negative'">
+                    {{ slotProps.row.quantity_change > 0 ? '+' : '' }}{{ slotProps.row.quantity_change }}
                   </span>
                 </q-td>
               </template>
 
-              <template #body-cell-created_at="props">
-                <q-td :props="props">
-                  {{ formatDate(props.row.created_at) }}
+              <template #body-cell-created_at="slotProps">
+                <q-td :props="slotProps">
+                  {{ formatDate(slotProps.row.created_at) }}
                 </q-td>
               </template>
             </q-table>
@@ -528,19 +528,19 @@
                     :pagination="{ rowsPerPage: 10 }"
                     dense
                   >
-                    <template #body-cell-quantity_change="props">
-                      <q-td :props="props">
+                    <template #body-cell-quantity_change="slotProps">
+                      <q-td :props="slotProps">
                         <q-chip
-                          :color="props.value > 0 ? 'positive' : 'negative'"
+                          :color="slotProps.value > 0 ? 'positive' : 'negative'"
                           text-color="white"
-                          :label="props.value > 0 ? `+${props.value}` : props.value"
+                          :label="slotProps.value > 0 ? `+${slotProps.value}` : slotProps.value"
                           size="sm"
                         />
                       </q-td>
                     </template>
-                    <template #body-cell-created_at="props">
-                      <q-td :props="props">
-                        {{ formatDate(props.value) }}
+                    <template #body-cell-created_at="slotProps">
+                      <q-td :props="slotProps">
+                        {{ formatDate(slotProps.value) }}
                       </q-td>
                     </template>
                   </q-table>
@@ -730,7 +730,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const emit = defineEmits<{
+defineEmits<{
   'edit-component': [component: Component]
   'update-stock': [component: Component]
 }>()
@@ -814,7 +814,7 @@ const getTransactionColor = (type: string) => {
   }
 }
 
-const formatSpecValue = (value: any) => {
+const formatSpecValue = (value: unknown) => {
   if (typeof value === 'object') {
     return JSON.stringify(value)
   }
@@ -894,7 +894,7 @@ const generateKiCadData = async () => {
   }
 }
 
-const onKiCadFileUploadSuccess = async (data: any) => {
+const onKiCadFileUploadSuccess = async (_data: unknown) => {
   // Refresh component data to show updated KiCad information
   if (component.value) {
     await componentsStore.fetchComponent(component.value.id)
@@ -908,16 +908,14 @@ const onKiCadSourceUpdated = async () => {
   }
 }
 
-const downloadAttachment = (attachment: any) => {
-  console.log('Download attachment:', attachment.filename)
-}
+// Attachment download logic moved to template handlers
 
-const onAttachmentUpdated = (attachment: any) => {
+const onAttachmentUpdated = (attachment: unknown) => {
   // Optionally refresh component data or handle updated attachment
   console.log('Attachment updated:', attachment)
 }
 
-const onAttachmentDeleted = (attachment: any) => {
+const onAttachmentDeleted = (attachment: unknown) => {
   // Optionally refresh component data or handle deleted attachment
   console.log('Attachment deleted:', attachment)
 }

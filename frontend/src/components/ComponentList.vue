@@ -1095,18 +1095,31 @@ import FileUpload from './FileUpload.vue'
 import BarcodeScanner from './BarcodeScanner.vue'
 import { api } from '../boot/axios'
 import type { Component } from '../services/api'
+import type { ComponentAttachment } from '../types/componentList'
+
+interface ScanResult {
+  data: string
+  format: string
+  timestamp: Date
+}
+
+interface ExpandableRowProps {
+  row: Component
+  expand: boolean
+}
 
 // Component props
 interface Props {
   embedded?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+// Props are referenced in template
+withDefaults(defineProps<Props>(), {
   embedded: false
 })
 
-// Component emits
-const emit = defineEmits<{
+// Component emits are used by event handlers
+defineEmits<{
   'create-component': []
   'view-component': [component: Component]
   'edit-component': [component: Component]
@@ -1123,11 +1136,6 @@ const {
   loading,
   error,
   totalComponents,
-  currentPage,
-  totalPages,
-  itemsPerPage,
-  lowStockComponents,
-  outOfStockComponents,
   totalLowStock,
   totalOutOfStock,
   totalAvailable
@@ -1137,11 +1145,10 @@ const {
 const searchQuery = ref('')
 const selectedCategory = ref('')
 const activeFilter = ref('all')
-const sortBy = ref('updated_at')
-const sortOrder = ref<'asc' | 'desc'>('desc')
+// Sorting is handled by store filters
 const expanded = ref<string[]>([])
 const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
-const detailedAttachments = ref<Record<string, any[]>>({})
+const detailedAttachments = ref<Record<string, unknown[]>>({})
 const barcodeScannerRef = ref()
 const showBarcodeScanner = ref(false)
 
@@ -1238,12 +1245,7 @@ const categoryOptions = computed(() => {
   }))
 })
 
-const stockDropdownOptions = computed(() => [
-  { label: `All Components (${totalComponents.value})`, value: 'all' },
-  { label: `Low Stock (${totalLowStock.value})`, value: 'low' },
-  { label: `Out of Stock (${totalOutOfStock.value})`, value: 'out' },
-  { label: `Available (${totalAvailable.value})`, value: 'available' }
-])
+// Stock dropdown options computed from store metrics (currently unused)
 
 // Methods
 const getStockStatusColor = (component: Component) => {
@@ -1252,7 +1254,7 @@ const getStockStatusColor = (component: Component) => {
   return 'positive'
 }
 
-const getAttachmentIcons = (attachments: any[] = []) => {
+const getAttachmentIcons = (attachments: unknown[] = []) => {
   if (!attachments || attachments.length === 0) return []
 
   const icons = []
@@ -1324,24 +1326,13 @@ const filterByStatus = (status: 'all' | 'low' | 'out' | 'available') => {
   }
 }
 
-const onStockFilterChange = (status: 'all' | 'low' | 'out' | 'available') => {
-  filterByStatus(status)
-}
+// Stock filtering handled by store methods
 
 // Client-side table with no server-side requests needed for sorting
 
-const getAttachmentIcon = (attachment: any) => {
-  const filename = attachment.filename?.toLowerCase() || ''
-  if (filename.includes('.pdf') || attachment.attachment_type === 'datasheet') {
-    return 'picture_as_pdf'
-  }
-  if (filename.match(/\.(jpg|jpeg|png|gif|webp)$/i) || attachment.attachment_type === 'image') {
-    return 'image'
-  }
-  return 'description'
-}
+// Attachment icon logic moved to inline expressions
 
-const downloadAttachment = (attachment: any) => {
+const downloadAttachment = (attachment: ComponentAttachment) => {
   // This would typically trigger a download
   console.log('Download attachment:', attachment.filename)
   // emit('download-attachment', attachment) // Could emit to parent if needed
@@ -1359,7 +1350,7 @@ const getDetailedAttachments = (componentId: string) => {
   return detailedAttachments.value[componentId] || []
 }
 
-const getImageAttachments = (componentId: string, basicAttachments?: any[]) => {
+const getImageAttachments = (componentId: string, basicAttachments?: ComponentAttachment[]) => {
   const detailed = getDetailedAttachments(componentId)
 
   // If we don't have detailed attachments, fetch them now
@@ -1395,7 +1386,7 @@ const getImageAttachments = (componentId: string, basicAttachments?: any[]) => {
   )
 }
 
-const getDatasheetAttachments = (componentId: string, basicAttachments?: any[]) => {
+const getDatasheetAttachments = (componentId: string, basicAttachments?: ComponentAttachment[]) => {
   const detailed = getDetailedAttachments(componentId)
   const attachments = detailed.length > 0 ? detailed : (basicAttachments || [])
   return attachments.filter(att =>
@@ -1404,7 +1395,7 @@ const getDatasheetAttachments = (componentId: string, basicAttachments?: any[]) 
   )
 }
 
-const getOtherAttachments = (attachments: any[]) => {
+const getOtherAttachments = (attachments: ComponentAttachment[]) => {
   return attachments.filter(att => {
     const isImage = att.filename?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i) || att.attachment_type === 'image'
     const isDatasheet = att.filename?.toLowerCase().includes('.pdf') || att.attachment_type === 'datasheet'
@@ -1412,7 +1403,7 @@ const getOtherAttachments = (attachments: any[]) => {
   })
 }
 
-const getPrimaryImage = (componentId: string, basicAttachments?: any[]) => {
+const getPrimaryImage = (componentId: string, basicAttachments?: ComponentAttachment[]) => {
   const detailed = getDetailedAttachments(componentId)
   const attachments = detailed.length > 0 ? detailed : (basicAttachments || [])
 
@@ -1464,10 +1455,6 @@ const getThumbnailUrl = (attachmentId: string, componentId: string) => {
   return `http://localhost:8000/api/v1/components/${componentId}/attachments/${attachmentId}/thumbnail`
 }
 
-const handleImageError = (image: any) => {
-  // Set error flag on the image object to trigger Vue's reactivity
-  image.hasError = true
-}
 
 // Barcode scanner functions
 const openBarcodeScanner = () => {
@@ -1488,7 +1475,7 @@ const closeBarcodeScanner = () => {
   showBarcodeScanner.value = false
 }
 
-const handleBarcodeScanned = (scanResult: any) => {
+const handleBarcodeScanned = (scanResult: ScanResult) => {
   if (scanResult && scanResult.data) {
     // Set the search query from barcode
     searchQuery.value = scanResult.data
@@ -1505,7 +1492,7 @@ const handleBarcodeScanned = (scanResult: any) => {
   })
 }
 
-const toggleExpand = async (props: any) => {
+const toggleExpand = async (props: ExpandableRowProps) => {
   console.log('Toggle expand called for component:', props.row.id, 'current expand state:', props.expand)
   props.expand = !props.expand
   console.log('New expand state:', props.expand)
@@ -1537,7 +1524,7 @@ const fetchDetailedAttachments = async (componentId: string) => {
   }
 }
 
-const viewImage = (image: any) => {
+const viewImage = (image: ComponentAttachment) => {
   // This would typically open an image viewer/lightbox
   console.log('View image:', image.filename)
   // For now, just download it
@@ -1545,7 +1532,7 @@ const viewImage = (image: any) => {
 }
 
 
-const onRowClick = (evt: Event, row: Component) => {
+const onRowClick = (_evt: Event, _row: Component) => {
   // Don't navigate to detail page on row click when we have expandable rows
   // User can click "View Full Details" button instead
 }
@@ -1554,7 +1541,7 @@ const clearError = () => {
   componentsStore.clearError()
 }
 
-const handleUploadSuccess = async (data: any) => {
+const handleUploadSuccess = async (data: unknown) => {
   // Refresh the component data to show newly uploaded files
   await componentsStore.fetchComponents()
 
@@ -1564,7 +1551,7 @@ const handleUploadSuccess = async (data: any) => {
   }
 }
 
-const confirmDeleteAttachment = (attachment: any, componentId: string) => {
+const confirmDeleteAttachment = (attachment: ComponentAttachment, componentId: string) => {
   // Use Quasar's Dialog plugin for confirmation
   $q.dialog({
     title: 'Delete Attachment',
@@ -1577,7 +1564,7 @@ const confirmDeleteAttachment = (attachment: any, componentId: string) => {
   })
 }
 
-const deleteAttachment = async (attachment: any, componentId: string) => {
+const deleteAttachment = async (attachment: ComponentAttachment, componentId: string) => {
   try {
     await api.delete(`/api/v1/components/${componentId}/attachments/${attachment.id}`)
 

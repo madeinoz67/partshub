@@ -310,7 +310,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import api, { APIService } from '../services/api'
+import api from '../services/api'
 
 interface ReportType {
   label: string
@@ -318,9 +318,105 @@ interface ReportType {
   timeRangeEnabled?: boolean
 }
 
+// Report data structure interfaces
+interface ComponentStatistics {
+  total_components: number
+  total_value: number
+  low_stock_count: number
+  categories_count: number
+  unique_parts: number
+}
+
+interface ProjectStatistics {
+  total_projects: number
+  active_projects: number
+  completed_projects: number
+  total_allocated_value: number
+}
+
+interface ActivityStatistics {
+  recent_transactions: number
+  components_moved: number
+  most_active_period: string
+}
+
+interface TransactionSummary {
+  total_transactions: number
+  components_moved: number
+  most_active_day: string
+  avg_per_day: number
+}
+
+interface ComponentAllocation {
+  total_allocated: number
+  total_value: number
+  active_projects: number
+}
+
+interface Summary {
+  total_inventory_value: number
+  average_component_value: number
+  total_components: number
+  unique_components: number
+}
+
+interface CategoryData {
+  category: string
+  total_value: number
+  component_count: number
+}
+
+interface LocationData {
+  location: string
+  component_count: number
+  total_value: number
+}
+
+interface ComponentData {
+  name: string
+  part_number: string
+  usage_count: number
+  total_value: number
+}
+
+interface DashboardStats {
+  [key: string]: {
+    icon: string
+    color: string
+    value: string
+    label: string
+  }
+}
+
+interface ReportData {
+  // Dashboard specific data
+  component_statistics?: ComponentStatistics
+  project_statistics?: ProjectStatistics
+  activity_statistics?: ActivityStatistics
+
+  // Inventory specific data
+  by_category?: CategoryData[]
+  by_location?: LocationData[]
+  by_type?: Array<{ type: string; count: number; value: number }>
+  most_used_components?: ComponentData[]
+  top_value_components?: ComponentData[]
+  summary?: Summary
+
+  // Activity specific data
+  transaction_summary?: TransactionSummary
+
+  // Project specific data
+  project_status_distribution?: Array<{ status: string; count: number; percentage: number }>
+  component_allocation?: ComponentAllocation
+
+  // System specific data
+  data_quality?: Record<string, number>
+  database_statistics?: Record<string, string | number | boolean>
+}
+
 const loading = ref(false)
 const error = ref<string | null>(null)
-const reportData = ref<any>(null)
+const reportData = ref<ReportData | null>(null)
 
 const selectedReportType = ref<ReportType>({
   label: 'Dashboard Summary',
@@ -395,7 +491,7 @@ const systemColumns = [
 const dashboardStats = computed(() => {
   if (!reportData.value || selectedReportType.value.value !== 'dashboard') return {}
 
-  const stats: any = {}
+  const stats: DashboardStats = {}
 
   if (reportData.value.component_statistics) {
     const cs = reportData.value.component_statistics
@@ -475,8 +571,11 @@ async function loadReportData() {
     }
 
     reportData.value = response.data
-  } catch (err: any) {
-    error.value = err.response?.data?.detail || err.message || 'Failed to load report data'
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to load report data'
+    const hasResponse = typeof err === 'object' && err !== null && 'response' in err
+    const apiError = hasResponse ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail : undefined
+    error.value = apiError || errorMessage
     console.error('Failed to load report data:', err)
   } finally {
     loading.value = false
@@ -522,7 +621,7 @@ async function exportReport() {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Failed to export report:', err)
   }
 }

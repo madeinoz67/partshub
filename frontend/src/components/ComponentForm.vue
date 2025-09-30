@@ -526,14 +526,14 @@ const onSubmit = async () => {
         acc[spec.key.trim()] = spec.value.trim()
       }
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, string>)
 
     const fieldsObject = customFields.value.reduce((acc, field) => {
       if (field.key.trim() && field.value.trim()) {
         acc[field.key.trim()] = field.value.trim()
       }
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, string>)
 
     const componentData = {
       ...form.value,

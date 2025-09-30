@@ -220,7 +220,7 @@ const loadTags = async () => {
   }
 }
 
-const filterTags = (val: string, update: Function) => {
+const filterTags = (val: string, update: (callback: () => void) => void) => {
   searchQuery.value = val
 
   update(() => {
@@ -292,7 +292,7 @@ const cancelCreateTag = () => {
 }
 
 // Watch for changes in selected tags to handle the create option
-watch(selectedTags, (newTags, oldTags) => {
+watch(selectedTags, (newTags, _oldTags) => {
   const createOptions = newTags.filter(tagId => typeof tagId === 'string' && tagId.startsWith('create:'))
   if (createOptions.length > 0) {
     const createOption = createOptions[0]

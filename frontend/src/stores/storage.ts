@@ -71,8 +71,9 @@ export const useStorageStore = defineStore('storage', () => {
         ...params,
         limit: 200 // Get all locations for hierarchy
       })
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch storage locations'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch storage locations'
+      error.value = errorMessage
       console.error('Error fetching storage locations:', err)
     } finally {
       loading.value = false
@@ -92,8 +93,9 @@ export const useStorageStore = defineStore('storage', () => {
 
     try {
       currentLocation.value = await APIService.getStorageLocation(id, options)
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch storage location'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch storage location'
+      error.value = errorMessage
       console.error('Error fetching storage location:', err)
     } finally {
       loading.value = false
@@ -108,8 +110,9 @@ export const useStorageStore = defineStore('storage', () => {
       const newLocation = await APIService.createStorageLocation(data)
       locations.value.push(newLocation)
       return newLocation
-    } catch (err: any) {
-      error.value = err.message || 'Failed to create storage location'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create storage location'
+      error.value = errorMessage
       console.error('Error creating storage location:', err)
       throw err
     } finally {
@@ -136,8 +139,9 @@ export const useStorageStore = defineStore('storage', () => {
       }
 
       return updatedLocation
-    } catch (err: any) {
-      error.value = err.message || 'Failed to update storage location'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update storage location'
+      error.value = errorMessage
       console.error('Error updating storage location:', err)
       throw err
     } finally {
@@ -160,8 +164,9 @@ export const useStorageStore = defineStore('storage', () => {
       // Add to existing locations
       locations.value.push(...newLocations)
       return newLocations
-    } catch (err: any) {
-      error.value = err.message || 'Failed to create storage locations'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create storage locations'
+      error.value = errorMessage
       console.error('Error creating storage locations:', err)
       throw err
     } finally {
@@ -188,8 +193,9 @@ export const useStorageStore = defineStore('storage', () => {
 
     try {
       locationComponents.value = await APIService.getLocationComponents(id, params)
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch location components'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch location components'
+      error.value = errorMessage
       console.error('Error fetching location components:', err)
     } finally {
       loading.value = false

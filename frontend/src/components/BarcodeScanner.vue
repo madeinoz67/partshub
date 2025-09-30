@@ -204,6 +204,7 @@
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import api from '../services/api'
+import type { BarcodeDetector } from '../types'
 
 interface ScanResult {
   data: string
@@ -229,6 +230,7 @@ interface Emits {
   (e: 'scan-result', result: ScanResult): void
   (e: 'component-selected', component: Component): void
   (e: 'create-component', barcode: string): void
+  (e: 'close-scanner'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -295,7 +297,7 @@ let mediaStream: MediaStream | null = null
 let scanningInterval: NodeJS.Timeout | null = null
 
 // BarcodeDetector API (if available)
-let barcodeDetector: any = null
+let barcodeDetector: BarcodeDetector | null = null
 
 // Exposed methods
 defineExpose({
@@ -308,7 +310,7 @@ onMounted(() => {
   const saved = localStorage.getItem('barcode-scan-history')
   if (saved) {
     try {
-      scanHistory.value = JSON.parse(saved).map((item: any) => ({
+      scanHistory.value = JSON.parse(saved).map((item: { data: string; format: string; timestamp: string }) => ({
         ...item,
         timestamp: new Date(item.timestamp)
       }))
@@ -320,7 +322,7 @@ onMounted(() => {
   // Check for Barcode Detection API support
   if ('BarcodeDetector' in window) {
     try {
-      barcodeDetector = new (window as any).BarcodeDetector({
+      barcodeDetector = new (window as typeof window & { BarcodeDetector: new (options?: { formats: string[] }) => BarcodeDetector }).BarcodeDetector({
         formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix']
       })
       console.log('✅ BarcodeDetector initialized successfully')
@@ -458,7 +460,7 @@ async function startCamera() {
       console.error('Video play error:', playError)
       cameraError.value = `Failed to start video: ${playError.message}`
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Camera access error:', error)
 
     if (error.name === 'NotAllowedError') {
@@ -466,7 +468,8 @@ async function startCamera() {
     } else if (error.name === 'NotFoundError') {
       cameraError.value = 'No camera found. Please connect a camera and try again.'
     } else {
-      cameraError.value = `Camera error: ${error.message}`
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      cameraError.value = `Camera error: ${errorMessage}`
     }
   }
 }
@@ -548,7 +551,7 @@ async function detectBarcode() {
   }
 }
 
-function detectSimplePattern(imageData: ImageData): ScanResult | null {
+function detectSimplePattern(_imageData: ImageData): ScanResult | null {
   // This is a very basic pattern detection for demonstration
   // In a real implementation, you'd use a proper barcode detection library
 
