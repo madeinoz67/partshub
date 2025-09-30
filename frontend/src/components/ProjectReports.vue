@@ -154,8 +154,8 @@ interface Props {
   projectId?: string
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
+defineProps<Props>()
+defineEmits<{
   close: []
 }>()
 const $q = useQuasar()

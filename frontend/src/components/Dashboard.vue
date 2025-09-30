@@ -348,11 +348,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+// Router import removed - not currently used
 import { useQuasar } from 'quasar'
 import { api } from '../services/api'
 
-const router = useRouter()
+// Router available for future navigation needs
 const $q = useQuasar()
 
 // Reactive data

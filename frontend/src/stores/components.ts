@@ -80,8 +80,9 @@ export const useComponentsStore = defineStore('components', () => {
       currentPage.value = response.page
       totalPages.value = response.total_pages
 
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch components'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch components'
+      error.value = errorMessage
       console.error('Error fetching components:', err)
     } finally {
       loading.value = false
@@ -94,8 +95,9 @@ export const useComponentsStore = defineStore('components', () => {
 
     try {
       currentComponent.value = await APIService.getComponent(id)
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch component'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch component'
+      error.value = errorMessage
       console.error('Error fetching component:', err)
     } finally {
       loading.value = false
@@ -111,8 +113,9 @@ export const useComponentsStore = defineStore('components', () => {
       components.value.push(newComponent)
       totalComponents.value += 1
       return newComponent
-    } catch (err: any) {
-      error.value = err.message || 'Failed to create component'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create component'
+      error.value = errorMessage
       console.error('Error creating component:', err)
       throw err
     } finally {
@@ -139,8 +142,9 @@ export const useComponentsStore = defineStore('components', () => {
       }
 
       return updatedComponent
-    } catch (err: any) {
-      error.value = err.message || 'Failed to update component'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update component'
+      error.value = errorMessage
       console.error('Error updating component:', err)
       throw err
     } finally {
@@ -164,8 +168,9 @@ export const useComponentsStore = defineStore('components', () => {
         currentComponent.value = null
       }
 
-    } catch (err: any) {
-      error.value = err.message || 'Failed to delete component'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete component'
+      error.value = errorMessage
       console.error('Error deleting component:', err)
       throw err
     } finally {
@@ -199,8 +204,9 @@ export const useComponentsStore = defineStore('components', () => {
       }
 
       return stockTransaction
-    } catch (err: any) {
-      error.value = err.message || 'Failed to update stock'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update stock'
+      error.value = errorMessage
       console.error('Error updating stock:', err)
       throw err
     } finally {
@@ -214,8 +220,9 @@ export const useComponentsStore = defineStore('components', () => {
 
     try {
       stockHistory.value = await APIService.getStockHistory(id, limit)
-    } catch (err: any) {
-      error.value = err.message || 'Failed to fetch stock history'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch stock history'
+      error.value = errorMessage
       console.error('Error fetching stock history:', err)
     } finally {
       loading.value = false
@@ -289,7 +296,7 @@ export const useComponentsStore = defineStore('components', () => {
       totalComponents.value = totalResponse.total
       totalAvailable.value = totalResponse.total - outOfStockResponse.total
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching metrics:', err)
     }
   }

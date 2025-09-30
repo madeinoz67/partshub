@@ -138,8 +138,8 @@ const changePassword = async () => {
     } else {
       error.value = authStore.error || 'Failed to change password'
     }
-  } catch (err: any) {
-    error.value = err.message || 'Failed to change password'
+  } catch (err: unknown) {
+    error.value = err instanceof Error ? err.message : 'Failed to change password'
   } finally {
     isChanging.value = false
   }

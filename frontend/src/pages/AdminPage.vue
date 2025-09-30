@@ -1346,7 +1346,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import api, { APIService } from '../services/api'
+import api from '../services/api'
 import UserForm from '../components/UserForm.vue'
 import CategoryForm from '../components/CategoryForm.vue'
 
@@ -1365,7 +1365,6 @@ const loadingTokens = ref(false)
 const showCreateUserDialog = ref(false)
 const showEditUserDialog = ref(false)
 const showCreateTokenDialog = ref(false)
-const showTokenCreatedDialog = ref(false)
 const showDeleteTokenDialog = ref(false)
 const showKicadSyncDialog = ref(false)
 const selectedUser = ref(null)
@@ -1393,10 +1392,6 @@ const cleaningData = ref(false)
 const databaseSize = ref(0)
 const lastBackupDate = ref(null)
 
-// API Token creation state
-const newToken = ref({ name: '', description: '', expires_in_days: null })
-const createdToken = ref(null)
-const createdTokenValue = ref('')
 
 // Category Management state
 const categories = ref([])
@@ -1845,68 +1840,13 @@ const getProjectStatusColor = (status) => {
   return colors[status] || 'grey'
 }
 
-// API Token helper methods
-const loadApiTokens = async () => {
-  loadingTokens.value = true
-  try {
-    const response = await api.get('/auth/api-tokens')
-    apiTokens.value = response.data
-  } catch (error) {
-    console.error('Failed to load API tokens:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load API tokens'
-    })
-  }
-  loadingTokens.value = false
-}
 
-const createApiToken = async () => {
-  try {
-    const response = await api.post('/auth/api-tokens', newToken.value)
-    createdToken.value = response.data
-    createdTokenValue.value = response.data.token
-    showTokenCreatedDialog.value = true
-    showCreateTokenDialog.value = false
-    newToken.value = { name: '', description: '', expires_in_days: null }
-    await loadApiTokens()
-    $q.notify({
-      type: 'positive',
-      message: 'API token created successfully'
-    })
-  } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to create API token',
-      caption: error.response?.data?.detail || error.message
-    })
-  }
-}
 
 const confirmDeleteToken = (token) => {
   selectedToken.value = token
   showDeleteTokenDialog.value = true
 }
 
-const deleteToken = async () => {
-  if (!selectedToken.value) return
-
-  try {
-    await api.delete(`/auth/api-tokens/${selectedToken.value.id}`)
-    showDeleteTokenDialog.value = false
-    selectedToken.value = null
-    await loadApiTokens()
-    $q.notify({
-      type: 'positive',
-      message: 'API token revoked successfully'
-    })
-  } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to revoke token'
-    })
-  }
-}
 
 const getTokenStatusColor = (token) => {
   if (!token.is_active) return 'negative'

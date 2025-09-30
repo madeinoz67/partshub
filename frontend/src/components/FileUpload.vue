@@ -182,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from '../boot/axios'
 
@@ -248,11 +248,11 @@ const attachmentTypeOptions = [
 ]
 
 // Methods
-const onDragEnter = (e) => {
+const onDragEnter = (_e) => {
   isDragActive.value = true
 }
 
-const onDragOver = (e) => {
+const onDragOver = (_e) => {
   isDragActive.value = true
 }
 

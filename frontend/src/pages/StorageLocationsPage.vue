@@ -129,7 +129,7 @@
                   </q-td>
                 </template>
 
-                <template #no-data="{ message }">
+                <template #no-data>
                   <div class="full-width row flex-center q-gutter-sm">
                     <q-icon size="2em" name="inventory_2" />
                     <span>No components in this location</span>
@@ -186,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { storeToRefs } from 'pinia'
 import StorageLocationTree from '../components/StorageLocationTree.vue'
@@ -323,7 +323,7 @@ const deleteLocation = (location: StorageLocation) => {
   showDeleteDialog.value = true
 }
 
-const onLocationSaved = (location: StorageLocation) => {
+const onLocationSaved = (_location: StorageLocation) => {
   $q.notify({
     type: 'positive',
     message: isEditMode.value ? 'Location updated successfully' : 'Location created successfully',

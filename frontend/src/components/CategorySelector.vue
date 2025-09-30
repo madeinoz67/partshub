@@ -82,7 +82,7 @@
       </q-item>
     </template>
 
-    <template v-if="selectedCategoryData" #selected-item="scope">
+    <template v-if="selectedCategoryData" #selected-item>
       <div class="row items-center q-gutter-xs no-wrap">
         <q-icon
           v-if="selectedCategoryData.icon"

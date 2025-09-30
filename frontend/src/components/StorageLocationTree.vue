@@ -240,6 +240,12 @@ import { useStorageStore } from '../stores/storage'
 import BarcodeScanner from './BarcodeScanner.vue'
 import type { StorageLocation } from '../services/api'
 
+interface ScanResult {
+  data: string
+  format: string
+  timestamp: Date
+}
+
 interface TreeNode {
   id: string
   label: string
@@ -334,7 +340,7 @@ const onLocationSelected = (locationId: string | null) => {
   emit('location-selected', location)
 }
 
-const onSearch = (query: string) => {
+const onSearch = (_query: string) => {
   // The q-tree component handles filtering internally
   // We just need to update the searchQuery ref
 }
@@ -365,7 +371,7 @@ const closeBarcodeScanner = () => {
   showBarcodeScanner.value = false
 }
 
-const handleBarcodeScanned = (scanResult: any) => {
+const handleBarcodeScanned = (scanResult: ScanResult) => {
   if (scanResult && scanResult.data) {
     // Set the search query from barcode
     searchQuery.value = scanResult.data

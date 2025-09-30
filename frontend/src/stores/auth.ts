@@ -70,9 +70,12 @@ export const useAuthStore = defineStore('auth', () => {
       await fetchCurrentUser()
 
       return true
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err)
-      error.value = err.response?.data?.detail || 'Login failed'
+      const errorMessage = err instanceof Error && 'response' in err
+        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+        : undefined
+      error.value = errorMessage || 'Login failed'
       return false
     } finally {
       isLoading.value = false
@@ -90,9 +93,12 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       user.value = await APIService.getCurrentUser()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch user:', err)
-      if (err.response?.status === 401) {
+      const response = err instanceof Error && 'response' in err
+        ? (err as { response?: { status?: number } }).response
+        : undefined
+      if (response?.status === 401) {
         await logout()
       }
     }
@@ -109,9 +115,12 @@ export const useAuthStore = defineStore('auth', () => {
       await fetchCurrentUser()
 
       return true
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Password change error:', err)
-      error.value = err.response?.data?.detail || 'Failed to change password'
+      const errorMessage = err instanceof Error && 'response' in err
+        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+        : undefined
+      error.value = errorMessage || 'Failed to change password'
       return false
     } finally {
       isLoading.value = false
@@ -122,7 +131,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function getAPITokens(): Promise<APIToken[]> {
     try {
       return await APIService.getAPITokens()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch API tokens:', err)
       throw err
     }
@@ -131,7 +140,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function createAPIToken(data: CreateAPITokenRequest): Promise<APITokenCreated> {
     try {
       return await APIService.createAPIToken(data)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to create API token:', err)
       throw err
     }
@@ -140,7 +149,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function revokeAPIToken(tokenId: string): Promise<void> {
     try {
       await APIService.revokeAPIToken(tokenId)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to revoke API token:', err)
       throw err
     }

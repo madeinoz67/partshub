@@ -385,9 +385,12 @@ async function loadTokens() {
 
   try {
     tokens.value = await authStore.getAPITokens()
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Failed to load tokens:', err)
-    error.value = err.response?.data?.detail || 'Failed to load tokens'
+    const errorMessage = err instanceof Error && 'response' in err
+      ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+      : undefined
+    error.value = errorMessage || 'Failed to load tokens'
     $q.notify({
       type: 'negative',
       message: 'Failed to load API tokens'
@@ -427,9 +430,12 @@ async function createToken() {
       type: 'positive',
       message: 'API token created successfully'
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Failed to create token:', err)
-    error.value = err.response?.data?.detail || 'Failed to create token'
+    const errorMessage = err instanceof Error && 'response' in err
+      ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+      : undefined
+    error.value = errorMessage || 'Failed to create token'
   } finally {
     isCreating.value = false
   }
@@ -497,7 +503,7 @@ async function deleteToken() {
       type: 'positive',
       message: 'API token revoked successfully'
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Failed to revoke token:', err)
     $q.notify({
       type: 'negative',
