@@ -8,6 +8,7 @@ import io
 from unittest.mock import Mock, patch
 
 from PIL import Image
+
 from backend.src.services.barcode_service import BarcodeResult, BarcodeService
 
 
@@ -216,7 +217,9 @@ class TestBarcodeService:
         """Test searching components by barcode data."""
         service = BarcodeService()
 
-        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
+        with patch(
+            "backend.src.services.barcode_service.get_session"
+        ) as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 
@@ -242,7 +245,9 @@ class TestBarcodeService:
         """Test searching components when no match found."""
         service = BarcodeService()
 
-        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
+        with patch(
+            "backend.src.services.barcode_service.get_session"
+        ) as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 
@@ -262,7 +267,9 @@ class TestBarcodeService:
         # Test structured data format: "part_number|manufacturer|description"
         barcode_data = "STM32F407VGT6|STMicroelectronics|ARM Cortex-M4 MCU"
 
-        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
+        with patch(
+            "backend.src.services.barcode_service.get_session"
+        ) as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 
@@ -338,7 +345,9 @@ class TestBarcodeService:
         img_bytes = img_buffer.getvalue()
         base64_data = base64.b64encode(img_bytes).decode("utf-8")
 
-        with patch("backend.src.services.barcode_service.get_session") as mock_get_session:
+        with patch(
+            "backend.src.services.barcode_service.get_session"
+        ) as mock_get_session:
             mock_session = Mock()
             mock_get_session.return_value.__enter__.return_value = mock_session
 

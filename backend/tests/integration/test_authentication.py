@@ -4,6 +4,7 @@ Tests user authentication, authorization, token management, and access control.
 """
 
 from fastapi.testclient import TestClient
+
 from backend.src.auth.admin import ensure_admin_exists
 
 

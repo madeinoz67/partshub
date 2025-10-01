@@ -8,6 +8,7 @@ import uuid
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from backend.src.database import Base
 from backend.src.models.category import Category
 from backend.src.models.component import Component

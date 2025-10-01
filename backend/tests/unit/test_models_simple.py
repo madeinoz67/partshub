@@ -241,7 +241,10 @@ class TestStockTransactionMethods:
 
     def test_transaction_display_description(self):
         """Test StockTransaction display_description property."""
-        from backend.src.models.stock_transaction import StockTransaction, TransactionType
+        from backend.src.models.stock_transaction import (
+            StockTransaction,
+            TransactionType,
+        )
 
         transaction = StockTransaction(
             transaction_type=TransactionType.ADD,

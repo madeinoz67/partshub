@@ -2,7 +2,6 @@
 Admin user management for PartsHub.
 """
 
-import os
 import secrets
 import stat
 import uuid
