@@ -242,34 +242,55 @@ jobs:
           # Don't use --rm so we can get logs even if container crashes
           docker run -d --name test-partshub -p 8000:8000 -p 3000:3000 partshub:test
 
-          # Wait and check if container is still running
-          sleep 10
+          # Give container initial time to start
+          echo "Waiting for container to initialize..."
+          sleep 5
 
           echo "=== Container status ==="
           docker ps -a | grep test-partshub
 
-          echo "=== Container logs ==="
-          docker logs test-partshub || echo "Failed to get logs"
-
           # Check if container is running
-          if docker ps | grep -q test-partshub; then
-            echo "=== Testing backend health ==="
-            if ! curl -f http://localhost:8000/health; then
-              echo "❌ Backend health check failed"
-              exit 1
-            fi
-            echo "✅ Backend health check passed"
-
-            echo "=== Testing frontend ==="
-            if ! curl -f http://localhost:3000; then
-              echo "❌ Frontend check failed"
-              exit 1
-            fi
-            echo "✅ Frontend check passed"
-          else
-            echo "Container is not running!"
+          if ! docker ps | grep -q test-partshub; then
+            echo "❌ Container is not running!"
+            echo "=== Container logs ==="
+            docker logs test-partshub || echo "Failed to get logs"
             exit 1
           fi
+
+          # Wait for backend to be ready (max 30s)
+          echo "=== Waiting for backend to be ready ==="
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/health 2>/dev/null; then
+              echo "✅ Backend is ready"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "❌ Backend health check failed after 30s"
+              docker logs test-partshub
+              exit 1
+            fi
+            echo "Waiting for backend... (${i}/30)"
+            sleep 1
+          done
+
+          # Wait for frontend to be ready (max 60s, frontend takes longer)
+          echo "=== Waiting for frontend to be ready ==="
+          for i in {1..60}; do
+            if curl -f http://localhost:3000 2>/dev/null; then
+              echo "✅ Frontend is ready"
+              break
+            fi
+            if [ $i -eq 60 ]; then
+              echo "❌ Frontend check failed after 60s"
+              docker logs test-partshub
+              exit 1
+            fi
+            echo "Waiting for frontend... (${i}/60)"
+            sleep 1
+          done
+
+          echo "=== Final container logs ==="
+          docker logs test-partshub | tail -50
 
           # Clean up
           docker stop test-partshub || true
