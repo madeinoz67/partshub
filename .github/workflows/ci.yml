@@ -206,14 +206,12 @@ jobs:
 
           # Check safety report for critical issues
           if [ -f safety-report.json ]; then
-            vuln_count=$(jq 'length' safety-report.json 2>/dev/null || echo 0)
+            vuln_count=$(jq '.report_meta.vulnerabilities_found // 0' safety-report.json 2>/dev/null || echo 0)
             if [ "$vuln_count" -gt 0 ]; then
               echo "❌ Python Dependencies: $vuln_count vulnerabilities found"
               echo ""
-              echo "📋 Vulnerability Details:"
-              echo "─────────────────────────────────────────────────────────"
-              jq -r '.[] | "  • \(.package_name) \(.vulnerable_spec)\n    CVE: \(.vulnerability_id // "N/A")\n    Severity: \(.severity // "Unknown")\n    Advisory: \(.advisory[0:100])...\n"' safety-report.json 2>/dev/null || echo "  Error parsing report"
-              echo "─────────────────────────────────────────────────────────"
+              echo "📋 Detailed scan output shown above in 'Run safety check' step"
+              echo "📦 Full report available in security-scan-results artifact"
               VULN_FOUND=1
             else
               echo "✅ Python Dependencies: No vulnerabilities found"
