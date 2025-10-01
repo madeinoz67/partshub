@@ -207,14 +207,23 @@ jobs:
           # Check safety report for critical issues
           if [ -f safety-report.json ]; then
             vuln_count=$(jq '.report_meta.vulnerabilities_found // 0' safety-report.json 2>/dev/null || echo 0)
-            if [ "$vuln_count" -gt 0 ]; then
-              echo "❌ Python Dependencies: $vuln_count vulnerabilities found"
+
+            # Count vulnerabilities excluding known issues with no fix
+            # ecdsa CVE-2024-23342 and PVE-2024-64396 (all versions affected)
+            fixable_count=$(jq '[.vulnerabilities[] | select(.package_name != "ecdsa")] | length' safety-report.json 2>/dev/null || echo "$vuln_count")
+            ecdsa_count=$(jq '[.vulnerabilities[] | select(.package_name == "ecdsa")] | length' safety-report.json 2>/dev/null || echo 0)
+
+            if [ "$fixable_count" -gt 0 ]; then
+              echo "❌ Python Dependencies: $fixable_count fixable vulnerabilities found"
               echo ""
               echo "📋 Detailed scan output shown above in 'Run safety check' step"
               echo "📦 Full report available in security-scan-results artifact"
               VULN_FOUND=1
             else
-              echo "✅ Python Dependencies: No vulnerabilities found"
+              echo "✅ Python Dependencies: No fixable vulnerabilities found"
+              if [ "$ecdsa_count" -gt 0 ]; then
+                echo "ℹ️  Note: $ecdsa_count known ecdsa vulnerabilities (no fix available - see SECURITY.md)"
+              fi
             fi
           fi
           echo ""
