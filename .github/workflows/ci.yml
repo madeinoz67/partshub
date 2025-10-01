@@ -254,9 +254,18 @@ jobs:
           # Check if container is running
           if docker ps | grep -q test-partshub; then
             echo "=== Testing backend health ==="
-            curl -f http://localhost:8000/health || echo "Backend health check failed"
+            if ! curl -f http://localhost:8000/health; then
+              echo "❌ Backend health check failed"
+              exit 1
+            fi
+            echo "✅ Backend health check passed"
+
             echo "=== Testing frontend ==="
-            curl -f http://localhost:3000 || echo "Frontend check failed"
+            if ! curl -f http://localhost:3000; then
+              echo "❌ Frontend check failed"
+              exit 1
+            fi
+            echo "✅ Frontend check passed"
           else
             echo "Container is not running!"
             exit 1
