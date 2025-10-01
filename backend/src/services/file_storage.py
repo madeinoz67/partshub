@@ -67,7 +67,7 @@ class FileStorageService:
         Returns:
             First 2 characters of MD5 hash
         """
-        return hashlib.md5(component_id.encode()).hexdigest()[:2]
+        return hashlib.md5(component_id.encode(), usedforsecurity=False).hexdigest()[:2]
 
     def _get_component_dir(self, component_id: str) -> Path:
         """Get component directory path with hashed structure.
@@ -118,7 +118,7 @@ class FileStorageService:
         ).strip()
         if not safe_filename:
             # Generate filename from hash if original is invalid
-            file_hash = hashlib.md5(file_content).hexdigest()[:8]
+            file_hash = hashlib.md5(file_content, usedforsecurity=False).hexdigest()[:8]
             extension = self._get_extension_from_mime(mime_type)
             safe_filename = f"{file_hash}{extension}"
 
