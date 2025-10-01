@@ -152,12 +152,10 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run safety check on Python dependencies
-        run: uv run safety check --json --output safety-report.json
-        continue-on-error: true
+        run: uv run safety check --json --output safety-report.json || true
 
       - name: Run bandit security linting
-        run: uv run bandit -r backend/src -f json -o bandit-report.json
-        continue-on-error: true
+        run: uv run bandit -r backend/src -f json -o bandit-report.json || true
 
       - name: Set up Node.js for frontend security scan
         uses: actions/setup-node@v4
