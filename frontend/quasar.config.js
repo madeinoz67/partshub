@@ -32,7 +32,7 @@ export default configure(function (ctx) {
     devServer: {
       open: true,
       port: 3000,
-      host: 'localhost'
+      host: '0.0.0.0'
     },
 
     framework: {
