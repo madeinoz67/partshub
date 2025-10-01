@@ -187,11 +187,14 @@ jobs:
 
       - name: Check for critical vulnerabilities
         run: |
+          VULN_FOUND=0
+
           # Check safety report for critical issues
           if [ -f safety-report.json ]; then
             if grep -q '"vulnerability_id"' safety-report.json; then
-              echo "⚠️  WARNING: Critical vulnerabilities found in Python dependencies"
+              echo "❌ CRITICAL: Vulnerabilities found in Python dependencies"
               echo "Review the security-scan-results artifact for details"
+              VULN_FOUND=1
             else
               echo "✅ No critical Python vulnerabilities found"
             fi
@@ -201,11 +204,20 @@ jobs:
           if [ -f frontend/npm-audit-report.json ]; then
             critical_count=$(jq '.metadata.vulnerabilities.critical // 0' frontend/npm-audit-report.json 2>/dev/null || echo 0)
             if [ "$critical_count" -gt 0 ]; then
-              echo "⚠️  WARNING: $critical_count critical vulnerabilities found in npm dependencies"
+              echo "❌ CRITICAL: $critical_count critical vulnerabilities found in npm dependencies"
               echo "Review the security-scan-results artifact for details"
+              VULN_FOUND=1
             else
               echo "✅ No critical npm vulnerabilities found"
             fi
+          fi
+
+          # Fail the build if any critical vulnerabilities were found
+          if [ "$VULN_FOUND" -eq 1 ]; then
+            echo ""
+            echo "🚨 Build failed due to critical security vulnerabilities"
+            echo "Fix these issues before merging to prevent security risks"
+            exit 1
           fi
 
   docker_build:
