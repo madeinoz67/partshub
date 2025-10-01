@@ -48,6 +48,8 @@ dev = [
     "black==23.11.0",
     "mypy==1.7.1",
     "pre-commit==3.5.0",
+    "safety>=3.0.0",
+    "bandit>=1.7.0",
 ]
 
 [tool.ruff]
