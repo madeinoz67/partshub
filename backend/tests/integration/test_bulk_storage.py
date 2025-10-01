@@ -10,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from backend.src.database import get_db
 from backend.src.main import app
 from backend.src.models import Base
@@ -22,6 +23,7 @@ class TestBulkStorageIntegration:
     def db_session(self):
         """Create a shared database session for testing"""
         from fastapi.security import HTTPAuthorizationCredentials
+
         from backend.src.auth.dependencies import get_optional_user
         from backend.src.auth.jwt_auth import get_current_user as get_user_from_token
         from backend.src.models import User

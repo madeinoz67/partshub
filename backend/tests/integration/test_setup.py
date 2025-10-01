@@ -4,6 +4,7 @@ Tests the complete flow from initial setup to adding the first component.
 """
 
 from fastapi.testclient import TestClient
+
 from backend.src.auth.admin import ensure_admin_exists
 
 

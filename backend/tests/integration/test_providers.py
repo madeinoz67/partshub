@@ -7,6 +7,7 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.src.auth.admin import ensure_admin_exists
 
 

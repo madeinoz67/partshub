@@ -9,7 +9,6 @@ If username is not provided, defaults to "admin".
 """
 
 import sys
-from pathlib import Path
 
 from src.auth.admin import reset_admin_password
 from src.database import SessionLocal
@@ -30,7 +29,7 @@ def main():
         # Reset password
         user, new_password = reset_admin_password(db, username)
 
-        print(f"\n✅ Password reset successful!")
+        print("\n✅ Password reset successful!")
         print("\n🔑 NEW ADMIN CREDENTIALS:")
         print(f"   Username: {user.username}")
         print(f"   Password: {new_password}")
