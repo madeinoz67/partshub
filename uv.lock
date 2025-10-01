@@ -1266,7 +1266,7 @@ requires-dist = [
     { name = "pyzbar", specifier = "==0.1.9" },
     { name = "requests", specifier = "==2.31.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.1.6" },
-    { name = "safety", marker = "extra == 'dev'", specifier = ">=3.0.0" },
+    { name = "safety", marker = "extra == 'dev'", specifier = ">=3.0.0,<3.3.0" },
     { name = "sqlalchemy", specifier = "==2.0.23" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.24.0" },
 ]
