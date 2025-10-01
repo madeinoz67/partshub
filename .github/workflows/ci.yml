@@ -152,10 +152,20 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run safety check on Python dependencies
-        run: uv run safety check --output json > safety-report.json || true
+        run: |
+          echo "🔍 Scanning Python dependencies for vulnerabilities..."
+          uv run safety check --output screen || true
+          echo ""
+          echo "📄 Generating JSON report..."
+          uv run safety check --output json > safety-report.json || true
 
       - name: Run bandit security linting
-        run: uv run bandit -r backend/src -f json -o bandit-report.json || true
+        run: |
+          echo "🔍 Scanning Python code for security issues..."
+          uv run bandit -r backend/src -f screen || true
+          echo ""
+          echo "📄 Generating JSON report..."
+          uv run bandit -r backend/src -f json -o bandit-report.json || true
 
       - name: Set up Node.js for frontend security scan
         uses: actions/setup-node@v4
@@ -189,35 +199,63 @@ jobs:
         run: |
           VULN_FOUND=0
 
+          echo "═══════════════════════════════════════════════════════════"
+          echo "🔍 Security Vulnerability Summary"
+          echo "═══════════════════════════════════════════════════════════"
+          echo ""
+
           # Check safety report for critical issues
           if [ -f safety-report.json ]; then
-            if grep -q '"vulnerability_id"' safety-report.json; then
-              echo "❌ CRITICAL: Vulnerabilities found in Python dependencies"
-              echo "Review the security-scan-results artifact for details"
+            vuln_count=$(jq 'length' safety-report.json 2>/dev/null || echo 0)
+            if [ "$vuln_count" -gt 0 ]; then
+              echo "❌ Python Dependencies: $vuln_count vulnerabilities found"
+              echo ""
+              echo "📋 Vulnerability Details:"
+              echo "─────────────────────────────────────────────────────────"
+              jq -r '.[] | "  • \(.package_name) \(.vulnerable_spec)\n    CVE: \(.vulnerability_id // "N/A")\n    Severity: \(.severity // "Unknown")\n    Advisory: \(.advisory[0:100])...\n"' safety-report.json 2>/dev/null || echo "  Error parsing report"
+              echo "─────────────────────────────────────────────────────────"
               VULN_FOUND=1
             else
-              echo "✅ No critical Python vulnerabilities found"
+              echo "✅ Python Dependencies: No vulnerabilities found"
             fi
           fi
+          echo ""
 
           # Check npm audit for critical issues
           if [ -f frontend/npm-audit-report.json ]; then
             critical_count=$(jq '.metadata.vulnerabilities.critical // 0' frontend/npm-audit-report.json 2>/dev/null || echo 0)
-            if [ "$critical_count" -gt 0 ]; then
-              echo "❌ CRITICAL: $critical_count critical vulnerabilities found in npm dependencies"
-              echo "Review the security-scan-results artifact for details"
-              VULN_FOUND=1
+            high_count=$(jq '.metadata.vulnerabilities.high // 0' frontend/npm-audit-report.json 2>/dev/null || echo 0)
+            if [ "$critical_count" -gt 0 ] || [ "$high_count" -gt 0 ]; then
+              echo "❌ npm Dependencies:"
+              echo "   Critical: $critical_count"
+              echo "   High: $high_count"
+              if [ "$critical_count" -gt 0 ]; then
+                VULN_FOUND=1
+              fi
             else
-              echo "✅ No critical npm vulnerabilities found"
+              echo "✅ npm Dependencies: No critical vulnerabilities found"
             fi
           fi
+
+          echo ""
+          echo "═══════════════════════════════════════════════════════════"
 
           # Fail the build if any critical vulnerabilities were found
           if [ "$VULN_FOUND" -eq 1 ]; then
             echo ""
-            echo "🚨 Build failed due to critical security vulnerabilities"
-            echo "Fix these issues before merging to prevent security risks"
+            echo "🚨 BUILD FAILED: Critical security vulnerabilities detected"
+            echo ""
+            echo "Action Required:"
+            echo "  1. Review the detailed output above"
+            echo "  2. Update affected packages in pyproject.toml"
+            echo "  3. Run 'uv lock' to update dependencies"
+            echo "  4. Test locally and commit fixes"
+            echo ""
+            echo "📦 Artifact: security-scan-results (contains detailed reports)"
             exit 1
+          else
+            echo ""
+            echo "✅ Security scan passed - no critical vulnerabilities found"
           fi
 
   docker_build:
