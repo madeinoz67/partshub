@@ -55,8 +55,9 @@ To manually delete this file, run:
     # Set restrictive permissions (owner read/write only)
     try:
         credentials_file.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 600 permissions
-    except Exception:
-        pass  # Windows or permission error - skip
+    except (OSError, NotImplementedError):
+        # Windows or permission error - file permissions not supported on this platform
+        pass
 
     return credentials_file
 
