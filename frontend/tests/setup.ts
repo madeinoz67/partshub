@@ -1,6 +1,7 @@
 import { config } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { Quasar } from 'quasar'
+import { h } from 'vue'
 
 // Create a global Pinia instance for tests
 const pinia = createPinia()
@@ -28,11 +29,38 @@ config.global.stubs = {
   'q-item-section': { template: '<div class="q-item-section"><slot /></div>' },
   'q-item-label': { template: '<div class="q-item-label"><slot /></div>' },
   'q-inner-loading': { template: '<div></div>' },
-  'q-banner': { template: '<div class="q-banner"><slot /></div>' },
+  'q-banner': { template: '<div class="q-banner"><slot name="avatar" /><slot /></div>' },
   'q-chip': { template: '<span class="q-chip"><slot /></span>' },
   'q-badge': { template: '<span class="q-badge"><slot /></span>' },
-  'q-icon': { template: '<i class="q-icon"><slot /></i>' },
-  'q-table': { template: '<table><slot /></table>' },
-  'q-spinner': { template: '<div class="q-spinner"></div>' },
+  'q-icon': { template: '<i class="q-icon"><slot /></i>', props: ['name', 'color'] },
+  'q-table': {
+    props: ['rows', 'columns', 'flat', 'bordered', 'dense', 'hideBottom', 'hidePagination', 'rowsPerPageOptions'],
+    setup(props: any, { slots }: any) {
+      return () => h('table', {}, [
+        h('thead', {}, [
+          slots.header?.() || h('tr', {}, props.columns?.map((col: any) =>
+            h('th', { key: col.name }, col.label)
+          ))
+        ]),
+        h('tbody', {},
+          slots.body ? props.rows?.map((row: any, rowIndex: number) =>
+            slots.body({
+              row,
+              rowIndex,
+              cols: props.columns,
+              col: props.columns
+            })
+          ) : props.rows?.map((row: any, i: number) =>
+            h('tr', { key: i }, props.columns?.map((col: any) =>
+              h('td', { key: col.name }, row[col.field])
+            ))
+          )
+        )
+      ])
+    }
+  },
+  'q-tr': { template: '<tr><slot /></tr>', props: ['props'] },
+  'q-td': { template: '<td><slot /></td>', props: ['props'] },
+  'q-spinner': { template: '<div class="q-spinner"></div>', props: ['color', 'size'] },
   'q-avatar': { template: '<div class="q-avatar"><slot /></div>' }
 }

@@ -48,23 +48,29 @@
 - Full test coverage with isolation
 - Ready for deployment
 
-### Location Code Enhancement: ✅ COMPLETE (T075-T086)
+### Location Code Enhancement: ✅ COMPLETE (T075-T088)
 
-**Status**: Core implementation complete, all tests passing
+**Status**: Full implementation complete (backend + frontend), all tests passing
 **New Requirements**: FR-025 through FR-030 (physical location code auto-generation)
-**Approach**: TDD with specialized agents (testing-specialist, python-fastapi-architect)
-**Implementation**: 10 new tests + 2 implementation tasks = 12 tasks complete
+**Approach**: TDD with specialized agents (testing-specialist, python-fastapi-architect, frontend-tdd-specialist)
+**Implementation**: 10 backend tests + 2 backend tasks + 2 frontend tasks = 14 tasks complete
 
 **Completed Tasks**:
-1. ✅ T075-T084: All 10 tests implemented using testing-specialist (TDD red phase)
-2. ✅ T085-T086: Core implementation using python-fastapi-architect (TDD green phase)
-3. ✅ All 61 tests passing (51 existing + 10 new)
-4. ✅ Test coverage maintained (location_generator.py fully tested)
-5. ✅ All existing tests still pass (regression check passed)
+1. ✅ T075-T084: All 10 backend tests implemented using testing-specialist (TDD red phase)
+2. ✅ T085-T086: Core backend implementation using python-fastapi-architect (TDD green phase)
+3. ✅ T087-T088: Frontend UI enhancements using frontend-tdd-specialist (table display + info banner)
+4. ✅ All 61 backend tests passing (51 existing + 10 new)
+5. ✅ All 35 frontend tests passing for LocationPreview
+6. ✅ Test coverage maintained (location_generator.py fully tested)
+7. ✅ All existing tests still pass (regression check passed)
 
-**Optional Tasks (T087-T089)**:
-- [ ] T087-T088: Frontend enhancements (optional UX improvements)
-- [ ] T089: Documentation updates (optional - API docs auto-generated)
+**Frontend Enhancements Deployed**:
+- ✅ LocationPreview displays location codes in table format (name + code columns)
+- ✅ RangeConfigurator shows info banner about auto-generated codes
+- ✅ Tooltip on prefix input explains extraction logic with examples
+
+**Optional Tasks (T089)**:
+- [ ] T089: Documentation updates (optional - API docs auto-generated, can be done later)
 
 ## Format: `[ID] [P?] Description`
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -425,11 +431,11 @@ Task: "Verify quickstart.md scenarios"
 ## Phase 3.5+: Optional Frontend Enhancement
 
 ### Frontend Components (Optional - improves UX) - **AGENT: frontend-tdd-specialist**
-- [ ] T087 [P] Update LocationPreview.vue to display location codes in preview: `frontend/src/components/storage/LocationPreview.vue` (show "name (code)" format in preview list)
+- [X] T087 [P] Update LocationPreview.vue to display location codes in preview: `frontend/src/components/storage/LocationPreview.vue` (show "name (code)" format in preview list)
   - **Assigned Agent**: frontend-tdd-specialist
   - **Task**: Update LocationPreview component to display location codes alongside names in preview (format: "box1-a (a)")
 
-- [ ] T088 [P] Add info text in RangeConfigurator about auto-generated codes: `frontend/src/components/storage/RangeConfigurator.vue` (add help text: "Location codes will be auto-generated from pattern")
+- [X] T088 [P] Add info text in RangeConfigurator about auto-generated codes: `frontend/src/components/storage/RangeConfigurator.vue` (add help text: "Location codes will be auto-generated from pattern")
   - **Assigned Agent**: frontend-tdd-specialist
   - **Task**: Add help text/tooltip in RangeConfigurator explaining that location codes will be auto-generated from the pattern
 
