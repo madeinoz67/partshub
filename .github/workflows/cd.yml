@@ -17,6 +17,10 @@ name: "Continuous Deployment"
         required: false
         default: false
         type: boolean
+      docs_version:
+        description: 'Docs version/branch to deploy (leave empty for latest/main)'
+        required: false
+        type: string
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -140,6 +144,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.docs_version || 'main' }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -167,7 +173,8 @@ jobs:
       - name: Set docs URL
         id: deploy
         run: |
-          echo "docs_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+          VERSION="${{ inputs.docs_version || 'latest' }}"
+          echo "docs_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }} (${VERSION})" >> $GITHUB_OUTPUT
 
   notify_deployment:
     name: "Notify Deployment Results"
