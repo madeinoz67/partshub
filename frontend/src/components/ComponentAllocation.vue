@@ -11,8 +11,8 @@
             flat
             round
             icon="close"
-            @click="$emit('cancelled')"
             aria-label="Close dialog"
+            @click="$emit('cancelled')"
           />
         </div>
       </div>
@@ -28,7 +28,7 @@
             dense
             debounce="300"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="search" />
             </template>
           </q-input>
@@ -49,16 +49,16 @@
         row-key="id"
         flat
         bordered
-        :loading="loading"
+        :loading="isLoading"
       >
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
+        <template #body-cell-actions="slotProps">
+          <q-td :props="slotProps">
             <q-btn
               flat
               round
               dense
               icon="edit"
-              @click="editAllocation(props.row)"
+              @click="editAllocation(slotProps.row)"
             />
             <q-btn
               flat
@@ -66,19 +66,19 @@
               dense
               icon="delete"
               color="negative"
-              @click="confirmDelete(props.row)"
+              @click="confirmDelete(slotProps.row)"
             />
           </q-td>
         </template>
 
-        <template v-slot:body-cell-status="props">
-          <q-td :props="props">
+        <template #body-cell-status="slotProps">
+          <q-td :props="slotProps">
             <q-chip
-              :color="getStatusColor(props.row.status)"
+              :color="getStatusColor(slotProps.row.status)"
               text-color="white"
               dense
             >
-              {{ props.row.status }}
+              {{ slotProps.row.status }}
             </q-chip>
           </q-td>
         </template>
@@ -106,11 +106,11 @@
                 map-options
                 use-input
                 input-debounce="300"
-                @filter="filterComponents"
                 clearable
                 :loading="components.length === 0"
+                @filter="filterComponents"
               >
-                <template v-slot:option="scope">
+                <template #option="scope">
                   <q-item v-bind="scope.itemProps">
                     <q-item-section>
                       <q-item-label>{{ scope.opt.part_number }}</q-item-label>
@@ -121,7 +121,7 @@
                     </q-item-section>
                   </q-item>
                 </template>
-                <template v-slot:no-option>
+                <template #no-option>
                   <q-item>
                     <q-item-section class="text-grey">
                       {{ components.length === 0 ? 'Loading components...' : 'No matching components' }}
@@ -150,7 +150,7 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn v-close-popup flat label="Cancel" />
             <q-btn
               :label="editMode ? 'Update' : 'Add'"
               type="submit"
@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { APIService } from '../services/api'
 
@@ -186,7 +186,11 @@ interface Component {
 }
 
 interface Props {
-  project: any
+  project: {
+    id: string
+    name: string
+    description?: string
+  } | null
   loading?: boolean
 }
 
@@ -213,7 +217,7 @@ const form = ref({
 const allocations = ref<ComponentAllocation[]>([])
 const components = ref<Component[]>([])
 const componentOptions = ref<Component[]>([])
-const loading = ref(false)
+const isLoading = ref(false)
 
 const columns = [
   {
@@ -280,10 +284,16 @@ const loadComponents = async () => {
 const loadAllocations = async () => {
   if (!props.project?.id) return
 
-  loading.value = true
+  isLoading.value = true
   try {
     const response = await APIService.getProjectComponents(props.project.id)
-    allocations.value = response.map((allocation: any) => ({
+    allocations.value = response.map((allocation: {
+      project_id: string
+      component_id: string
+      component_part_number?: string
+      quantity_allocated: number
+      notes?: string
+    }) => ({
       id: `${allocation.project_id}-${allocation.component_id}`,
       componentId: allocation.component_id,
       componentName: allocation.component_part_number || 'Unknown',
@@ -298,7 +308,7 @@ const loadAllocations = async () => {
       caption: error.message
     })
   }
-  loading.value = false
+  isLoading.value = false
 }
 
 function getStatusColor(status: string) {

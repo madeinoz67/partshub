@@ -4,10 +4,9 @@ Handles provider registration, searches across providers, and result aggregation
 """
 
 import asyncio
-import re
-from typing import List, Dict, Optional, Any
-from collections import defaultdict
 import logging
+import re
+from typing import Any
 
 from ..providers.base_provider import ComponentDataProvider, ComponentSearchResult
 from ..providers.lcsc_provider import LCSCProvider
@@ -19,7 +18,7 @@ class ProviderService:
     """Service for managing component data providers"""
 
     def __init__(self):
-        self.providers: Dict[str, ComponentDataProvider] = {}
+        self.providers: dict[str, ComponentDataProvider] = {}
         self.enabled_providers: set[str] = set()
         self._initialize_default_providers()
 
@@ -54,7 +53,7 @@ class ProviderService:
         self.enabled_providers.discard(name)
         logger.info(f"Disabled provider: {name}")
 
-    def get_enabled_providers(self) -> List[str]:
+    def get_enabled_providers(self) -> list[str]:
         """Get list of enabled provider names"""
         return list(self.enabled_providers)
 
@@ -62,8 +61,8 @@ class ProviderService:
         self,
         query: str,
         limit_per_provider: int = 10,
-        providers: Optional[List[str]] = None
-    ) -> Dict[str, List[ComponentSearchResult]]:
+        providers: list[str] | None = None,
+    ) -> dict[str, list[ComponentSearchResult]]:
         """
         Search across multiple providers in parallel.
 
@@ -85,7 +84,9 @@ class ProviderService:
         for provider_name in target_providers:
             if provider_name in self.providers:
                 provider = self.providers[provider_name]
-                task = self._search_provider_safe(provider_name, provider, query, limit_per_provider)
+                task = self._search_provider_safe(
+                    provider_name, provider, query, limit_per_provider
+                )
                 tasks.append(task)
 
         if not tasks:
@@ -98,7 +99,9 @@ class ProviderService:
         # Compile results
         provider_results = {}
         for i, result in enumerate(results):
-            provider_name = target_providers[i] if i < len(target_providers) else f"provider_{i}"
+            provider_name = (
+                target_providers[i] if i < len(target_providers) else f"provider_{i}"
+            )
             if isinstance(result, Exception):
                 logger.error(f"Provider {provider_name} search failed: {result}")
                 provider_results[provider_name] = []
@@ -112,21 +115,22 @@ class ProviderService:
         provider_name: str,
         provider: ComponentDataProvider,
         query: str,
-        limit: int
-    ) -> List[ComponentSearchResult]:
+        limit: int,
+    ) -> list[ComponentSearchResult]:
         """Safely search a provider with error handling"""
         try:
             results = await provider.search_components(query, limit)
-            logger.debug(f"Provider {provider_name} returned {len(results)} results for '{query}'")
+            logger.debug(
+                f"Provider {provider_name} returned {len(results)} results for '{query}'"
+            )
             return results
         except Exception as e:
             logger.error(f"Error searching provider {provider_name}: {e}")
             return []
 
     def aggregate_search_results(
-        self,
-        provider_results: Dict[str, List[ComponentSearchResult]]
-    ) -> List[ComponentSearchResult]:
+        self, provider_results: dict[str, list[ComponentSearchResult]]
+    ) -> list[ComponentSearchResult]:
         """
         Aggregate and deduplicate search results from multiple providers.
 
@@ -154,15 +158,14 @@ class ProviderService:
         # Sort by manufacturer and part number for consistent ordering
         all_results.sort(key=lambda x: (x.manufacturer, x.part_number))
 
-        logger.info(f"Aggregated {len(all_results)} unique components from {len(provider_results)} providers")
+        logger.info(
+            f"Aggregated {len(all_results)} unique components from {len(provider_results)} providers"
+        )
         return all_results
 
     async def search_components(
-        self,
-        query: str,
-        limit: int = 50,
-        providers: Optional[List[str]] = None
-    ) -> List[ComponentSearchResult]:
+        self, query: str, limit: int = 50, providers: list[str] | None = None
+    ) -> list[ComponentSearchResult]:
         """
         Search for components across all enabled providers.
 
@@ -177,7 +180,9 @@ class ProviderService:
         limit_per_provider = min(limit, 20)  # Distribute limit across providers
 
         # Search all providers
-        provider_results = await self.search_all_providers(query, limit_per_provider, providers)
+        provider_results = await self.search_all_providers(
+            query, limit_per_provider, providers
+        )
 
         # Aggregate results
         results = self.aggregate_search_results(provider_results)
@@ -188,9 +193,9 @@ class ProviderService:
     async def get_component_details(
         self,
         part_number: str,
-        manufacturer: Optional[str] = None,
-        provider: Optional[str] = None
-    ) -> Optional[ComponentSearchResult]:
+        manufacturer: str | None = None,
+        provider: str | None = None,
+    ) -> ComponentSearchResult | None:
         """
         Get detailed component information from providers.
 
@@ -210,7 +215,9 @@ class ProviderService:
 
             try:
                 provider_obj = self.providers[provider_name]
-                result = await provider_obj.get_component_details(part_number, manufacturer)
+                result = await provider_obj.get_component_details(
+                    part_number, manufacturer
+                )
                 if result:
                     result.provider_id = f"{provider_name}_{result.provider_id}"
                     return result
@@ -219,7 +226,7 @@ class ProviderService:
 
         return None
 
-    async def verify_providers(self) -> Dict[str, bool]:
+    async def verify_providers(self) -> dict[str, bool]:
         """
         Verify connectivity for all registered providers.
 
@@ -246,15 +253,15 @@ class ProviderService:
                 logger.error(f"Provider {provider_name} verification failed: {result}")
             else:
                 status[provider_name] = result
-                logger.info(f"Provider {provider_name} verification: {'OK' if result else 'FAILED'}")
+                logger.info(
+                    f"Provider {provider_name} verification: {'OK' if result else 'FAILED'}"
+                )
 
         return status
 
     async def search_by_provider_sku(
-        self,
-        provider_sku: str,
-        providers: Optional[List[str]] = None
-    ) -> Dict[str, Optional[ComponentSearchResult]]:
+        self, provider_sku: str, providers: list[str] | None = None
+    ) -> dict[str, ComponentSearchResult | None]:
         """
         Search for components by provider-specific SKU across all providers.
 
@@ -275,7 +282,9 @@ class ProviderService:
         for provider_name in target_providers:
             if provider_name in self.providers:
                 provider = self.providers[provider_name]
-                task = self._search_provider_sku_safe(provider_name, provider, provider_sku)
+                task = self._search_provider_sku_safe(
+                    provider_name, provider, provider_sku
+                )
                 tasks.append(task)
 
         if not tasks:
@@ -288,7 +297,9 @@ class ProviderService:
         # Compile results
         provider_results = {}
         for i, result in enumerate(results):
-            provider_name = target_providers[i] if i < len(target_providers) else f"provider_{i}"
+            provider_name = (
+                target_providers[i] if i < len(target_providers) else f"provider_{i}"
+            )
             if isinstance(result, Exception):
                 logger.error(f"Provider {provider_name} SKU search failed: {result}")
                 provider_results[provider_name] = None
@@ -298,16 +309,15 @@ class ProviderService:
         return provider_results
 
     async def _search_provider_sku_safe(
-        self,
-        provider_name: str,
-        provider: ComponentDataProvider,
-        provider_sku: str
-    ) -> Optional[ComponentSearchResult]:
+        self, provider_name: str, provider: ComponentDataProvider, provider_sku: str
+    ) -> ComponentSearchResult | None:
         """Safely search a provider by SKU with error handling"""
         try:
             result = await provider.search_by_provider_sku(provider_sku)
             if result:
-                logger.debug(f"Provider {provider_name} found component for SKU '{provider_sku}'")
+                logger.debug(
+                    f"Provider {provider_name} found component for SKU '{provider_sku}'"
+                )
                 # Ensure provider info is tagged
                 result.provider_id = f"{provider_name}_{result.provider_id}"
             return result
@@ -320,8 +330,8 @@ class ProviderService:
         query: str,
         search_type: str = "auto",  # "auto", "part_number", "provider_sku"
         limit: int = 50,
-        providers: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        providers: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Unified search that combines manufacturer part number and provider SKU searches.
 
@@ -339,7 +349,7 @@ class ProviderService:
             "search_type": search_type,
             "part_number_results": [],
             "provider_sku_results": {},
-            "total_results": 0
+            "total_results": 0,
         }
 
         # Determine search strategy
@@ -358,11 +368,15 @@ class ProviderService:
             # Search by provider SKU
             sku_results = await self.search_by_provider_sku(query, providers)
             # Filter out None results
-            filtered_sku_results = {k: v for k, v in sku_results.items() if v is not None}
+            filtered_sku_results = {
+                k: v for k, v in sku_results.items() if v is not None
+            }
             results["provider_sku_results"] = filtered_sku_results
             results["total_results"] += len(filtered_sku_results)
 
-        logger.info(f"Unified search for '{query}' ({search_type}) returned {results['total_results']} total results")
+        logger.info(
+            f"Unified search for '{query}' ({search_type}) returned {results['total_results']} total results"
+        )
         return results
 
     def _detect_search_type(self, query: str) -> str:
@@ -379,10 +393,10 @@ class ProviderService:
 
         # Check for common provider SKU patterns
         sku_patterns = [
-            r'^C\d{5,7}$',  # LCSC: C123456
-            r'^DK\d+$',     # Digi-Key: DK12345
-            r'^M\d+$',      # Mouser: M12345
-            r'^RS\d+$',     # RS Components: RS12345
+            r"^C\d{5,7}$",  # LCSC: C123456
+            r"^DK\d+$",  # Digi-Key: DK12345
+            r"^M\d+$",  # Mouser: M12345
+            r"^RS\d+$",  # RS Components: RS12345
         ]
 
         for pattern in sku_patterns:
@@ -392,7 +406,7 @@ class ProviderService:
         # Default to part number search
         return "part_number"
 
-    def get_provider_info(self) -> Dict[str, Any]:
+    def get_provider_info(self) -> dict[str, Any]:
         """Get information about all registered providers"""
         info = {}
         for name, provider in self.providers.items():

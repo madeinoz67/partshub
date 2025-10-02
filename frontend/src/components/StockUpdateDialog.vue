@@ -1,8 +1,8 @@
 <template>
   <q-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     persistent
+    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card style="min-width: 400px">
       <q-card-section>
@@ -13,7 +13,7 @@
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-form @submit="onSubmit" ref="formRef" class="q-gutter-md">
+        <q-form ref="formRef" class="q-gutter-md" @submit="onSubmit">
           <!-- Current Stock Display -->
           <div class="row items-center q-mb-md">
             <div class="col">
@@ -52,7 +52,7 @@
             ]"
             :hint="getQuantityHint()"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon
                 :name="form.transaction_type === 'remove' ? 'remove' : 'add'"
                 :color="form.transaction_type === 'remove' ? 'negative' : 'positive'"
@@ -103,14 +103,14 @@
         <q-btn
           flat
           label="Cancel"
-          @click="$emit('update:model-value', false)"
           :disable="loading"
+          @click="$emit('update:model-value', false)"
         />
         <q-btn
           color="primary"
           label="Update Stock"
-          @click="onSubmit"
           :loading="loading"
+          @click="onSubmit"
         />
       </q-card-actions>
     </q-card>
@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useComponentsStore } from '../stores/components'
 import type { Component } from '../services/api'

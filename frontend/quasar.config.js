@@ -1,6 +1,6 @@
-const { configure } = require('quasar/wrappers')
+import { configure } from 'quasar/wrappers'
 
-module.exports = configure(function (ctx) {
+export default configure(function (ctx) {
   return {
     boot: [
       'axios',
@@ -32,7 +32,7 @@ module.exports = configure(function (ctx) {
     devServer: {
       open: true,
       port: 3000,
-      host: 'localhost'
+      host: '0.0.0.0'
     },
 
     framework: {

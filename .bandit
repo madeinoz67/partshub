@@ -1,0 +1,13 @@
+[bandit]
+# Bandit security configuration for PartsHub
+
+# Exclude test files and migrations
+exclude_dirs = /backend/tests,/backend/migrations,/backend/*_debug.py,/backend/seed_*.py,/backend/demo_seed.py
+
+# Skip specific tests that are false positives
+skips = B104,B108,B311,B608
+
+# B104: Binding to 0.0.0.0 is intentional for Docker/development
+# B108: /tmp usage in development/test code is acceptable
+# B311: random module in seed_data.py is for test data, not security
+# B608: SQL string construction for FTS triggers (SQLAlchemy doesn't support FTS triggers directly)

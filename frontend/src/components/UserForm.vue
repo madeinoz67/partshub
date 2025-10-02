@@ -10,11 +10,11 @@
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">{{ isEditing ? 'Edit User' : 'Create New User' }}</div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup />
+        <q-btn v-close-popup icon="close" flat round dense />
       </q-card-section>
 
       <q-card-section class="col">
-        <q-form @submit="handleSubmit" class="q-gutter-md">
+        <q-form class="q-gutter-md" @submit="handleSubmit">
           <div class="row q-col-gutter-md">
             <div class="col-md-6 col-12">
               <q-input
@@ -61,7 +61,7 @@
             </div>
           </div>
 
-          <div class="row q-col-gutter-md" v-if="!isEditing">
+          <div v-if="!isEditing" class="row q-col-gutter-md">
             <div class="col-md-6 col-12">
               <q-input
                 v-model="formData.password"
@@ -74,7 +74,7 @@
                 outlined
                 dense
               >
-                <template v-slot:append>
+                <template #append>
                   <q-icon
                     :name="showPassword ? 'visibility_off' : 'visibility'"
                     class="cursor-pointer"
@@ -95,7 +95,7 @@
                 outlined
                 dense
               >
-                <template v-slot:append>
+                <template #append>
                   <q-icon
                     :name="showConfirmPassword ? 'visibility_off' : 'visibility'"
                     class="cursor-pointer"
@@ -129,12 +129,12 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" v-close-popup />
+        <q-btn v-close-popup flat label="Cancel" />
         <q-btn
           color="primary"
           label="Save"
-          @click="handleSubmit"
           :loading="saving"
+          @click="handleSubmit"
         />
       </q-card-actions>
     </q-card>

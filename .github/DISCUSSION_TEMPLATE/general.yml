@@ -1,0 +1,50 @@
+labels: ["discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## General Discussion 💬
+
+        Start a conversation about PartsHub!
+
+        **This is for:**
+        - General discussions about the project
+        - Community building conversations
+        - Sharing experiences and use cases
+        - Tips and best practices
+        - Project announcements and updates
+
+  - type: textarea
+    attributes:
+      label: "Discussion Topic"
+      description: "What would you like to discuss?"
+      placeholder: |
+        Start the conversation:
+        - Share your experience using PartsHub
+        - Discuss best practices
+        - Ask for community advice
+        - Share interesting use cases
+        - Provide feedback on the project direction
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Context & Background"
+      description: "Provide any relevant context"
+      placeholder: |
+        Help others understand:
+        - Your background or use case
+        - Relevant project details
+        - Why this topic is important
+        - Any related discussions or links
+
+  - type: textarea
+    attributes:
+      label: "Questions for the Community"
+      description: "What would you like community input on?"
+      placeholder: |
+        Engage the community:
+        - What questions do you have?
+        - What experiences would you like to hear about?
+        - How can the community help?

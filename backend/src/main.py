@@ -3,35 +3,105 @@ PartsHub - Electronic Parts Inventory Management System
 Main FastAPI application entry point
 """
 
+import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import for startup events
-from .database import get_db
-from .auth.admin import ensure_admin_exists
-
 # Import all models to ensure SQLAlchemy relationships are configured
-from . import models
+from .api.attachments import router as attachments_router
+from .api.auth import router as auth_router
+from .api.bom import router as bom_router
+from .api.categories import router as categories_router
 
 # Import API routers
 from .api.components import router as components_router
-from .api.storage import router as storage_router
 from .api.integrations import router as integrations_router
-from .api.tags import router as tags_router
-from .api.auth import router as auth_router
-from .api.attachments import router as attachments_router
 from .api.kicad import router as kicad_router
 from .api.projects import router as projects_router
 from .api.reports import router as reports_router
-from .api.bom import router as bom_router
-from .api.categories import router as categories_router
+from .api.storage import router as storage_router
+from .api.tags import router as tags_router
+from .auth.admin import ensure_admin_exists
+
+# Import for startup events
+from .database import get_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan event handler for startup and shutdown.
+    Replaces deprecated @app.on_event decorators.
+    """
+    # Startup
+    # Note: Database migrations must be run separately before starting the app
+    # Run: cd backend && uv run --project .. alembic upgrade head
+    #
+    # Automatic migrations during app startup were removed due to SQLite connection
+    # conflicts that cause migrations to hang (60+ seconds vs <1 second when run separately)
+
+    # Configure SQLAlchemy registry to ensure all relationships are properly initialized
+    from sqlalchemy.orm import configure_mappers
+
+    try:
+        configure_mappers()
+    except Exception as e:
+        print(f"Warning: SQLAlchemy mapper configuration issue: {e}")
+
+    # Ensure default admin user exists (skip during tests)
+    if not os.getenv("TESTING"):
+        db = next(get_db())
+        try:
+            result = ensure_admin_exists(db)
+            if result:
+                user, password = result
+                print("\n🔑 DEFAULT ADMIN CREATED:")
+                print(f"   Username: {user.username}")
+                print(f"   Password: {password}")
+                print("   ⚠️  Please change this password after first login!\n")
+        except Exception as e:
+            print(f"Error creating default admin user: {e}")
+        finally:
+            db.close()
+
+    # Optimize database with search indexes
+    db = next(get_db())
+    try:
+        from .database.indexes import optimize_database_for_search
+
+        results = optimize_database_for_search(db)
+        if results.get("indexes_created"):
+            print("📊 Database search indexes optimized for performance")
+            optimized_count = sum(
+                1
+                for q in results.get("performance_analysis", {}).values()
+                if q.get("optimized", False)
+            )
+            total_count = len(results.get("performance_analysis", {}))
+            print(f"   {optimized_count}/{total_count} search queries optimized")
+        if results.get("errors"):
+            for error in results["errors"]:
+                print(f"   ⚠️  {error}")
+    except Exception as e:
+        print(f"Warning: Database optimization failed: {e}")
+    finally:
+        db.close()
+
+    yield
+
+    # Shutdown (if needed)
+    # Add any cleanup code here
+
 
 app = FastAPI(
     title="PartsHub API",
     description="Electronic parts inventory management system",
     version="0.1.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # CORS middleware for frontend integration
@@ -43,7 +113,7 @@ app.add_middleware(
         "http://localhost:9000",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8080",
-        "http://127.0.0.1:9000"
+        "http://127.0.0.1:9000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -64,61 +134,10 @@ app.include_router(bom_router)
 app.include_router(categories_router)
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize application on startup."""
-    # Configure SQLAlchemy registry to ensure all relationships are properly initialized
-    from sqlalchemy.orm import configure_mappers
-    try:
-        configure_mappers()
-    except Exception as e:
-        print(f"Warning: SQLAlchemy mapper configuration issue: {e}")
-
-    # Ensure default admin user exists (skip during tests)
-    import os
-    if not os.getenv("TESTING"):
-        db = next(get_db())
-        try:
-            result = ensure_admin_exists(db)
-            if result:
-                user, password = result
-                print(f"\n🔑 DEFAULT ADMIN CREATED:")
-                print(f"   Username: {user.username}")
-                print(f"   Password: {password}")
-                print(f"   ⚠️  Please change this password after first login!\n")
-        except Exception as e:
-            print(f"Error creating default admin user: {e}")
-        finally:
-            db.close()
-
-    # Optimize database with search indexes
-    db = next(get_db())
-    try:
-        from .database.indexes import optimize_database_for_search
-        results = optimize_database_for_search(db)
-        if results.get("indexes_created"):
-            print("📊 Database search indexes optimized for performance")
-            optimized_count = sum(1 for q in results.get("performance_analysis", {}).values()
-                                if q.get("optimized", False))
-            total_count = len(results.get("performance_analysis", {}))
-            print(f"   {optimized_count}/{total_count} search queries optimized")
-        if results.get("errors"):
-            for error in results["errors"]:
-                print(f"   ⚠️  {error}")
-    except Exception as e:
-        print(f"Warning: Database optimization failed: {e}")
-    finally:
-        db.close()
-
-
 @app.get("/")
 async def root():
     """Root endpoint providing API information."""
-    return {
-        "message": "PartsHub API",
-        "version": "0.1.0",
-        "docs": "/docs"
-    }
+    return {"message": "PartsHub API", "version": "0.1.0", "docs": "/docs"}
 
 
 @app.get("/health")
@@ -129,6 +148,6 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    import os
+
     port = int(os.getenv("PORT", 8000))  # Use PORT env var, default to 8000
     uvicorn.run(app, host="0.0.0.0", port=port, reload=True)

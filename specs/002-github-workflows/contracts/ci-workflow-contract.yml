@@ -1,0 +1,117 @@
+# CI Workflow Contract
+# Defines the expected behavior of the continuous integration workflow
+
+workflow_name: "Continuous Integration"
+file_location: ".github/workflows/ci.yml"
+
+# Triggers (FR-001: System MUST automatically trigger workflows on code push events)
+triggers:
+  - event: "push"
+    branches: ["*"]
+  - event: "pull_request"
+    branches: ["main"]
+
+# Required Jobs
+jobs:
+  backend_tests:
+    purpose: "Run backend test suite"
+    requirements:
+      - "FR-002: Run unit tests, integration tests, and linting"
+      - "FR-006: Provide clear feedback on workflow status"
+      - "FR-009: Support backend testing"
+    outputs:
+      - test_results_artifact
+      - coverage_report
+    success_criteria:
+      - all_tests_pass: true
+      - coverage_threshold: ">= 80%"
+      - linting_passes: true
+
+  frontend_tests:
+    purpose: "Run frontend test suite"
+    requirements:
+      - "FR-002: Run unit tests and linting"
+      - "FR-009: Support frontend testing"
+    outputs:
+      - test_results_artifact
+      - build_verification
+    success_criteria:
+      - all_tests_pass: true
+      - build_succeeds: true
+      - linting_passes: true
+
+  security_scan:
+    purpose: "Perform security scanning"
+    requirements:
+      - "FR-011: Perform security scanning on dependencies and code"
+    outputs:
+      - security_report
+    success_criteria:
+      - no_critical_vulnerabilities: true
+      - dependency_scan_passes: true
+
+  docker_build:
+    purpose: "Validate Docker container builds"
+    requirements:
+      - "FR-010: Validate Docker container builds as part of CI"
+    outputs:
+      - docker_build_log
+    success_criteria:
+      - backend_image_builds: true
+      - frontend_image_builds: true
+
+# Status Checks (FR-003: System MUST prevent merging until all required checks pass)
+required_status_checks:
+  - "backend_tests"
+  - "frontend_tests"
+  - "security_scan"
+  - "docker_build"
+
+# Performance Requirements (FR-007: System MUST cache dependencies)
+performance:
+  caching:
+    - type: "node_modules"
+      key_based_on: "package-lock.json"
+    - type: "uv_cache"
+      key_based_on: "pyproject.toml + uv.lock"
+    - type: "docker_layers"
+      strategy: "buildkit_cache"
+  max_execution_time: "10 minutes"
+
+# Failure Handling (FR-006: System MUST provide clear feedback)
+failure_handling:
+  notification_method: "github_pr_comments"
+  include_logs: true
+  include_failure_reasons: true
+  retry_policy: "none"
+
+# Isolation Requirements (FR-008: System MUST run workflows in isolated environments)
+isolation:
+  runner_type: "github_hosted"
+  clean_environment: true
+  no_shared_state: true
+  separate_test_databases: true
+
+# Expected Outputs
+artifacts:
+  test_results:
+    format: "junit_xml"
+    retention_days: 30
+    required_for_merge: true
+  coverage_reports:
+    format: "html + json"
+    retention_days: 30
+  security_scan_results:
+    format: "sarif"
+    retention_days: 90
+    upload_to_github_security: true
+
+# Contract Validation Points
+validation_points:
+  - trigger_on_push: "Workflow must execute on any branch push"
+  - trigger_on_pr: "Workflow must execute on pull request creation/update"
+  - parallel_execution: "Frontend and backend tests run in parallel"
+  - status_checks_required: "All jobs must pass for PR merge"
+  - cache_utilization: "Dependencies must be cached for performance"
+  - test_isolation: "Tests use isolated environments and test databases"
+  - clear_failure_feedback: "Failed jobs provide actionable error information"

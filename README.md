@@ -1,5 +1,9 @@
 # PartsHub - Electronic Parts Inventory Management
 
+[![CI](https://github.com/owner/partshub/actions/workflows/ci.yml/badge.svg)](https://github.com/owner/partshub/actions/workflows/ci.yml)
+[![CD](https://github.com/owner/partshub/actions/workflows/cd.yml/badge.svg)](https://github.com/owner/partshub/actions/workflows/cd.yml)
+[![Release](https://github.com/owner/partshub/actions/workflows/release.yml/badge.svg)](https://github.com/owner/partshub/actions/workflows/release.yml)
+
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
 ## Features
@@ -153,6 +157,38 @@ partshub/
 - System administration capabilities
 - User management (future feature)
 
+## CI/CD & Deployment
+
+This project uses automated GitHub Actions workflows for continuous integration and deployment:
+
+### 🔄 Continuous Integration (CI)
+- **Triggers**: On every push and pull request
+- **Tests**: Backend (pytest), Frontend (Vitest), Security scans, Docker builds
+- **Quality Gates**: All tests must pass before merging
+- **Duration**: ~5-10 minutes
+
+### 🚀 Continuous Deployment (CD)
+- **Triggers**: Automatically on main branch merges
+- **Process**: Backend → Frontend → Documentation deployment
+- **Environment**: Production
+- **Manual Override**: Available for emergency deployments
+
+### 📦 Release Automation
+- **Triggers**: When git tags (v1.0.0) are created
+- **Artifacts**: Docker images, GitHub releases, versioned documentation
+- **Registry**: GitHub Container Registry (ghcr.io)
+- **Documentation**: Versioned and deployed automatically
+
+### 🛡️ Quality Assurance
+- **Required Status Checks**: All CI jobs must pass
+- **Branch Protection**: Main branch protected against direct pushes
+- **Security Scanning**: Automated dependency and code security checks
+- **Coverage Requirements**: Minimum 80% test coverage
+
+For detailed workflow documentation, see:
+- [Developer Workflow Guide](docs/workflows/developer-guide.md)
+- [Troubleshooting Guide](docs/workflows/troubleshooting.md)
+
 ## Contributing
 
 This project follows standard development practices:
@@ -161,6 +197,8 @@ This project follows standard development practices:
 2. **Create** a feature branch
 3. **Make** your changes with tests
 4. **Submit** a pull request
+
+All pull requests must pass CI checks before merging. See the [Developer Workflow Guide](docs/workflows/developer-guide.md) for detailed instructions.
 
 ## License
 

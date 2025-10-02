@@ -1,0 +1,122 @@
+# CD Workflow Contract
+# Defines the expected behavior of the continuous deployment workflow
+
+workflow_name: "Continuous Deployment"
+file_location: ".github/workflows/cd.yml"
+
+# Triggers (FR-004: System MUST automatically deploy successful builds from main branch)
+triggers:
+  - event: "push"
+    branches: ["main"]
+    conditions:
+      - all_ci_checks_pass: true
+
+# Required Jobs
+jobs:
+  deploy_backend:
+    purpose: "Deploy backend to production"
+    requirements:
+      - "FR-004: Automatically deploy successful builds to production"
+      - "FR-013: Notify stakeholders of deployment successes and failures"
+    dependencies:
+      - "ci_workflow_success"
+    outputs:
+      - deployment_status
+      - deployment_url
+    success_criteria:
+      - deployment_succeeds: true
+      - health_check_passes: true
+      - zero_downtime: true
+
+  deploy_frontend:
+    purpose: "Deploy frontend to production"
+    requirements:
+      - "FR-004: Automatically deploy successful builds to production"
+    dependencies:
+      - "deploy_backend"
+    outputs:
+      - deployment_status
+      - deployment_url
+    success_criteria:
+      - deployment_succeeds: true
+      - assets_accessible: true
+
+  build_and_deploy_docs:
+    purpose: "Build and deploy documentation"
+    requirements:
+      - "FR-016: Build and deploy documentation automatically"
+    outputs:
+      - docs_url
+    success_criteria:
+      - docs_build_succeeds: true
+      - docs_accessible: true
+
+  notify_deployment:
+    purpose: "Notify stakeholders of deployment results"
+    requirements:
+      - "FR-013: Notify stakeholders via GitHub PR comments and issue updates"
+    dependencies:
+      - "deploy_backend"
+      - "deploy_frontend"
+      - "build_and_deploy_docs"
+    outputs:
+      - notification_status
+    success_criteria:
+      - notifications_sent: true
+
+# Environment Configuration
+environment:
+  name: "production"
+  protection_rules:
+    required_reviewers: 0  # Automatic deployment
+    prevent_self_review: false
+    dismiss_stale_reviews: false
+  secrets_required:
+    - "PRODUCTION_DATABASE_URL"
+    - "PRODUCTION_SECRET_KEY"
+    - "DOCKER_REGISTRY_TOKEN"
+
+# Performance Requirements
+performance:
+  max_deployment_time: "5 minutes"
+  rollback_time: "< 2 minutes"
+  health_check_timeout: "30 seconds"
+
+# Failure Handling (FR-006: System MUST provide clear feedback)
+failure_handling:
+  rollback_strategy: "automatic"
+  notification_method: "github_issue_comments"
+  include_logs: true
+  include_failure_reasons: true
+  retry_policy: "none"  # Manual intervention required
+
+# Manual Trigger Support (FR-014: System MUST support manual workflow triggers)
+manual_trigger:
+  enabled: true
+  inputs:
+    deployment_environment:
+      type: "choice"
+      options: ["production"]
+      default: "production"
+    skip_tests:
+      type: "boolean"
+      default: false
+
+# Expected Outputs
+artifacts:
+  deployment_logs:
+    retention_days: 90
+    includes_rollback_info: true
+  performance_metrics:
+    retention_days: 30
+    includes_response_times: true
+
+# Contract Validation Points
+validation_points:
+  - trigger_on_main_push: "Workflow must execute on main branch push"
+  - ci_dependency: "Must wait for CI workflow to complete successfully"
+  - sequential_deployment: "Backend deploys before frontend"
+  - automatic_rollback: "Failed deployments trigger automatic rollback"
+  - stakeholder_notification: "Deployment status communicated via GitHub"
+  - manual_trigger_support: "Support emergency manual deployments"
+  - zero_downtime: "Deployments do not cause service interruption"

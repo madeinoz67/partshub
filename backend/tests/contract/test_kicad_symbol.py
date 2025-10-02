@@ -3,9 +3,9 @@ Contract test for GET /api/v1/kicad/components/{id}/symbol
 Tests KiCad component symbol endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestKiCadSymbolContract:
@@ -32,8 +32,13 @@ class TestKiCadSymbolContract:
 
             # Required fields for KiCadSymbol
             required_fields = [
-                "component_id", "library_name", "symbol_name", "drawing_data",
-                "pins", "properties", "bounding_box"
+                "component_id",
+                "library_name",
+                "symbol_name",
+                "drawing_data",
+                "pins",
+                "properties",
+                "bounding_box",
             ]
 
             for field in required_fields:
@@ -60,7 +65,6 @@ class TestKiCadSymbolContract:
             drawing_data = data["drawing_data"]
 
             # Drawing data should contain graphical elements
-            expected_drawing_fields = ["shapes", "text_elements", "style"]
 
             # At least some drawing elements should be present
             assert isinstance(drawing_data, dict)
@@ -73,7 +77,13 @@ class TestKiCadSymbolContract:
                 for shape in drawing_data["shapes"]:
                     assert "type" in shape
                     assert "coordinates" in shape
-                    assert shape["type"] in ["line", "rectangle", "circle", "arc", "polygon"]
+                    assert shape["type"] in [
+                        "line",
+                        "rectangle",
+                        "circle",
+                        "arc",
+                        "polygon",
+                    ]
 
             # Text elements for labels, values, etc.
             if "text_elements" in drawing_data:
@@ -100,7 +110,12 @@ class TestKiCadSymbolContract:
             # Each pin should have required fields
             for pin in pins:
                 required_pin_fields = [
-                    "number", "name", "type", "position", "length", "orientation"
+                    "number",
+                    "name",
+                    "type",
+                    "position",
+                    "length",
+                    "orientation",
                 ]
 
                 for field in required_pin_fields:
@@ -108,16 +123,24 @@ class TestKiCadSymbolContract:
 
                 # Pin type validation
                 assert pin["type"] in [
-                    "input", "output", "bidirectional", "tri_state",
-                    "passive", "unspecified", "power_in", "power_out",
-                    "open_collector", "open_emitter", "not_connected"
+                    "input",
+                    "output",
+                    "bidirectional",
+                    "tri_state",
+                    "passive",
+                    "unspecified",
+                    "power_in",
+                    "power_out",
+                    "open_collector",
+                    "open_emitter",
+                    "not_connected",
                 ]
 
                 # Position should have x, y coordinates
                 assert "x" in pin["position"]
                 assert "y" in pin["position"]
-                assert isinstance(pin["position"]["x"], (int, float))
-                assert isinstance(pin["position"]["y"], (int, float))
+                assert isinstance(pin["position"]["x"], int | float)
+                assert isinstance(pin["position"]["y"], int | float)
 
                 # Orientation validation
                 assert pin["orientation"] in ["right", "left", "up", "down"]
@@ -137,7 +160,7 @@ class TestKiCadSymbolContract:
 
             for field in required_bbox_fields:
                 assert field in bounding_box
-                assert isinstance(bounding_box[field], (int, float))
+                assert isinstance(bounding_box[field], int | float)
 
             # Logical constraints
             assert bounding_box["max_x"] >= bounding_box["min_x"]
@@ -154,9 +177,6 @@ class TestKiCadSymbolContract:
             properties = data["properties"]
 
             # Properties should contain symbol-specific metadata
-            common_symbol_properties = [
-                "Reference", "Value", "Footprint", "ki_keywords", "ki_description"
-            ]
 
             # Properties structure validation
             assert isinstance(properties, dict)
@@ -171,7 +191,9 @@ class TestKiCadSymbolContract:
         component_id = str(uuid.uuid4())
 
         # Test SVG format request
-        response = client.get(f"/api/v1/kicad/components/{component_id}/symbol?format=svg")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/symbol?format=svg"
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -179,10 +201,14 @@ class TestKiCadSymbolContract:
             data = response.json()
             assert "svg_data" in data
             assert isinstance(data["svg_data"], str)
-            assert data["svg_data"].startswith("<?xml") or data["svg_data"].startswith("<svg")
+            assert data["svg_data"].startswith("<?xml") or data["svg_data"].startswith(
+                "<svg"
+            )
 
         # Test raw KiCad format
-        response = client.get(f"/api/v1/kicad/components/{component_id}/symbol?format=kicad")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/symbol?format=kicad"
+        )
 
         if response.status_code == 200:
             # Raw KiCad format should return native symbol data
@@ -250,7 +276,9 @@ class TestKiCadSymbolContract:
         component_id = str(uuid.uuid4())
 
         # Invalid format parameter
-        response = client.get(f"/api/v1/kicad/components/{component_id}/symbol?format=invalid")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/symbol?format=invalid"
+        )
         assert response.status_code in [200, 400, 422]
 
     def test_get_kicad_symbol_coordinate_system(self, client: TestClient):

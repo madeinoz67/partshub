@@ -2,11 +2,11 @@
 Component model with JSON specifications field for flexible component data storage.
 """
 
-from sqlalchemy import Column, String, Integer, Text, Numeric, JSON, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql import func
 import uuid
+
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from ..database import Base
 
@@ -18,6 +18,7 @@ class Component(Base):
     Uses JSON fields for flexible component specifications that vary by component type
     (e.g., resistors have resistance/tolerance, microcontrollers have memory/frequency).
     """
+
     __tablename__ = "components"
 
     # Primary identification
@@ -25,10 +26,18 @@ class Component(Base):
     name = Column(String(255), nullable=False, index=True)
 
     # Multiple identification fields for different purposes
-    local_part_id = Column(String(50), nullable=True, unique=True, index=True)  # User-friendly local identifier (CAP-001, RES-047)
-    barcode_id = Column(String(50), nullable=True, unique=True, index=True)  # Auto-generated for QR/barcode scanning
-    manufacturer_part_number = Column(String(100), nullable=True, index=True)  # Official manufacturer part number
-    provider_sku = Column(String(100), nullable=True, index=True)  # Provider-specific SKU (LCSC, Mouser, etc.)
+    local_part_id = Column(
+        String(50), nullable=True, unique=True, index=True
+    )  # User-friendly local identifier (CAP-001, RES-047)
+    barcode_id = Column(
+        String(50), nullable=True, unique=True, index=True
+    )  # Auto-generated for QR/barcode scanning
+    manufacturer_part_number = Column(
+        String(100), nullable=True, index=True
+    )  # Official manufacturer part number
+    provider_sku = Column(
+        String(100), nullable=True, index=True
+    )  # Provider-specific SKU (LCSC, Mouser, etc.)
 
     # Legacy field - maintained for backward compatibility, maps to manufacturer_part_number
     part_number = Column(String(100), nullable=True, index=True, unique=True)
@@ -36,7 +45,9 @@ class Component(Base):
 
     # Classification (location now handled via ComponentLocation relationship)
     category_id = Column(String, ForeignKey("categories.id"), nullable=True)
-    component_type = Column(String(50), nullable=True, index=True)  # resistor, capacitor, IC, etc.
+    component_type = Column(
+        String(50), nullable=True, index=True
+    )  # resistor, capacitor, IC, etc.
     value = Column(String(50), nullable=True)  # 10kΩ, 100μF, etc.
     package = Column(String(50), nullable=True)  # 0805, DIP8, SOT-23, etc.
 
@@ -49,27 +60,61 @@ class Component(Base):
 
     # Flexible data storage
     notes = Column(Text, nullable=True)
-    specifications = Column(JSON, nullable=True)  # Component-specific electrical/mechanical parameters
+    specifications = Column(
+        JSON, nullable=True
+    )  # Component-specific electrical/mechanical parameters
     custom_fields = Column(JSON, nullable=True)  # User-defined attributes and metadata
-    provider_data = Column(JSON, nullable=True)  # Cached data from component providers (LCSC, Octopart, etc.)
+    provider_data = Column(
+        JSON, nullable=True
+    )  # Cached data from component providers (LCSC, Octopart, etc.)
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     category = relationship("Category", back_populates="components")
-    locations = relationship("ComponentLocation", back_populates="component", cascade="all, delete-orphan")
-    stock_transactions = relationship("StockTransaction", back_populates="component", cascade="all, delete-orphan")
-    project_components = relationship("ProjectComponent", back_populates="component", cascade="all, delete-orphan")
+    locations = relationship(
+        "ComponentLocation", back_populates="component", cascade="all, delete-orphan"
+    )
+    stock_transactions = relationship(
+        "StockTransaction", back_populates="component", cascade="all, delete-orphan"
+    )
+    project_components = relationship(
+        "ProjectComponent", back_populates="component", cascade="all, delete-orphan"
+    )
     tags = relationship("Tag", secondary="component_tags", back_populates="components")
-    attachments = relationship("Attachment", back_populates="component", cascade="all, delete-orphan")
-    custom_field_values = relationship("CustomFieldValue", back_populates="component", cascade="all, delete-orphan")
-    substitute_for = relationship("Substitute", foreign_keys="Substitute.component_id", back_populates="component")
-    substitute_options = relationship("Substitute", foreign_keys="Substitute.substitute_component_id", back_populates="substitute_component")
-    purchase_items = relationship("PurchaseItem", back_populates="component", cascade="all, delete-orphan")
-    provider_data_cache = relationship("ComponentProviderData", back_populates="component", cascade="all, delete-orphan")
-    kicad_data = relationship("KiCadLibraryData", back_populates="component", uselist=False, cascade="all, delete-orphan", lazy="select")
+    attachments = relationship(
+        "Attachment", back_populates="component", cascade="all, delete-orphan"
+    )
+    custom_field_values = relationship(
+        "CustomFieldValue", back_populates="component", cascade="all, delete-orphan"
+    )
+    substitute_for = relationship(
+        "Substitute", foreign_keys="Substitute.component_id", back_populates="component"
+    )
+    substitute_options = relationship(
+        "Substitute",
+        foreign_keys="Substitute.substitute_component_id",
+        back_populates="substitute_component",
+    )
+    purchase_items = relationship(
+        "PurchaseItem", back_populates="component", cascade="all, delete-orphan"
+    )
+    provider_data_cache = relationship(
+        "ComponentProviderData",
+        back_populates="component",
+        cascade="all, delete-orphan",
+    )
+    kicad_data = relationship(
+        "KiCadLibraryData",
+        back_populates="component",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
     def __repr__(self):
         return f"<Component(id='{self.id}', name='{self.name}', part_number='{self.part_number}')>"
@@ -86,22 +131,71 @@ class Component(Base):
         """Calculate total quantity across all storage locations."""
         return sum(location.quantity_on_hand for location in self.locations)
 
+    @quantity_on_hand.setter
+    def quantity_on_hand(self, value: int):
+        """Set quantity on hand for the primary location, creating ComponentLocation if needed."""
+        if not self.locations:
+            # Cannot set quantity without a storage location
+            raise ValueError(
+                "Cannot set quantity without a storage location. Create a ComponentLocation first."
+            )
+
+        # Update the primary location (first location or one with highest quantity)
+        primary_location = (
+            self.locations[0]
+            if len(self.locations) == 1
+            else max(self.locations, key=lambda loc: loc.quantity_on_hand)
+        )
+        primary_location.quantity_on_hand = value
+
     @property
     def quantity_ordered(self):
         """Calculate total ordered quantity across all storage locations."""
         return sum(location.quantity_ordered for location in self.locations)
+
+    @quantity_ordered.setter
+    def quantity_ordered(self, value: int):
+        """Set quantity ordered for the primary location."""
+        if not self.locations:
+            raise ValueError(
+                "Cannot set quantity without a storage location. Create a ComponentLocation first."
+            )
+
+        primary_location = (
+            self.locations[0]
+            if len(self.locations) == 1
+            else max(self.locations, key=lambda loc: loc.quantity_on_hand)
+        )
+        primary_location.quantity_ordered = value
 
     @property
     def minimum_stock(self):
         """Calculate total minimum stock across all storage locations."""
         return sum(location.minimum_stock for location in self.locations)
 
+    @minimum_stock.setter
+    def minimum_stock(self, value: int):
+        """Set minimum stock for the primary location."""
+        if not self.locations:
+            raise ValueError(
+                "Cannot set quantity without a storage location. Create a ComponentLocation first."
+            )
+
+        primary_location = (
+            self.locations[0]
+            if len(self.locations) == 1
+            else max(self.locations, key=lambda loc: loc.quantity_on_hand)
+        )
+        primary_location.minimum_stock = value
+
     @property
     def primary_location(self):
         """Get the storage location with the highest quantity (primary location)."""
         if not self.locations:
             return None
-        return max(self.locations, key=lambda loc: loc.quantity_on_hand).storage_location
+        return max(
+            self.locations, key=lambda loc: loc.quantity_on_hand
+        ).storage_location
 
     @property
     def storage_locations(self):
@@ -137,26 +231,29 @@ class Component(Base):
         """Generate a unique barcode ID similar to PartsBox format."""
         import secrets
         import string
+
         # Generate 26-character alphanumeric string (lowercase)
         chars = string.ascii_lowercase + string.digits
-        return ''.join(secrets.choice(chars) for _ in range(26))
+        return "".join(secrets.choice(chars) for _ in range(26))
 
     def generate_local_part_id(self, prefix=None):
         """Generate a local part ID based on component type and sequence."""
         if prefix is None:
             # Generate prefix from component type
             type_prefixes = {
-                'resistor': 'RES',
-                'capacitor': 'CAP',
-                'inductor': 'IND',
-                'ic': 'IC',
-                'microcontroller': 'MCU',
-                'diode': 'D',
-                'transistor': 'Q',
-                'connector': 'CONN',
-                'crystal': 'XTAL'
+                "resistor": "RES",
+                "capacitor": "CAP",
+                "inductor": "IND",
+                "ic": "IC",
+                "microcontroller": "MCU",
+                "diode": "D",
+                "transistor": "Q",
+                "connector": "CONN",
+                "crystal": "XTAL",
             }
-            prefix = type_prefixes.get(self.component_type.lower() if self.component_type else '', 'PART')
+            prefix = type_prefixes.get(
+                self.component_type.lower() if self.component_type else "", "PART"
+            )
 
         # This would need to be implemented with sequence logic from the database
         # For now, return a placeholder that should be handled by the service layer

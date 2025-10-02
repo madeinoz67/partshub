@@ -3,9 +3,9 @@ Contract test for GET /api/v1/kicad/components/{id}/footprint
 Tests KiCad component footprint endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestKiCadFootprintContract:
@@ -32,8 +32,14 @@ class TestKiCadFootprintContract:
 
             # Required fields for KiCadFootprint
             required_fields = [
-                "component_id", "library_name", "footprint_name", "pads",
-                "dimensions", "3d_model", "courtyard", "fabrication_attributes"
+                "component_id",
+                "library_name",
+                "footprint_name",
+                "pads",
+                "dimensions",
+                "3d_model",
+                "courtyard",
+                "fabrication_attributes",
             ]
 
             for field in required_fields:
@@ -64,7 +70,12 @@ class TestKiCadFootprintContract:
             # Each pad should have required fields
             for pad in pads:
                 required_pad_fields = [
-                    "number", "type", "shape", "position", "size", "layers"
+                    "number",
+                    "type",
+                    "shape",
+                    "position",
+                    "size",
+                    "layers",
                 ]
 
                 for field in required_pad_fields:
@@ -72,25 +83,32 @@ class TestKiCadFootprintContract:
 
                 # Pad type validation
                 assert pad["type"] in [
-                    "through_hole", "smd", "connect", "np_through_hole"
+                    "through_hole",
+                    "smd",
+                    "connect",
+                    "np_through_hole",
                 ]
 
                 # Pad shape validation
                 assert pad["shape"] in [
-                    "circle", "rectangle", "oval", "roundrect", "custom"
+                    "circle",
+                    "rectangle",
+                    "oval",
+                    "roundrect",
+                    "custom",
                 ]
 
                 # Position should have x, y coordinates
                 assert "x" in pad["position"]
                 assert "y" in pad["position"]
-                assert isinstance(pad["position"]["x"], (int, float))
-                assert isinstance(pad["position"]["y"], (int, float))
+                assert isinstance(pad["position"]["x"], int | float)
+                assert isinstance(pad["position"]["y"], int | float)
 
                 # Size should have width and height
                 assert "width" in pad["size"]
                 assert "height" in pad["size"]
-                assert isinstance(pad["size"]["width"], (int, float))
-                assert isinstance(pad["size"]["height"], (int, float))
+                assert isinstance(pad["size"]["width"], int | float)
+                assert isinstance(pad["size"]["height"], int | float)
                 assert pad["size"]["width"] > 0
                 assert pad["size"]["height"] > 0
 
@@ -116,8 +134,8 @@ class TestKiCadFootprintContract:
                 assert field in dimensions
 
             # Width and height should be positive
-            assert isinstance(dimensions["width"], (int, float))
-            assert isinstance(dimensions["height"], (int, float))
+            assert isinstance(dimensions["width"], int | float)
+            assert isinstance(dimensions["height"], int | float)
             assert dimensions["width"] > 0
             assert dimensions["height"] > 0
 
@@ -127,7 +145,7 @@ class TestKiCadFootprintContract:
 
             for field in bbox_fields:
                 assert field in bounding_box
-                assert isinstance(bounding_box[field], (int, float))
+                assert isinstance(bounding_box[field], int | float)
 
             # Logical constraints
             assert bounding_box["max_x"] >= bounding_box["min_x"]
@@ -148,17 +166,16 @@ class TestKiCadFootprintContract:
                 assert isinstance(model_3d, dict)
 
                 # Common 3D model fields
-                possible_3d_fields = [
-                    "model_path", "offset", "scale", "rotation"
-                ]
 
                 # Model path should be present if 3D model exists
                 if "model_path" in model_3d:
                     assert isinstance(model_3d["model_path"], str)
                     assert len(model_3d["model_path"]) > 0
                     # Common 3D model file extensions
-                    assert any(model_3d["model_path"].endswith(ext)
-                              for ext in [".wrl", ".step", ".stp"])
+                    assert any(
+                        model_3d["model_path"].endswith(ext)
+                        for ext in [".wrl", ".step", ".stp"]
+                    )
 
                 # Offset, scale, rotation should be numeric if present
                 for transform_field in ["offset", "scale", "rotation"]:
@@ -168,7 +185,7 @@ class TestKiCadFootprintContract:
                         # Should have x, y, z components
                         for axis in ["x", "y", "z"]:
                             if axis in transform_data:
-                                assert isinstance(transform_data[axis], (int, float))
+                                assert isinstance(transform_data[axis], int | float)
 
     def test_get_kicad_footprint_courtyard(self, client: TestClient):
         """Test courtyard information"""
@@ -196,7 +213,12 @@ class TestKiCadFootprintContract:
                         # Each courtyard element should define a shape
                         for element in side_courtyard:
                             assert "type" in element
-                            assert element["type"] in ["line", "rectangle", "circle", "polygon"]
+                            assert element["type"] in [
+                                "line",
+                                "rectangle",
+                                "circle",
+                                "polygon",
+                            ]
                             assert "coordinates" in element
 
     def test_get_kicad_footprint_fabrication_attributes(self, client: TestClient):
@@ -214,8 +236,12 @@ class TestKiCadFootprintContract:
 
             # Common fabrication attributes
             common_fab_attrs = [
-                "smd", "through_hole", "board_only", "exclude_from_pos",
-                "exclude_from_bom", "allow_soldermask_bridges"
+                "smd",
+                "through_hole",
+                "board_only",
+                "exclude_from_pos",
+                "exclude_from_bom",
+                "allow_soldermask_bridges",
             ]
 
             # Values should be boolean for flag-type attributes
@@ -249,7 +275,9 @@ class TestKiCadFootprintContract:
         component_id = str(uuid.uuid4())
 
         # Test SVG format request
-        response = client.get(f"/api/v1/kicad/components/{component_id}/footprint?format=svg")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/footprint?format=svg"
+        )
 
         # This will fail until endpoint is implemented
         if response.status_code == 200:
@@ -258,7 +286,9 @@ class TestKiCadFootprintContract:
             assert isinstance(data["svg_data"], str)
 
         # Test Gerber format
-        response = client.get(f"/api/v1/kicad/components/{component_id}/footprint?format=gerber")
+        response = client.get(
+            f"/api/v1/kicad/components/{component_id}/footprint?format=gerber"
+        )
 
         if response.status_code == 200:
             data = response.json()
@@ -291,15 +321,22 @@ class TestKiCadFootprintContract:
 
         # Get component and footprint data
         component_response = client.get(f"/api/v1/kicad/components/{component_id}")
-        footprint_response = client.get(f"/api/v1/kicad/components/{component_id}/footprint")
+        footprint_response = client.get(
+            f"/api/v1/kicad/components/{component_id}/footprint"
+        )
 
-        if component_response.status_code == 200 and footprint_response.status_code == 200:
+        if (
+            component_response.status_code == 200
+            and footprint_response.status_code == 200
+        ):
             component_data = component_response.json()
             footprint_data = footprint_response.json()
 
             # Footprint name should match between component and footprint data
             if component_data["footprint_name"]:
-                assert component_data["footprint_name"] == footprint_data["footprint_name"]
+                assert (
+                    component_data["footprint_name"] == footprint_data["footprint_name"]
+                )
 
     def test_get_kicad_footprint_layer_validation(self, client: TestClient):
         """Test PCB layer naming validation"""
@@ -312,12 +349,6 @@ class TestKiCadFootprintContract:
             pads = data["pads"]
 
             # Common KiCad layer names
-            valid_layers = [
-                "F.Cu", "B.Cu", "F.Paste", "B.Paste", "F.SilkS", "B.SilkS",
-                "F.Mask", "B.Mask", "Dwgs.User", "Cmts.User", "Eco1.User",
-                "Eco2.User", "Edge.Cuts", "Margin", "F.CrtYd", "B.CrtYd",
-                "F.Fab", "B.Fab"
-            ]
 
             for pad in pads:
                 for layer in pad["layers"]:

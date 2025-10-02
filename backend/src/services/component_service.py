@@ -2,16 +2,26 @@
 ComponentService with CRUD and search operations for components.
 """
 
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, or_, func, desc
-from ..models import Component, StockTransaction, TransactionType, Category, StorageLocation, Tag, ComponentLocation, KiCadLibraryData
 import uuid
+from typing import Any
+
+from sqlalchemy import and_, case, desc, func, or_
+from sqlalchemy.orm import Session, selectinload
+
+from ..models import (
+    Category,
+    Component,
+    ComponentLocation,
+    KiCadLibraryData,
+    StockTransaction,
+    StorageLocation,
+    Tag,
+)
 
 # Import EasyEDA service for LCSC KiCad conversion
 try:
     from .easyeda_service import EasyEDAService
-    from ..providers.lcsc_provider import LCSCProvider
+
     EASYEDA_INTEGRATION_AVAILABLE = True
 except ImportError:
     EASYEDA_INTEGRATION_AVAILABLE = False
@@ -23,20 +33,42 @@ class ComponentService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_component(self, component_data: Dict[str, Any]) -> Component:
+    def create_component(self, component_data: dict[str, Any]) -> Component:
         """Create a new component."""
         # Generate ID if not provided
         if "id" not in component_data:
             component_data["id"] = str(uuid.uuid4())
 
-        # Extract tags before creating component
+        # Extract fields that should not be set directly on Component
         tag_ids = component_data.pop("tags", [])
+        storage_location_id = component_data.pop("storage_location_id", None)
+        quantity_on_hand = component_data.pop("quantity_on_hand", 0)
+        quantity_ordered = component_data.pop("quantity_ordered", 0)
+        minimum_stock = component_data.pop("minimum_stock", 0)
 
-        # Create component instance
+        # Create component instance (without quantity fields)
         component = Component(**component_data)
 
         self.db.add(component)
         self.db.flush()  # Flush to get component ID
+
+        # Create ComponentLocation record if storage location is specified
+        if storage_location_id:
+            # Verify storage location exists
+            storage_location = (
+                self.db.query(StorageLocation)
+                .filter(StorageLocation.id == storage_location_id)
+                .first()
+            )
+            if storage_location:
+                component_location = ComponentLocation(
+                    component_id=component.id,
+                    storage_location_id=storage_location_id,
+                    quantity_on_hand=quantity_on_hand,
+                    quantity_ordered=quantity_ordered,
+                    minimum_stock=minimum_stock,
+                )
+                self.db.add(component_location)
 
         # Handle tag associations
         if tag_ids:
@@ -47,12 +79,12 @@ class ComponentService:
         self.db.refresh(component)
 
         # Create initial stock transaction if quantity > 0
-        if component.quantity_on_hand > 0:
+        if quantity_on_hand > 0:
             initial_transaction = StockTransaction.create_add_transaction(
                 component=component,
-                quantity=component.quantity_on_hand,
+                quantity=quantity_on_hand,
                 reason="Initial stock entry",
-                reference_type="initial_stock"
+                reference_type="initial_stock",
             )
             self.db.add(initial_transaction)
             self.db.commit()
@@ -63,7 +95,9 @@ class ComponentService:
 
         return component
 
-    def _auto_generate_kicad_data(self, component: Component) -> Optional[KiCadLibraryData]:
+    def _auto_generate_kicad_data(
+        self, component: Component
+    ) -> KiCadLibraryData | None:
         """
         Automatically generate KiCad data for a component if it has sufficient information.
 
@@ -78,7 +112,9 @@ class ComponentService:
             return None
 
         # Check if KiCad data already exists
-        existing_kicad_data = self.db.query(KiCadLibraryData).filter_by(component_id=component.id).first()
+        existing_kicad_data = (
+            self.db.query(KiCadLibraryData).filter_by(component_id=component.id).first()
+        )
         if existing_kicad_data:
             return existing_kicad_data
 
@@ -96,11 +132,15 @@ class ComponentService:
 
         except Exception as e:
             # Log error but don't fail component creation
-            print(f"Failed to auto-generate KiCad data for component {component.id}: {e}")
+            print(
+                f"Failed to auto-generate KiCad data for component {component.id}: {e}"
+            )
 
         return None
 
-    async def _try_easyeda_conversion(self, component: Component) -> Optional[KiCadLibraryData]:
+    async def _try_easyeda_conversion(
+        self, component: Component
+    ) -> KiCadLibraryData | None:
         """
         Try to convert component using EasyEDA for LCSC components.
 
@@ -120,64 +160,66 @@ class ComponentService:
 
         try:
             # Initialize EasyEDA service
-            easyeda_service = EasyEDAService()
+            EasyEDAService()
 
             # Convert component using EasyEDA
             # Note: This would require an async context, so it's commented out for now
             # conversion_result = await easyeda_service.convert_lcsc_component(lcsc_id)
-            return None  # Temporarily disabled until proper async handling is implemented
-
-            if not conversion_result or 'conversions' not in conversion_result:
-                return None
-
-            # Create KiCad data from conversion results
-            kicad_data = KiCadLibraryData(component_id=component.id)
-
-            conversions = conversion_result['conversions']
-
-            # Set symbol data if available
-            if 'symbol' in conversions:
-                symbol_info = conversions['symbol']
-                kicad_data.custom_symbol_file_path = symbol_info.get('file_path')
-                kicad_data.symbol_library = symbol_info.get('library_name', 'EasyEDA_Symbols')
-                kicad_data.symbol_name = symbol_info.get('symbol_name', component.name or 'EasyEDA_Component')
-                kicad_data.symbol_source = kicad_data.symbol_source.PROVIDER
-                kicad_data.symbol_updated_at = kicad_data.symbol_updated_at
-
-            # Set footprint data if available
-            if 'footprint' in conversions:
-                footprint_info = conversions['footprint']
-                kicad_data.custom_footprint_file_path = footprint_info.get('file_path')
-                kicad_data.footprint_library = footprint_info.get('library_name', 'EasyEDA_Footprints')
-                kicad_data.footprint_name = footprint_info.get('footprint_name', component.name or 'EasyEDA_Component')
-                kicad_data.footprint_source = kicad_data.footprint_source.PROVIDER
-                kicad_data.footprint_updated_at = kicad_data.footprint_updated_at
-
-            # Set 3D model data if available
-            if 'model_3d' in conversions:
-                model_info = conversions['model_3d']
-                kicad_data.custom_3d_model_file_path = model_info.get('file_path')
-                kicad_data.model_3d_path = model_info.get('file_path')
-                kicad_data.model_3d_source = kicad_data.model_3d_source.PROVIDER
-                kicad_data.model_3d_updated_at = kicad_data.model_3d_updated_at
-
-            # Set provider data using the set_provider_data method
-            kicad_data.set_provider_data(
-                symbol_lib=kicad_data.symbol_library,
-                symbol_name=kicad_data.symbol_name,
-                footprint_lib=kicad_data.footprint_library,
-                footprint_name=kicad_data.footprint_name,
-                model_3d_path=kicad_data.model_3d_path
+            return (
+                None  # Temporarily disabled until proper async handling is implemented
             )
 
-            print(f"Successfully converted LCSC component {lcsc_id} using EasyEDA")
-            return kicad_data
+            # if not conversion_result or 'conversions' not in conversion_result:
+            #     return None
+
+            # # Create KiCad data from conversion results
+            # kicad_data = KiCadLibraryData(component_id=component.id)
+
+            # conversions = conversion_result['conversions']
+
+            # # Set symbol data if available
+            # if 'symbol' in conversions:
+            #     symbol_info = conversions['symbol']
+            #     kicad_data.custom_symbol_file_path = symbol_info.get('file_path')
+            #     kicad_data.symbol_library = symbol_info.get('library_name', 'EasyEDA_Symbols')
+            #     kicad_data.symbol_name = symbol_info.get('symbol_name', component.name or 'EasyEDA_Component')
+            #     kicad_data.symbol_source = kicad_data.symbol_source.PROVIDER
+            #     kicad_data.symbol_updated_at = kicad_data.symbol_updated_at
+
+            # # Set footprint data if available
+            # if 'footprint' in conversions:
+            #     footprint_info = conversions['footprint']
+            #     kicad_data.custom_footprint_file_path = footprint_info.get('file_path')
+            #     kicad_data.footprint_library = footprint_info.get('library_name', 'EasyEDA_Footprints')
+            #     kicad_data.footprint_name = footprint_info.get('footprint_name', component.name or 'EasyEDA_Component')
+            #     kicad_data.footprint_source = kicad_data.footprint_source.PROVIDER
+            #     kicad_data.footprint_updated_at = kicad_data.footprint_updated_at
+
+            # # Set 3D model data if available
+            # if 'model_3d' in conversions:
+            #     model_info = conversions['model_3d']
+            #     kicad_data.custom_3d_model_file_path = model_info.get('file_path')
+            #     kicad_data.model_3d_path = model_info.get('file_path')
+            #     kicad_data.model_3d_source = kicad_data.model_3d_source.PROVIDER
+            #     kicad_data.model_3d_updated_at = kicad_data.model_3d_updated_at
+
+            # # Set provider data using the set_provider_data method
+            # kicad_data.set_provider_data(
+            #     symbol_lib=kicad_data.symbol_library,
+            #     symbol_name=kicad_data.symbol_name,
+            #     footprint_lib=kicad_data.footprint_library,
+            #     footprint_name=kicad_data.footprint_name,
+            #     model_3d_path=kicad_data.model_3d_path
+            # )
+
+            # print(f"Successfully converted LCSC component {lcsc_id} using EasyEDA")
+            # return kicad_data
 
         except Exception as e:
             print(f"EasyEDA conversion failed for {lcsc_id}: {e}")
             return None
 
-    def _extract_lcsc_id(self, component: Component) -> Optional[str]:
+    def _extract_lcsc_id(self, component: Component) -> str | None:
         """
         Extract LCSC component ID from component data.
 
@@ -188,31 +230,34 @@ class ComponentService:
             LCSC ID string or None if not found
         """
         # Check provider info for LCSC ID
-        provider_info = getattr(component, 'provider_info', {})
+        provider_info = getattr(component, "provider_info", {})
         if isinstance(provider_info, dict):
-            provider_id = provider_info.get('provider_id', '')
-            if provider_id and provider_id.startswith('LCSC-C'):
-                return provider_id.replace('LCSC-', '')
+            provider_id = provider_info.get("provider_id", "")
+            if provider_id and provider_id.startswith("LCSC-C"):
+                return provider_id.replace("LCSC-", "")
 
         # Check part numbers for LCSC format
-        for field in ['part_number', 'manufacturer_part_number', 'provider_sku']:
-            value = getattr(component, field, '')
+        for field in ["part_number", "manufacturer_part_number", "provider_sku"]:
+            value = getattr(component, field, "")
             if value and isinstance(value, str):
                 value = value.upper().strip()
-                if value.startswith('C') and len(value) >= 6 and value[1:].isdigit():
+                if value.startswith("C") and len(value) >= 6 and value[1:].isdigit():
                     return value
 
         # Check notes for LCSC ID
-        notes = getattr(component, 'notes', '')
-        if notes and 'LCSC:' in notes.upper():
+        notes = getattr(component, "notes", "")
+        if notes and "LCSC:" in notes.upper():
             import re
-            match = re.search(r'LCSC:\s*(C\d+)', notes.upper())
+
+            match = re.search(r"LCSC:\s*(C\d+)", notes.upper())
             if match:
                 return match.group(1)
 
         return None
 
-    def _generate_provider_kicad_data(self, component: Component) -> Optional[KiCadLibraryData]:
+    def _generate_provider_kicad_data(
+        self, component: Component
+    ) -> KiCadLibraryData | None:
         """
         Generate KiCad data based on provider component information.
 
@@ -236,7 +281,7 @@ class ComponentService:
             symbol_library=symbol_library,
             symbol_name=symbol_name,
             footprint_library=footprint_library,
-            footprint_name=footprint_name
+            footprint_name=footprint_name,
         )
 
         # Set as provider data if we have any data from provider
@@ -245,12 +290,12 @@ class ComponentService:
                 symbol_lib=symbol_library,
                 symbol_name=symbol_name,
                 footprint_lib=footprint_library,
-                footprint_name=footprint_name
+                footprint_name=footprint_name,
             )
 
         return kicad_data
 
-    def _determine_symbol_library(self, component: Component) -> Optional[str]:
+    def _determine_symbol_library(self, component: Component) -> str | None:
         """Determine appropriate symbol library based on component type."""
         if not component.component_type:
             return None
@@ -259,17 +304,17 @@ class ComponentService:
 
         # Map component types to symbol libraries
         symbol_library_map = {
-            'resistor': 'Device',
-            'capacitor': 'Device',
-            'inductor': 'Device',
-            'diode': 'Diode',
-            'transistor': 'Transistor',
-            'ic': 'Analog',
-            'microcontroller': 'MCU',
-            'connector': 'Connector',
-            'crystal': 'Device',
-            'switch': 'Switch',
-            'relay': 'Relay'
+            "resistor": "Device",
+            "capacitor": "Device",
+            "inductor": "Device",
+            "diode": "Diode",
+            "transistor": "Transistor",
+            "ic": "Analog",
+            "microcontroller": "MCU",
+            "connector": "Connector",
+            "crystal": "Device",
+            "switch": "Switch",
+            "relay": "Relay",
         }
 
         for key, library in symbol_library_map.items():
@@ -277,9 +322,9 @@ class ComponentService:
                 return library
 
         # Default fallback
-        return 'Device'
+        return "Device"
 
-    def _determine_symbol_name(self, component: Component) -> Optional[str]:
+    def _determine_symbol_name(self, component: Component) -> str | None:
         """Determine appropriate symbol name based on component characteristics."""
         if not component.component_type:
             return None
@@ -287,31 +332,33 @@ class ComponentService:
         component_type = component.component_type.lower()
 
         # Basic symbol mapping
-        if 'resistor' in component_type:
-            return 'R'
-        elif 'capacitor' in component_type:
-            return 'C'
-        elif 'inductor' in component_type:
-            return 'L'
-        elif 'diode' in component_type:
-            return 'D'
-        elif 'transistor' in component_type:
-            if 'npn' in component_type.lower():
-                return 'Q_NPN_BCE'
-            elif 'pnp' in component_type.lower():
-                return 'Q_PNP_BCE'
+        if "resistor" in component_type:
+            return "R"
+        elif "capacitor" in component_type:
+            return "C"
+        elif "inductor" in component_type:
+            return "L"
+        elif "diode" in component_type:
+            return "D"
+        elif "transistor" in component_type:
+            if "npn" in component_type.lower():
+                return "Q_NPN_BCE"
+            elif "pnp" in component_type.lower():
+                return "Q_PNP_BCE"
             else:
-                return 'Q_NPN_BCE'  # Default
+                return "Q_NPN_BCE"  # Default
 
         # For complex components, use manufacturer part number or generic name
         if component.manufacturer_part_number:
-            return component.manufacturer_part_number.replace('-', '_').replace(' ', '_')
+            return component.manufacturer_part_number.replace("-", "_").replace(
+                " ", "_"
+            )
         elif component.part_number:
-            return component.part_number.replace('-', '_').replace(' ', '_')
+            return component.part_number.replace("-", "_").replace(" ", "_")
 
-        return 'Generic'
+        return "Generic"
 
-    def _determine_footprint_library(self, component: Component) -> Optional[str]:
+    def _determine_footprint_library(self, component: Component) -> str | None:
         """Determine appropriate footprint library based on package."""
         package = None
 
@@ -319,32 +366,34 @@ class ComponentService:
         if component.package:
             package = component.package.lower()
         # Try to get package from specifications
-        elif component.specifications and 'package' in component.specifications:
-            package = str(component.specifications['package']).lower()
-        elif component.specifications and 'Package' in component.specifications:
-            package = str(component.specifications['Package']).lower()
+        elif component.specifications and "package" in component.specifications:
+            package = str(component.specifications["package"]).lower()
+        elif component.specifications and "Package" in component.specifications:
+            package = str(component.specifications["Package"]).lower()
 
         if not package:
             return None
 
         # Map package types to footprint libraries
-        if any(term in package for term in ['0402', '0603', '0805', '1206', 'smd', 'chip']):
-            return 'Resistor_SMD'
-        elif any(term in package for term in ['sot', 'sc70', 'sot23']):
-            return 'Package_TO_SOT_SMD'
-        elif any(term in package for term in ['qfp', 'lqfp']):
-            return 'Package_QFP'
-        elif any(term in package for term in ['bga']):
-            return 'Package_BGA'
-        elif any(term in package for term in ['dip', 'pdip']):
-            return 'Package_DIP'
-        elif any(term in package for term in ['soic', 'so']):
-            return 'Package_SO'
+        if any(
+            term in package for term in ["0402", "0603", "0805", "1206", "smd", "chip"]
+        ):
+            return "Resistor_SMD"
+        elif any(term in package for term in ["sot", "sc70", "sot23"]):
+            return "Package_TO_SOT_SMD"
+        elif any(term in package for term in ["qfp", "lqfp"]):
+            return "Package_QFP"
+        elif any(term in package for term in ["bga"]):
+            return "Package_BGA"
+        elif any(term in package for term in ["dip", "pdip"]):
+            return "Package_DIP"
+        elif any(term in package for term in ["soic", "so"]):
+            return "Package_SO"
 
         # Default fallback
-        return 'Package_SMD'
+        return "Package_SMD"
 
-    def _determine_footprint_name(self, component: Component) -> Optional[str]:
+    def _determine_footprint_name(self, component: Component) -> str | None:
         """Determine appropriate footprint name based on package."""
         package = None
 
@@ -352,44 +401,54 @@ class ComponentService:
         if component.package:
             package = component.package
         # Try to get package from specifications
-        elif component.specifications and 'package' in component.specifications:
-            package = str(component.specifications['package'])
-        elif component.specifications and 'Package' in component.specifications:
-            package = str(component.specifications['Package'])
+        elif component.specifications and "package" in component.specifications:
+            package = str(component.specifications["package"])
+        elif component.specifications and "Package" in component.specifications:
+            package = str(component.specifications["Package"])
 
         if not package:
             return None
 
         # Clean up package name for footprint
-        footprint_name = package.upper().replace(' ', '_').replace('-', '_')
+        footprint_name = package.upper().replace(" ", "_").replace("-", "_")
 
         # Add standard prefixes based on component type
         if component.component_type:
             component_type = component.component_type.lower()
-            if any(term in component_type for term in ['resistor', 'capacitor', 'inductor']):
+            if any(
+                term in component_type for term in ["resistor", "capacitor", "inductor"]
+            ):
                 return f"R_{footprint_name}"
 
         return footprint_name
 
-    def get_component(self, component_id: str) -> Optional[Component]:
+    def get_component(self, component_id: str) -> Component | None:
         """Get a component by ID with all relationships loaded."""
         return (
             self.db.query(Component)
             .options(
                 selectinload(Component.category),
-                selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
+                selectinload(Component.locations).selectinload(
+                    ComponentLocation.storage_location
+                ),
                 selectinload(Component.tags),
                 selectinload(Component.attachments),
                 selectinload(Component.kicad_data),
-                selectinload(Component.custom_field_values).selectinload(Component.custom_field_values.property.mapper.class_.field)
+                selectinload(Component.custom_field_values).selectinload(
+                    Component.custom_field_values.property.mapper.class_.field
+                ),
             )
             .filter(Component.id == component_id)
             .first()
         )
 
-    def update_component(self, component_id: str, update_data: Dict[str, Any]) -> Optional[Component]:
+    def update_component(
+        self, component_id: str, update_data: dict[str, Any]
+    ) -> Component | None:
         """Update a component."""
-        component = self.db.query(Component).filter(Component.id == component_id).first()
+        component = (
+            self.db.query(Component).filter(Component.id == component_id).first()
+        )
         if not component:
             return None
 
@@ -415,7 +474,9 @@ class ComponentService:
 
     def delete_component(self, component_id: str) -> bool:
         """Delete a component."""
-        component = self.db.query(Component).filter(Component.id == component_id).first()
+        component = (
+            self.db.query(Component).filter(Component.id == component_id).first()
+        )
         if not component:
             return False
 
@@ -425,17 +486,18 @@ class ComponentService:
 
     def list_components(
         self,
-        search: Optional[str] = None,
-        category: Optional[str] = None,
-        storage_location: Optional[str] = None,
-        component_type: Optional[str] = None,
-        stock_status: Optional[str] = None,  # low, out, available
-        tags: Optional[List[str]] = None,
+        search: str | None = None,
+        category: str | None = None,
+        category_id: str | None = None,
+        storage_location: str | None = None,
+        component_type: str | None = None,
+        stock_status: str | None = None,  # low, out, available
+        tags: list[str] | None = None,
         sort_by: str = "name",
         sort_order: str = "asc",
         limit: int = 50,
-        offset: int = 0
-    ) -> List[Component]:
+        offset: int = 0,
+    ) -> list[Component]:
         """
         List components with filtering and pagination.
 
@@ -456,8 +518,10 @@ class ComponentService:
         """
         query = self.db.query(Component).options(
             selectinload(Component.category),
-            selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
-            selectinload(Component.tags)
+            selectinload(Component.locations).selectinload(
+                ComponentLocation.storage_location
+            ),
+            selectinload(Component.tags),
         )
 
         # Apply filters
@@ -476,16 +540,23 @@ class ComponentService:
                     Component.value.ilike(search_term),
                     Component.package.ilike(search_term),
                     Component.tags.any(Tag.name.ilike(search_term)),
-                    Component.notes.ilike(search_term)
+                    Component.notes.ilike(search_term),
                 )
             )
 
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
 
+        if category_id:
+            query = query.filter(Component.category_id == category_id)
+
         if storage_location:
-            query = query.join(StorageLocation).filter(
-                StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+            query = (
+                query.join(ComponentLocation)
+                .join(StorageLocation)
+                .filter(
+                    StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+                )
             )
 
         if component_type:
@@ -495,7 +566,9 @@ class ComponentService:
         if stock_status == "out":
             # Components with zero total quantity across all locations
             quantity_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
@@ -504,12 +577,16 @@ class ComponentService:
         elif stock_status == "low":
             # Components with quantity > 0 but <= total minimum stock across all locations
             quantity_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
             min_stock_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.minimum_stock), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
@@ -517,19 +594,23 @@ class ComponentService:
                 and_(
                     quantity_subquery > 0,
                     quantity_subquery <= min_stock_subquery,
-                    min_stock_subquery > 0
+                    min_stock_subquery > 0,
                 )
             )
 
         elif stock_status == "available":
             # Components with quantity > total minimum stock across all locations
             quantity_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
             min_stock_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.minimum_stock), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
@@ -542,17 +623,17 @@ class ComponentService:
         if sort_order.lower() == "desc":
             if sort_by == "name":
                 query = query.order_by(desc(Component.name))
-            elif sort_by == "quantity":
-                query = query.order_by(desc(Component.quantity_on_hand))
             elif sort_by == "created_at":
                 query = query.order_by(desc(Component.created_at))
+            # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
+            # and cannot be used directly in SQL ORDER BY
         else:
             if sort_by == "name":
                 query = query.order_by(Component.name)
-            elif sort_by == "quantity":
-                query = query.order_by(Component.quantity_on_hand)
             elif sort_by == "created_at":
                 query = query.order_by(Component.created_at)
+            # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
+            # and cannot be used directly in SQL ORDER BY
 
         # Get results before pagination for search ranking
         if search and sort_by == "name" and sort_order == "asc":
@@ -560,7 +641,7 @@ class ComponentService:
             all_results = query.all()
             ranked_results = self._rank_search_results(all_results, search.lower())
             # Apply pagination to ranked results
-            return ranked_results[offset:offset + limit]
+            return ranked_results[offset : offset + limit]
         else:
             # Apply pagination
             query = query.offset(offset).limit(limit)
@@ -568,12 +649,13 @@ class ComponentService:
 
     def count_components(
         self,
-        search: Optional[str] = None,
-        category: Optional[str] = None,
-        storage_location: Optional[str] = None,
-        component_type: Optional[str] = None,
-        stock_status: Optional[str] = None,
-        tags: Optional[List[str]] = None
+        search: str | None = None,
+        category: str | None = None,
+        category_id: str | None = None,
+        storage_location: str | None = None,
+        component_type: str | None = None,
+        stock_status: str | None = None,
+        tags: list[str] | None = None,
     ) -> int:
         """Count components with filtering (for pagination)."""
         query = self.db.query(Component)
@@ -594,16 +676,23 @@ class ComponentService:
                     Component.value.ilike(search_term),
                     Component.package.ilike(search_term),
                     Component.tags.any(Tag.name.ilike(search_term)),
-                    Component.notes.ilike(search_term)
+                    Component.notes.ilike(search_term),
                 )
             )
 
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
 
+        if category_id:
+            query = query.filter(Component.category_id == category_id)
+
         if storage_location:
-            query = query.join(StorageLocation).filter(
-                StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+            query = (
+                query.join(ComponentLocation)
+                .join(StorageLocation)
+                .filter(
+                    StorageLocation.location_hierarchy.ilike(f"%{storage_location}%")
+                )
             )
 
         if component_type:
@@ -613,7 +702,9 @@ class ComponentService:
         if stock_status == "out":
             # Components with zero total quantity across all locations
             quantity_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
@@ -622,12 +713,16 @@ class ComponentService:
         elif stock_status == "low":
             # Components with quantity > 0 but <= total minimum stock across all locations
             quantity_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
             min_stock_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.minimum_stock), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
@@ -635,19 +730,23 @@ class ComponentService:
                 and_(
                     quantity_subquery > 0,
                     quantity_subquery <= min_stock_subquery,
-                    min_stock_subquery > 0
+                    min_stock_subquery > 0,
                 )
             )
 
         elif stock_status == "available":
             # Components with quantity > total minimum stock across all locations
             quantity_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.quantity_on_hand), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
             min_stock_subquery = (
-                self.db.query(func.coalesce(func.sum(ComponentLocation.minimum_stock), 0))
+                self.db.query(
+                    func.coalesce(func.sum(ComponentLocation.minimum_stock), 0)
+                )
                 .filter(ComponentLocation.component_id == Component.id)
                 .scalar_subquery()
             )
@@ -660,11 +759,11 @@ class ComponentService:
 
     def search_components(
         self,
-        query: Optional[str] = None,
-        filters: Optional[Dict[str, Any]] = None,
+        query: str | None = None,
+        filters: dict[str, Any] | None = None,
         limit: int = 50,
-        offset: int = 0
-    ) -> List[Component]:
+        offset: int = 0,
+    ) -> list[Component]:
         """
         Search components with filters - compatible with KiCad API.
 
@@ -685,25 +784,32 @@ class ComponentService:
 
         if filters:
             # Map KiCad API filters to list_components parameters
-            if 'category_id' in filters:
+            if "category_id" in filters:
                 # Get category name from ID for list_components compatibility
                 from ..models import Category
-                category_obj = self.db.query(Category).filter(Category.id == filters['category_id']).first()
+
+                category_obj = (
+                    self.db.query(Category)
+                    .filter(Category.id == filters["category_id"])
+                    .first()
+                )
                 if category_obj:
                     category = category_obj.name
 
-            if 'package' in filters:
-                component_type = filters['package']
+            if "package" in filters:
+                component_type = filters["package"]
 
-            if 'manufacturer' in filters:
-                manufacturer = filters['manufacturer']
+            if "manufacturer" in filters:
+                manufacturer = filters["manufacturer"]
 
         # Build additional search constraints for manufacturer
         components_query = self.db.query(Component).options(
             selectinload(Component.category),
-            selectinload(Component.locations).selectinload(ComponentLocation.storage_location),
+            selectinload(Component.locations).selectinload(
+                ComponentLocation.storage_location
+            ),
             selectinload(Component.tags),
-            selectinload(Component.kicad_data)
+            selectinload(Component.kicad_data),
         )
 
         # Apply search term filter with weighted ranking
@@ -721,25 +827,27 @@ class ComponentService:
                     Component.component_type.ilike(search_term_like),
                     Component.value.ilike(search_term_like),
                     Component.package.ilike(search_term_like),
-                    Component.notes.ilike(search_term_like)
+                    Component.notes.ilike(search_term_like),
                 )
             ).order_by(
                 # Prioritize exact matches first, then partial matches by field importance
-                func.case(
+                case(
                     (Component.name.ilike(search_term_like), 1),
                     (Component.component_type.ilike(search_term_like), 2),
                     (Component.part_number.ilike(search_term_like), 3),
                     (Component.value.ilike(search_term_like), 4),
                     (Component.package.ilike(search_term_like), 5),
                     (Component.manufacturer.ilike(search_term_like), 6),
-                    else_=7  # notes get lowest priority
+                    else_=7,  # notes get lowest priority
                 ),
-                Component.name
+                Component.name,
             )
 
         # Apply category filter
         if category:
-            components_query = components_query.join(Category).filter(Category.name.ilike(f"%{category}%"))
+            components_query = components_query.join(Category).filter(
+                Category.name.ilike(f"%{category}%")
+            )
 
         # Apply component type/package filter
         if component_type:
@@ -747,25 +855,34 @@ class ComponentService:
             components_query = components_query.filter(
                 or_(
                     Component.component_type.ilike(f"%{component_type}%"),
-                    Component.specifications.op('->>')('package').ilike(f"%{component_type}%"),
-                    Component.specifications.op('->>')('Package').ilike(f"%{component_type}%")
+                    Component.specifications.op("->>")("package").ilike(
+                        f"%{component_type}%"
+                    ),
+                    Component.specifications.op("->>")("Package").ilike(
+                        f"%{component_type}%"
+                    ),
                 )
             )
 
         # Apply manufacturer filter
         if manufacturer:
-            components_query = components_query.filter(Component.manufacturer.ilike(f"%{manufacturer}%"))
+            components_query = components_query.filter(
+                Component.manufacturer.ilike(f"%{manufacturer}%")
+            )
 
         # Apply pagination
         components_query = components_query.offset(offset).limit(limit)
 
         return components_query.all()
 
-    def _rank_search_results(self, components: List[Component], search_term: str) -> List[Component]:
+    def _rank_search_results(
+        self, components: list[Component], search_term: str
+    ) -> list[Component]:
         """
         Rank search results by field relevance priority.
         Higher priority fields get ranked first.
         """
+
         def get_search_score(component: Component) -> int:
             """Calculate search score based on field matches. Lower score = higher priority."""
             search_lower = search_term.lower()
@@ -773,13 +890,24 @@ class ComponentService:
             # Check each field and return priority score (lower = better)
             if component.name and search_lower in component.name.lower():
                 return 1  # Highest priority: name match
-            elif component.local_part_id and search_lower in component.local_part_id.lower():
+            elif (
+                component.local_part_id
+                and search_lower in component.local_part_id.lower()
+            ):
                 return 2  # Local part ID match (user-friendly identifier)
-            elif component.component_type and search_lower in component.component_type.lower():
+            elif (
+                component.component_type
+                and search_lower in component.component_type.lower()
+            ):
                 return 3  # Component type match
-            elif component.manufacturer_part_number and search_lower in component.manufacturer_part_number.lower():
+            elif (
+                component.manufacturer_part_number
+                and search_lower in component.manufacturer_part_number.lower()
+            ):
                 return 4  # Manufacturer part number match
-            elif component.part_number and search_lower in component.part_number.lower():
+            elif (
+                component.part_number and search_lower in component.part_number.lower()
+            ):
                 return 5  # Legacy part number match
             elif component.barcode_id and search_lower in component.barcode_id.lower():
                 return 6  # Barcode ID match
@@ -787,11 +915,19 @@ class ComponentService:
                 return 7  # Value match
             elif component.package and search_lower in component.package.lower():
                 return 8  # Package match
-            elif component.manufacturer and search_lower in component.manufacturer.lower():
+            elif (
+                component.manufacturer
+                and search_lower in component.manufacturer.lower()
+            ):
                 return 9  # Manufacturer match
-            elif component.provider_sku and search_lower in component.provider_sku.lower():
+            elif (
+                component.provider_sku
+                and search_lower in component.provider_sku.lower()
+            ):
                 return 10  # Provider SKU match
-            elif component.tags and any(search_lower in tag.name.lower() for tag in component.tags):
+            elif component.tags and any(
+                search_lower in tag.name.lower() for tag in component.tags
+            ):
                 return 11  # Tag match
             elif component.notes and search_lower in component.notes.lower():
                 return 12  # Lowest priority: notes match
@@ -799,7 +935,10 @@ class ComponentService:
                 return 13  # No direct match (shouldn't happen given the filter)
 
         # Sort by search score (priority), then by name
-        return sorted(components, key=lambda c: (get_search_score(c), c.name.lower() if c.name else ''))
+        return sorted(
+            components,
+            key=lambda c: (get_search_score(c), c.name.lower() if c.name else ""),
+        )
 
     def update_stock(
         self,
@@ -807,16 +946,21 @@ class ComponentService:
         transaction_type: str,
         quantity_change: int,
         reason: str,
-        reference_id: Optional[str] = None,
-        reference_type: Optional[str] = None
-    ) -> Optional[StockTransaction]:
+        reference_id: str | None = None,
+        reference_type: str | None = None,
+    ) -> StockTransaction | None:
         """Update component stock and create audit transaction."""
-        component = self.db.query(Component).filter(Component.id == component_id).first()
+        component = (
+            self.db.query(Component).filter(Component.id == component_id).first()
+        )
         if not component:
             return None
 
         # Validate stock wouldn't go negative
-        if transaction_type == "remove" and component.quantity_on_hand + quantity_change < 0:
+        if (
+            transaction_type == "remove"
+            and component.quantity_on_hand + quantity_change < 0
+        ):
             raise ValueError("Insufficient stock for removal")
 
         # Create transaction record
@@ -828,7 +972,7 @@ class ComponentService:
                 quantity=abs(quantity_change),
                 reason=reason,
                 reference_id=reference_id,
-                reference_type=reference_type
+                reference_type=reference_type,
             )
             component.quantity_on_hand += abs(quantity_change)
         elif transaction_type == "remove":
@@ -837,7 +981,7 @@ class ComponentService:
                 quantity=abs(quantity_change),
                 reason=reason,
                 reference_id=reference_id,
-                reference_type=reference_type
+                reference_type=reference_type,
             )
             component.quantity_on_hand -= abs(quantity_change)
         elif transaction_type == "adjust":
@@ -846,7 +990,7 @@ class ComponentService:
                 component=component,
                 new_quantity=new_quantity,
                 reason=reason,
-                reference_id=reference_id
+                reference_id=reference_id,
             )
             component.quantity_on_hand = new_quantity
         else:
@@ -862,10 +1006,8 @@ class ComponentService:
         return transaction
 
     def get_stock_history(
-        self,
-        component_id: str,
-        limit: int = 50
-    ) -> List[StockTransaction]:
+        self, component_id: str, limit: int = 50
+    ) -> list[StockTransaction]:
         """Get stock transaction history for a component."""
         return (
             self.db.query(StockTransaction)
@@ -875,42 +1017,46 @@ class ComponentService:
             .all()
         )
 
-    def get_low_stock_components(self, limit: int = 100) -> List[Component]:
+    def get_low_stock_components(self, limit: int = 100) -> list[Component]:
         """Get components with low stock."""
         return (
             self.db.query(Component)
             .options(selectinload(Component.storage_location))
-            .filter(Component.quantity_on_hand <= min_stock_subquery)
-            .filter(min_stock_subquery > 0)  # Only components with minimum stock set
+            .filter(Component.quantity_on_hand <= Component.minimum_stock)
+            .filter(
+                Component.minimum_stock > 0
+            )  # Only components with minimum stock set
             .order_by(
-                (Component.quantity_on_hand / func.nullif(min_stock_subquery, 0))
+                Component.quantity_on_hand / func.nullif(Component.minimum_stock, 0)
             )
             .limit(limit)
             .all()
         )
 
-    def get_component_statistics(self) -> Dict[str, int]:
+    def get_component_statistics(self) -> dict[str, int]:
         """Get component statistics."""
         total_components = self.db.query(Component).count()
         low_stock_count = (
             self.db.query(Component)
-            .filter(Component.quantity_on_hand <= min_stock_subquery)
-            .filter(min_stock_subquery > 0)
+            .filter(Component.quantity_on_hand <= Component.minimum_stock)
+            .filter(Component.minimum_stock > 0)
             .count()
         )
-        out_of_stock_count = self.db.query(Component).filter(Component.quantity_on_hand == 0).count()
+        out_of_stock_count = (
+            self.db.query(Component).filter(Component.quantity_on_hand == 0).count()
+        )
 
         return {
             "total_components": total_components,
             "low_stock_components": low_stock_count,
             "out_of_stock_components": out_of_stock_count,
-            "available_components": total_components - out_of_stock_count
+            "available_components": total_components - out_of_stock_count,
         }
-
 
     def count_components_with_kicad_data(self) -> int:
         """Count components that have KiCad data."""
         from ..models import KiCadLibraryData
+
         return (
             self.db.query(Component)
             .join(KiCadLibraryData, Component.id == KiCadLibraryData.component_id)

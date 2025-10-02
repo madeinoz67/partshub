@@ -4,9 +4,10 @@ Enables fast search across component names, part numbers, manufacturers, and not
 """
 
 import logging
-from typing import List, Optional
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
 from ..database import get_session
 
 logger = logging.getLogger(__name__)
@@ -57,7 +58,7 @@ class ComponentSearchService:
         """Create triggers to keep FTS table in sync with components table."""
 
         # Drop existing triggers if they exist
-        trigger_names = ['components_ai', 'components_ad', 'components_au']
+        trigger_names = ["components_ai", "components_ad", "components_au"]
         for trigger_name in trigger_names:
             session.execute(text(f"DROP TRIGGER IF EXISTS {trigger_name}"))
 
@@ -135,7 +136,9 @@ class ComponentSearchService:
             session.commit()
 
             # Get count for verification
-            count_result = session.execute(text(f"SELECT COUNT(*) FROM {self.fts_table}")).fetchone()
+            count_result = session.execute(
+                text(f"SELECT COUNT(*) FROM {self.fts_table}")
+            ).fetchone()
             count = count_result[0] if count_result else 0
 
             logger.info(f"FTS index rebuilt with {count} components")
@@ -149,11 +152,8 @@ class ComponentSearchService:
             session.close()
 
     def search_components(
-        self,
-        query: str,
-        limit: int = 50,
-        offset: int = 0
-    ) -> List[str]:
+        self, query: str, limit: int = 50, offset: int = 0
+    ) -> list[str]:
         """
         Search components using FTS5 and return matching component IDs.
 
@@ -184,7 +184,9 @@ class ComponentSearchService:
             result = session.execute(text(search_sql), (escaped_query, limit, offset))
             component_ids = [row[0] for row in result.fetchall()]
 
-            logger.debug(f"FTS search for '{query}' returned {len(component_ids)} results")
+            logger.debug(
+                f"FTS search for '{query}' returned {len(component_ids)} results"
+            )
             return component_ids
 
         except Exception as e:
@@ -204,11 +206,11 @@ class ComponentSearchService:
             Escaped and formatted FTS5 query
         """
         # Remove or escape special FTS5 characters
-        special_chars = ['"', '(', ')', '*', ':', '^', '-']
+        special_chars = ['"', "(", ")", "*", ":", "^", "-"]
         escaped_query = query
 
         for char in special_chars:
-            escaped_query = escaped_query.replace(char, ' ')
+            escaped_query = escaped_query.replace(char, " ")
 
         # Split into terms and join with OR for broader matching
         terms = [term.strip() for term in escaped_query.split() if term.strip()]
@@ -222,7 +224,7 @@ class ComponentSearchService:
         else:
             # Create OR query for multiple terms
             or_terms = [f'"{term}"*' for term in terms]
-            return ' OR '.join(or_terms)
+            return " OR ".join(or_terms)
 
     def get_fts_statistics(self) -> dict:
         """Get statistics about the FTS index."""
@@ -241,15 +243,17 @@ class ComponentSearchService:
                 return {
                     "indexed_components": indexed_count,
                     "total_components": total_count,
-                    "index_coverage": f"{(indexed_count/total_count*100):.1f}%" if total_count > 0 else "0%",
-                    "fts_enabled": True
+                    "index_coverage": f"{(indexed_count/total_count*100):.1f}%"
+                    if total_count > 0
+                    else "0%",
+                    "fts_enabled": True,
                 }
             else:
                 return {
                     "indexed_components": 0,
                     "total_components": 0,
                     "index_coverage": "0%",
-                    "fts_enabled": False
+                    "fts_enabled": False,
                 }
 
         except Exception as e:
@@ -259,7 +263,7 @@ class ComponentSearchService:
                 "total_components": 0,
                 "index_coverage": "0%",
                 "fts_enabled": False,
-                "error": str(e)
+                "error": str(e),
             }
         finally:
             session.close()
@@ -278,7 +282,7 @@ def initialize_component_search():
         logger.error(f"Failed to initialize component search service: {e}")
 
 
-def search_components_fts(query: str, limit: int = 50, offset: int = 0) -> List[str]:
+def search_components_fts(query: str, limit: int = 50, offset: int = 0) -> list[str]:
     """
     Convenience function for FTS component search.
 

@@ -2,10 +2,11 @@
 Category model with tree structure for organizing component types.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 
@@ -15,6 +16,7 @@ class Category(Base):
     Hierarchical category model for organizing component types
     (e.g., Passive > Resistors > Carbon Film, Active > ICs > Microcontrollers).
     """
+
     __tablename__ = "categories"
 
     # Primary identification
@@ -24,7 +26,9 @@ class Category(Base):
 
     # Tree structure
     parent_id = Column(String, ForeignKey("categories.id"), nullable=True)
-    sort_order = Column(Integer, nullable=False, default=0)  # For custom ordering within parent
+    sort_order = Column(
+        Integer, nullable=False, default=0
+    )  # For custom ordering within parent
 
     # Display properties
     color = Column(String(7), nullable=True)  # Hex color code for UI display
@@ -32,15 +36,27 @@ class Category(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     parent = relationship("Category", remote_side=[id], back_populates="children")
-    children = relationship("Category", back_populates="parent", order_by=sort_order, cascade="all, delete-orphan")
+    children = relationship(
+        "Category",
+        back_populates="parent",
+        order_by=sort_order,
+        cascade="all, delete-orphan",
+    )
     components = relationship("Component", back_populates="category")
 
     def __repr__(self):
         return f"<Category(id='{self.id}', name='{self.name}', parent_id='{self.parent_id}')>"
+
+    @property
+    def display_name(self):
+        """Get display name for the category."""
+        return self.name
 
     @property
     def full_path(self):

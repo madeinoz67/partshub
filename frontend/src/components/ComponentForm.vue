@@ -1,11 +1,11 @@
 <template>
   <q-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     persistent
     maximized
     transition-show="slide-up"
     transition-hide="slide-down"
+    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card class="column full-height">
       <q-card-section class="q-pb-none">
@@ -25,7 +25,7 @@
       <q-separator />
 
       <q-card-section class="col scroll">
-        <q-form @submit="onSubmit" ref="formRef" class="q-gutter-md">
+        <q-form ref="formRef" class="q-gutter-md" @submit="onSubmit">
           <!-- Basic Information -->
           <div class="text-h6 q-mt-md q-mb-sm">Basic Information</div>
           <div class="row q-gutter-md">
@@ -224,8 +224,8 @@
               size="sm"
               flat
               round
-              @click="addSpecification"
               class="q-ml-sm"
+              @click="addSpecification"
             />
           </div>
           <div v-if="specifications.length === 0" class="text-grey q-mb-md">
@@ -269,8 +269,8 @@
               size="sm"
               flat
               round
-              @click="addCustomField"
               class="q-ml-sm"
+              @click="addCustomField"
             />
           </div>
           <div v-if="customFields.length === 0" class="text-grey q-mb-md">
@@ -331,14 +331,14 @@
         <q-btn
           flat
           label="Cancel"
-          @click="$emit('update:model-value', false)"
           :disable="loading"
+          @click="$emit('update:model-value', false)"
         />
         <q-btn
           color="primary"
           label="Save Component"
-          @click="onSubmit"
           :loading="loading"
+          @click="onSubmit"
         />
       </q-card-actions>
     </q-card>
@@ -526,14 +526,14 @@ const onSubmit = async () => {
         acc[spec.key.trim()] = spec.value.trim()
       }
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, string>)
 
     const fieldsObject = customFields.value.reduce((acc, field) => {
       if (field.key.trim() && field.value.trim()) {
         acc[field.key.trim()] = field.value.trim()
       }
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, string>)
 
     const componentData = {
       ...form.value,

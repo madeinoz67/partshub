@@ -56,19 +56,19 @@ const componentId = computed(() => route.params.id as string)
 const showEditDialog = ref(false)
 const showStockDialog = ref(false)
 
-const editComponent = (component: Component) => {
+const editComponent = (_component: Component) => {
   if (!requireAuth('edit components')) return
 
   showEditDialog.value = true
 }
 
-const updateStock = (component: Component) => {
+const updateStock = (_component: Component) => {
   if (!requireAuth('update stock quantities')) return
 
   showStockDialog.value = true
 }
 
-const onComponentSaved = (component: Component) => {
+const onComponentSaved = (_component: Component) => {
   $q.notify({
     type: 'positive',
     message: 'Component updated successfully',

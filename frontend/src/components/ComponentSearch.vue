@@ -4,7 +4,7 @@
       <q-card-section>
         <div class="text-h6 q-mb-md">Component Search</div>
 
-        <q-form @submit="search" class="q-gutter-md">
+        <q-form class="q-gutter-md" @submit="search">
           <!-- Search Type Selection -->
           <q-option-group
             v-model="searchType"
@@ -24,10 +24,10 @@
             :loading="loading"
             @keyup.enter="search"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon :name="searchIcon" />
             </template>
-            <template v-slot:append>
+            <template #append>
               <q-btn
                 icon="search"
                 color="primary"
@@ -67,10 +67,10 @@
                     v-for="provider in providers"
                     :key="provider"
                     :model-value="selectedProviders.includes(provider)"
-                    @update:model-value="toggleProvider(provider)"
                     clickable
                     :color="selectedProviders.includes(provider) ? 'primary' : 'grey-4'"
                     :text-color="selectedProviders.includes(provider) ? 'white' : 'black'"
+                    @update:model-value="toggleProvider(provider)"
                   >
                     {{ provider.toUpperCase() }}
                   </q-chip>
@@ -91,8 +91,8 @@
               label="Clear"
               color="grey"
               flat
-              @click="clearSearch"
               :disable="loading"
+              @click="clearSearch"
             />
           </div>
         </q-form>

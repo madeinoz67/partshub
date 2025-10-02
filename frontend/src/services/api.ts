@@ -78,8 +78,8 @@ export interface Component {
   average_purchase_price: number | null
   total_purchase_value: number | null
   notes: string | null
-  specifications: Record<string, any> | null
-  custom_fields: Record<string, any> | null
+  specifications: Record<string, string | number | boolean> | null
+  custom_fields: Record<string, string | number | boolean | null> | null
   category: { id: string; name: string } | null
   storage_location: {
     id: string

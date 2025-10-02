@@ -18,8 +18,8 @@
         type="file"
         multiple
         :accept="acceptedTypes"
-        @change="onFileSelect"
         style="display: none"
+        @change="onFileSelect"
       />
 
       <div class="drop-zone__content">
@@ -61,7 +61,7 @@
             </q-item-label>
 
             <!-- File metadata inputs -->
-            <div class="row q-gutter-sm q-mt-sm" v-if="showMetadataInputs">
+            <div v-if="showMetadataInputs" class="row q-gutter-sm q-mt-sm">
               <div class="col-md-4 col-xs-12">
                 <q-input
                   v-model="fileMetadata[index].title"
@@ -111,8 +111,8 @@
                 flat
                 round
                 dense
-                @click="setPrimaryImage(index)"
                 :title="fileMetadata[index].isPrimary ? 'Primary image' : 'Set as primary'"
+                @click="setPrimaryImage(index)"
               />
 
               <!-- Upload status -->
@@ -136,8 +136,8 @@
                 flat
                 round
                 dense
-                @click="removeFile(index)"
                 :disable="uploadProgress[index] !== undefined && uploadProgress[index] < 100"
+                @click="removeFile(index)"
               />
             </div>
           </q-item-section>
@@ -165,24 +165,24 @@
         label="Upload Files"
         icon="upload"
         color="primary"
-        @click="uploadFiles"
         :loading="isUploading"
         :disable="selectedFiles.length === 0"
+        @click="uploadFiles"
       />
       <q-btn
         label="Clear All"
         icon="clear_all"
         color="grey-6"
         flat
-        @click="clearAllFiles"
         :disable="isUploading"
+        @click="clearAllFiles"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from '../boot/axios'
 
@@ -248,11 +248,11 @@ const attachmentTypeOptions = [
 ]
 
 // Methods
-const onDragEnter = (e) => {
+const onDragEnter = (_e) => {
   isDragActive.value = true
 }
 
-const onDragOver = (e) => {
+const onDragOver = (_e) => {
   isDragActive.value = true
 }
 

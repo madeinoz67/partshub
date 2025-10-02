@@ -6,12 +6,12 @@
         unelevated
         round
         icon="close"
-        @click="$emit('close')"
         aria-label="Close dialog"
         color="red"
         text-color="white"
         size="lg"
         style="position: sticky; top: 0; right: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.3);"
+        @click="$emit('close')"
       />
     </div>
 
@@ -36,8 +36,8 @@
             color="primary"
             icon="edit"
             label="Edit Project"
-            @click="editProject"
             class="q-mr-sm"
+            @click="editProject"
           />
           <q-btn
             v-if="project"
@@ -112,34 +112,34 @@
           flat
           :pagination="{ rowsPerPage: 10 }"
         >
-          <template v-slot:body-cell-component="props">
-            <q-td :props="props">
+          <template #body-cell-component="slotProps">
+            <q-td :props="slotProps">
               <div>
-                <div class="text-weight-medium">{{ props.row.component_part_number || 'No Part Number' }}</div>
-                <div class="text-caption text-grey-6">{{ props.row.component_name || 'No Component Name' }}</div>
+                <div class="text-weight-medium">{{ slotProps.row.component_part_number || 'No Part Number' }}</div>
+                <div class="text-caption text-grey-6">{{ slotProps.row.component_name || 'No Component Name' }}</div>
               </div>
             </q-td>
           </template>
 
-          <template v-slot:body-cell-allocated="props">
-            <q-td :props="props">
+          <template #body-cell-allocated="slotProps">
+            <q-td :props="slotProps">
               <q-chip
                 color="blue"
                 text-color="white"
-                :label="props.row.quantity_allocated"
+                :label="slotProps.row.quantity_allocated"
               />
             </q-td>
           </template>
 
-          <template v-slot:body-cell-actions="props">
-            <q-td :props="props">
+          <template #body-cell-actions="slotProps">
+            <q-td :props="slotProps">
               <q-btn
                 flat
                 round
                 icon="remove"
                 color="negative"
                 size="sm"
-                @click="returnComponent(props.row)"
+                @click="returnComponent(slotProps.row)"
               >
                 <q-tooltip>Return to Inventory</q-tooltip>
               </q-btn>
@@ -149,7 +149,7 @@
                 icon="add"
                 color="positive"
                 size="sm"
-                @click="allocateMore(props.row)"
+                @click="allocateMore(slotProps.row)"
               >
                 <q-tooltip>Allocate More</q-tooltip>
               </q-btn>
@@ -177,11 +177,11 @@
               label="Select Component"
               use-input
               input-debounce="300"
+              clearable
               @filter="filterComponents"
               @update:model-value="onComponentSelected"
-              clearable
             >
-              <template v-slot:option="scope">
+              <template #option="scope">
                 <q-item v-bind="scope.itemProps">
                   <q-item-section>
                     <q-item-label>{{ scope.opt.part_number }}</q-item-label>
@@ -220,8 +220,8 @@
           <q-btn
             color="primary"
             label="Allocate"
-            @click="allocateComponent"
             :disabled="!selectedComponent || !allocationQuantity"
+            @click="allocateComponent"
           />
         </q-card-actions>
       </q-card>
@@ -267,8 +267,8 @@
           <q-btn
             color="negative"
             label="Return"
-            @click="confirmReturn"
             :disabled="!returnQuantity"
+            @click="confirmReturn"
           />
         </q-card-actions>
       </q-card>
@@ -277,8 +277,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { APIService } from '../services/api'
 
@@ -289,9 +289,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'project-updated'])
-
-const route = useRoute()
+defineEmits(['close'])
 const router = useRouter()
 const $q = useQuasar()
 

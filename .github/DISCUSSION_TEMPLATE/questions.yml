@@ -1,0 +1,35 @@
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Ask a Question 🤔
+
+        Have a question about PartsHub? This is the right place to ask!
+
+        **Before posting:**
+        - Search existing discussions to see if your question has been asked
+        - Check the [documentation](../docs/) for answers
+        - Make sure this is a question and not a bug report (use Issues for bugs)
+
+  - type: textarea
+    attributes:
+      label: "Your Question"
+      description: "What would you like to know?"
+      placeholder: |
+        Be as specific as possible. Good questions include:
+        - What you're trying to achieve
+        - What you've already tried
+        - Any relevant context about your setup
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Additional Context"
+      description: "Any additional information that might be helpful"
+      placeholder: |
+        - Version of PartsHub you're using
+        - Your environment (OS, browser, etc.)
+        - Screenshots or code snippets (if relevant)
+        - Links to related documentation

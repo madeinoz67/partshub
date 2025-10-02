@@ -3,9 +3,9 @@ Contract test for GET /api/v1/components/{id}/history
 Tests component stock history endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestComponentsHistoryContract:
@@ -68,15 +68,27 @@ class TestComponentsHistoryContract:
 
                 # Required fields for StockTransaction
                 required_fields = [
-                    "id", "component_id", "transaction_type", "quantity_change",
-                    "previous_quantity", "new_quantity", "reason", "reference_id", "created_at"
+                    "id",
+                    "component_id",
+                    "transaction_type",
+                    "quantity_change",
+                    "previous_quantity",
+                    "new_quantity",
+                    "reason",
+                    "reference_id",
+                    "created_at",
                 ]
 
                 for field in required_fields:
                     assert field in transaction
 
                 # Validate transaction_type enum
-                assert transaction["transaction_type"] in ["add", "remove", "move", "adjust"]
+                assert transaction["transaction_type"] in [
+                    "add",
+                    "remove",
+                    "move",
+                    "adjust",
+                ]
 
                 # Validate numeric fields
                 assert isinstance(transaction["quantity_change"], int)
@@ -159,7 +171,12 @@ class TestComponentsHistoryContract:
 
             # Check that if transactions exist, they have valid types
             for transaction in data:
-                assert transaction["transaction_type"] in ["add", "remove", "move", "adjust"]
+                assert transaction["transaction_type"] in [
+                    "add",
+                    "remove",
+                    "move",
+                    "adjust",
+                ]
 
                 # Validate quantity_change semantics
                 if transaction["transaction_type"] == "add":

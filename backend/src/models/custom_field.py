@@ -2,21 +2,25 @@
 CustomField and CustomFieldValue models for user-defined component attributes.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Enum as SQLEnum
+import enum
+import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
-import enum
 
 from ..database import Base
 
 
 class FieldType(enum.Enum):
     """Custom field type enumeration."""
+
     TEXT = "text"
     NUMBER = "number"
     BOOLEAN = "boolean"
     DATE = "date"
+    URL = "url"
     SELECT = "select"  # Single choice from options
     MULTI_SELECT = "multi_select"  # Multiple choices from options
 
@@ -25,6 +29,7 @@ class CustomField(Base):
     """
     Definition of custom fields that can be added to components.
     """
+
     __tablename__ = "custom_fields"
 
     # Primary identification
@@ -41,10 +46,14 @@ class CustomField(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
-    values = relationship("CustomFieldValue", back_populates="field", cascade="all, delete-orphan")
+    values = relationship(
+        "CustomFieldValue", back_populates="field", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<CustomField(id='{self.id}', name='{self.name}', type='{self.field_type.value}')>"
@@ -54,6 +63,7 @@ class CustomFieldValue(Base):
     """
     Values of custom fields for specific components.
     """
+
     __tablename__ = "custom_field_values"
 
     # Composite primary key
@@ -65,7 +75,9 @@ class CustomFieldValue(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     component = relationship("Component", back_populates="custom_field_values")

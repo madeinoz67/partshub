@@ -11,8 +11,8 @@
             flat
             round
             icon="close"
-            @click="$emit('close')"
             aria-label="Close dialog"
+            @click="$emit('close')"
           />
         </div>
       </div>
@@ -30,8 +30,8 @@
                 <q-item
                   v-for="report in reportTypes"
                   :key="report.type"
-                  clickable
                   v-ripple
+                  clickable
                   :active="selectedReport === report.type"
                   @click="selectedReport = report.type"
                 >
@@ -154,8 +154,8 @@ interface Props {
   projectId?: string
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
+defineProps<Props>()
+defineEmits<{
   close: []
 }>()
 const $q = useQuasar()

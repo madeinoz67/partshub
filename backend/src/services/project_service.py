@@ -3,12 +3,20 @@ ProjectService with component allocation tracking.
 Manages project lifecycle, component allocation, and project-based inventory operations.
 """
 
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import and_, func
-from ..models import Project, ProjectComponent, Component, StockTransaction, TransactionType
-import uuid
 import logging
+import uuid
+from typing import Any
+
+from sqlalchemy import and_, func
+from sqlalchemy.orm import Session, selectinload
+
+from ..models import (
+    Component,
+    Project,
+    ProjectComponent,
+    ProjectStatus,
+    StockTransaction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +27,7 @@ class ProjectService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_project(self, project_data: Dict[str, Any]) -> Project:
+    def create_project(self, project_data: dict[str, Any]) -> Project:
         """Create a new project."""
         # Generate ID if not provided
         if "id" not in project_data:
@@ -34,18 +42,22 @@ class ProjectService:
         logger.info(f"Created project: {project.name} ({project.id})")
         return project
 
-    def get_project(self, project_id: str) -> Optional[Project]:
+    def get_project(self, project_id: str) -> Project | None:
         """Get a project by ID with all relationships loaded."""
         return (
             self.db.query(Project)
             .options(
-                selectinload(Project.project_components).selectinload(ProjectComponent.component)
+                selectinload(Project.project_components).selectinload(
+                    ProjectComponent.component
+                )
             )
             .filter(Project.id == project_id)
             .first()
         )
 
-    def update_project(self, project_id: str, update_data: Dict[str, Any]) -> Optional[Project]:
+    def update_project(
+        self, project_id: str, update_data: dict[str, Any]
+    ) -> Project | None:
         """Update a project."""
         project = self.db.query(Project).filter(Project.id == project_id).first()
         if not project:
@@ -81,7 +93,9 @@ class ProjectService:
         )
 
         if allocated_components > 0 and not force:
-            raise ValueError(f"Cannot delete project with {allocated_components} allocated components. Use force=True to override.")
+            raise ValueError(
+                f"Cannot delete project with {allocated_components} allocated components. Use force=True to override."
+            )
 
         # Return all allocated components to inventory before deletion
         if force and allocated_components > 0:
@@ -94,13 +108,13 @@ class ProjectService:
 
     def list_projects(
         self,
-        status: Optional[str] = None,
-        search: Optional[str] = None,
+        status: str | None = None,
+        search: str | None = None,
         sort_by: str = "created_at",
         sort_order: str = "desc",
         limit: int = 50,
-        offset: int = 0
-    ) -> List[Project]:
+        offset: int = 0,
+    ) -> list[Project]:
         """List projects with filtering and pagination."""
         query = self.db.query(Project)
 
@@ -111,8 +125,7 @@ class ProjectService:
         if search:
             search_term = f"%{search}%"
             query = query.filter(
-                Project.name.ilike(search_term) |
-                Project.description.ilike(search_term)
+                Project.name.ilike(search_term) | Project.description.ilike(search_term)
             )
 
         # Apply sorting
@@ -137,9 +150,7 @@ class ProjectService:
         return query.all()
 
     def count_projects(
-        self,
-        status: Optional[str] = None,
-        search: Optional[str] = None
+        self, status: str | None = None, search: str | None = None
     ) -> int:
         """Count projects with filtering."""
         query = self.db.query(Project)
@@ -151,8 +162,7 @@ class ProjectService:
         if search:
             search_term = f"%{search}%"
             query = query.filter(
-                Project.name.ilike(search_term) |
-                Project.description.ilike(search_term)
+                Project.name.ilike(search_term) | Project.description.ilike(search_term)
             )
 
         return query.count()
@@ -162,7 +172,7 @@ class ProjectService:
         project_id: str,
         component_id: str,
         quantity: int,
-        notes: Optional[str] = None
+        notes: str | None = None,
     ) -> ProjectComponent:
         """
         Allocate components to a project from inventory.
@@ -179,12 +189,16 @@ class ProjectService:
             raise ValueError(f"Project {project_id} not found")
 
         # Validate component exists and has sufficient stock
-        component = self.db.query(Component).filter(Component.id == component_id).first()
+        component = (
+            self.db.query(Component).filter(Component.id == component_id).first()
+        )
         if not component:
             raise ValueError(f"Component {component_id} not found")
 
         if component.quantity_on_hand < quantity:
-            raise ValueError(f"Insufficient stock: {component.quantity_on_hand} available, {quantity} requested")
+            raise ValueError(
+                f"Insufficient stock: {component.quantity_on_hand} available, {quantity} requested"
+            )
 
         # Check if allocation already exists
         existing_allocation = (
@@ -192,7 +206,7 @@ class ProjectService:
             .filter(
                 and_(
                     ProjectComponent.project_id == project_id,
-                    ProjectComponent.component_id == component_id
+                    ProjectComponent.component_id == component_id,
                 )
             )
             .first()
@@ -202,7 +216,9 @@ class ProjectService:
             # Update existing allocation
             existing_allocation.quantity_allocated += quantity
             if notes:
-                existing_allocation.notes = f"{existing_allocation.notes or ''}\n{notes}".strip()
+                existing_allocation.notes = (
+                    f"{existing_allocation.notes or ''}\n{notes}".strip()
+                )
             project_component = existing_allocation
         else:
             # Create new allocation
@@ -210,7 +226,7 @@ class ProjectService:
                 project_id=project_id,
                 component_id=component_id,
                 quantity_allocated=quantity,
-                notes=notes
+                notes=notes,
             )
             self.db.add(project_component)
 
@@ -223,14 +239,16 @@ class ProjectService:
             quantity=quantity,
             reason=f"Allocated to project: {project.name}",
             reference_id=project_id,
-            reference_type="project_allocation"
+            reference_type="project_allocation",
         )
         self.db.add(transaction)
 
         self.db.commit()
         self.db.refresh(project_component)
 
-        logger.info(f"Allocated {quantity} of {component.part_number} to project {project.name}")
+        logger.info(
+            f"Allocated {quantity} of {component.part_number} to project {project.name}"
+        )
         return project_component
 
     def return_component_from_project(
@@ -238,7 +256,7 @@ class ProjectService:
         project_id: str,
         component_id: str,
         quantity: int,
-        notes: Optional[str] = None
+        notes: str | None = None,
     ) -> ProjectComponent:
         """
         Return components from a project to inventory.
@@ -255,21 +273,27 @@ class ProjectService:
             .filter(
                 and_(
                     ProjectComponent.project_id == project_id,
-                    ProjectComponent.component_id == component_id
+                    ProjectComponent.component_id == component_id,
                 )
             )
             .first()
         )
 
         if not allocation:
-            raise ValueError(f"No allocation found for component {component_id} in project {project_id}")
+            raise ValueError(
+                f"No allocation found for component {component_id} in project {project_id}"
+            )
 
         if allocation.quantity_allocated < quantity:
-            raise ValueError(f"Cannot return {quantity}: only {allocation.quantity_allocated} allocated")
+            raise ValueError(
+                f"Cannot return {quantity}: only {allocation.quantity_allocated} allocated"
+            )
 
         # Get project and component for logging
         project = self.db.query(Project).filter(Project.id == project_id).first()
-        component = self.db.query(Component).filter(Component.id == component_id).first()
+        component = (
+            self.db.query(Component).filter(Component.id == component_id).first()
+        )
 
         # Update allocation
         allocation.quantity_allocated -= quantity
@@ -285,7 +309,7 @@ class ProjectService:
             quantity=quantity,
             reason=f"Returned from project: {project.name}",
             reference_id=project_id,
-            reference_type="project_return"
+            reference_type="project_return",
         )
         self.db.add(transaction)
 
@@ -298,10 +322,12 @@ class ProjectService:
         if allocation.quantity_allocated > 0:
             self.db.refresh(allocation)
 
-        logger.info(f"Returned {quantity} of {component.part_number} from project {project.name}")
+        logger.info(
+            f"Returned {quantity} of {component.part_number} from project {project.name}"
+        )
         return allocation
 
-    def get_project_components(self, project_id: str) -> List[ProjectComponent]:
+    def get_project_components(self, project_id: str) -> list[ProjectComponent]:
         """Get all component allocations for a project."""
         return (
             self.db.query(ProjectComponent)
@@ -311,7 +337,7 @@ class ProjectService:
             .all()
         )
 
-    def get_component_projects(self, component_id: str) -> List[ProjectComponent]:
+    def get_component_projects(self, component_id: str) -> list[ProjectComponent]:
         """Get all project allocations for a component."""
         return (
             self.db.query(ProjectComponent)
@@ -322,7 +348,7 @@ class ProjectService:
             .all()
         )
 
-    def get_project_statistics(self, project_id: str) -> Dict[str, Any]:
+    def get_project_statistics(self, project_id: str) -> dict[str, Any]:
         """Get project statistics including component counts and costs."""
         project = self.get_project(project_id)
         if not project:
@@ -338,14 +364,16 @@ class ProjectService:
         total_allocated_quantity = (
             self.db.query(func.sum(ProjectComponent.quantity_allocated))
             .filter(ProjectComponent.project_id == project_id)
-            .scalar() or 0
+            .scalar()
+            or 0
         )
 
         # Calculate estimated cost
         cost_query = (
             self.db.query(
                 func.sum(
-                    ProjectComponent.quantity_allocated * Component.average_purchase_price
+                    ProjectComponent.quantity_allocated
+                    * Component.average_purchase_price
                 )
             )
             .join(Component)
@@ -361,8 +389,12 @@ class ProjectService:
             "unique_components": total_components,
             "total_allocated_quantity": total_allocated_quantity,
             "estimated_cost": estimated_cost,
-            "created_at": project.created_at.isoformat() if project.created_at else None,
-            "updated_at": project.updated_at.isoformat() if project.updated_at else None
+            "created_at": project.created_at.isoformat()
+            if project.created_at
+            else None,
+            "updated_at": project.updated_at.isoformat()
+            if project.updated_at
+            else None,
         }
 
     def _return_all_project_components(self, project_id: str):
@@ -375,10 +407,12 @@ class ProjectService:
                     project_id,
                     allocation.component_id,
                     allocation.quantity_allocated,
-                    "Auto-returned due to project deletion"
+                    "Auto-returned due to project deletion",
                 )
 
-    def close_project(self, project_id: str, return_components: bool = True) -> Optional[Project]:
+    def close_project(
+        self, project_id: str, return_components: bool = True
+    ) -> Project | None:
         """
         Close a project and optionally return all components to inventory.
 
@@ -393,7 +427,7 @@ class ProjectService:
         if return_components:
             self._return_all_project_components(project_id)
 
-        project.status = "completed"
+        project.status = ProjectStatus.COMPLETED
         self.db.commit()
         self.db.refresh(project)
 

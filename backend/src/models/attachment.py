@@ -2,10 +2,11 @@
 Attachment model for component files (datasheets, photos, etc.).
 """
 
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer, Boolean
+import uuid
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from ..database import Base
 
@@ -14,6 +15,7 @@ class Attachment(Base):
     """
     Attachment model for storing component-related files.
     """
+
     __tablename__ = "attachments"
 
     # Primary identification
@@ -30,7 +32,9 @@ class Attachment(Base):
     # Metadata
     title = Column(String(200), nullable=True)
     description = Column(Text, nullable=True)
-    attachment_type = Column(String(50), nullable=True)  # datasheet, photo, schematic, etc.
+    attachment_type = Column(
+        String(50), nullable=True
+    )  # datasheet, photo, schematic, etc.
 
     # Image-specific fields
     is_primary_image = Column(Boolean, nullable=False, default=False)
@@ -39,10 +43,17 @@ class Attachment(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     component = relationship("Component", back_populates="attachments")
 
     def __repr__(self):
         return f"<Attachment(id='{self.id}', filename='{self.filename}', component_id='{self.component_id}')>"
+
+    @property
+    def display_name(self):
+        """Get display name, preferring original filename."""
+        return self.original_filename or self.filename

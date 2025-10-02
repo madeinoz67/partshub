@@ -5,19 +5,19 @@ Isolate the FastAPI + TestClient + JWT authentication problem.
 """
 
 import os
+
 os.environ["TESTING"] = "1"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
-
-from src.models import Base, User
-from src.auth.jwt_auth import create_access_token, get_current_user
-from src.database.connection import get_db
+from backend.src.auth.jwt_auth import create_access_token, get_current_user
+from backend.src.database import get_db
+from backend.src.models import Base, User
 
 # Create test database
 test_engine = create_engine(
