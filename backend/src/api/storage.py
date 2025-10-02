@@ -317,6 +317,9 @@ class PreviewResponse(BaseModel):
     """Preview of locations to be generated without creating them."""
 
     sample_names: list[str] = Field(..., description="First 5 generated names")
+    location_codes: list[str] = Field(
+        ..., description="Location codes corresponding to sample_names"
+    )
     last_name: str = Field(..., description="Last generated name")
     total_count: int = Field(
         ..., description="Total number of locations that would be created"
@@ -776,6 +779,7 @@ def generate_preview(
 
         return PreviewResponse(
             sample_names=preview["sample_names"],
+            location_codes=preview["location_codes"],
             last_name=preview["last_name"],
             total_count=preview["total_count"],
             warnings=warnings,

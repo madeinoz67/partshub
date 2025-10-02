@@ -7,6 +7,9 @@ for the location layout generation endpoints. All tests use isolated in-memory S
 Test Coverage:
 - T010: POST /api/v1/storage-locations/generate-preview
 - T011: POST /api/v1/storage-locations/bulk-create-layout (with authentication)
+- T075: Contract test for location_codes in preview response
+- T076: Contract test for location_code in bulk create response
+- T077: Contract test for location code pattern matching
 
 Test Categories:
 1. Request schema validation (Pydantic models)
@@ -16,7 +19,6 @@ Test Categories:
 5. Business logic validation (limits, duplicates, warnings)
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -295,9 +297,7 @@ class TestGeneratePreviewContract:
         # Should return 422 validation error
         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
 
-    def test_preview_validates_separator_count_matches_ranges(
-        self, client: TestClient
-    ):
+    def test_preview_validates_separator_count_matches_ranges(self, client: TestClient):
         """T010.11: Validation - separators length must be len(ranges) - 1"""
         payload = {
             "layout_type": "grid",
@@ -317,6 +317,75 @@ class TestGeneratePreviewContract:
 
         # Should return 422 validation error
         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
+
+    def test_preview_includes_location_codes_array(self, client: TestClient):
+        """T075: FR-025 - Preview response includes location_codes array with same length as sample_names"""
+        payload = {
+            "layout_type": "row",
+            "prefix": "box1-",
+            "ranges": [{"range_type": "letters", "start": "a", "end": "f"}],
+            "separators": [],
+            "location_type": "bin",
+            "single_part_only": False,
+        }
+
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
+
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        data = response.json()
+
+        # Validate location_codes field exists
+        assert (
+            "location_codes" in data
+        ), "Missing location_codes field in preview response"
+
+        # Validate location_codes is a list
+        assert isinstance(data["location_codes"], list), "location_codes must be a list"
+
+        # Validate location_codes has same length as sample_names
+        assert (
+            len(data["location_codes"]) == len(data["sample_names"])
+        ), f"location_codes length ({len(data['location_codes'])}) must match sample_names length ({len(data['sample_names'])})"
+
+        # All location_codes should be non-empty strings
+        for code in data["location_codes"]:
+            assert isinstance(
+                code, str
+            ), f"location_code must be string, got {type(code)}"
+            assert len(code) > 0, "location_code must not be empty"
+
+    def test_preview_location_codes_extraction_pattern(self, client: TestClient):
+        """T077: FR-027, FR-028 - Location codes correctly extracted from full names"""
+        payload = {
+            "layout_type": "row",
+            "prefix": "box1-",
+            "ranges": [{"range_type": "letters", "start": "a", "end": "c"}],
+            "separators": [],
+            "location_type": "bin",
+            "single_part_only": False,
+        }
+
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
+
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        data = response.json()
+
+        # Expected full names: ["box1-a", "box1-b", "box1-c"]
+        # Expected location codes: ["a", "b", "c"] (extracted after prefix)
+        expected_names = ["box1-a", "box1-b", "box1-c"]
+        expected_codes = ["a", "b", "c"]
+
+        assert data["sample_names"] == expected_names, "Unexpected sample names"
+        assert "location_codes" in data, "Missing location_codes field"
+
+        # Validate extraction pattern: "box1-a" -> "a"
+        assert (
+            data["location_codes"] == expected_codes
+        ), f"Expected codes {expected_codes}, got {data['location_codes']}"
 
 
 class TestBulkCreateLayoutContract:
@@ -622,9 +691,7 @@ class TestBulkCreateLayoutContract:
         # Pydantic validation should reject before reaching service
         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
 
-    def test_bulk_create_nonexistent_parent_id(
-        self, client: TestClient, auth_headers
-    ):
+    def test_bulk_create_nonexistent_parent_id(self, client: TestClient, auth_headers):
         """T011.10: Validation - Nonexistent parent_id should fail"""
         payload = {
             "layout_type": "row",
@@ -647,3 +714,53 @@ class TestBulkCreateLayoutContract:
         data = response.json()
         assert data["success"] is False, "Should fail with nonexistent parent"
         assert data["created_count"] == 0, "Should not create any locations"
+
+    def test_bulk_create_response_includes_location_codes(
+        self, client: TestClient, auth_headers, db_session
+    ):
+        """T076: FR-026, FR-029 - Bulk create response includes location_code for each created location"""
+        from backend.src.models.storage_location import StorageLocation
+
+        payload = {
+            "layout_type": "row",
+            "prefix": "code-",
+            "ranges": [{"range_type": "letters", "start": "a", "end": "c"}],
+            "separators": [],
+            "location_type": "bin",
+            "single_part_only": False,
+        }
+
+        response = client.post(
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 201, f"Expected 201, got {response.status_code}"
+        data = response.json()
+        assert data["success"] is True, "Operation should succeed"
+        assert data["created_count"] == 3, "Should create 3 locations"
+
+        # Verify each created location has location_code in database
+        for location_id in data["created_ids"]:
+            location = (
+                db_session.query(StorageLocation).filter_by(id=location_id).first()
+            )
+            assert location is not None, f"Location {location_id} should exist"
+            assert (
+                location.location_code is not None
+            ), f"Location {location.name} should have location_code"
+            assert isinstance(
+                location.location_code, str
+            ), "location_code must be string"
+            assert len(location.location_code) > 0, "location_code must not be empty"
+
+        # Verify location codes are extracted correctly from full names
+        # Expected: "code-a" -> "a", "code-b" -> "b", "code-c" -> "c"
+        location_a = db_session.query(StorageLocation).filter_by(name="code-a").first()
+        location_b = db_session.query(StorageLocation).filter_by(name="code-b").first()
+        location_c = db_session.query(StorageLocation).filter_by(name="code-c").first()
+
+        assert location_a.location_code == "a", "Expected location_code 'a'"
+        assert location_b.location_code == "b", "Expected location_code 'b'"
+        assert location_c.location_code == "c", "Expected location_code 'c'"
