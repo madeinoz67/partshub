@@ -5,6 +5,7 @@ StorageLocation model with hierarchy support for organizing components.
 import uuid
 
 from sqlalchemy import (
+    JSON,
     CheckConstraint,
     Column,
     DateTime,
@@ -46,6 +47,11 @@ class StorageLocation(Base):
     location_code = Column(
         String(20), nullable=True, index=True
     )  # Short identifier like "A1", "B2-3"
+
+    # Layout generation metadata (for audit trail)
+    layout_config = Column(
+        JSON, nullable=True
+    )  # JSONB in PostgreSQL, JSON text in SQLite
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

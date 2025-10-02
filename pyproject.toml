@@ -136,4 +136,6 @@ exclude_lines = [
 dev = [
     "coverage>=7.3.2",
     "pytest-cov>=4.1.0",
+    "pytest-random-order>=1.2.0",
+    "pytest-xdist>=3.8.0",
 ]

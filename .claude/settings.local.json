@@ -38,7 +38,11 @@
       "Bash(sqlite3:*)",
       "Bash(sqlite3 data/partshub.db \"INSERT INTO storage_locations (id, name, type, location_hierarchy, location_code) VALUES (''''test-1'''', ''''Test Bin'''', ''''bin'''', ''''Test Bin'''', ''''A1''''); SELECT name, location_code FROM storage_locations WHERE id=''''test-1'''';\")",
       "Bash(make:*)",
-      "Bash(PORT=8000 uv run --project .. uvicorn src.main:app --host 0.0.0.0 --port 8000)"
+      "Bash(PORT=8000 uv run --project .. uvicorn src.main:app --host 0.0.0.0 --port 8000)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
+      "Bash(DATABASE_URL=\"sqlite:////tmp/test_migration.db\" uv run --project .. alembic downgrade -1)",
+      "Bash(DATABASE_URL=\"sqlite:////tmp/test_migration.db\" uv run --project .. alembic current)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

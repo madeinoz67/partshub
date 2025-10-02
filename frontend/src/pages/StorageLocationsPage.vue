@@ -6,6 +6,15 @@
         <div class="text-h4">Storage Locations</div>
         <div class="text-caption text-grey">Organize your workspace with hierarchical storage</div>
       </div>
+      <div v-if="canPerformCrud()" class="col-auto">
+        <q-btn
+          color="primary"
+          icon="add"
+          label="Create Bulk Locations"
+          unelevated
+          @click="openLayoutDialog"
+        />
+      </div>
     </div>
 
     <div class="row q-gutter-lg">
@@ -160,6 +169,13 @@
       @saved="onLocationSaved"
     />
 
+    <!-- Location Layout Dialog (Bulk Creation) -->
+    <LocationLayoutDialog
+      v-model="showLayoutDialog"
+      :parent-location-options="parentLocationOptions"
+      @created="onBulkLocationsCreated"
+    />
+
     <!-- Delete Confirmation Dialog -->
     <q-dialog v-model="showDeleteDialog" persistent>
       <q-card>
@@ -186,11 +202,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { storeToRefs } from 'pinia'
 import StorageLocationTree from '../components/StorageLocationTree.vue'
 import StorageLocationForm from '../components/StorageLocationForm.vue'
+import LocationLayoutDialog from '../components/storage/LocationLayoutDialog.vue'
 import { useStorageStore } from '../stores/storage'
 import { useAuth } from '../composables/useAuth'
 import type { StorageLocation, Component } from '../services/api'
@@ -208,9 +225,17 @@ const {
 const selectedLocationForEdit = ref<StorageLocation | null>(null)
 const parentLocationForCreate = ref<StorageLocation | null>(null)
 const showLocationDialog = ref(false)
+const showLayoutDialog = ref(false)
 const showDeleteDialog = ref(false)
 const isEditMode = ref(false)
 const deleteLoading = ref(false)
+
+// Computed options for parent location selector in layout dialog
+const parentLocationOptions = computed(() => {
+  // This would be populated from the storage store
+  // For now, return empty array - will be populated when storage locations are loaded
+  return []
+})
 
 const componentColumns = [
   {
@@ -372,5 +397,17 @@ const confirmDelete = async () => {
   } finally {
     deleteLoading.value = false
   }
+}
+
+const openLayoutDialog = () => {
+  if (!requireAuth('create bulk storage locations')) return
+  showLayoutDialog.value = true
+}
+
+const onBulkLocationsCreated = (response: any) => {
+  // Refresh the locations tree
+  storageStore.fetchLocations({
+    include_component_count: true
+  })
 }
 </script>
