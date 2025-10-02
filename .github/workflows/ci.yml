@@ -9,6 +9,10 @@ name: "Continuous Integration"
 env:
   UV_CACHE_DIR: /tmp/.uv-cache
 
+permissions:
+  contents: read       # For repository checkout
+  actions: write       # For caching dependencies
+
 jobs:
   backend_tests:
     name: "Backend Tests"
