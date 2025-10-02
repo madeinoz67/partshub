@@ -13,7 +13,7 @@
 **Entities**: 5 (LayoutConfiguration, RangeSpecification, PreviewResponse, BulkCreateResponse, StorageLocation extension)
 **Endpoints**: 2 (POST /api/v1/storage-locations/generate-preview, POST /api/v1/storage-locations/bulk-create-layout)
 **Test Scenarios**: 11 (from quickstart.md)
-**Total Tasks**: 74
+**Total Tasks**: 74 (60 complete, 14 cancelled)
 
 ## Current Status (2025-10-02) - ✅ FEATURE COMPLETE
 
@@ -40,11 +40,17 @@
 - Random-order testing: Working (pytest-random-order installed)
 
 **Feature Status**: 🎉 **PRODUCTION READY**
-- All 74 tasks complete
+- 60 tasks complete
+- 14 tasks cancelled (T075-T088)
 - All constitutional requirements met
 - Performance exceeds targets by 20-40x
 - Full test coverage with isolation
 - Ready for deployment
+
+**Task Cancellation Note**:
+- T075-T088 cancelled due to incorrect requirement understanding
+- Relates to misinterpretation of location_code field
+- New requirements will be addressed via FR-025 through FR-028 in spec.md
 
 ## Format: `[ID] [P?] Description`
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -67,6 +73,13 @@
 
 ## Phase 3.3: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.4
 
+### IMPORTANT NOTE: Location Code Extraction Tasks
+**These tasks (T075-T088) have been CANCELLED due to incorrect requirement understanding:**
+- `location_code` is for physical locations, NOT name extraction
+- Feature was rolled back in commit f294f22
+- New requirements are FR-025 through FR-028 in spec.md
+- New implementation tasks will be created via /tasks command
+
 ### Contract Tests (API Layer)
 - [X] T010 [P] Contract test for POST /api/storage-locations/generate-preview endpoint in `backend/tests/contract/test_location_generation_api.py` (copy from contracts/ and verify it fails)
 - [X] T011 [P] Contract test for POST /api/storage-locations/bulk-create endpoint in `backend/tests/contract/test_location_generation_api.py` (verify authentication required)
@@ -83,6 +96,22 @@
 - [X] T020 [P] Unit test for validation: max 500 locations in `backend/tests/unit/test_location_generator.py`
 - [X] T021 [P] Unit test for validation: duplicate detection in `backend/tests/unit/test_location_generator.py`
 - [X] T022 [P] Unit test for validation: start ≤ end in `backend/tests/unit/test_location_generator.py`
+
+### Location Code Extraction Tasks (CANCELLED)
+- [✖] T075 [CANCELLED - Incorrect requirement] Location code extraction from name prefix
+- [✖] T076 [CANCELLED - Incorrect requirement] Validate prefix extraction logic
+- [✖] T077 [CANCELLED - Incorrect requirement] Implement prefix extraction service
+- [✖] T078 [CANCELLED - Incorrect requirement] Add API endpoint for location code extraction
+- [✖] T079 [CANCELLED - Incorrect requirement] Create frontend component for code preview
+- [✖] T080 [CANCELLED - Incorrect requirement] Implement frontend code extraction service
+- [✖] T081 [CANCELLED - Incorrect requirement] Add contract tests for extraction API
+- [✖] T082 [CANCELLED - Incorrect requirement] Add unit tests for extraction logic
+- [✖] T083 [CANCELLED - Incorrect requirement] Add integration tests for extraction flow
+- [✖] T084 [CANCELLED - Incorrect requirement] Handle special character cases in extraction
+- [✖] T085 [CANCELLED - Incorrect requirement] Performance optimization for extraction
+- [✖] T086 [CANCELLED - Incorrect requirement] Add error handling for extraction
+- [✖] T087 [CANCELLED - Incorrect requirement] Update documentation for extraction feature
+- [✖] T088 [CANCELLED - Incorrect requirement] Validate extraction use cases
 
 ### Integration Tests (End-to-End Scenarios)
 - [X] T023 [P] Integration test: Scenario 1 - Row layout creation (FR-002) in `backend/tests/integration/test_location_generation.py`

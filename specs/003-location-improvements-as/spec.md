@@ -59,6 +59,8 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 8. **Given** user checks "Mark as single-part only" option, **When** locations are created, **Then** all created locations have this designation
 
+9. **Given** user selects a parent physical location "Garage Workshop", **When** generating 6 storage locations, **Then** all created locations appear as children of "Garage Workshop" in the location tree
+
 ### Edge Cases
 
 - What happens when user tries to create locations with names that already exist?
@@ -73,8 +75,10 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 - How does system handle zero-padding for numbers (e.g., 01 vs 1)?
   - User has option to enable/disable zero-padding per range
 
-- What happens when parent location is selected for generated locations?
-  - All generated locations created as children of specified parent
+- How does system handle parent location selection?
+  - User can optionally select a parent physical location from existing locations
+  - If no parent is selected, locations are created at root level
+  - Parent location provides context and organization for generated locations
 
 ## Requirements *(mandatory)*
 
@@ -128,9 +132,19 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - **FR-024**: Anonymous users MUST NOT be able to access location creation functionality (read-only access per tiered access control)
 
+- **FR-025**: System MUST support assigning generated locations to a physical location parent during bulk creation
+
+- **FR-026**: System MUST display parent-child hierarchy in location tree after creation
+
+- **FR-027**: System MUST allow creating generated locations at root level when no parent is selected
+
+- **FR-028**: System SHOULD show parent location context in location generation preview
+
 ### Key Entities
 
 - **Storage Location**: Physical or logical location where parts are stored; has name, type, hierarchy, parent relationship, and optional description
+  - Physical locations have a unique `location_code` for identification and labeling
+  - Generated locations can be assigned as children of physical locations
 
 - **Layout Configuration**: Parameters defining how locations are generated; includes layout type, prefix, range specifications (type, start, end, options), separators, and metadata
 
