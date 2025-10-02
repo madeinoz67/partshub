@@ -43,11 +43,35 @@ jobs:
       ci_passed: ${{ steps.check.outputs.ci_passed }}
 
     steps:
-      - name: Wait for CI workflow
+      - name: Wait for backend tests
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
-          check-name: 'Backend Tests'
+          check-name: 'Backend Tests (Full)'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+      - name: Wait for frontend tests
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Frontend Tests (Full)'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+      - name: Wait for security scan
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Security Scan'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+      - name: Wait for Docker build
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Docker Build'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
 
