@@ -119,4 +119,7 @@ nav:
       - KiCad Field Mappings: backend/kicad-field-mappings.md
   - Frontend:
       - frontend/index.md
-  - Developer Notes: developer-notes.md
+  - Developer Guide:
+      - developer/index.md
+      - Workflows: developer/workflows.md
+      - Session Notes (2025-09-27): developer/session-notes-2025-09-27.md

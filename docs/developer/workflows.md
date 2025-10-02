@@ -4,11 +4,32 @@ This guide explains how to work with the automated GitHub workflows in the Parts
 
 ## Overview
 
-The PartsHub project uses three main GitHub Actions workflows:
+The PartsHub project uses four main GitHub Actions workflows:
 
 1. **CI (Continuous Integration)** - Runs on every push and PR
 2. **CD (Continuous Deployment)** - Deploys to production on main branch
-3. **Release** - Creates releases when tags are pushed
+3. **Release Please** - Automates release PR creation
+4. **Release** - Creates artifacts and releases when tags are pushed
+
+## Workflow Conditional Logic
+
+### Feature Branch Workflow
+- **Trigger**: Push to non-main branches
+- **Jobs**:
+  - Fast backend checks (linting, quick tests)
+  - Fast frontend checks (linting, quick tests)
+- **Duration**: ~3-5 minutes
+- **Purpose**: Provide quick feedback for ongoing development
+
+### Pull Request and Main Branch Workflow
+- **Trigger**: Pull request to main or push to main branch
+- **Jobs**:
+  - Full backend tests (with code coverage)
+  - Full frontend tests and build verification
+  - Comprehensive security scanning
+  - Docker image build and container startup tests
+- **Duration**: ~10-15 minutes
+- **Purpose**: Ensure code quality, security, and deployability
 
 ## Development Workflow
 
@@ -312,17 +333,82 @@ env:
 - Deployed to GitHub Pages
 - Versioned documentation available
 
-## Troubleshooting
+## Troubleshooting Workflow Failures
 
-For detailed troubleshooting information, see:
-- [Troubleshooting Guide](troubleshooting.md)
-- [Branch Protection Configuration](branch-protection.md)
+### Common Workflow Failure Scenarios
+
+1. **Linting and Formatting Errors**
+   - Run locally: `uv run ruff check .` and `uv run ruff format .`
+   - Fix auto-fixable issues: `uv run ruff check --fix .`
+   - Ensure consistent code style
+
+2. **Test Failures**
+   - Verify local test environment:
+     ```bash
+     cd backend
+     uv run pytest
+     cd ../frontend
+     npm test
+     ```
+   - Check for environmental differences
+   - Review test coverage and edge cases
+
+3. **Security Scan Issues**
+   - Inspect security reports in workflow artifacts
+   - Update dependencies: `uv lock`
+   - Review vulnerability details in `safety-report.json` and `npm-audit-report.json`
+
+4. **Docker Build Problems**
+   - Verify local Docker build: `docker build -t partshub:test .`
+   - Check Dockerfile and build context
+   - Investigate container startup logs
+
+5. **Dependency Conflicts**
+   - Regenerate lock files: `uv lock`
+   - Clear uv cache: `uv cache clean`
+   - Check compatibility of package versions
+
+### Workflow Debugging Steps
+
+1. **Check Workflow Logs**
+   - Navigate to GitHub Actions tab
+   - Click on specific workflow run
+   - Review detailed step-by-step logs
+   - Download and inspect artifacts
+
+2. **Local Verification**
+   ```bash
+   # Run all pre-commit checks
+   uv run ruff check .
+   uv run ruff format --check .
+   uv run mypy backend/src
+
+   # Run tests
+   cd backend
+   uv run pytest
+   cd ../frontend
+   npm test
+
+   # Docker build test
+   docker build -t partshub:test .
+   ```
+
+3. **Escalation Path**
+   - Consult [Troubleshooting Guide](troubleshooting.md)
+   - Review [Branch Protection Configuration](branch-protection.md)
+   - Ask team members for assistance
+   - Create GitHub issue for persistent problems
 
 ## Getting Help
 
-1. **Check workflow logs** in GitHub Actions tab
-2. **Review this guide** and troubleshooting docs
-3. **Ask team members** for assistance
-4. **Create GitHub issue** for persistent problems
+1. **Document the Problem**
+   - Workflow name and run URL
+   - Specific error messages
+   - Steps to reproduce
 
-Remember: The workflows are designed to help maintain code quality and automate deployments. When in doubt, test locally first and don't hesitate to ask for help!
+2. **Provide Context**
+   - Recent code changes
+   - Environment details
+   - Attempted troubleshooting steps
+
+Remember: The workflows are designed to help maintain code quality and automate deployments. When in doubt, test locally first and document thoroughly!
