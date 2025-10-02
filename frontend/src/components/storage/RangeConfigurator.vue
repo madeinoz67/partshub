@@ -316,6 +316,7 @@ watch(() => props.layoutType, () => {
   const oldPrefix = config.value.prefix
   initializeRanges()
   config.value.prefix = oldPrefix // Preserve prefix
+  emitConfig() // Notify parent of reset configuration
 }, { immediate: true })
 </script>
 

@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 
-from ..models import Component, StorageLocation
+from ..models import Component, ComponentLocation, StorageLocation
 
 
 class StorageLocationService:
@@ -183,8 +183,8 @@ class StorageLocationService:
 
         # Check if location has components
         component_count = (
-            self.db.query(Component)
-            .filter(Component.storage_location_id == location_id)
+            self.db.query(ComponentLocation)
+            .filter(ComponentLocation.storage_location_id == location_id)
             .count()
         )
         if component_count > 0:
