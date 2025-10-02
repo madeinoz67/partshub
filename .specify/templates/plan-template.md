@@ -9,7 +9,7 @@
 1. Load feature spec from Input path
    → If not found: ERROR "No feature spec at {path}"
 2. Fill Technical Context (scan for NEEDS CLARIFICATION)
-   → Detect Project Type from context (web=frontend+backend, mobile=app+api)
+   → Detect Project Type from file system structure or context (web=frontend+backend, mobile=app+api)
    → Set Structure Decision based on project type
 3. Fill the Constitution Check section based on the content of the constitution document.
 4. Evaluate Constitution Check section below
@@ -47,7 +47,50 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Based on PartsHub Constitution v1.2.0:
+
+### Principle I: API-First Design
+- [ ] Backend API endpoints defined before frontend work
+- [ ] OpenAPI/Swagger documentation planned
+- [ ] API responses follow consistent JSON schema
+- [ ] Breaking changes properly versioned (MAJOR bump)
+
+### Principle II: Test-Driven Development (TDD) - NON-NEGOTIABLE
+- [ ] Contract tests planned for all API endpoints
+- [ ] Integration tests planned for all user stories
+- [ ] Tests will be written BEFORE implementation
+- [ ] 80% minimum coverage target established
+
+### Principle III: Tiered Access Control
+- [ ] Access levels defined (Anonymous/Authenticated/Admin)
+- [ ] Authentication requirements specified
+- [ ] JWT token validation planned where needed
+- [ ] Security implemented by default, not retrofitted
+
+### Principle IV: Quality Gates & Standards
+- [ ] Ruff linting and formatting will be applied
+- [ ] CI checks identified (tests, security, builds)
+- [ ] No direct main branch commits
+- [ ] Pull request review process followed
+
+### Principle V: Anonymous Contribution - NON-NEGOTIABLE
+- [ ] Commit messages will focus on changes, not tools
+- [ ] No AI assistant attribution in commits
+- [ ] Standard conventional commit format used
+
+### Principle VI: Test Isolation - NON-NEGOTIABLE
+- [ ] Tests use isolated database (in-memory or transaction rollback)
+- [ ] No test dependencies on execution order
+- [ ] External services mocked or use test doubles
+- [ ] Database state reset between tests
+- [ ] Tests runnable in parallel
+
+### Principle VII: Documentation Review - NON-NEGOTIABLE
+- [ ] Documentation updates planned for all code changes
+- [ ] OpenAPI specs will be updated for API changes
+- [ ] README/setup guides will reflect configuration changes
+- [ ] Usage documentation will be included for new features
+- [ ] Migration paths documented for breaking changes
 
 ## Project Structure
 
@@ -63,8 +106,14 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 ```
-# Option 1: Single project (DEFAULT)
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
 ├── services/
@@ -76,7 +125,7 @@ tests/
 ├── integration/
 └── unit/
 
-# Option 2: Web application (when "frontend" + "backend" detected)
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
 backend/
 ├── src/
 │   ├── models/
@@ -91,15 +140,16 @@ frontend/
 │   └── services/
 └── tests/
 
-# Option 3: Mobile + API (when "iOS/Android" detected)
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
 api/
 └── [same as backend above]
 
 ios/ or android/
-└── [platform-specific structure]
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Phase 0: Outline & Research
 1. **Extract unknowns from Technical Context** above:

@@ -95,10 +95,18 @@ When creating this spec from a user prompt:
 
 ### Requirement Completeness
 - [ ] No [NEEDS CLARIFICATION] markers remain
-- [ ] Requirements are testable and unambiguous  
+- [ ] Requirements are testable and unambiguous
 - [ ] Success criteria are measurable
 - [ ] Scope is clearly bounded
 - [ ] Dependencies and assumptions identified
+
+### Constitutional Alignment (PartsHub v1.2.0)
+- [ ] API-first requirements specified (backend before frontend)
+- [ ] Test scenarios defined for TDD (acceptance criteria testable)
+- [ ] Access control requirements clear (Anonymous/Authenticated/Admin)
+- [ ] Test isolation considered (tests can be independently verified)
+- [ ] Documentation requirements identified (what docs need updates)
+- [ ] No tool/AI attribution in specification text
 
 ---
 
