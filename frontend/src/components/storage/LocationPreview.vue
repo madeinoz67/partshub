@@ -91,47 +91,39 @@
         <div class="text-caption text-weight-medium text-grey-7 q-mb-xs">
           Preview:
         </div>
-        <q-table
-          data-testid="preview-table"
-          :rows="previewRows"
-          :columns="previewColumns"
-          flat
-          bordered
-          dense
-          hide-pagination
-          :rows-per-page-options="[0]"
-          class="preview-table"
-        >
-          <template #body="bodyProps">
-            <q-tr :props="bodyProps">
-              <q-td
-                key="name"
-                :props="bodyProps"
-                :data-testid="getNameTestId(bodyProps.rowIndex)"
-              >
-                <span class="q-mono">{{ bodyProps.row.name }}</span>
-              </q-td>
-              <q-td
-                key="code"
-                :props="bodyProps"
-                :data-testid="getCodeTestId(bodyProps.rowIndex)"
-              >
-                <span class="text-primary text-weight-bold">{{ bodyProps.row.code }}</span>
-              </q-td>
-            </q-tr>
-          </template>
-        </q-table>
+        <q-list dense bordered separator class="rounded-borders">
+          <q-item
+            v-for="(name, index) in previewData.sample_names"
+            :key="index"
+            :data-testid="`sample-name-${index}`"
+          >
+            <q-item-section>
+              <q-item-label class="text-body2 q-mono">{{ name }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <!-- Ellipsis if more than 5 -->
+          <q-item v-if="previewData.total_count > 5" data-testid="preview-ellipsis">
+            <q-item-section>
+              <q-item-label class="text-center text-grey">...</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <!-- Last Name -->
+          <q-item v-if="previewData.last_name && previewData.total_count > 5" data-testid="last-name">
+            <q-item-section>
+              <q-item-label class="text-body2 q-mono">{{ previewData.last_name }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 interface PreviewData {
   sample_names: string[]
-  location_codes: string[]
   last_name: string
   total_count: number
   warnings: string[]
@@ -144,95 +136,9 @@ interface Props {
   previewData: PreviewData | null
 }
 
-interface PreviewRow {
-  name: string
-  code: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   loading: false
 })
-
-const previewColumns = [
-  {
-    name: 'name',
-    label: 'Location Name',
-    field: 'name',
-    align: 'left' as const,
-    style: 'width: 60%'
-  },
-  {
-    name: 'code',
-    label: 'Location Code',
-    field: 'code',
-    align: 'left' as const,
-    style: 'width: 40%'
-  }
-]
-
-const previewRows = computed((): PreviewRow[] => {
-  if (!props.previewData?.sample_names) return []
-
-  const rows: PreviewRow[] = props.previewData.sample_names.map((name, index) => ({
-    name,
-    code: props.previewData?.location_codes?.[index] || 'N/A'
-  }))
-
-  // Add ellipsis row if more than 5
-  if (props.previewData.total_count > 5) {
-    rows.push({ name: '...', code: '...' })
-
-    // Add last row
-    if (props.previewData.last_name) {
-      const lastIndex = (props.previewData.location_codes?.length || 1) - 1
-      rows.push({
-        name: props.previewData.last_name,
-        code: props.previewData.location_codes?.[lastIndex] || 'N/A'
-      })
-    }
-  }
-
-  return rows
-})
-
-// Helper functions for test IDs
-const getNameTestId = (rowIndex: number): string => {
-  if (!props.previewData) return ''
-
-  const totalSampleNames = props.previewData.sample_names.length
-
-  // Check if this is the ellipsis row (comes after sample names)
-  if (rowIndex === totalSampleNames && props.previewData.total_count > 5) {
-    return 'preview-ellipsis'
-  }
-
-  // Check if this is the last name row (comes after ellipsis)
-  if (rowIndex === totalSampleNames + 1 && props.previewData.total_count > 5) {
-    return 'last-name'
-  }
-
-  // Regular sample name row
-  return `sample-name-${rowIndex}`
-}
-
-const getCodeTestId = (rowIndex: number): string => {
-  if (!props.previewData) return ''
-
-  const totalSampleNames = props.previewData.sample_names.length
-
-  // Check if this is the ellipsis row
-  if (rowIndex === totalSampleNames && props.previewData.total_count > 5) {
-    return 'preview-ellipsis-code'
-  }
-
-  // Check if this is the last code row
-  if (rowIndex === totalSampleNames + 1 && props.previewData.total_count > 5) {
-    return 'last-code'
-  }
-
-  // Regular location code row
-  return `location-code-${rowIndex}`
-}
 </script>
 
 <style scoped lang="scss">
@@ -252,17 +158,6 @@ const getCodeTestId = (rowIndex: number): string => {
   .sample-names {
     .q-mono {
       font-family: 'Courier New', Courier, monospace;
-    }
-
-    .preview-table {
-      // Ensure table is responsive and clean
-      :deep(thead th) {
-        font-weight: 600;
-      }
-
-      :deep(tbody td) {
-        vertical-align: middle;
-      }
     }
   }
 }

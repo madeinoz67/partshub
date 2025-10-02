@@ -21,6 +21,7 @@ Test Coverage (T023-T033):
 NOTE: Test isolation - each test uses isolated in-memory SQLite database via fixtures
 """
 
+import pytest
 
 from backend.src.models.storage_location import StorageLocation
 
@@ -314,9 +315,7 @@ class TestLocationGenerationIntegration:
         assert preview["is_valid"] is False, "Should be invalid (780 > 500)"
         assert preview["total_count"] == 780
         assert len(preview["errors"]) > 0
-        assert any(
-            "500" in error for error in preview["errors"]
-        ), "Should mention 500 limit"
+        assert any("500" in error for error in preview["errors"]), "Should mention 500 limit"
 
     def test_scenario_6_invalid_range(self, client):
         """
@@ -682,9 +681,7 @@ class TestLocationGenerationEdgeCases:
         }
 
         # Preview without auth should work
-        response = client.post(
-            "/api/v1/storage-locations/generate-preview", json=config
-        )
+        response = client.post("/api/v1/storage-locations/generate-preview", json=config)
         assert response.status_code == 200, "Preview should not require authentication"
 
     def test_single_location_creation(self, client, auth_headers, db_session):
@@ -888,220 +885,3 @@ class TestLocationGenerationEdgeCases:
         assert preview["is_valid"] is False
         assert len(preview["errors"]) > 0
         assert any("parent" in e.lower() for e in preview["errors"])
-
-
-class TestLocationCodePopulation:
-    """Integration tests for location_code field auto-population (T082-T084)"""
-
-    def test_row_layout_populates_location_codes(
-        self, client, auth_headers, db_session
-    ):
-        """
-        T082: Integration test for row layout with location codes (FR-026)
-
-        User Story: Create row layout with single-range location codes.
-        Expected: location_code = "a", "b", "c", "d", "e", "f" (single range value)
-        """
-        config = {
-            "layout_type": "row",
-            "prefix": "box1-",
-            "ranges": [
-                {
-                    "range_type": "letters",
-                    "start": "a",
-                    "end": "f",
-                }
-            ],
-            "separators": [],
-            "location_type": "bin",
-            "single_part_only": False,
-        }
-
-        # Step 1: Generate preview
-        preview_response = client.post(
-            "/api/v1/storage-locations/generate-preview", json=config
-        )
-        assert preview_response.status_code == 200
-        preview = preview_response.json()
-        assert preview["is_valid"] is True
-        assert preview["total_count"] == 6
-
-        # Step 2: Bulk create locations
-        create_response = client.post(
-            "/api/v1/storage-locations/bulk-create-layout",
-            json=config,
-            headers=auth_headers,
-        )
-        assert create_response.status_code == 201
-        result = create_response.json()
-        assert result["success"] is True
-        assert result["created_count"] == 6
-
-        # Step 3: Verify location_code field is populated in database
-        locations = (
-            db_session.query(StorageLocation)
-            .filter(StorageLocation.name.like("box1-%"))
-            .order_by(StorageLocation.name)
-            .all()
-        )
-
-        assert len(locations) == 6
-        # Verify location_code contains single range values
-        assert locations[0].location_code == "a"
-        assert locations[1].location_code == "b"
-        assert locations[2].location_code == "c"
-        assert locations[3].location_code == "d"
-        assert locations[4].location_code == "e"
-        assert locations[5].location_code == "f"
-
-        # Verify names still have full format
-        assert locations[0].name == "box1-a"
-        assert locations[5].name == "box1-f"
-
-    def test_grid_layout_populates_location_codes(
-        self, client, auth_headers, db_session
-    ):
-        """
-        T083: Integration test for grid layout with location codes (FR-027)
-
-        User Story: Create grid layout with row-column location codes.
-        Expected: location_code = "a-1", "a-2", ..., "c-5" (row-col format)
-        """
-        config = {
-            "layout_type": "grid",
-            "prefix": "cab-",
-            "ranges": [
-                {
-                    "range_type": "letters",
-                    "start": "a",
-                    "end": "c",
-                },  # 3 rows
-                {
-                    "range_type": "numbers",
-                    "start": 1,
-                    "end": 5,
-                },  # 5 columns
-            ],
-            "separators": ["-"],
-            "location_type": "drawer",
-            "single_part_only": False,
-        }
-
-        # Step 1: Generate preview
-        preview_response = client.post(
-            "/api/v1/storage-locations/generate-preview", json=config
-        )
-        assert preview_response.status_code == 200
-        preview = preview_response.json()
-        assert preview["is_valid"] is True
-        assert preview["total_count"] == 15  # 3 rows × 5 cols
-
-        # Step 2: Bulk create locations
-        create_response = client.post(
-            "/api/v1/storage-locations/bulk-create-layout",
-            json=config,
-            headers=auth_headers,
-        )
-        assert create_response.status_code == 201
-        result = create_response.json()
-        assert result["success"] is True
-        assert result["created_count"] == 15
-
-        # Step 3: Verify location_code field is populated in database
-        locations = (
-            db_session.query(StorageLocation)
-            .filter(StorageLocation.name.like("cab-%"))
-            .order_by(StorageLocation.name)
-            .all()
-        )
-
-        assert len(locations) == 15
-        # Verify location_code contains row-col format (without prefix)
-        assert locations[0].location_code == "a-1"
-        assert locations[1].location_code == "a-2"
-        assert locations[4].location_code == "a-5"
-        assert locations[5].location_code == "b-1"
-        assert locations[9].location_code == "b-5"
-        assert locations[10].location_code == "c-1"
-        assert locations[14].location_code == "c-5"
-
-        # Verify names still have full format with prefix
-        assert locations[0].name == "cab-a-1"
-        assert locations[14].name == "cab-c-5"
-
-    def test_3d_grid_populates_location_codes(self, client, auth_headers, db_session):
-        """
-        T084: Integration test for 3D grid with location codes (FR-028)
-
-        User Story: Create 3D grid layout with row-col-depth location codes.
-        Expected: location_code = "a-1.1", "a-1.2", ..., "b-3.2" (row-col-depth format)
-        """
-        config = {
-            "layout_type": "grid_3d",
-            "prefix": "stor-",
-            "ranges": [
-                {
-                    "range_type": "letters",
-                    "start": "a",
-                    "end": "b",
-                },  # 2 rows
-                {
-                    "range_type": "numbers",
-                    "start": 1,
-                    "end": 3,
-                },  # 3 columns
-                {
-                    "range_type": "numbers",
-                    "start": 1,
-                    "end": 2,
-                },  # 2 depth
-            ],
-            "separators": ["-", "."],
-            "location_type": "bin",
-            "single_part_only": False,
-        }
-
-        # Step 1: Generate preview
-        preview_response = client.post(
-            "/api/v1/storage-locations/generate-preview", json=config
-        )
-        assert preview_response.status_code == 200
-        preview = preview_response.json()
-        assert preview["is_valid"] is True
-        assert preview["total_count"] == 12  # 2 × 3 × 2 = 12
-
-        # Step 2: Bulk create locations
-        create_response = client.post(
-            "/api/v1/storage-locations/bulk-create-layout",
-            json=config,
-            headers=auth_headers,
-        )
-        assert create_response.status_code == 201
-        result = create_response.json()
-        assert result["success"] is True
-        assert result["created_count"] == 12
-
-        # Step 3: Verify location_code field is populated in database
-        locations = (
-            db_session.query(StorageLocation)
-            .filter(StorageLocation.name.like("stor-%"))
-            .order_by(StorageLocation.name)
-            .all()
-        )
-
-        assert len(locations) == 12
-        # Verify location_code contains row-col.depth format (without prefix)
-        assert locations[0].location_code == "a-1.1"
-        assert locations[1].location_code == "a-1.2"
-        assert locations[2].location_code == "a-2.1"
-        assert locations[3].location_code == "a-2.2"
-        assert locations[4].location_code == "a-3.1"
-        assert locations[5].location_code == "a-3.2"
-        assert locations[6].location_code == "b-1.1"
-        assert locations[7].location_code == "b-1.2"
-        assert locations[10].location_code == "b-3.1"
-        assert locations[11].location_code == "b-3.2"
-
-        # Verify names still have full format with prefix
-        assert locations[0].name == "stor-a-1.1"
-        assert locations[11].name == "stor-b-3.2"

@@ -59,10 +59,6 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 8. **Given** user checks "Mark as single-part only" option, **When** locations are created, **Then** all created locations have this designation
 
-9. **Given** user creates locations using row layout with prefix "box1-" and range a-f, **When** locations are created, **Then** each location has a physical location code matching the generated pattern (codes: "a", "b", "c", "d", "e", "f")
-
-10. **Given** user creates grid layout with prefix "cab-", rows a-c, columns 1-5, separator "-", **When** locations are created, **Then** each location has location code in "row-col" format (e.g., "a-1", "a-2", "b-1", etc.)
-
 ### Edge Cases
 
 - What happens when user tries to create locations with names that already exist?
@@ -79,9 +75,6 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - What happens when parent location is selected for generated locations?
   - All generated locations created as children of specified parent
-
-- What happens to location codes when prefix contains special characters or numbers?
-  - System extracts only the pattern portion after the prefix for location code
 
 ## Requirements *(mandatory)*
 
@@ -135,21 +128,9 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - **FR-024**: Anonymous users MUST NOT be able to access location creation functionality (read-only access per tiered access control)
 
-- **FR-025**: System MUST automatically generate physical location codes for all created locations based on the pattern (range values without prefix)
-
-- **FR-026**: System MUST populate location_code field for row layouts using the single range value (e.g., "a", "b", "1", "2")
-
-- **FR-027**: System MUST populate location_code field for grid layouts using "row-col" format with configured separator (e.g., "a-1", "b-2")
-
-- **FR-028**: System MUST populate location_code field for 3D grid layouts using "row-col-depth" format with configured separators (e.g., "a-1.5")
-
-- **FR-029**: System MUST preserve capitalization and zero-padding options in generated location codes
-
-- **FR-030**: System MUST display location codes in preview alongside location names
-
 ### Key Entities
 
-- **Storage Location**: Physical or logical location where parts are stored; has name, type, hierarchy, parent relationship, optional description, and location_code (short physical identifier extracted from generated pattern, used for physical labeling and display)
+- **Storage Location**: Physical or logical location where parts are stored; has name, type, hierarchy, parent relationship, and optional description
 
 - **Layout Configuration**: Parameters defining how locations are generated; includes layout type, prefix, range specifications (type, start, end, options), separators, and metadata
 
@@ -163,7 +144,7 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - **Range Specification**: Defines a dimension in multi-dimensional layouts; includes range type (letters/numbers), start value, end value, capitalization option, zero-padding option
 
-- **Generation Preview**: Temporary representation of what will be created; shows sample names AND location codes, total count, validation status, and any errors
+- **Generation Preview**: Temporary representation of what will be created; shows sample names, total count, validation status, and any errors
 
 ---
 

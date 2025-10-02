@@ -52,7 +52,6 @@ describe('LocationPreview', () => {
   describe('Valid Preview', () => {
     const validPreviewData = {
       sample_names: ['box-a', 'box-b', 'box-c', 'box-d', 'box-e'],
-      location_codes: ['a', 'b', 'c', 'd', 'e', 'f'],
       last_name: 'box-f',
       total_count: 6,
       warnings: [],
@@ -92,34 +91,6 @@ describe('LocationPreview', () => {
       expect(sampleNames[4].text()).toBe('box-e')
     })
 
-    it('should display location codes alongside names in table', () => {
-      const table = wrapper.find('[data-testid="preview-table"]')
-      expect(table.exists()).toBe(true)
-
-      // Check for table headers
-      const headers = wrapper.findAll('thead th')
-      expect(headers.length).toBeGreaterThanOrEqual(2)
-      expect(headers[0].text()).toContain('Location Name')
-      expect(headers[1].text()).toContain('Location Code')
-    })
-
-    it('should display location codes for each sample name', () => {
-      const locationCodes = wrapper.findAll('[data-testid^="location-code-"]')
-      expect(locationCodes).toHaveLength(5)
-
-      expect(locationCodes[0].text()).toBe('a')
-      expect(locationCodes[1].text()).toBe('b')
-      expect(locationCodes[2].text()).toBe('c')
-      expect(locationCodes[3].text()).toBe('d')
-      expect(locationCodes[4].text()).toBe('e')
-    })
-
-    it('should display last location code', () => {
-      const lastCode = wrapper.find('[data-testid="last-code"]')
-      expect(lastCode.exists()).toBe(true)
-      expect(lastCode.text()).toBe('f')
-    })
-
     it('should display ellipsis if total count > 5', () => {
       const ellipsis = wrapper.find('[data-testid="preview-ellipsis"]')
       expect(ellipsis.exists()).toBe(true)
@@ -149,7 +120,6 @@ describe('LocationPreview', () => {
   describe('Preview with Warnings', () => {
     const warningPreviewData = {
       sample_names: ['shelf-a-1', 'shelf-a-2', 'shelf-a-3', 'shelf-a-4', 'shelf-a-5'],
-      location_codes: ['a-1', 'a-2', 'a-3', 'a-4', 'a-5', 'f-30'],
       last_name: 'shelf-f-30',
       total_count: 150,
       warnings: ['Creating 150 locations cannot be undone. Locations cannot be deleted.'],
@@ -192,7 +162,6 @@ describe('LocationPreview', () => {
   describe('Preview with Errors', () => {
     const errorPreviewData = {
       sample_names: [],
-      location_codes: [],
       last_name: '',
       total_count: 600,
       warnings: [],
@@ -245,7 +214,6 @@ describe('LocationPreview', () => {
   describe('Preview with Multiple Warnings and Errors', () => {
     const multipleMessagesData = {
       sample_names: [],
-      location_codes: [],
       last_name: '',
       total_count: 0,
       warnings: ['Warning 1', 'Warning 2'],
@@ -290,7 +258,6 @@ describe('LocationPreview', () => {
           loading: false,
           previewData: {
             sample_names: ['box-a'],
-            location_codes: ['a'],
             last_name: 'box-a',
             total_count: 1,
             warnings: [],
@@ -313,7 +280,6 @@ describe('LocationPreview', () => {
           loading: false,
           previewData: {
             sample_names: ['a', 'b', 'c', 'd', 'e'],
-            location_codes: ['1', '2', '3', '4', '5'],
             last_name: 'e',
             total_count: 5,
             warnings: [],
@@ -327,60 +293,12 @@ describe('LocationPreview', () => {
       expect(ellipsis.exists()).toBe(false)
     })
 
-    it('should handle missing location_codes array', () => {
-      wrapper = mount(LocationPreview, {
-        props: {
-          loading: false,
-          previewData: {
-            sample_names: ['box-a', 'box-b', 'box-c'],
-            last_name: 'box-d',
-            total_count: 4,
-            warnings: [],
-            errors: [],
-            is_valid: true
-          } as any
-        }
-      })
-
-      const table = wrapper.find('[data-testid="preview-table"]')
-      expect(table.exists()).toBe(true)
-
-      // Should show N/A for missing codes
-      const locationCodes = wrapper.findAll('[data-testid^="location-code-"]')
-      expect(locationCodes[0].text()).toBe('N/A')
-      expect(locationCodes[1].text()).toBe('N/A')
-      expect(locationCodes[2].text()).toBe('N/A')
-    })
-
-    it('should handle mismatched array lengths gracefully', () => {
-      wrapper = mount(LocationPreview, {
-        props: {
-          loading: false,
-          previewData: {
-            sample_names: ['box-a', 'box-b', 'box-c'],
-            location_codes: ['a', 'b'], // Missing one code
-            last_name: 'box-d',
-            total_count: 4,
-            warnings: [],
-            errors: [],
-            is_valid: true
-          }
-        }
-      })
-
-      const locationCodes = wrapper.findAll('[data-testid^="location-code-"]')
-      expect(locationCodes[0].text()).toBe('a')
-      expect(locationCodes[1].text()).toBe('b')
-      expect(locationCodes[2].text()).toBe('N/A') // Should show N/A for missing
-    })
-
     it('should pluralize "locations" correctly', () => {
       wrapper = mount(LocationPreview, {
         props: {
           loading: false,
           previewData: {
             sample_names: ['a', 'b'],
-            location_codes: ['1', '2', '3'],
             last_name: 'c',
             total_count: 3,
             warnings: [],
@@ -402,7 +320,6 @@ describe('LocationPreview', () => {
           loading: false,
           previewData: {
             sample_names: ['box-a', 'box-b', 'box-c', 'box-d', 'box-e'],
-            location_codes: ['a', 'b', 'c', 'd', 'e', 'z'],
             last_name: 'box-z',
             total_count: 26,
             warnings: [],

@@ -23,8 +23,8 @@ def _write_credentials_file(username: str, password: str) -> Path:
     Returns:
         Path to the credentials file
     """
-    # Determine credentials file path (in root data directory for Docker compatibility)
-    data_dir = Path(__file__).parent.parent.parent.parent / "data"
+    # Determine credentials file path (in backend/data directory)
+    data_dir = Path(__file__).parent.parent.parent / "data"
     data_dir.mkdir(exist_ok=True)
 
     credentials_file = data_dir / ".admin_credentials.txt"

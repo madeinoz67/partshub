@@ -162,28 +162,6 @@ class LocationGeneratorService:
 
         return all_names
 
-    def _extract_location_code(self, full_name: str, prefix: str) -> str:
-        """Extract location code by removing prefix from full name.
-
-        Args:
-            full_name: The complete generated location name (e.g., "box1-a")
-            prefix: The prefix used in generation (e.g., "box1-")
-
-        Returns:
-            The location code without prefix (e.g., "a")
-
-        Examples:
-            "box1-a", "box1-" → "a"
-            "cab_bin-a1", "cab_bin-" → "a1"
-            "BIN-A", "BIN-" → "A" (preserves capitalization)
-            "bin-01", "bin-" → "01" (preserves zero-padding)
-        """
-        # Simple string operation: remove prefix from full_name
-        if full_name.startswith(prefix):
-            return full_name[len(prefix) :]
-        # Fallback: if prefix not found, return full name
-        return full_name
-
     def generate_preview(
         self,
         prefix: str,
@@ -201,7 +179,7 @@ class LocationGeneratorService:
             separators: List of separators between ranges
 
         Returns:
-            Dictionary with sample_names (list), last_name (str), total_count (int), location_codes (list)
+            Dictionary with sample_names (list), last_name (str), total_count (int)
         """
         all_names = self.generate_all_names(prefix, ranges, separators)
         total_count = len(all_names)
@@ -210,16 +188,10 @@ class LocationGeneratorService:
         sample_names = all_names[:5]
         last_name = all_names[-1] if all_names else ""
 
-        # Extract location codes for sample names
-        location_codes = [
-            self._extract_location_code(name, prefix) for name in sample_names
-        ]
-
         return {
             "sample_names": sample_names,
             "last_name": last_name,
             "total_count": total_count,
-            "location_codes": location_codes,
         }
 
     def validate_configuration(
@@ -331,12 +303,8 @@ class LocationGeneratorService:
 
         try:
             for name in all_names:
-                # Extract location code from full name
-                location_code = self._extract_location_code(name, config["prefix"])
-
                 location = StorageLocation(
                     name=name,
-                    location_code=location_code,
                     type=location_type,
                     parent_id=parent_id,
                     description=f"Auto-generated {config['layout_type']} layout location",

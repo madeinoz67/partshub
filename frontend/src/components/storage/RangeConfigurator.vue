@@ -8,35 +8,13 @@
       outlined
       dense
       placeholder="e.g., box-"
-      hint="Location codes will be extracted from the pattern"
+      class="q-mb-md"
       @update:model-value="emitConfig"
     >
       <template #prepend>
         <q-icon name="label" />
       </template>
-      <template #append>
-        <q-icon name="help_outline" color="grey-6">
-          <q-tooltip max-width="300px" class="text-body2">
-            The prefix is removed to create short location codes.
-            <br><br>
-            <strong>Example:</strong><br>
-            "box1-a" → code "a"<br>
-            "cab-a-1" → code "a-1"
-          </q-tooltip>
-        </q-icon>
-      </template>
     </q-input>
-
-    <!-- Info Banner: Auto-generated Location Codes -->
-    <q-banner class="bg-blue-1 text-blue-9 q-mb-md" dense>
-      <template #avatar>
-        <q-icon name="info" color="blue-9" />
-      </template>
-      <div class="text-body2">
-        <strong>Location codes</strong> will be automatically generated from your pattern.
-        For example: <code class="bg-blue-2 q-px-xs rounded-borders">"box1-a"</code> → code <code class="bg-blue-2 q-px-xs rounded-borders">"a"</code>
-      </div>
-    </q-banner>
 
     <!-- Range Inputs (row, grid, grid_3d) -->
     <div v-for="(range, index) in config.ranges" :key="index" class="q-mb-md">
@@ -160,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 interface RangeSpec {
   range_type: 'letters' | 'numbers'
