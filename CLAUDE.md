@@ -54,6 +54,15 @@ make docs         # Start documentation server
 
 <!-- MANUAL ADDITIONS START -->
 
+## Specialized Agents (NON-NEGOTIABLE)
+ALWAYS use specialized agents for domain-specific tasks (testing, database, security, etc.). All agents MUST follow the project constitution, including isolated testing principles:
+
+- Use in-memory SQLite (`sqlite:///:memory:`) for all tests (see `backend/tests/conftest.py`)
+- Never modify production databases during testing
+- Ensure tests are self-contained and repeatable
+- Follow all testing guidelines in project constitution
+- Database fixtures automatically create/destroy tables per test
+
 ## Anonymous Contribution (NON-NEGOTIABLE)
 All commits, pull requests, and git history MUST NOT contain references to AI assistants, automated tools, or external contributors in commit messages, co-author tags, or acknowledgments. Contributions MUST appear as originating from human project members only. Generated code markers and tool acknowledgments are prohibited in version control.
 

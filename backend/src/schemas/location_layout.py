@@ -203,20 +203,8 @@ class LayoutConfiguration(BaseModel):
                 f"but {len(self.separators)} were provided"
             )
 
-        # Validate prefix doesn't contain separator characters (done here when all fields are set)
-        for sep in self.separators:
-            if sep in self.prefix:
-                raise ValueError(
-                    f"prefix '{self.prefix}' cannot contain separator '{sep}'"
-                )
-
-        # Calculate total locations and validate <= 500
-        total_locations = self._calculate_total_locations()
-        if total_locations > 500:
-            raise ValueError(
-                f"Total locations ({total_locations}) exceeds maximum limit of 500. "
-                "Please reduce range sizes."
-            )
+        # Note: Max 500 validation is handled in business logic (PreviewService/BulkCreateService)
+        # to allow preview endpoint to return 200 with validation errors instead of 422
 
         return self
 

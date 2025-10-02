@@ -21,7 +21,6 @@ Test Coverage (T023-T033):
 NOTE: Test isolation - each test uses isolated in-memory SQLite database via fixtures
 """
 
-import pytest
 
 from backend.src.models.storage_location import StorageLocation
 
@@ -315,7 +314,9 @@ class TestLocationGenerationIntegration:
         assert preview["is_valid"] is False, "Should be invalid (780 > 500)"
         assert preview["total_count"] == 780
         assert len(preview["errors"]) > 0
-        assert any("500" in error for error in preview["errors"]), "Should mention 500 limit"
+        assert any(
+            "500" in error for error in preview["errors"]
+        ), "Should mention 500 limit"
 
     def test_scenario_6_invalid_range(self, client):
         """
@@ -681,7 +682,9 @@ class TestLocationGenerationEdgeCases:
         }
 
         # Preview without auth should work
-        response = client.post("/api/v1/storage-locations/generate-preview", json=config)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=config
+        )
         assert response.status_code == 200, "Preview should not require authentication"
 
     def test_single_location_creation(self, client, auth_headers, db_session):

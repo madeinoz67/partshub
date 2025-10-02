@@ -50,47 +50,47 @@
 Based on PartsHub Constitution v1.2.0:
 
 ### Principle I: API-First Design
-- [x] Backend API endpoints defined before frontend work (POST /api/storage-locations/generate-preview, POST /api/storage-locations/bulk-create)
-- [x] OpenAPI/Swagger documentation planned (FastAPI auto-generates OpenAPI specs)
-- [x] API responses follow consistent JSON schema (Pydantic models for validation)
-- [x] Breaking changes properly versioned (MAJOR bump) - new endpoints, no breaking changes
+- [ ] Backend API endpoints defined before frontend work
+- [ ] OpenAPI/Swagger documentation planned
+- [ ] API responses follow consistent JSON schema
+- [ ] Breaking changes properly versioned (MAJOR bump)
 
 ### Principle II: Test-Driven Development (TDD) - NON-NEGOTIABLE
-- [x] Contract tests planned for all API endpoints (preview and bulk-create endpoints)
-- [x] Integration tests planned for all user stories (8 acceptance scenarios + 5 edge cases)
-- [x] Tests will be written BEFORE implementation (TDD workflow enforced)
-- [x] 80% minimum coverage target established (pytest with coverage reporting)
+- [ ] Contract tests planned for all API endpoints
+- [ ] Integration tests planned for all user stories
+- [ ] Tests will be written BEFORE implementation
+- [ ] 80% minimum coverage target established
 
 ### Principle III: Tiered Access Control
-- [x] Access levels defined (Anonymous: read-only, Authenticated: create locations, Admin: N/A for this feature)
-- [x] Authentication requirements specified (FR-024: authenticated users only, JWT validation)
-- [x] JWT token validation planned where needed (all POST endpoints require authentication)
-- [x] Security implemented by default, not retrofitted (authentication dependency from start)
+- [ ] Access levels defined (Anonymous/Authenticated/Admin)
+- [ ] Authentication requirements specified
+- [ ] JWT token validation planned where needed
+- [ ] Security implemented by default, not retrofitted
 
 ### Principle IV: Quality Gates & Standards
-- [x] Ruff linting and formatting will be applied (pre-commit requirement)
-- [x] CI checks identified (backend tests, frontend tests, security scans, Docker builds)
-- [x] No direct main branch commits (branch protection enforced)
-- [x] Pull request review process followed (standard workflow)
+- [ ] Ruff linting and formatting will be applied
+- [ ] CI checks identified (tests, security, builds)
+- [ ] No direct main branch commits
+- [ ] Pull request review process followed
 
 ### Principle V: Anonymous Contribution - NON-NEGOTIABLE
-- [x] Commit messages will focus on changes, not tools (no AI attribution)
-- [x] No AI assistant attribution in commits (constitutional requirement)
-- [x] Standard conventional commit format used (conventional commits enforced)
+- [ ] Commit messages will focus on changes, not tools
+- [ ] No AI assistant attribution in commits
+- [ ] Standard conventional commit format used
 
 ### Principle VI: Test Isolation - NON-NEGOTIABLE
-- [x] Tests use isolated database (in-memory SQLite for each test)
-- [x] No test dependencies on execution order (independent test execution)
-- [x] External services mocked or use test doubles (no external dependencies)
-- [x] Database state reset between tests (pytest fixtures with cleanup)
-- [x] Tests runnable in parallel (pytest -n auto support)
+- [ ] Tests use isolated database (in-memory or transaction rollback)
+- [ ] No test dependencies on execution order
+- [ ] External services mocked or use test doubles
+- [ ] Database state reset between tests
+- [ ] Tests runnable in parallel
 
 ### Principle VII: Documentation Review - NON-NEGOTIABLE
-- [x] Documentation updates planned for all code changes (OpenAPI specs, quickstart.md, README updates)
-- [x] OpenAPI specs will be updated for API changes (contracts/location-layout-api.yaml)
-- [x] README/setup guides will reflect configuration changes (no config changes in this feature)
-- [x] Usage documentation will be included for new features (quickstart.md with 11 scenarios)
-- [x] Migration paths documented for breaking changes (no breaking changes)
+- [ ] Documentation updates planned for all code changes
+- [ ] OpenAPI specs will be updated for API changes
+- [ ] README/setup guides will reflect configuration changes
+- [ ] Usage documentation will be included for new features
+- [ ] Migration paths documented for breaking changes
 
 ## Project Structure
 
@@ -245,27 +245,18 @@ directories captured above]
 *This checklist is updated during execution flow*
 
 **Phase Status**:
-- [x] Phase 0: Research complete (/plan command) - research.md generated
-- [x] Phase 1: Design complete (/plan command) - data-model.md, contracts/, quickstart.md generated
-- [x] Phase 2: Task planning complete (/plan command - describe approach only)
-- [ ] Phase 3: Tasks generated (/tasks command) - tasks.md to be created
+- [ ] Phase 0: Research complete (/plan command)
+- [ ] Phase 1: Design complete (/plan command)
+- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
+- [ ] Phase 3: Tasks generated (/tasks command)
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
-- [x] Initial Constitution Check: PASS - all 7 principles satisfied (including new Documentation Review)
-- [x] Post-Design Constitution Check: PASS - no violations after Phase 1
-- [x] All NEEDS CLARIFICATION resolved - no unknowns in Technical Context
-- [x] Complexity deviations documented - none required, standard web app pattern
-
-**Artifacts Generated**:
-- [x] /specs/003-location-improvements-as/plan.md (this file)
-- [x] /specs/003-location-improvements-as/research.md (10 technical decisions)
-- [x] /specs/003-location-improvements-as/data-model.md (5 entities, 3 enums, migration)
-- [x] /specs/003-location-improvements-as/contracts/location-layout-api.yaml (OpenAPI spec)
-- [x] /specs/003-location-improvements-as/contracts/test_location_generation_contract.py (failing tests)
-- [x] /specs/003-location-improvements-as/quickstart.md (11 test scenarios)
-- [x] /CLAUDE.md updated (incremental context addition)
+- [ ] Initial Constitution Check: PASS
+- [ ] Post-Design Constitution Check: PASS
+- [ ] All NEEDS CLARIFICATION resolved
+- [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.2.0 - See `.specify/memory/constitution.md`*
+*Based on Constitution v1.1.0 - See `.specify/memory/constitution.md`*

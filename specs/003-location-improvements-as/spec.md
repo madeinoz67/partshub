@@ -61,6 +61,14 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 9. **Given** user selects a parent physical location "Garage Workshop", **When** generating 6 storage locations, **Then** all created locations appear as children of "Garage Workshop" in the location tree
 
+10. **Given** user is viewing the storage locations page, **When** the page loads, **Then** storage locations are displayed in a grid/table view with columns for Location, Last used, Part count, and Description
+
+11. **Given** user sees storage location rows with chevron icons, **When** they click the chevron on a row, **Then** the row expands to show detailed information (full hierarchy, description, metadata)
+
+12. **Given** user has expanded one storage location row, **When** they click to expand a different row, **Then** the previously expanded row collapses and the new row expands
+
+13. **Given** user views storage locations on a mobile device, **When** the table is displayed, **Then** the layout adapts responsively with essential columns visible and horizontal scrolling enabled for additional columns
+
 ### Edge Cases
 
 - What happens when user tries to create locations with names that already exist?
@@ -110,7 +118,7 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - **FR-013**: System MUST display preview showing first 5 generated names, ellipsis, last name, and total count
 
-- **FR-014**: System MUST allow users to assign all generated locations to an optional parent location
+- **FR-014**: System MUST allow users to assign all generated locations to an optional parent location (physical or generated). When no parent is selected, locations are created at root level.
 
 - **FR-015**: System MUST allow users to mark generated locations as "single-part only" storage
 
@@ -124,7 +132,7 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - **FR-020**: System MUST prevent row layout from exceeding 1000 locations
 
-- **FR-021**: System MUST assign appropriate location type (bin, drawer, shelf, etc.) to all generated locations
+- **FR-021**: System MUST allow users to select a location type (bin, drawer, shelf, cabinet, room, building) for all generated locations. Default type is "bin" if not specified.
 
 - **FR-022**: System MUST refresh location tree immediately after successful creation
 
@@ -132,13 +140,19 @@ The user selects "Create Locations", chooses a layout type, configures the namin
 
 - **FR-024**: Anonymous users MUST NOT be able to access location creation functionality (read-only access per tiered access control)
 
-- **FR-025**: System MUST support assigning generated locations to a physical location parent during bulk creation
+- **FR-025**: System MUST display parent-child hierarchy in location tree after creation
 
-- **FR-026**: System MUST display parent-child hierarchy in location tree after creation
+- **FR-026**: System MUST display parent location name in preview header when a parent is selected
 
-- **FR-027**: System MUST allow creating generated locations at root level when no parent is selected
+- **FR-027**: System MUST display storage locations in a responsive grid/table view as the default view, replacing the existing storage locations view
 
-- **FR-028**: System SHOULD show parent location context in location generation preview
+- **FR-028**: System MUST support row expansion to show storage location details (description, location hierarchy, part count, last used date)
+
+- **FR-029**: System MUST show expandable chevron icon on each row to indicate expansion capability
+
+- **FR-030**: System MUST collapse expanded rows when another row is expanded (single-row expansion)
+
+- **FR-031**: System MUST adapt table layout for mobile/tablet screens (responsive design with column priority and horizontal scrolling)
 
 ### Key Entities
 

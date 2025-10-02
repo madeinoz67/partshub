@@ -785,10 +785,9 @@ class ReportService:
             )
 
             # Components without any location assignment
-            components_with_locations = (
-                self.db.query(func.distinct(ComponentLocation.component_id))
-                .count()
-            )
+            components_with_locations = self.db.query(
+                func.distinct(ComponentLocation.component_id)
+            ).count()
             components_without_location = total_components - components_with_locations
 
             components_without_specs = (
@@ -809,8 +808,10 @@ class ReportService:
                 .all()
             )
             avg_components_per_location = (
-                sum(count[0] for count in location_component_counts) / len(location_component_counts)
-                if location_component_counts else 0
+                sum(count[0] for count in location_component_counts)
+                / len(location_component_counts)
+                if location_component_counts
+                else 0
             )
 
             return {

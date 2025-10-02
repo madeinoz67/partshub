@@ -42,7 +42,11 @@
       "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
       "Bash(DATABASE_URL=\"sqlite:////tmp/test_migration.db\" uv run --project .. alembic downgrade -1)",
       "Bash(DATABASE_URL=\"sqlite:////tmp/test_migration.db\" uv run --project .. alembic current)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(.specify/scripts/bash/setup-plan.sh:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(timeout 20 npm run dev)"
     ],
     "deny": [],
     "ask": []

@@ -19,6 +19,7 @@ from .api.categories import router as categories_router
 from .api.components import router as components_router
 from .api.integrations import router as integrations_router
 from .api.kicad import router as kicad_router
+from .api.location_layout import router as location_layout_router
 from .api.projects import router as projects_router
 from .api.reports import router as reports_router
 from .api.storage import router as storage_router
@@ -124,6 +125,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(components_router)
 app.include_router(storage_router)
+app.include_router(location_layout_router)
 app.include_router(integrations_router)
 app.include_router(tags_router)
 app.include_router(attachments_router)

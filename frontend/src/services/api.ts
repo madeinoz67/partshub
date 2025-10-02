@@ -113,6 +113,18 @@ export interface StorageLocation {
   children?: StorageLocation[]
   component_count?: number
   full_hierarchy_path?: Array<{ id: string; name: string }>
+  layout_config?: {
+    layout_type: string
+    prefix?: string
+    ranges?: Array<{
+      type: string
+      start: string
+      end: string
+      capitalize?: boolean
+      zero_pad?: boolean
+    }>
+    separators?: string[]
+  }
 }
 
 export interface Tag {

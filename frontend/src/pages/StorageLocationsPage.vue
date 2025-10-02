@@ -1,23 +1,52 @@
 <template>
   <q-page class="q-pa-md">
-    <!-- Page Title -->
+    <!-- Page Title and View Toggle -->
     <div class="row items-center q-mb-lg">
       <div class="col">
         <div class="text-h4">Storage Locations</div>
         <div class="text-caption text-grey">Organize your workspace with hierarchical storage</div>
       </div>
-      <div v-if="canPerformCrud()" class="col-auto">
-        <q-btn
-          color="primary"
-          icon="add"
-          label="Create Bulk Locations"
-          unelevated
-          @click="openLayoutDialog"
-        />
+      <div class="col-auto">
+        <div class="row items-center q-gutter-md">
+          <!-- View Toggle -->
+          <q-btn-toggle
+            v-model="viewMode"
+            toggle-color="primary"
+            :options="[
+              { label: 'Table', value: 'table', icon: 'table_chart' },
+              { label: 'Tree', value: 'tree', icon: 'account_tree' }
+            ]"
+            unelevated
+          />
+          <!-- Create Button -->
+          <q-btn
+            v-if="canPerformCrud()"
+            color="primary"
+            icon="add"
+            label="Create Bulk Locations"
+            unelevated
+            @click="openLayoutDialog"
+          />
+        </div>
       </div>
     </div>
 
-    <div class="row q-gutter-lg">
+    <!-- Table View -->
+    <div v-if="viewMode === 'table'">
+      <q-card>
+        <q-card-section>
+          <StorageLocationTable
+            :locations="allLocations"
+            :loading="isLoading"
+            @refresh="refreshLocations"
+            @location-selected="onLocationSelected"
+          />
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Tree View -->
+    <div v-else class="row q-gutter-lg">
       <!-- Storage Location Tree -->
       <div class="col-md-4 col-xs-12">
         <q-card>
@@ -202,12 +231,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { storeToRefs } from 'pinia'
 import StorageLocationTree from '../components/StorageLocationTree.vue'
 import StorageLocationForm from '../components/StorageLocationForm.vue'
 import LocationLayoutDialog from '../components/storage/LocationLayoutDialog.vue'
+import StorageLocationTable from '../components/storage/StorageLocationTable.vue'
 import { useStorageStore } from '../stores/storage'
 import { useAuth } from '../composables/useAuth'
 import type { StorageLocation, Component } from '../services/api'
@@ -219,7 +249,8 @@ const { requireAuth, canPerformCrud } = useAuth()
 const {
   currentLocation: selectedLocation,
   locationComponents,
-  loading: componentsLoading
+  loading: componentsLoading,
+  locations
 } = storeToRefs(storageStore)
 
 const selectedLocationForEdit = ref<StorageLocation | null>(null)
@@ -229,12 +260,29 @@ const showLayoutDialog = ref(false)
 const showDeleteDialog = ref(false)
 const isEditMode = ref(false)
 const deleteLoading = ref(false)
+const viewMode = ref<'table' | 'tree'>('table')
 
 // Computed options for parent location selector in layout dialog
 const parentLocationOptions = computed(() => {
-  // This would be populated from the storage store
-  // For now, return empty array - will be populated when storage locations are loaded
-  return []
+  return storageStore.locationOptions
+})
+
+// All locations for table view
+const allLocations = computed(() => storageStore.locations)
+
+// Loading state for table
+const isLoading = computed(() => storageStore.loading)
+
+// Refresh locations
+const refreshLocations = () => {
+  storageStore.fetchLocations({
+    include_component_count: true
+  })
+}
+
+// Initialize data on mount
+onMounted(() => {
+  refreshLocations()
 })
 
 const componentColumns = [
@@ -404,10 +452,14 @@ const openLayoutDialog = () => {
   showLayoutDialog.value = true
 }
 
-const onBulkLocationsCreated = (response: any) => {
-  // Refresh the locations tree
-  storageStore.fetchLocations({
-    include_component_count: true
+const onBulkLocationsCreated = (response: { created_count: number; created_ids: string[] }) => {
+  $q.notify({
+    type: 'positive',
+    message: `Successfully created ${response.created_count} location${response.created_count !== 1 ? 's' : ''}`,
+    position: 'top-right'
   })
+
+  // Refresh the locations (works for both tree and table view)
+  refreshLocations()
 }
 </script>

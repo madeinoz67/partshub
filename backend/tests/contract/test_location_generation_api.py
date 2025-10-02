@@ -16,7 +16,6 @@ Test Categories:
 5. Business logic validation (limits, duplicates, warnings)
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -295,9 +294,7 @@ class TestGeneratePreviewContract:
         # Should return 422 validation error
         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
 
-    def test_preview_validates_separator_count_matches_ranges(
-        self, client: TestClient
-    ):
+    def test_preview_validates_separator_count_matches_ranges(self, client: TestClient):
         """T010.11: Validation - separators length must be len(ranges) - 1"""
         payload = {
             "layout_type": "grid",
@@ -622,9 +619,7 @@ class TestBulkCreateLayoutContract:
         # Pydantic validation should reject before reaching service
         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
 
-    def test_bulk_create_nonexistent_parent_id(
-        self, client: TestClient, auth_headers
-    ):
+    def test_bulk_create_nonexistent_parent_id(self, client: TestClient, auth_headers):
         """T011.10: Validation - Nonexistent parent_id should fail"""
         payload = {
             "layout_type": "row",

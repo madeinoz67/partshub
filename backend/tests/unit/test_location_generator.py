@@ -1,361 +1,570 @@
 """
-Unit tests for LocationGenerator service.
+Unit tests for LocationGeneratorService.
 
-These tests validate the core business logic for generating storage location names
-BEFORE implementation. All tests MUST FAIL initially (TDD).
+Tests name generation algorithms in isolation without database dependencies.
+Focuses on business logic for range generation, Cartesian products, and edge cases.
 
-Test Coverage (T012-T022):
-- T012: Letter range generation (a-z)
-- T013: Number range generation (0-999)
-- T014: Letter capitalization
-- T015: Number zero-padding
-- T016: Row layout (1D)
-- T017: Grid layout (2D)
-- T018: 3D grid layout
-- T019: Preview generation (first 5, last 1)
-- T020: Validation - max 500 locations
-- T021: Validation - duplicate detection
-- T022: Validation - start <= end
+Test Coverage (T044):
+- Letter range generation (a-z, capitalization)
+- Number range generation (0-999, zero-padding)
+- Cartesian product combinations
+- Edge cases (single item, max range)
+- All layout types (SINGLE, ROW, GRID, GRID_3D)
 
-NOTE: Test isolation - each test uses in-memory SQLite database
+NOTE: Test isolation - pure business logic, no database dependencies
 """
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from backend.src.database import Base
+from backend.src.schemas.location_layout import (
+    LayoutConfiguration,
+    LayoutType,
+    RangeSpecification,
+    RangeType,
+)
+from backend.src.services.location_generator import LocationGeneratorService
 
 
-class TestLocationGenerator:
-    """Unit tests for LocationGenerator service (does not exist yet - TDD)"""
+class TestGenerateRange:
+    """Test suite for generate_range method."""
 
-    @pytest.fixture
-    def db_session(self):
-        """
-        Create isolated in-memory SQLite database for each test.
-
-        CRITICAL: This ensures Constitution Principle VI (Test Isolation).
-        Each test gets fresh database instance with no shared state.
-        """
-        engine = create_engine("sqlite:///:memory:")
-        Base.metadata.create_all(engine)
-        SessionLocal = sessionmaker(bind=engine)
-        session = SessionLocal()
-        yield session
-        session.close()
-
-    @pytest.fixture
-    def location_generator(self, db_session):
-        """
-        Create LocationGeneratorService instance for testing.
-        """
-        from backend.src.services.location_generator import LocationGeneratorService
-
-        return LocationGeneratorService(db_session)
-
-    def test_generate_letter_range(self, location_generator):
-        """
-        T012: FR-010 - Generate letter range (a-z)
-        """
-        # Test basic letter range
-        result = list(location_generator.generate_range(
-            range_type="letters",
+    def test_letter_range_lowercase(self):
+        """Test generating lowercase letter range."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.LETTERS,
             start="a",
-            end="f",
+            end="e",
             capitalize=False,
-            zero_pad=False
-        ))
+        )
 
-        assert result == ["a", "b", "c", "d", "e", "f"], "Should generate a-f"
+        result = list(service.generate_range(range_spec))
 
-        # Test partial range
-        result = list(location_generator.generate_range(
-            range_type="letters",
+        assert result == ["a", "b", "c", "d", "e"]
+
+    def test_letter_range_uppercase(self):
+        """Test generating uppercase letter range with capitalize=True."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.LETTERS,
+            start="a",
+            end="d",
+            capitalize=True,
+        )
+
+        result = list(service.generate_range(range_spec))
+
+        assert result == ["A", "B", "C", "D"]
+
+    def test_letter_range_single_character(self):
+        """Test letter range with single character (start == end)."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.LETTERS,
             start="m",
-            end="p",
+            end="m",
             capitalize=False,
-            zero_pad=False
-        ))
+        )
 
-        assert result == ["m", "n", "o", "p"], "Should generate m-p"
+        result = list(service.generate_range(range_spec))
 
-    def test_generate_number_range(self, location_generator):
-        """
-        T013: FR-011 - Generate number range (0-999)
-        """
-        # Test basic number range
-        result = list(location_generator.generate_range(
-            range_type="numbers",
+        assert result == ["m"]
+
+    def test_letter_range_full_alphabet(self):
+        """Test generating full alphabet (a-z)."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.LETTERS,
+            start="a",
+            end="z",
+            capitalize=False,
+        )
+
+        result = list(service.generate_range(range_spec))
+
+        assert len(result) == 26
+        assert result[0] == "a"
+        assert result[-1] == "z"
+
+    def test_number_range_no_padding(self):
+        """Test generating number range without zero padding."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.NUMBERS,
             start=1,
             end=5,
-            capitalize=False,
-            zero_pad=False
-        ))
+            zero_pad=False,
+        )
 
-        assert result == ["1", "2", "3", "4", "5"], "Should generate 1-5"
+        result = list(service.generate_range(range_spec))
 
-        # Test range starting from 0
-        result = list(location_generator.generate_range(
-            range_type="numbers",
+        assert result == ["1", "2", "3", "4", "5"]
+
+    def test_number_range_with_padding(self):
+        """Test generating number range with zero padding."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.NUMBERS,
+            start=1,
+            end=100,
+            zero_pad=True,
+        )
+
+        result = list(service.generate_range(range_spec))
+
+        # Check padding based on end value (100 has 3 digits)
+        assert result[0] == "001"
+        assert result[9] == "010"
+        assert result[99] == "100"
+        assert len(result) == 100
+
+    def test_number_range_zero_to_nine_with_padding(self):
+        """Test number range 0-9 with zero padding."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.NUMBERS,
             start=0,
-            end=3,
-            capitalize=False,
-            zero_pad=False
-        ))
+            end=9,
+            zero_pad=True,
+        )
 
-        assert result == ["0", "1", "2", "3"], "Should generate 0-3"
+        result = list(service.generate_range(range_spec))
 
-    def test_letter_capitalization(self, location_generator):
-        """
-        T014: FR-010 - Letter ranges support capitalization
-        """
-        # Test lowercase (default)
-        result = list(location_generator.generate_range(
-            range_type="letters",
-            start="a",
-            end="c",
-            capitalize=False,
-            zero_pad=False
-        ))
+        # Padding width should be 1 digit (based on '9')
+        assert result == ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-        assert result == ["a", "b", "c"], "Should generate lowercase letters"
+    def test_number_range_single_number(self):
+        """Test number range with single value (start == end)."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.NUMBERS,
+            start=42,
+            end=42,
+            zero_pad=False,
+        )
 
-        # Test uppercase
-        result = list(location_generator.generate_range(
-            range_type="letters",
-            start="a",
-            end="c",
-            capitalize=True,
-            zero_pad=False
-        ))
+        result = list(service.generate_range(range_spec))
 
-        assert result == ["A", "B", "C"], "Should generate uppercase letters"
+        assert result == ["42"]
 
-    def test_number_zero_padding(self, location_generator):
-        """
-        T015: FR-011 - Number ranges support zero-padding
-        """
-        # Test without zero-padding
-        result = list(location_generator.generate_range(
-            range_type="numbers",
-            start=1,
-            end=15,
-            capitalize=False,
-            zero_pad=False
-        ))
+    def test_number_range_max_range(self):
+        """Test number range at maximum (0-999)."""
+        service = LocationGeneratorService()
+        range_spec = RangeSpecification(
+            range_type=RangeType.NUMBERS,
+            start=0,
+            end=999,
+            zero_pad=False,
+        )
 
-        assert result[0] == "1", "First should be '1' without padding"
-        assert result[-1] == "15", "Last should be '15'"
+        result = list(service.generate_range(range_spec))
 
-        # Test with zero-padding
-        result = list(location_generator.generate_range(
-            range_type="numbers",
-            start=1,
-            end=15,
-            capitalize=False,
-            zero_pad=True
-        ))
+        assert len(result) == 1000
+        assert result[0] == "0"
+        assert result[-1] == "999"
 
-        assert result[0] == "01", "First should be '01' with padding"
-        assert result[4] == "05", "Fifth should be '05' with padding"
-        assert result[-1] == "15", "Last should be '15' with padding"
 
-    def test_row_layout_generation(self, location_generator):
-        """
-        T016: FR-002 - Row layout (1D) generation
-        """
-        prefix = "box1-"
-        ranges = [
-            {"range_type": "letters", "start": "a", "end": "f", "capitalize": False, "zero_pad": False}
-        ]
-        separators = []
+class TestCalculateTotalCount:
+    """Test suite for calculate_total_count method."""
 
-        result = location_generator.generate_all_names(prefix, ranges, separators)
+    def test_single_layout_count(self):
+        """Test total count for SINGLE layout (no ranges)."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.SINGLE,
+            prefix="main",
+            ranges=[],
+            separators=[],
+            location_type="room",
+            single_part_only=False,
+        )
 
-        assert len(result) == 6, "Should generate 6 locations"
-        assert result == ["box1-a", "box1-b", "box1-c", "box1-d", "box1-e", "box1-f"]
+        result = service.calculate_total_count(config)
 
-    def test_grid_layout_generation(self, location_generator):
-        """
-        T017: FR-003 - Grid layout (2D) generation
-        """
-        prefix = "shelf-"
-        ranges = [
-            {"range_type": "letters", "start": "a", "end": "c", "capitalize": False, "zero_pad": False},
-            {"range_type": "numbers", "start": 1, "end": 3, "capitalize": False, "zero_pad": False}
-        ]
-        separators = ["-"]
+        assert result == 1
 
-        result = location_generator.generate_all_names(prefix, ranges, separators)
-
-        assert len(result) == 9, "Should generate 9 locations (3x3)"
-        assert result[0] == "shelf-a-1", "First should be shelf-a-1"
-        assert result[1] == "shelf-a-2", "Second should be shelf-a-2"
-        assert result[2] == "shelf-a-3", "Third should be shelf-a-3"
-        assert result[3] == "shelf-b-1", "Fourth should be shelf-b-1"
-        assert result[-1] == "shelf-c-3", "Last should be shelf-c-3"
-
-    def test_3d_grid_layout_generation(self, location_generator):
-        """
-        T018: FR-004 - 3D grid layout generation
-        """
-        prefix = "warehouse-"
-        ranges = [
-            {"range_type": "letters", "start": "a", "end": "b", "capitalize": False, "zero_pad": False},
-            {"range_type": "numbers", "start": 1, "end": 2, "capitalize": False, "zero_pad": False},
-            {"range_type": "numbers", "start": 1, "end": 2, "capitalize": False, "zero_pad": False}
-        ]
-        separators = ["-", "."]
-
-        result = location_generator.generate_all_names(prefix, ranges, separators)
-
-        assert len(result) == 8, "Should generate 8 locations (2x2x2)"
-        assert result[0] == "warehouse-a-1.1", "First should be warehouse-a-1.1"
-        assert result[1] == "warehouse-a-1.2", "Second should be warehouse-a-1.2"
-        assert result[2] == "warehouse-a-2.1", "Third should be warehouse-a-2.1"
-        assert result[3] == "warehouse-a-2.2", "Fourth should be warehouse-a-2.2"
-        assert result[4] == "warehouse-b-1.1", "Fifth should be warehouse-b-1.1"
-        assert result[-1] == "warehouse-b-2.2", "Last should be warehouse-b-2.2"
-
-    def test_preview_generation(self, location_generator):
-        """
-        T019: FR-013 - Preview shows first 5 and last name
-        """
-        prefix = "drawer-"
-        ranges = [
-            {"range_type": "letters", "start": "a", "end": "f", "capitalize": False, "zero_pad": False},
-            {"range_type": "numbers", "start": 1, "end": 5, "capitalize": False, "zero_pad": False}
-        ]
-        separators = ["-"]
-
-        preview = location_generator.generate_preview(prefix, ranges, separators)
-
-        assert "sample_names" in preview, "Preview should have sample_names"
-        assert "last_name" in preview, "Preview should have last_name"
-        assert "total_count" in preview, "Preview should have total_count"
-
-        assert len(preview["sample_names"]) == 5, "Should show first 5 names"
-        assert preview["sample_names"][0] == "drawer-a-1", "First sample should be drawer-a-1"
-        assert preview["last_name"] == "drawer-f-5", "Last name should be drawer-f-5"
-        assert preview["total_count"] == 30, "Total should be 30 (6x5)"
-
-    def test_validation_max_500_locations(self, location_generator):
-        """
-        T020: FR-008 - Validation enforces max 500 locations
-        """
-        config = {
-            "layout_type": "grid",
-            "prefix": "big-",
-            "ranges": [
-                {"range_type": "letters", "start": "a", "end": "z", "capitalize": False, "zero_pad": False},  # 26
-                {"range_type": "numbers", "start": 1, "end": 30, "capitalize": False, "zero_pad": False}      # 30
+    def test_row_layout_count_letters(self):
+        """Test total count for ROW layout with letter range."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.ROW,
+            prefix="shelf",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="f",
+                    capitalize=False,
+                )
             ],
-            "separators": ["-"]
-        }
-        # Total: 26 * 30 = 780 > 500
+            separators=[],
+            location_type="shelf",
+            single_part_only=False,
+        )
 
-        is_valid, errors, warnings = location_generator.validate_configuration(config)
+        result = service.calculate_total_count(config)
 
-        assert is_valid is False, "Should be invalid (780 > 500)"
-        assert len(errors) > 0, "Should have validation errors"
-        assert any("500" in error for error in errors), "Should mention 500 limit"
+        assert result == 6  # a-f = 6 locations
 
-        # Verify total count calculation is correct
-        total_count = location_generator.calculate_total_count(config.get("ranges", []))
-        assert total_count == 780, "Should calculate total correctly"
-
-    def test_validation_duplicate_detection(self, location_generator, db_session):
-        """
-        T021: FR-007 - Validation detects duplicate names
-        """
-        # First, create some existing locations in database
-        from backend.src.models.storage_location import StorageLocation
-        import uuid
-
-        existing = [
-            StorageLocation(
-                id=str(uuid.uuid4()),
-                name="test-a",
-                type="bin",
-                location_hierarchy="test-a"
-            ),
-            StorageLocation(
-                id=str(uuid.uuid4()),
-                name="test-b",
-                type="bin",
-                location_hierarchy="test-b"
-            )
-        ]
-        db_session.add_all(existing)
-        db_session.commit()
-
-        # Try to generate locations with overlapping names
-        config = {
-            "layout_type": "row",
-            "prefix": "test-",
-            "ranges": [
-                {"range_type": "letters", "start": "a", "end": "c", "capitalize": False, "zero_pad": False}
+    def test_row_layout_count_numbers(self):
+        """Test total count for ROW layout with number range."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.ROW,
+            prefix="bin",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=20, zero_pad=False
+                )
             ],
-            "separators": [],
-            "location_type": "bin"
-        }
+            separators=[],
+            location_type="bin",
+            single_part_only=False,
+        )
 
-        is_valid, errors, warnings = location_generator.validate_configuration(config)
+        result = service.calculate_total_count(config)
 
-        assert is_valid is False, "Should be invalid (duplicates exist)"
-        assert len(errors) > 0, "Should have validation errors"
-        assert any("already exist" in error.lower() for error in errors), "Should mention duplicates"
-        assert any("test-a" in error for error in errors), "Should list duplicate name test-a"
+        assert result == 20  # 1-20 = 20 locations
 
-    def test_validation_start_less_than_end(self, location_generator):
-        """
-        T022: FR-019 - Validation ensures start <= end
-        """
-        # Test invalid letter range - should raise ValueError in generate_range
-        with pytest.raises(ValueError) as exc_info:
-            list(location_generator.generate_range(
-                range_type="letters",
-                start="z",
-                end="a",
-                capitalize=False,
-                zero_pad=False
-            ))
-        assert "Invalid letter range" in str(exc_info.value), "Should mention invalid range"
-
-        # Test invalid number range - should raise ValueError in generate_range
-        with pytest.raises(ValueError) as exc_info:
-            list(location_generator.generate_range(
-                range_type="numbers",
-                start=99,
-                end=1,
-                capitalize=False,
-                zero_pad=False
-            ))
-        assert "Invalid number range" in str(exc_info.value), "Should mention invalid range"
-
-    def test_validation_warning_above_100_locations(self, location_generator):
-        """
-        T022.1: FR-009 - Warning when creating > 100 locations (bonus test)
-        """
-        config = {
-            "layout_type": "grid",
-            "prefix": "warn-",
-            "ranges": [
-                {"range_type": "letters", "start": "a", "end": "f", "capitalize": False, "zero_pad": False},  # 6
-                {"range_type": "numbers", "start": 1, "end": 20, "capitalize": False, "zero_pad": False}     # 20
+    def test_grid_layout_count(self):
+        """Test total count for GRID layout (2D)."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID,
+            prefix="drawer",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="d",
+                    capitalize=False,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=5, zero_pad=False
+                ),
             ],
-            "separators": ["-"],
-            "location_type": "bin"
-        }
-        # Total: 6 * 20 = 120 > 100
+            separators=["-"],
+            location_type="bin",
+            single_part_only=False,
+        )
 
-        is_valid, errors, warnings = location_generator.validate_configuration(config)
+        result = service.calculate_total_count(config)
 
-        assert is_valid is True, "Should be valid (120 < 500)"
-        assert len(warnings) > 0, "Should have warnings"
-        assert any("cannot be undone" in w.lower() for w in warnings), "Should warn about irreversibility"
+        assert result == 20  # 4 letters * 5 numbers = 20 locations
 
-        # Verify total count calculation
-        total_count = location_generator.calculate_total_count(config.get("ranges", []))
-        assert total_count == 120, "Should calculate total correctly"
+    def test_grid_3d_layout_count(self):
+        """Test total count for GRID_3D layout (3D)."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID_3D,
+            prefix="rack",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="c",
+                    capitalize=False,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=4, zero_pad=False
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=3, zero_pad=False
+                ),
+            ],
+            separators=["-", "-"],
+            location_type="drawer",
+            single_part_only=False,
+        )
+
+        result = service.calculate_total_count(config)
+
+        assert result == 36  # 3 letters * 4 numbers * 3 numbers = 36 locations
+
+    def test_large_grid_count(self):
+        """Test total count for large grid (approaching max limit)."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID,
+            prefix="storage",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="z",
+                    capitalize=False,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=20, zero_pad=False
+                ),
+            ],
+            separators=["-"],
+            location_type="bin",
+            single_part_only=False,
+        )
+
+        result = service.calculate_total_count(config)
+
+        assert result == 520  # 26 letters * 20 numbers = 520 locations
+
+
+class TestGenerateNames:
+    """Test suite for generate_names method."""
+
+    def test_single_layout_names(self):
+        """Test name generation for SINGLE layout (just prefix)."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.SINGLE,
+            prefix="main",
+            ranges=[],
+            separators=[],
+            location_type="room",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        assert result == ["main"]
+
+    def test_row_layout_letters(self):
+        """Test name generation for ROW layout with letters."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.ROW,
+            prefix="shelf",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="c",
+                    capitalize=False,
+                )
+            ],
+            separators=[],
+            location_type="shelf",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        assert result == ["shelfa", "shelfb", "shelfc"]
+
+    def test_row_layout_numbers(self):
+        """Test name generation for ROW layout with numbers."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.ROW,
+            prefix="bin",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=3, zero_pad=False
+                )
+            ],
+            separators=[],
+            location_type="bin",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        assert result == ["bin1", "bin2", "bin3"]
+
+    def test_row_layout_no_separator(self):
+        """Test ROW layout concatenates prefix and range directly."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.ROW,
+            prefix="drawer",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False
+                )
+            ],
+            separators=[],  # ROW layout has 0 separators
+            location_type="drawer",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # No separator between prefix and number
+        assert result == ["drawer1", "drawer2"]
+
+    def test_grid_layout_cartesian_product(self):
+        """Test GRID layout with Cartesian product of two ranges."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID,
+            prefix="box",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="b",
+                    capitalize=True,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False
+                ),
+            ],
+            separators=["-"],
+            location_type="bin",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # Cartesian product: A1, A2, B1, B2
+        assert result == ["boxA-1", "boxA-2", "boxB-1", "boxB-2"]
+
+    def test_grid_layout_with_zero_padding(self):
+        """Test GRID layout with zero-padded numbers."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID,
+            prefix="rack",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="b",
+                    capitalize=False,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=10, zero_pad=True
+                ),
+            ],
+            separators=["-"],
+            location_type="bin",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # Check first and last names with padding
+        assert result[0] == "racka-01"
+        assert result[9] == "racka-10"
+        assert result[10] == "rackb-01"
+        assert len(result) == 20
+
+    def test_grid_3d_layout(self):
+        """Test GRID_3D layout with three ranges."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID_3D,
+            prefix="shelf",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="b",
+                    capitalize=False,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False,
+                ),
+            ],
+            separators=["-", "-"],
+            location_type="drawer",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # 3D Cartesian product with separators: shelfa-1-1, shelfa-1-2, shelfa-2-1, shelfa-2-2, shelfb-1-1, shelfb-1-2, shelfb-2-1, shelfb-2-2
+        assert len(result) == 8
+        assert result[0] == "shelfa-1-1"
+        assert result[1] == "shelfa-1-2"
+        assert result[2] == "shelfa-2-1"
+        assert result[-1] == "shelfb-2-2"
+
+    def test_grid_3d_with_multiple_separators(self):
+        """Test GRID_3D layout with different separators."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID_3D,
+            prefix="loc",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="x",
+                    end="y",
+                    capitalize=True,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False
+                ),
+            ],
+            separators=[":", "."],
+            location_type="shelf",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # Different separators between ranges
+        assert result[0] == "locX:1.1"
+        assert result[-1] == "locY:2.2"
+
+    def test_whitespace_prefix_stripped(self):
+        """Test prefix whitespace is handled correctly."""
+        service = LocationGeneratorService()
+        # Prefix will be stripped by schema validation
+        config = LayoutConfiguration(
+            layout_type=LayoutType.ROW,
+            prefix="  test  ",  # Whitespace will be stripped to "test"
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="c",
+                    capitalize=False,
+                )
+            ],
+            separators=[],
+            location_type="bin",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # Prefix should be stripped
+        assert result == ["testa", "testb", "testc"]
+
+    def test_complex_real_world_example(self):
+        """Test realistic complex example (workshop rack system)."""
+        service = LocationGeneratorService()
+        config = LayoutConfiguration(
+            layout_type=LayoutType.GRID,
+            prefix="WS-",
+            ranges=[
+                RangeSpecification(
+                    range_type=RangeType.LETTERS,
+                    start="a",
+                    end="e",
+                    capitalize=True,
+                ),
+                RangeSpecification(
+                    range_type=RangeType.NUMBERS, start=1, end=12, zero_pad=True
+                ),
+            ],
+            separators=["-"],
+            location_type="bin",
+            single_part_only=False,
+        )
+
+        result = service.generate_names(config)
+
+        # Workshop bins: WS-A-01 through WS-E-12
+        assert len(result) == 60  # 5 * 12
+        assert result[0] == "WS-A-01"
+        assert result[11] == "WS-A-12"
+        assert result[12] == "WS-B-01"
+        assert result[-1] == "WS-E-12"

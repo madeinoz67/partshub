@@ -238,3 +238,36 @@ def api_token_headers(auth_headers, client, db_session):
     db_session.commit()
 
     return {"Authorization": f"Bearer {raw_token}"}
+
+
+@pytest.fixture
+def auth_token(client, db_session):
+    """
+    Create JWT authentication token string for layout generator tests
+    Creates a fresh test user in the isolated test database
+
+    Returns: Raw JWT token string (not headers dict)
+    """
+    # Create a test admin user directly in the test database session
+    test_user = User(
+        username="layouttest",
+        full_name="Layout Test User",
+        is_admin=True,
+        is_active=True,
+    )
+    test_user.set_password("testpassword")
+
+    db_session.add(test_user)
+    db_session.commit()
+    db_session.refresh(test_user)
+
+    # Create JWT token for this user
+    token = create_access_token(
+        {
+            "sub": test_user.id,
+            "user_id": test_user.id,
+            "username": test_user.username,
+            "is_admin": test_user.is_admin,
+        }
+    )
+    return token

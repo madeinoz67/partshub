@@ -184,7 +184,9 @@ class StockService:
             query = query.filter(Component.category_id == category_id)
 
         if storage_location_id:
-            query = query.filter(ComponentLocation.storage_location_id == storage_location_id)
+            query = query.filter(
+                ComponentLocation.storage_location_id == storage_location_id
+            )
 
         result = query.first()
 
