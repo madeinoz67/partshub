@@ -155,6 +155,7 @@ jobs:
       - name: Build documentation
         run: |
           uv run mkdocs build --verbose
+          touch ./site/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

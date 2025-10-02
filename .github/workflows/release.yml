@@ -353,6 +353,14 @@ jobs:
           # Set this version as the default (redirects from root)
           uv run mike set-default --push latest
 
+          # Ensure .nojekyll exists to disable Jekyll processing
+          git checkout gh-pages
+          touch .nojekyll
+          git add .nojekyll
+          git commit -m "Add .nojekyll to disable Jekyll" || true
+          git push origin gh-pages
+          git checkout -
+
       - name: List mike versions
         run: uv run mike list
 
