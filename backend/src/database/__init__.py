@@ -9,7 +9,8 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 # Support environment variable override for database URL
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/partshub.db")
+# Use parent directory's data folder (project root) for consistency with Docker
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///../data/partshub.db")
 
 # SQLite specific configuration for concurrent access and foreign keys
 engine = create_engine(
