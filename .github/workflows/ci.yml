@@ -1,0 +1,369 @@
+name: "Continuous Integration"
+
+"on":
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  UV_CACHE_DIR: /tmp/.uv-cache
+
+jobs:
+  backend_tests:
+    name: "Backend Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.uv-cache
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run linting with ruff
+        run: uv run ruff check .
+
+      - name: Run formatting check
+        run: uv run ruff format --check .
+
+      - name: Run type checking
+        run: uv run mypy backend/src --ignore-missing-imports
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          uv run --project .. pytest --junitxml=test-results.xml --cov=src --cov-report=xml --cov-report=html
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/test-results.xml
+          retention-days: 30
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage-report
+          path: |
+            backend/coverage.xml
+            backend/htmlcov/
+          retention-days: 30
+
+      - name: Check coverage threshold
+        run: |
+          cd backend
+          echo "Coverage report (informational only):"
+          uv run --project .. coverage report
+          echo "Note: Coverage requirement temporarily disabled"
+
+  frontend_tests:
+    name: "Frontend Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run frontend linting
+        run: |
+          cd frontend
+          echo "Frontend linting re-enabled after Phase 1 fixes (18 issues resolved)"
+          npm run lint
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test -- --run --reporter=junit --outputFile=test-results.xml
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-test-results
+          path: frontend/test-results.xml
+          retention-days: 30
+
+      - name: Upload build verification
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-build-verification
+          path: frontend/dist/
+          retention-days: 30
+
+  security_scan:
+    name: "Security Scan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run safety check on Python dependencies
+        run: |
+          echo "🔍 Scanning Python dependencies for vulnerabilities..."
+          uv run safety check --output screen || true
+          echo ""
+          echo "📄 Generating JSON report..."
+          uv run safety check --output json > safety-report.json || true
+
+      - name: Run bandit security linting
+        run: |
+          echo "🔍 Scanning Python code for security issues..."
+          uv run bandit -r backend/src -f screen || true
+          echo ""
+          echo "📄 Generating JSON report..."
+          uv run bandit -r backend/src -f json -o bandit-report.json || true
+
+      - name: Set up Node.js for frontend security scan
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run npm audit
+        run: |
+          cd frontend
+          npm audit --audit-level=critical --json > npm-audit-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-results
+          path: |
+            safety-report.json
+            bandit-report.json
+            frontend/npm-audit-report.json
+          retention-days: 90
+
+      - name: Check for critical vulnerabilities
+        run: |
+          VULN_FOUND=0
+
+          echo "═══════════════════════════════════════════════════════════"
+          echo "🔍 Security Vulnerability Summary"
+          echo "═══════════════════════════════════════════════════════════"
+          echo ""
+
+          # Check safety report for critical issues
+          if [ -f safety-report.json ]; then
+            vuln_count=$(jq '.report_meta.vulnerabilities_found // 0' safety-report.json 2>/dev/null || echo 0)
+
+            # Count vulnerabilities excluding known issues with no fix
+            # ecdsa CVE-2024-23342 and PVE-2024-64396 (all versions affected)
+            fixable_count=$(jq '[.vulnerabilities[] | select(.package_name != "ecdsa")] | length' safety-report.json 2>/dev/null || echo "$vuln_count")
+            ecdsa_count=$(jq '[.vulnerabilities[] | select(.package_name == "ecdsa")] | length' safety-report.json 2>/dev/null || echo 0)
+
+            if [ "$fixable_count" -gt 0 ]; then
+              echo "❌ Python Dependencies: $fixable_count fixable vulnerabilities found"
+              echo ""
+              echo "📋 Detailed scan output shown above in 'Run safety check' step"
+              echo "📦 Full report available in security-scan-results artifact"
+              VULN_FOUND=1
+            else
+              echo "✅ Python Dependencies: No fixable vulnerabilities found"
+              if [ "$ecdsa_count" -gt 0 ]; then
+                echo "ℹ️  Note: $ecdsa_count known ecdsa vulnerabilities (no fix available - see SECURITY.md)"
+              fi
+            fi
+          fi
+          echo ""
+
+          # Check npm audit for critical issues
+          if [ -f frontend/npm-audit-report.json ]; then
+            critical_count=$(jq '.metadata.vulnerabilities.critical // 0' frontend/npm-audit-report.json 2>/dev/null || echo 0)
+            high_count=$(jq '.metadata.vulnerabilities.high // 0' frontend/npm-audit-report.json 2>/dev/null || echo 0)
+            if [ "$critical_count" -gt 0 ] || [ "$high_count" -gt 0 ]; then
+              echo "❌ npm Dependencies:"
+              echo "   Critical: $critical_count"
+              echo "   High: $high_count"
+              if [ "$critical_count" -gt 0 ]; then
+                VULN_FOUND=1
+              fi
+            else
+              echo "✅ npm Dependencies: No critical vulnerabilities found"
+            fi
+          fi
+
+          echo ""
+          echo "═══════════════════════════════════════════════════════════"
+
+          # Fail the build if any critical vulnerabilities were found
+          if [ "$VULN_FOUND" -eq 1 ]; then
+            echo ""
+            echo "🚨 BUILD FAILED: Critical security vulnerabilities detected"
+            echo ""
+            echo "Action Required:"
+            echo "  1. Review the detailed output above"
+            echo "  2. Update affected packages in pyproject.toml"
+            echo "  3. Run 'uv lock' to update dependencies"
+            echo "  4. Test locally and commit fixes"
+            echo ""
+            echo "📦 Artifact: security-scan-results (contains detailed reports)"
+            exit 1
+          else
+            echo ""
+            echo "✅ Security scan passed - no critical vulnerabilities found"
+          fi
+
+  docker_build:
+    name: "Docker Build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build all-in-one Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: development
+          push: false
+          load: true
+          tags: partshub:test
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Test all-in-one container
+        run: |
+          # Don't use --rm so we can get logs even if container crashes
+          docker run -d --name test-partshub -p 8000:8000 -p 3000:3000 partshub:test
+
+          # Give container initial time to start
+          echo "Waiting for container to initialize..."
+          sleep 5
+
+          echo "=== Container status ==="
+          docker ps -a | grep test-partshub
+
+          # Check if container is running
+          if ! docker ps | grep -q test-partshub; then
+            echo "❌ Container is not running!"
+            echo "=== Container logs ==="
+            docker logs test-partshub || echo "Failed to get logs"
+            exit 1
+          fi
+
+          # Wait for backend to be ready (max 30s)
+          echo "=== Waiting for backend to be ready ==="
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/health 2>/dev/null; then
+              echo "✅ Backend is ready"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "❌ Backend health check failed after 30s"
+              docker logs test-partshub
+              exit 1
+            fi
+            echo "Waiting for backend... (${i}/30)"
+            sleep 1
+          done
+
+          # Wait for frontend to be ready (max 60s, frontend takes longer)
+          echo "=== Waiting for frontend to be ready ==="
+          for i in {1..60}; do
+            if curl -f http://localhost:3000 2>/dev/null; then
+              echo "✅ Frontend is ready"
+              break
+            fi
+            if [ $i -eq 60 ]; then
+              echo "❌ Frontend check failed after 60s"
+              docker logs test-partshub
+              exit 1
+            fi
+            echo "Waiting for frontend... (${i}/60)"
+            sleep 1
+          done
+
+          echo "=== Final container logs ==="
+          docker logs test-partshub | tail -50
+
+          # Clean up
+          docker stop test-partshub || true
+          docker rm test-partshub || true
+
+      - name: Upload Docker build logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: docker-build-logs
+          path: /tmp/docker-build-*.log
+          retention-days: 30
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

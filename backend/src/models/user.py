@@ -2,18 +2,18 @@
 User model for authentication and authorization.
 """
 
-from datetime import datetime, timezone
-from typing import List, TYPE_CHECKING
 import uuid
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
+from passlib.context import CryptContext
 from sqlalchemy import Boolean, Column, DateTime, String, Text
 from sqlalchemy.orm import relationship
-from passlib.context import CryptContext
 
 from ..database import Base
 
 if TYPE_CHECKING:
-    from .api_token import APIToken
+    pass
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -33,22 +33,18 @@ class User(Base):
     must_change_password = Column(Boolean, default=False, nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-        nullable=False
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
     )
 
     # Relationships
     api_tokens = relationship(
-        "APIToken",
-        back_populates="user",
-        cascade="all, delete-orphan"
+        "APIToken", back_populates="user", cascade="all, delete-orphan"
     )
 
     def set_password(self, password: str) -> None:
@@ -61,7 +57,7 @@ class User(Base):
 
     def update_last_login(self) -> None:
         """Update the user's last login timestamp."""
-        self.last_login = datetime.now(timezone.utc)
+        self.last_login = datetime.now(UTC)
 
     @property
     def requires_password_change(self) -> bool:

@@ -36,7 +36,7 @@
                   <div class="text-h6">{{ selectedLocation.name }}</div>
                   <div class="text-caption text-grey">{{ selectedLocation.location_hierarchy }}</div>
                 </div>
-                <div class="col-auto" v-if="canPerformCrud()">
+                <div v-if="canPerformCrud()" class="col-auto">
                   <q-btn-group>
                     <q-btn
                       color="primary"
@@ -69,7 +69,7 @@
                     :label="selectedLocation.type.toUpperCase()"
                   />
                 </div>
-                <div class="col" v-if="selectedLocation.component_count !== undefined">
+                <div v-if="selectedLocation.component_count !== undefined" class="col">
                   <q-chip
                     icon="inventory"
                     color="grey-6"
@@ -94,7 +94,7 @@
                 :pagination="{ rowsPerPage: 25 }"
                 dense
               >
-                <template v-slot:body-cell-name="props">
+                <template #body-cell-name="props">
                   <q-td :props="props">
                     <div class="text-weight-medium cursor-pointer text-primary">
                       {{ props.row.name }}
@@ -105,7 +105,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-stock="props">
+                <template #body-cell-stock="props">
                   <q-td :props="props">
                     <q-chip
                       :color="getStockStatusColor(props.row)"
@@ -116,7 +116,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-category="props">
+                <template #body-cell-category="props">
                   <q-td :props="props">
                     <q-chip
                       v-if="props.row.category"
@@ -129,7 +129,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:no-data="{ message }">
+                <template #no-data>
                   <div class="full-width row flex-center q-gutter-sm">
                     <q-icon size="2em" name="inventory_2" />
                     <span>No components in this location</span>
@@ -171,13 +171,13 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn v-close-popup flat label="Cancel" color="primary" />
           <q-btn
             flat
             label="Delete"
             color="negative"
-            @click="confirmDelete"
             :loading="deleteLoading"
+            @click="confirmDelete"
           />
         </q-card-actions>
       </q-card>
@@ -186,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { storeToRefs } from 'pinia'
 import StorageLocationTree from '../components/StorageLocationTree.vue'
@@ -323,7 +323,7 @@ const deleteLocation = (location: StorageLocation) => {
   showDeleteDialog.value = true
 }
 
-const onLocationSaved = (location: StorageLocation) => {
+const onLocationSaved = (_location: StorageLocation) => {
   $q.notify({
     type: 'positive',
     message: isEditMode.value ? 'Location updated successfully' : 'Location created successfully',

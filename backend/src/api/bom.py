@@ -3,12 +3,12 @@ BOM (Bill of Materials) API endpoints.
 Provides endpoints for generating and exporting BOMs with provider integration.
 """
 
-from fastapi import APIRouter, HTTPException, Response, Depends
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 
-from ..services.bom_service import BOMService, BOMExportFormat
-from ..auth.dependencies import require_auth
+from ..services.bom_service import BOMExportFormat, BOMService
 
 router = APIRouter(prefix="/api/v1/bom", tags=["bom"])
 
@@ -19,35 +19,34 @@ bom_service = BOMService()
 # Request/Response models
 class ProjectBOMRequest(BaseModel):
     project_id: str
-    include_provider_data: Optional[bool] = True
-    refresh_provider_data: Optional[bool] = False
+    include_provider_data: bool | None = True
+    refresh_provider_data: bool | None = False
 
 
 class ComponentListBOMRequest(BaseModel):
-    components: List[Dict[str, Any]]  # [{"component_id": "id", "quantity": 1}]
-    include_provider_data: Optional[bool] = True
+    components: list[dict[str, Any]]  # [{"component_id": "id", "quantity": 1}]
+    include_provider_data: bool | None = True
 
 
 class BOMExportRequest(BaseModel):
-    project_id: Optional[str] = None
-    components: Optional[List[Dict[str, Any]]] = None
-    export_format: Optional[str] = BOMExportFormat.CSV
-    include_provider_data: Optional[bool] = True
-    refresh_provider_data: Optional[bool] = False
+    project_id: str | None = None
+    components: list[dict[str, Any]] | None = None
+    export_format: str | None = BOMExportFormat.CSV
+    include_provider_data: bool | None = True
+    refresh_provider_data: bool | None = False
 
 
 # BOM Generation endpoints
 @router.post("/project")
 async def generate_project_bom(
     request: ProjectBOMRequest,
-
 ):
     """Generate BOM for a specific project"""
     try:
         bom_items = await bom_service.generate_project_bom(
             project_id=request.project_id,
             include_provider_data=request.include_provider_data,
-            refresh_provider_data=request.refresh_provider_data
+            refresh_provider_data=request.refresh_provider_data,
         )
 
         # Convert to response format
@@ -57,7 +56,7 @@ async def generate_project_bom(
         return {
             "project_id": request.project_id,
             "items": items,
-            "summary": cost_summary
+            "summary": cost_summary,
         }
 
     except ValueError as e:
@@ -69,29 +68,24 @@ async def generate_project_bom(
 @router.post("/components")
 async def generate_component_list_bom(
     request: ComponentListBOMRequest,
-
 ):
     """Generate BOM from a list of components and quantities"""
     try:
         # Convert component list to tuples
         component_quantities = [
-            (comp["component_id"], comp["quantity"])
-            for comp in request.components
+            (comp["component_id"], comp["quantity"]) for comp in request.components
         ]
 
         bom_items = await bom_service.generate_component_list_bom(
             component_quantities=component_quantities,
-            include_provider_data=request.include_provider_data
+            include_provider_data=request.include_provider_data,
         )
 
         # Convert to response format
         items = [item.to_dict() for item in bom_items]
         cost_summary = bom_service.calculate_bom_cost(bom_items)
 
-        return {
-            "items": items,
-            "summary": cost_summary
-        }
+        return {"items": items, "summary": cost_summary}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -101,7 +95,6 @@ async def generate_component_list_bom(
 @router.post("/export")
 async def export_bom(
     request: BOMExportRequest,
-
 ):
     """Export BOM in specified format"""
     try:
@@ -110,22 +103,26 @@ async def export_bom(
             bom_items = await bom_service.generate_project_bom(
                 project_id=request.project_id,
                 include_provider_data=request.include_provider_data,
-                refresh_provider_data=request.refresh_provider_data
+                refresh_provider_data=request.refresh_provider_data,
             )
         elif request.components:
             component_quantities = [
-                (comp["component_id"], comp["quantity"])
-                for comp in request.components
+                (comp["component_id"], comp["quantity"]) for comp in request.components
             ]
             bom_items = await bom_service.generate_component_list_bom(
                 component_quantities=component_quantities,
-                include_provider_data=request.include_provider_data
+                include_provider_data=request.include_provider_data,
             )
         else:
-            raise HTTPException(status_code=400, detail="Either project_id or components must be provided")
+            raise HTTPException(
+                status_code=400,
+                detail="Either project_id or components must be provided",
+            )
 
         # Export to specified format
-        content, mime_type = await bom_service.export_bom(bom_items, request.export_format)
+        content, mime_type = await bom_service.export_bom(
+            bom_items, request.export_format
+        )
 
         # Determine filename
         filename = "bom"
@@ -142,7 +139,7 @@ async def export_bom(
         return Response(
             content=content,
             media_type=mime_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
 
     except ValueError as e:
@@ -156,25 +153,20 @@ async def get_project_bom(
     project_id: str,
     include_provider_data: bool = True,
     refresh_provider_data: bool = False,
-
 ):
     """Get BOM for a specific project (GET endpoint)"""
     try:
         bom_items = await bom_service.generate_project_bom(
             project_id=project_id,
             include_provider_data=include_provider_data,
-            refresh_provider_data=refresh_provider_data
+            refresh_provider_data=refresh_provider_data,
         )
 
         # Convert to response format
         items = [item.to_dict() for item in bom_items]
         cost_summary = bom_service.calculate_bom_cost(bom_items)
 
-        return {
-            "project_id": project_id,
-            "items": items,
-            "summary": cost_summary
-        }
+        return {"project_id": project_id, "items": items, "summary": cost_summary}
 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -188,18 +180,23 @@ async def export_project_bom(
     export_format: str,
     include_provider_data: bool = True,
     refresh_provider_data: bool = False,
-
 ):
     """Export project BOM in specified format (GET endpoint)"""
     try:
         # Validate export format
-        if export_format not in [BOMExportFormat.CSV, BOMExportFormat.JSON, BOMExportFormat.KICAD]:
-            raise HTTPException(status_code=400, detail=f"Unsupported export format: {export_format}")
+        if export_format not in [
+            BOMExportFormat.CSV,
+            BOMExportFormat.JSON,
+            BOMExportFormat.KICAD,
+        ]:
+            raise HTTPException(
+                status_code=400, detail=f"Unsupported export format: {export_format}"
+            )
 
         bom_items = await bom_service.generate_project_bom(
             project_id=project_id,
             include_provider_data=include_provider_data,
-            refresh_provider_data=refresh_provider_data
+            refresh_provider_data=refresh_provider_data,
         )
 
         # Export to specified format
@@ -217,7 +214,7 @@ async def export_project_bom(
         return Response(
             content=content,
             media_type=mime_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
 
     except ValueError as e:
@@ -234,18 +231,18 @@ async def get_export_formats():
             {
                 "value": BOMExportFormat.CSV,
                 "label": "CSV (Comma Separated Values)",
-                "description": "Standard spreadsheet format"
+                "description": "Standard spreadsheet format",
             },
             {
                 "value": BOMExportFormat.JSON,
                 "label": "JSON",
-                "description": "Structured data format with metadata"
+                "description": "Structured data format with metadata",
             },
             {
                 "value": BOMExportFormat.KICAD,
                 "label": "KiCad BOM",
-                "description": "KiCad-compatible tab-separated format"
-            }
+                "description": "KiCad-compatible tab-separated format",
+            },
         ]
     }
 
@@ -253,19 +250,17 @@ async def get_export_formats():
 @router.post("/validate")
 async def validate_bom_components(
     request: ComponentListBOMRequest,
-
 ):
     """Validate BOM components and check availability"""
     try:
         # Convert component list to tuples
         component_quantities = [
-            (comp["component_id"], comp["quantity"])
-            for comp in request.components
+            (comp["component_id"], comp["quantity"]) for comp in request.components
         ]
 
         bom_items = await bom_service.generate_component_list_bom(
             component_quantities=component_quantities,
-            include_provider_data=request.include_provider_data
+            include_provider_data=request.include_provider_data,
         )
 
         # Validate each item
@@ -279,7 +274,7 @@ async def validate_bom_components(
                 "available_quantity": data.get("availability"),
                 "has_pricing": data.get("unit_cost") is not None,
                 "has_provider_data": data.get("provider_sku") is not None,
-                "status": "ok"
+                "status": "ok",
             }
 
             # Check availability
@@ -303,7 +298,7 @@ async def validate_bom_components(
         return {
             "overall_status": overall_status,
             "items": validation_results,
-            "summary": cost_summary
+            "summary": cost_summary,
         }
 
     except Exception as e:

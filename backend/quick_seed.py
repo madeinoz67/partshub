@@ -4,12 +4,18 @@ Quick seed script to create basic test data for PartsHub.
 """
 
 import uuid
-from datetime import datetime
-from src.database import SessionLocal, engine, Base
+
+from src.database import Base, SessionLocal, engine
 from src.models import (
-    Component, Category, StorageLocation, ComponentLocation,
-    Tag, component_tags, User
+    Category,
+    Component,
+    ComponentLocation,
+    StorageLocation,
+    Tag,
+    User,
+    component_tags,
 )
+
 
 def create_test_data():
     """Create basic test data for the application."""
@@ -28,17 +34,17 @@ def create_test_data():
         category_resistors = Category(
             id=str(uuid.uuid4()),
             name="Resistors",
-            description="Fixed resistors and resistor networks"
+            description="Fixed resistors and resistor networks",
         )
         category_capacitors = Category(
             id=str(uuid.uuid4()),
             name="Capacitors",
-            description="Electrolytic, ceramic, and film capacitors"
+            description="Electrolytic, ceramic, and film capacitors",
         )
         category_ics = Category(
             id=str(uuid.uuid4()),
             name="Integrated Circuits",
-            description="Microcontrollers, processors, and logic ICs"
+            description="Microcontrollers, processors, and logic ICs",
         )
 
         db.add_all([category_resistors, category_capacitors, category_ics])
@@ -51,7 +57,7 @@ def create_test_data():
             name="Main Lab",
             description="Primary component storage",
             type="room",
-            location_hierarchy="Main Lab"
+            location_hierarchy="Main Lab",
         )
         location_drawer1 = StorageLocation(
             id=str(uuid.uuid4()),
@@ -59,7 +65,7 @@ def create_test_data():
             description="Small components drawer",
             type="drawer",
             parent_id=location_main.id,
-            location_hierarchy="Main Lab/Drawer A1"
+            location_hierarchy="Main Lab/Drawer A1",
         )
         location_drawer2 = StorageLocation(
             id=str(uuid.uuid4()),
@@ -67,7 +73,7 @@ def create_test_data():
             description="IC storage drawer",
             type="drawer",
             parent_id=location_main.id,
-            location_hierarchy="Main Lab/Drawer A2"
+            location_hierarchy="Main Lab/Drawer A2",
         )
 
         db.add_all([location_main, location_drawer1, location_drawer2])
@@ -89,7 +95,7 @@ def create_test_data():
             value="1kΩ",
             package="0603",
             minimum_stock=50,
-            notes="Standard 1% tolerance resistor"
+            notes="Standard 1% tolerance resistor",
         )
 
         # Capacitor
@@ -105,7 +111,7 @@ def create_test_data():
             value="100nF",
             package="0603",
             minimum_stock=100,
-            notes="X7R ceramic capacitor"
+            notes="X7R ceramic capacitor",
         )
 
         # Microcontroller
@@ -121,7 +127,7 @@ def create_test_data():
             value="ESP32-S3",
             package="Module",
             minimum_stock=5,
-            notes="WiFi/Bluetooth enabled MCU with 16MB Flash, 8MB RAM"
+            notes="WiFi/Bluetooth enabled MCU with 16MB Flash, 8MB RAM",
         )
 
         db.add_all([resistor_1k, cap_100n, mcu_esp32])
@@ -136,7 +142,7 @@ def create_test_data():
             quantity_on_hand=150,
             quantity_ordered=0,
             minimum_stock=50,
-            location_notes="Main stock location"
+            location_notes="Main stock location",
         )
 
         cap_location = ComponentLocation(
@@ -145,7 +151,7 @@ def create_test_data():
             quantity_on_hand=250,
             quantity_ordered=0,
             minimum_stock=100,
-            location_notes="Bulk ceramic caps"
+            location_notes="Bulk ceramic caps",
         )
 
         mcu_location = ComponentLocation(
@@ -154,7 +160,7 @@ def create_test_data():
             quantity_on_hand=12,
             quantity_ordered=0,
             minimum_stock=5,
-            location_notes="Development boards"
+            location_notes="Development boards",
         )
 
         db.add_all([resistor_location, cap_location, mcu_location])
@@ -191,7 +197,7 @@ def create_test_data():
             full_name="Administrator",
             hashed_password="$2b$12$test",  # This is just for testing
             is_active=True,
-            is_admin=True
+            is_admin=True,
         )
 
         db.add(test_user)
@@ -210,6 +216,7 @@ def create_test_data():
         raise
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     create_test_data()

@@ -14,9 +14,9 @@
             color="primary"
             icon="refresh"
             label="Refresh Data"
-            @click="refreshAllData"
             :loading="refreshing"
             class="q-mr-sm"
+            @click="refreshAllData"
           />
           <q-btn
             color="secondary"
@@ -186,7 +186,7 @@
                 bordered
                 class="users-table"
               >
-                <template v-slot:body-cell-is_active="props">
+                <template #body-cell-is_active="props">
                   <q-td :props="props">
                     <q-chip
                       :color="props.value ? 'positive' : 'negative'"
@@ -197,7 +197,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-is_admin="props">
+                <template #body-cell-is_admin="props">
                   <q-td :props="props">
                     <q-icon
                       :name="props.value ? 'admin_panel_settings' : 'person'"
@@ -207,7 +207,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-actions="props">
+                <template #body-cell-actions="props">
                   <q-td :props="props">
                     <q-btn-group flat>
                       <q-btn
@@ -270,13 +270,13 @@
                 bordered
                 class="tokens-table"
               >
-                <template v-slot:body-cell-prefix="props">
+                <template #body-cell-prefix="props">
                   <q-td :props="props">
                     <code class="text-primary">{{ props.value }}***</code>
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-status="props">
+                <template #body-cell-status="props">
                   <q-td :props="props">
                     <q-chip
                       :color="getTokenStatusColor(props.row)"
@@ -287,7 +287,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-expires_at="props">
+                <template #body-cell-expires_at="props">
                   <q-td :props="props">
                     <span v-if="props.value">
                       {{ formatDate(props.value) }}
@@ -296,7 +296,7 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-last_used_at="props">
+                <template #body-cell-last_used_at="props">
                   <q-td :props="props">
                     <span v-if="props.value">
                       {{ formatDate(props.value) }}
@@ -305,22 +305,22 @@
                   </q-td>
                 </template>
 
-                <template v-slot:body-cell-actions="props">
+                <template #body-cell-actions="props">
                   <q-td :props="props">
                     <q-btn
                       flat
                       dense
                       icon="delete"
                       color="negative"
-                      @click="confirmDeleteToken(props.row)"
                       :disable="!props.row.is_active"
+                      @click="confirmDeleteToken(props.row)"
                     >
                       <q-tooltip>Revoke Token</q-tooltip>
                     </q-btn>
                   </q-td>
                 </template>
 
-                <template v-slot:no-data>
+                <template #no-data>
                   <div class="full-width row flex-center q-gutter-sm text-grey-6">
                     <q-icon size="2em" name="key_off" />
                     <span>No API tokens found</span>
@@ -348,7 +348,7 @@
                 class="q-mr-md"
                 style="max-width: 300px;"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <q-icon name="search" />
                 </template>
               </q-input>
@@ -358,15 +358,15 @@
                 color="primary"
                 icon="add"
                 label="Create Category"
-                @click="showCreateCategoryDialog = true"
                 class="q-mr-sm"
+                @click="showCreateCategoryDialog = true"
               />
               <q-btn
                 color="secondary"
                 icon="refresh"
                 label="Refresh"
-                @click="loadCategories"
                 :loading="loadingCategories"
+                @click="loadCategories"
               />
             </div>
           </div>
@@ -428,7 +428,7 @@
                 selected-color="primary"
                 class="category-tree"
               >
-                <template v-slot:default-header="prop">
+                <template #default-header="prop">
                   <div class="row items-center full-width">
                     <div class="col row items-center q-gutter-xs">
                       <q-icon
@@ -483,8 +483,8 @@
                         icon="delete"
                         size="sm"
                         color="negative"
-                        @click.stop="deleteCategory(prop.node)"
                         :disable="prop.node.component_count > 0"
+                        @click.stop="deleteCategory(prop.node)"
                       >
                         <q-tooltip>
                           {{ prop.node.component_count > 0 ? 'Cannot delete: category has components' : 'Delete Category' }}
@@ -494,7 +494,7 @@
                   </div>
                 </template>
 
-                <template v-slot:default-body="prop">
+                <template #default-body="prop">
                   <div v-if="prop.node.description" class="text-caption text-grey-6 q-ml-md">
                     {{ prop.node.description }}
                   </div>
@@ -509,8 +509,8 @@
                 <q-btn
                   color="primary"
                   label="Create Category"
-                  @click="showCreateCategoryDialog = true"
                   class="q-mt-md"
+                  @click="showCreateCategoryDialog = true"
                 />
               </div>
             </q-card-section>
@@ -551,8 +551,8 @@
                   flat
                   label="Delete"
                   color="negative"
-                  @click="confirmDeleteCategory"
                   :loading="deletingCategory"
+                  @click="confirmDeleteCategory"
                 />
               </q-card-actions>
             </q-card>
@@ -756,24 +756,24 @@
                         color="primary"
                         icon="sync"
                         label="Sync Libraries"
-                        @click="showKicadSyncDialog = true"
                         class="q-mb-sm full-width"
+                        @click="showKicadSyncDialog = true"
                       />
                       <q-btn
                         color="secondary"
                         icon="build"
                         label="Generate Missing Data"
-                        @click="generateKicadData"
                         class="q-mb-sm full-width"
                         :loading="generatingKicadData"
+                        @click="generateKicadData"
                       />
                       <q-btn
                         flat
                         color="accent"
                         icon="assessment"
                         label="View Status"
-                        @click="loadKicadStatus"
                         class="full-width"
+                        @click="loadKicadStatus"
                       />
                     </q-card-section>
                   </q-card>
@@ -858,22 +858,22 @@
                         bordered
                         :pagination="{ rowsPerPage: 10 }"
                       >
-                        <template v-slot:body-cell-actions="props">
+                        <template #body-cell-actions="props">
                           <q-td :props="props">
                             <q-btn
                               flat
                               dense
                               icon="add"
                               color="primary"
-                              @click="generateComponentKicadData(props.row)"
                               :loading="generatingComponentData[props.row.id]"
+                              @click="generateComponentKicadData(props.row)"
                             >
                               <q-tooltip>Generate KiCad Data</q-tooltip>
                             </q-btn>
                           </q-td>
                         </template>
 
-                        <template v-slot:no-data>
+                        <template #no-data>
                           <div class="full-width row flex-center q-gutter-sm text-grey-6">
                             <q-icon size="2em" name="check_circle" />
                             <span>All components have KiCad data</span>
@@ -899,26 +899,26 @@
                         color="primary"
                         icon="refresh"
                         label="Rebuild Search Index"
-                        @click="rebuildSearchIndex"
                         class="q-mb-sm full-width"
                         :loading="rebuildingIndex"
+                        @click="rebuildSearchIndex"
                       />
                       <q-btn
                         color="secondary"
                         icon="backup"
                         label="Create Backup"
-                        @click="createDatabaseBackup"
                         class="q-mb-sm full-width"
                         :loading="creatingBackup"
+                        @click="createDatabaseBackup"
                       />
                       <q-btn
                         flat
                         color="warning"
                         icon="cleaning_services"
                         label="Cleanup Orphaned Data"
-                        @click="cleanupOrphanedData"
                         class="full-width"
                         :loading="cleaningData"
+                        @click="cleanupOrphanedData"
                       />
                     </q-card-section>
                   </q-card>
@@ -1346,7 +1346,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import api, { APIService } from '../services/api'
+import api from '../services/api'
 import UserForm from '../components/UserForm.vue'
 import CategoryForm from '../components/CategoryForm.vue'
 
@@ -1365,7 +1365,6 @@ const loadingTokens = ref(false)
 const showCreateUserDialog = ref(false)
 const showEditUserDialog = ref(false)
 const showCreateTokenDialog = ref(false)
-const showTokenCreatedDialog = ref(false)
 const showDeleteTokenDialog = ref(false)
 const showKicadSyncDialog = ref(false)
 const selectedUser = ref(null)
@@ -1393,10 +1392,6 @@ const cleaningData = ref(false)
 const databaseSize = ref(0)
 const lastBackupDate = ref(null)
 
-// API Token creation state
-const newToken = ref({ name: '', description: '', expires_in_days: null })
-const createdToken = ref(null)
-const createdTokenValue = ref('')
 
 // Category Management state
 const categories = ref([])
@@ -1845,68 +1840,13 @@ const getProjectStatusColor = (status) => {
   return colors[status] || 'grey'
 }
 
-// API Token helper methods
-const loadApiTokens = async () => {
-  loadingTokens.value = true
-  try {
-    const response = await api.get('/auth/api-tokens')
-    apiTokens.value = response.data
-  } catch (error) {
-    console.error('Failed to load API tokens:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load API tokens'
-    })
-  }
-  loadingTokens.value = false
-}
 
-const createApiToken = async () => {
-  try {
-    const response = await api.post('/auth/api-tokens', newToken.value)
-    createdToken.value = response.data
-    createdTokenValue.value = response.data.token
-    showTokenCreatedDialog.value = true
-    showCreateTokenDialog.value = false
-    newToken.value = { name: '', description: '', expires_in_days: null }
-    await loadApiTokens()
-    $q.notify({
-      type: 'positive',
-      message: 'API token created successfully'
-    })
-  } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to create API token',
-      caption: error.response?.data?.detail || error.message
-    })
-  }
-}
 
 const confirmDeleteToken = (token) => {
   selectedToken.value = token
   showDeleteTokenDialog.value = true
 }
 
-const deleteToken = async () => {
-  if (!selectedToken.value) return
-
-  try {
-    await api.delete(`/auth/api-tokens/${selectedToken.value.id}`)
-    showDeleteTokenDialog.value = false
-    selectedToken.value = null
-    await loadApiTokens()
-    $q.notify({
-      type: 'positive',
-      message: 'API token revoked successfully'
-    })
-  } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to revoke token'
-    })
-  }
-}
 
 const getTokenStatusColor = (token) => {
   if (!token.is_active) return 'negative'

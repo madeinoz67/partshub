@@ -14,13 +14,13 @@
       </div>
       <div class="col-md-3 col-12">
         <q-select
+          v-if="selectedReportType?.timeRangeEnabled"
           v-model="timeRange"
           :options="timeRanges"
           label="Time Range"
           outlined
           dense
           @update:model-value="loadReportData"
-          v-if="selectedReportType?.timeRangeEnabled"
         />
       </div>
       <div class="col-md-3 col-12 q-pl-md">
@@ -28,18 +28,18 @@
           color="primary"
           icon="refresh"
           label="Refresh"
-          @click="loadReportData"
           :loading="loading"
           dense
+          @click="loadReportData"
         />
         <q-btn
           color="secondary"
           icon="download"
           label="Export"
-          @click="exportReport"
           :disable="!reportData"
           dense
           class="q-ml-sm"
+          @click="exportReport"
         />
       </div>
     </div>
@@ -52,11 +52,11 @@
 
     <!-- Error State -->
     <q-banner v-else-if="error" dense class="bg-negative text-white q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
-      <template v-slot:action>
+      <template #action>
         <q-btn flat label="Retry" @click="loadReportData" />
       </template>
     </q-banner>
@@ -67,13 +67,13 @@
       <div v-if="selectedReportType.value === 'dashboard'">
         <div class="text-h6 q-mb-md">System Dashboard</div>
         <div class="row q-col-gutter-md">
-          <div class="col-lg-3 col-md-6 col-12" v-for="(stat, key) in dashboardStats" :key="key">
+          <div v-for="(stat, key) in dashboardStats" :key="key" class="col-lg-3 col-md-6 col-12">
             <q-card class="stat-card">
               <q-card-section>
                 <div class="text-h6" :class="stat.color">{{ stat.icon }}</div>
                 <div class="text-h4 q-mt-sm">{{ stat.value }}</div>
                 <div class="text-caption text-grey-6">{{ stat.label }}</div>
-                <div class="text-body2 q-mt-xs" v-if="stat.sublabel">{{ stat.sublabel }}</div>
+                <div v-if="stat.sublabel" class="text-body2 q-mt-xs">{{ stat.sublabel }}</div>
               </q-card-section>
             </q-card>
           </div>
@@ -264,7 +264,7 @@
           <q-card-section>
             <div class="text-subtitle1 q-mb-md">Data Quality</div>
             <div class="row q-col-gutter-md">
-              <div class="col-md-4 col-12" v-for="(metric, key) in reportData.data_quality" :key="key">
+              <div v-for="(metric, key) in reportData.data_quality" :key="key" class="col-md-4 col-12">
                 <div class="text-center">
                   <q-circular-progress
                     :value="metric"
@@ -310,7 +310,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import api, { APIService } from '../services/api'
+import api from '../services/api'
 
 interface ReportType {
   label: string
@@ -318,9 +318,105 @@ interface ReportType {
   timeRangeEnabled?: boolean
 }
 
+// Report data structure interfaces
+interface ComponentStatistics {
+  total_components: number
+  total_value: number
+  low_stock_count: number
+  categories_count: number
+  unique_parts: number
+}
+
+interface ProjectStatistics {
+  total_projects: number
+  active_projects: number
+  completed_projects: number
+  total_allocated_value: number
+}
+
+interface ActivityStatistics {
+  recent_transactions: number
+  components_moved: number
+  most_active_period: string
+}
+
+interface TransactionSummary {
+  total_transactions: number
+  components_moved: number
+  most_active_day: string
+  avg_per_day: number
+}
+
+interface ComponentAllocation {
+  total_allocated: number
+  total_value: number
+  active_projects: number
+}
+
+interface Summary {
+  total_inventory_value: number
+  average_component_value: number
+  total_components: number
+  unique_components: number
+}
+
+interface CategoryData {
+  category: string
+  total_value: number
+  component_count: number
+}
+
+interface LocationData {
+  location: string
+  component_count: number
+  total_value: number
+}
+
+interface ComponentData {
+  name: string
+  part_number: string
+  usage_count: number
+  total_value: number
+}
+
+interface DashboardStats {
+  [key: string]: {
+    icon: string
+    color: string
+    value: string
+    label: string
+  }
+}
+
+interface ReportData {
+  // Dashboard specific data
+  component_statistics?: ComponentStatistics
+  project_statistics?: ProjectStatistics
+  activity_statistics?: ActivityStatistics
+
+  // Inventory specific data
+  by_category?: CategoryData[]
+  by_location?: LocationData[]
+  by_type?: Array<{ type: string; count: number; value: number }>
+  most_used_components?: ComponentData[]
+  top_value_components?: ComponentData[]
+  summary?: Summary
+
+  // Activity specific data
+  transaction_summary?: TransactionSummary
+
+  // Project specific data
+  project_status_distribution?: Array<{ status: string; count: number; percentage: number }>
+  component_allocation?: ComponentAllocation
+
+  // System specific data
+  data_quality?: Record<string, number>
+  database_statistics?: Record<string, string | number | boolean>
+}
+
 const loading = ref(false)
 const error = ref<string | null>(null)
-const reportData = ref<any>(null)
+const reportData = ref<ReportData | null>(null)
 
 const selectedReportType = ref<ReportType>({
   label: 'Dashboard Summary',
@@ -395,7 +491,7 @@ const systemColumns = [
 const dashboardStats = computed(() => {
   if (!reportData.value || selectedReportType.value.value !== 'dashboard') return {}
 
-  const stats: any = {}
+  const stats: DashboardStats = {}
 
   if (reportData.value.component_statistics) {
     const cs = reportData.value.component_statistics
@@ -475,8 +571,11 @@ async function loadReportData() {
     }
 
     reportData.value = response.data
-  } catch (err: any) {
-    error.value = err.response?.data?.detail || err.message || 'Failed to load report data'
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to load report data'
+    const hasResponse = typeof err === 'object' && err !== null && 'response' in err
+    const apiError = hasResponse ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail : undefined
+    error.value = apiError || errorMessage
     console.error('Failed to load report data:', err)
   } finally {
     loading.value = false
@@ -522,7 +621,7 @@ async function exportReport() {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Failed to export report:', err)
   }
 }

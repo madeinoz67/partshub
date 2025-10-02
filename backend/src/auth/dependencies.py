@@ -2,25 +2,24 @@
 FastAPI dependencies for authentication and authorization.
 """
 
-from typing import Optional
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from .jwt_auth import get_current_user as get_user_from_token
-from .api_tokens import verify_api_token
 from ..database import get_db
-from ..models import User, APIToken
-
+from ..models import User
+from .api_tokens import verify_api_token
+from .jwt_auth import get_current_user as get_user_from_token
 
 # Security scheme for bearer tokens
 security = HTTPBearer(auto_error=False)
 
 
 async def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: Session = Depends(get_db)
-) -> Optional[dict]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    db: Session = Depends(get_db),
+) -> dict | None:
     """
     Get current user if authenticated, otherwise return None.
     Supports both JWT tokens and API tokens.
@@ -44,7 +43,7 @@ async def get_optional_user(
                 "user_id": user.id,
                 "username": user.username,
                 "is_admin": user.is_admin,
-                "auth_type": "jwt"
+                "auth_type": "jwt",
             }
     except HTTPException:
         pass
@@ -56,16 +55,14 @@ async def get_optional_user(
             "user_id": user.id,
             "username": user.username,
             "is_admin": user.is_admin,
-            "auth_type": "api_token"
+            "auth_type": "api_token",
         }
 
     # Invalid token but don't raise error (optional auth)
     return None
 
 
-async def require_auth(
-    current_user: Optional[dict] = Depends(get_optional_user)
-) -> dict:
+async def require_auth(current_user: dict | None = Depends(get_optional_user)) -> dict:
     """
     Require authentication. Raises 401 if not authenticated.
     Supports both JWT tokens and API tokens.
@@ -80,9 +77,7 @@ async def require_auth(
     return current_user
 
 
-async def require_admin(
-    current_user: dict = Depends(require_auth)
-) -> dict:
+async def require_admin(current_user: dict = Depends(require_auth)) -> dict:
     """
     Require admin authentication. Raises 403 if not admin.
     """
@@ -93,4 +88,3 @@ async def require_admin(
         )
 
     return current_user
-

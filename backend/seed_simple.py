@@ -2,17 +2,18 @@
 Simple database seeding script for testing
 """
 
-import os
 import sys
+
 sys.path.append('/app/src')
 
-from src.database import Base, engine, get_db
-from src.models.category import Category
-from src.models.storage_location import StorageLocation
-from src.models.component import Component
-from faker import Faker
 import random
 from decimal import Decimal
+
+from faker import Faker
+from src.database import Base, engine, get_db
+from src.models.category import Category
+from src.models.component import Component
+from src.models.storage_location import StorageLocation
 
 fake = Faker()
 
@@ -63,9 +64,9 @@ def create_simple_seed():
 
         db.commit()
         print("✅ Created simple test data successfully!")
-        print(f"   - 1 Category")
-        print(f"   - 1 Storage Location")
-        print(f"   - 10 Components")
+        print("   - 1 Category")
+        print("   - 1 Storage Location")
+        print("   - 10 Components")
 
     except Exception as e:
         print(f"❌ Error: {e}")

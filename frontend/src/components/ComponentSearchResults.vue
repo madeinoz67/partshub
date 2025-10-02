@@ -8,14 +8,14 @@
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-part_number="props">
+      <template #body-cell-part_number="props">
         <q-td :props="props">
           <div class="text-weight-medium">{{ props.value }}</div>
           <div class="text-body2 text-grey-7">{{ props.row.manufacturer }}</div>
         </q-td>
       </template>
 
-      <template v-slot:body-cell-description="props">
+      <template #body-cell-description="props">
         <q-td :props="props">
           <div class="text-body2" style="max-width: 300px; white-space: normal;">
             {{ props.value }}
@@ -23,7 +23,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-specifications="props">
+      <template #body-cell-specifications="props">
         <q-td :props="props">
           <q-btn
             v-if="props.value && Object.keys(props.value).length > 0"
@@ -37,7 +37,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-price="props">
+      <template #body-cell-price="props">
         <q-td :props="props">
           <div v-if="props.row.price_breaks && props.row.price_breaks.length > 0">
             <div v-for="price in props.row.price_breaks.slice(0, 2)" :key="price.quantity">
@@ -56,7 +56,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-availability="props">
+      <template #body-cell-availability="props">
         <q-td :props="props">
           <q-chip
             v-if="props.value !== null && props.value !== undefined"
@@ -70,7 +70,7 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-actions="props">
+      <template #body-cell-actions="props">
         <q-td :props="props">
           <div class="q-gutter-xs">
             <q-btn

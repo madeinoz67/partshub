@@ -3,20 +3,20 @@ Unit tests for Component model functionality.
 Tests component model validation, properties, relationships, and business logic.
 """
 
+import uuid
+from decimal import Decimal
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from decimal import Decimal
-import uuid
-from datetime import datetime
 
-from src.database import Base
-from src.models.component import Component
-from src.models.category import Category
-from src.models.storage_location import StorageLocation
-from src.models.component_location import ComponentLocation
-from src.models.tag import Tag
-from src.models.kicad_data import KiCadLibraryData, KiCadDataSource
+from backend.src.database import Base
+from backend.src.models.category import Category
+from backend.src.models.component import Component
+from backend.src.models.component_location import ComponentLocation
+from backend.src.models.kicad_data import KiCadDataSource, KiCadLibraryData
+from backend.src.models.storage_location import StorageLocation
+from backend.src.models.tag import Tag
 
 
 class TestComponentModel:
@@ -27,8 +27,8 @@ class TestComponentModel:
         """Create an in-memory SQLite database for testing"""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
-        SessionLocal = sessionmaker(bind=engine)
-        session = SessionLocal()
+        session_local = sessionmaker(bind=engine)
+        session = session_local()
         yield session
         session.close()
 
@@ -38,7 +38,7 @@ class TestComponentModel:
         category = Category(
             id=str(uuid.uuid4()),
             name="Test Category",
-            description="Category for testing"
+            description="Category for testing",
         )
         db_session.add(category)
         db_session.commit()
@@ -51,7 +51,7 @@ class TestComponentModel:
             id=str(uuid.uuid4()),
             name="Test Storage",
             description="Storage for testing",
-            type="drawer"
+            type="drawer",
         )
         db_session.add(location)
         db_session.commit()
@@ -68,7 +68,7 @@ class TestComponentModel:
             component_type="resistor",
             value="10kΩ",
             package="0603",
-            notes="Test component for unit testing"
+            notes="Test component for unit testing",
         )
 
         db_session.add(component)
@@ -93,7 +93,7 @@ class TestComponentModel:
             id=str(uuid.uuid4()),
             name="Test Resistor",
             part_number="R-001",
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
         db_session.add(component_with_pn)
 
@@ -102,7 +102,7 @@ class TestComponentModel:
             id=str(uuid.uuid4()),
             name="Test Capacitor",
             part_number=None,
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
         db_session.add(component_without_pn)
         db_session.commit()
@@ -113,12 +113,12 @@ class TestComponentModel:
         # Test display name without part number
         assert component_without_pn.display_name == "Test Capacitor"
 
-    def test_component_quantity_properties(self, db_session, sample_category, sample_storage_location):
+    def test_component_quantity_properties(
+        self, db_session, sample_category, sample_storage_location
+    ):
         """Test component quantity calculation properties"""
         component = Component(
-            id=str(uuid.uuid4()),
-            name="Test Component",
-            category_id=sample_category.id
+            id=str(uuid.uuid4()), name="Test Component", category_id=sample_category.id
         )
         db_session.add(component)
         db_session.commit()
@@ -135,14 +135,12 @@ class TestComponentModel:
             storage_location_id=sample_storage_location.id,
             quantity_on_hand=50,
             quantity_ordered=25,
-            minimum_stock=10
+            minimum_stock=10,
         )
 
         # Create another storage location for multiple location testing
         location2_storage = StorageLocation(
-            id=str(uuid.uuid4()),
-            name="Second Storage",
-            type="box"
+            id=str(uuid.uuid4()), name="Second Storage", type="bin"
         )
         db_session.add(location2_storage)
 
@@ -152,7 +150,7 @@ class TestComponentModel:
             storage_location_id=location2_storage.id,
             quantity_on_hand=30,
             quantity_ordered=15,
-            minimum_stock=5
+            minimum_stock=5,
         )
 
         db_session.add_all([location1, location2])
@@ -164,7 +162,7 @@ class TestComponentModel:
         # Test aggregated quantities
         assert component.quantity_on_hand == 80  # 50 + 30
         assert component.quantity_ordered == 40  # 25 + 15
-        assert component.minimum_stock == 15     # 10 + 5
+        assert component.minimum_stock == 15  # 10 + 5
 
     def test_component_specifications_json_field(self, db_session, sample_category):
         """Test component specifications JSON field functionality"""
@@ -176,15 +174,15 @@ class TestComponentModel:
             "package_details": {
                 "width": "1.6mm",
                 "length": "0.8mm",
-                "height": "0.35mm"
-            }
+                "height": "0.35mm",
+            },
         }
 
         component = Component(
             id=str(uuid.uuid4()),
             name="Precision Resistor",
             category_id=sample_category.id,
-            specifications=specifications
+            specifications=specifications,
         )
 
         db_session.add(component)
@@ -202,14 +200,14 @@ class TestComponentModel:
             "supplier_part_number": "311-10.0KCRCT-ND",
             "lead_time_days": 2,
             "preferred_vendor": True,
-            "environmental_rating": "RoHS compliant"
+            "environmental_rating": "RoHS compliant",
         }
 
         component = Component(
             id=str(uuid.uuid4()),
             name="Custom Fields Component",
             category_id=sample_category.id,
-            custom_fields=custom_fields
+            custom_fields=custom_fields,
         )
 
         db_session.add(component)
@@ -227,7 +225,7 @@ class TestComponentModel:
             name="Financial Test Component",
             category_id=sample_category.id,
             average_purchase_price=Decimal("2.50"),
-            total_purchase_value=Decimal("125.00")
+            total_purchase_value=Decimal("125.00"),
         )
 
         db_session.add(component)
@@ -242,7 +240,7 @@ class TestComponentModel:
         component = Component(
             id=str(uuid.uuid4()),
             name="Relationship Test",
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
 
         db_session.add(component)
@@ -265,7 +263,7 @@ class TestComponentModel:
         component = Component(
             id=str(uuid.uuid4()),
             name="Tagged Component",
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
 
         db_session.add_all([tag1, tag2, component])
@@ -288,9 +286,7 @@ class TestComponentModel:
     def test_component_kicad_data_relationship(self, db_session, sample_category):
         """Test component-KiCad data one-to-one relationship"""
         component = Component(
-            id=str(uuid.uuid4()),
-            name="KiCad Component",
-            category_id=sample_category.id
+            id=str(uuid.uuid4()), name="KiCad Component", category_id=sample_category.id
         )
 
         kicad_data = KiCadLibraryData(
@@ -301,7 +297,7 @@ class TestComponentModel:
             footprint_library="Resistor_SMD",
             footprint_name="R_0603_1608Metric",
             symbol_source=KiCadDataSource.AUTO_GENERATED,
-            footprint_source=KiCadDataSource.AUTO_GENERATED
+            footprint_source=KiCadDataSource.AUTO_GENERATED,
         )
 
         db_session.add_all([component, kicad_data])
@@ -315,10 +311,7 @@ class TestComponentModel:
     def test_component_validation_edge_cases(self, db_session, sample_category):
         """Test component validation with edge cases"""
         # Component with minimal required fields
-        minimal_component = Component(
-            id=str(uuid.uuid4()),
-            name="Minimal Component"
-        )
+        minimal_component = Component(id=str(uuid.uuid4()), name="Minimal Component")
 
         db_session.add(minimal_component)
         db_session.commit()
@@ -333,7 +326,7 @@ class TestComponentModel:
             id="test-uuid-123",
             name="Test Component",
             part_number="TEST-001",
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
 
         repr_str = repr(component)
@@ -341,12 +334,14 @@ class TestComponentModel:
         assert "Test Component" in repr_str
         assert "TEST-001" in repr_str
 
-    def test_component_primary_location_property(self, db_session, sample_category, sample_storage_location):
+    def test_component_primary_location_property(
+        self, db_session, sample_category, sample_storage_location
+    ):
         """Test component primary_location property"""
         component = Component(
             id=str(uuid.uuid4()),
             name="Location Test Component",
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
         db_session.add(component)
         db_session.commit()
@@ -359,7 +354,7 @@ class TestComponentModel:
             id=str(uuid.uuid4()),
             component_id=component.id,
             storage_location_id=sample_storage_location.id,
-            quantity_on_hand=100
+            quantity_on_hand=100,
         )
         db_session.add(location)
         db_session.commit()
@@ -374,9 +369,7 @@ class TestComponentModel:
     def test_component_update_timestamps(self, db_session, sample_category):
         """Test that updated_at timestamp changes on modification"""
         component = Component(
-            id=str(uuid.uuid4()),
-            name="Timestamp Test",
-            category_id=sample_category.id
+            id=str(uuid.uuid4()), name="Timestamp Test", category_id=sample_category.id
         )
 
         db_session.add(component)
@@ -401,11 +394,11 @@ class TestComponentModel:
                 "price_breaks": [
                     {"quantity": 1, "unit_price": 0.05},
                     {"quantity": 10, "unit_price": 0.04},
-                    {"quantity": 100, "unit_price": 0.03}
+                    {"quantity": 100, "unit_price": 0.03},
                 ],
                 "stock_quantity": 50000,
                 "datasheet_url": "https://example.com/datasheet.pdf",
-                "last_updated": "2025-09-27T10:00:00Z"
+                "last_updated": "2025-09-27T10:00:00Z",
             }
         }
 
@@ -413,7 +406,7 @@ class TestComponentModel:
             id=str(uuid.uuid4()),
             name="Provider Data Component",
             category_id=sample_category.id,
-            provider_data=provider_data
+            provider_data=provider_data,
         )
 
         db_session.add(component)
@@ -431,14 +424,14 @@ class TestComponentModel:
             id=str(uuid.uuid4()),
             name="Component 1",
             part_number="UNIQUE-001",
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
 
         component2 = Component(
             id=str(uuid.uuid4()),
             name="Component 2",
             part_number="UNIQUE-001",  # Same part number
-            category_id=sample_category.id
+            category_id=sample_category.id,
         )
 
         db_session.add(component1)

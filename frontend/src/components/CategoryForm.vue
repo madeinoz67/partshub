@@ -1,5 +1,5 @@
 <template>
-  <q-form @submit="onSubmit" class="q-gutter-md">
+  <q-form class="q-gutter-md" @submit="onSubmit">
     <div class="text-h6 q-mb-md">
       {{ isEditing ? 'Edit Category' : 'Create Category' }}
     </div>
@@ -42,7 +42,7 @@
       hint="Leave empty to create a top-level category"
       :loading="loadingParents"
     >
-      <template v-slot:no-option>
+      <template #no-option>
         <q-item>
           <q-item-section class="text-grey">
             No parent categories available
@@ -63,7 +63,7 @@
           ]"
           hint="Hex color code (e.g., #1976d2)"
         >
-          <template v-slot:append>
+          <template #append>
             <q-icon name="colorize" class="cursor-pointer">
               <q-popup-proxy>
                 <q-color
@@ -75,7 +75,7 @@
               </q-popup-proxy>
             </q-icon>
           </template>
-          <template v-slot:prepend>
+          <template #prepend>
             <q-avatar
               v-if="form.color"
               size="24px"
@@ -95,7 +95,7 @@
           ]"
           hint="Material Icons name (e.g., category, inventory)"
         >
-          <template v-slot:append>
+          <template #append>
             <q-icon
               v-if="form.icon"
               :name="form.icon"
@@ -150,8 +150,8 @@
       <q-btn
         flat
         label="Cancel"
-        @click="onCancel"
         :disable="loading"
+        @click="onCancel"
       />
       <q-btn
         type="submit"
@@ -164,7 +164,7 @@
     <!-- Validation summary -->
     <div v-if="validationErrors.length > 0" class="q-mt-md">
       <q-banner class="bg-negative text-white">
-        <template v-slot:avatar>
+        <template #avatar>
           <q-icon name="error" />
         </template>
         <div class="text-body2">Please fix the following errors:</div>
@@ -220,7 +220,7 @@ export default defineComponent({
 
     const parentOptions = computed(() => {
       const flattenCategories = (cats, prefix = '') => {
-        let result = []
+        const result = []
         for (const cat of cats) {
           // Exclude the current category being edited to prevent circular references
           if (!isEditing.value || cat.id !== props.category.id) {

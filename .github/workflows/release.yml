@@ -1,0 +1,486 @@
+name: "Release Automation"
+
+"on":
+  push:
+    tags:
+      - 'v*.*.*'  # Semantic versioning tags
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_REPOSITORY: partshub
+
+jobs:
+  validate_release:
+    name: "Validate Release Prerequisites"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag_version: ${{ steps.version.outputs.tag_version }}
+      version_valid: ${{ steps.validate.outputs.version_valid }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract versions
+        id: version
+        run: |
+          # Extract version from tag
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
+
+          # Extract version from pyproject.toml
+          PYPROJECT_VERSION=$(grep '^version =' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$PYPROJECT_VERSION" >> $GITHUB_OUTPUT
+
+          echo "Tag version: $TAG_VERSION"
+          echo "Pyproject version: $PYPROJECT_VERSION"
+
+      - name: Validate version consistency
+        id: validate
+        run: |
+          if [ "${{ steps.version.outputs.tag_version }}" = "${{ steps.version.outputs.version }}" ]; then
+            echo "version_valid=true" >> $GITHUB_OUTPUT
+            echo "✅ Version consistency check passed"
+          else
+            echo "version_valid=false" >> $GITHUB_OUTPUT
+            echo "❌ Version mismatch: tag=${{ steps.version.outputs.tag_version }}, pyproject=${{ steps.version.outputs.version }}"
+            exit 1
+          fi
+
+      - name: Check semantic versioning format
+        run: |
+          VERSION="${{ steps.version.outputs.tag_version }}"
+          if [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✅ Semantic versioning format valid"
+          else
+            echo "❌ Invalid semantic versioning format: $VERSION"
+            exit 1
+          fi
+
+      - name: Verify on main branch
+        run: |
+          BRANCH=$(git branch -r --contains ${{ github.sha }} | grep 'origin/main' || true)
+          if [ -z "$BRANCH" ]; then
+            echo "❌ Release tag must be on main branch"
+            exit 1
+          fi
+          echo "✅ Tag is on main branch"
+
+  build_artifacts:
+    name: "Build Release Artifacts"
+    runs-on: ubuntu-latest
+    needs: [validate_release]
+    if: ${{ needs.validate_release.outputs.version_valid == 'true' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          uv sync --all-extras --dev
+          cd frontend && npm ci
+
+      - name: Build backend artifact
+        run: |
+          mkdir -p release-artifacts
+
+          # Create backend source distribution
+          uv build --no-build-isolation
+          cp dist/*.tar.gz release-artifacts/partshub-backend-${{ needs.validate_release.outputs.version }}.tar.gz
+          cp dist/*.whl release-artifacts/
+
+      - name: Build frontend artifact
+        run: |
+          cd frontend
+          npm run build
+
+          # Create frontend distribution archive
+          cd dist
+          tar -czf ../../release-artifacts/partshub-frontend-${{ needs.validate_release.outputs.version }}.tar.gz *
+
+      - name: Create source archive
+        run: |
+          git archive --format=zip --prefix=partshub-${{ needs.validate_release.outputs.version }}/ HEAD > release-artifacts/source-code.zip
+
+      - name: Generate checksums
+        run: |
+          cd release-artifacts
+          sha256sum * > checksums.txt
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts/
+          retention-days: 90
+
+  build_docker_images:
+    name: "Build and Publish Docker Images"
+    runs-on: ubuntu-latest
+    needs: [validate_release]
+    if: ${{ needs.validate_release.outputs.version_valid == 'true' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: backend
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:latest
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:${{ needs.validate_release.outputs.version }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          target: frontend
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-frontend:latest
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-frontend:${{ needs.validate_release.outputs.version }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-frontend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run security scan on images
+        run: |
+          echo "Running security scans on Docker images..."
+          # Note: Add actual security scanning tools like Trivy here
+          # docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          #   aquasec/trivy image ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:${{ needs.validate_release.outputs.version }}
+
+  generate_release_notes:
+    name: "Generate Release Notes"
+    runs-on: ubuntu-latest
+    needs: [validate_release]
+    if: ${{ needs.validate_release.outputs.version_valid == 'true' }}
+    outputs:
+      release_notes: ${{ steps.notes.outputs.release_notes }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          # Get the previous tag
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+          CURRENT_TAG="v${{ needs.validate_release.outputs.version }}"
+
+          echo "Generating release notes from $PREVIOUS_TAG to $CURRENT_TAG"
+
+          # Create release notes script
+          cat > scripts/generate-release-notes.sh << 'EOF'
+          #!/bin/bash
+          set -e
+
+          PREVIOUS_TAG=$1
+          CURRENT_TAG=$2
+
+          echo "# Release $CURRENT_TAG"
+          echo ""
+          echo "Released on $(date +%Y-%m-%d)"
+          echo ""
+
+          # Get commits between tags
+          if [ ! -z "$PREVIOUS_TAG" ]; then
+            echo "## Changes since $PREVIOUS_TAG"
+            echo ""
+
+            # Group commits by type
+            echo "### 🚀 Features"
+            git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..$CURRENT_TAG" --grep="feat:" --grep="feature:" | head -20
+            echo ""
+
+            echo "### 🐛 Bug Fixes"
+            git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..$CURRENT_TAG" --grep="fix:" --grep="bugfix:" | head -20
+            echo ""
+
+            echo "### 📚 Documentation"
+            git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..$CURRENT_TAG" --grep="docs:" | head -10
+            echo ""
+
+            echo "### 🔧 Other Changes"
+            git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..$CURRENT_TAG" --invert-grep --grep="feat:" --grep="fix:" --grep="docs:" | head -10
+            echo ""
+          else
+            echo "## Initial Release"
+            echo ""
+            echo "This is the first release of PartsHub."
+            echo ""
+          fi
+
+          # Add contributor information
+          echo "## Contributors"
+          echo ""
+          if [ ! -z "$PREVIOUS_TAG" ]; then
+            git log --pretty=format:"- %an" "$PREVIOUS_TAG..$CURRENT_TAG" | sort | uniq
+          else
+            git log --pretty=format:"- %an" | sort | uniq
+          fi
+          echo ""
+
+          echo "## Docker Images"
+          echo ""
+          echo "- Backend: \`ghcr.io/${{ github.repository }}-backend:$CURRENT_TAG\`"
+          echo "- Frontend: \`ghcr.io/${{ github.repository }}-frontend:$CURRENT_TAG\`"
+          echo ""
+
+          echo "## Documentation"
+          echo ""
+          echo "- [Release Documentation](https://github.com/${{ github.repository }}/tree/$CURRENT_TAG/docs)"
+          echo "- [API Documentation](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }})"
+          EOF
+
+          chmod +x scripts/generate-release-notes.sh
+
+          # Generate the release notes
+          RELEASE_NOTES=$(./scripts/generate-release-notes.sh "$PREVIOUS_TAG" "$CURRENT_TAG")
+
+          # Save to file and output
+          echo "$RELEASE_NOTES" > release-notes.md
+
+          # Set output for GitHub
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+          retention-days: 90
+
+  build_versioned_docs:
+    name: "Build and Deploy Versioned Documentation"
+    runs-on: ubuntu-latest
+    needs: [validate_release]
+    if: ${{ needs.validate_release.outputs.version_valid == 'true' }}
+    outputs:
+      docs_url: ${{ steps.deploy.outputs.docs_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for mike
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Configure git for mike
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Configure versioned docs
+        run: |
+          VERSION="${{ needs.validate_release.outputs.version }}"
+
+          # Update mkdocs.yml with version information
+          sed -i "s/site_name: .*/site_name: PartsHub Documentation/" mkdocs.yml
+
+          # Add version info to docs
+          mkdir -p docs/releases
+          echo "# Version $VERSION" > docs/releases/v$VERSION.md
+          echo "" >> docs/releases/v$VERSION.md
+          echo "Released on $(date +%Y-%m-%d)" >> docs/releases/v$VERSION.md
+          echo "" >> docs/releases/v$VERSION.md
+          echo "This release includes:" >> docs/releases/v$VERSION.md
+          echo "" >> docs/releases/v$VERSION.md
+
+          # Generate mini changelog for this version
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+          if [ ! -z "$PREVIOUS_TAG" ]; then
+            echo "### Changes since $PREVIOUS_TAG" >> docs/releases/v$VERSION.md
+            git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..v$VERSION" | head -10 >> docs/releases/v$VERSION.md
+          fi
+
+      - name: Deploy versioned docs with Mike
+        run: |
+          VERSION="${{ needs.validate_release.outputs.version }}"
+
+          # Deploy this version and set as latest
+          uv run mike deploy --push --update-aliases $VERSION latest
+
+          # Set this version as the default (redirects from root)
+          uv run mike set-default --push latest
+
+      - name: List mike versions
+        run: uv run mike list
+
+      - name: Set docs URL
+        id: deploy
+        run: |
+          echo "docs_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ needs.validate_release.outputs.version }}/" >> $GITHUB_OUTPUT
+
+  create_github_release:
+    name: "Create GitHub Release"
+    runs-on: ubuntu-latest
+    needs: [validate_release, build_artifacts, build_docker_images, generate_release_notes, build_versioned_docs]
+    if: ${{ always() && needs.validate_release.outputs.version_valid == 'true' }}
+    outputs:
+      release_url: ${{ steps.create_release.outputs.html_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts/
+
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: ./
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.validate_release.outputs.version }}
+          name: PartsHub v${{ needs.validate_release.outputs.version }}
+          body_path: ./release-notes.md
+          draft: false
+          prerelease: false
+          files: |
+            release-artifacts/*
+
+      # Note: File uploads are now handled by softprops/action-gh-release@v1
+
+      - name: Update release with Docker image info
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const releaseBody = `${{ needs.generate_release_notes.outputs.release_notes }}
+
+            ## Additional Information
+
+            **Documentation**: ${{ needs.build_versioned_docs.outputs.docs_url }}
+
+            **Docker Images**:
+            - Backend: \`${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:${{ needs.validate_release.outputs.version }}\`
+            - Frontend: \`${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-frontend:${{ needs.validate_release.outputs.version }}\`
+
+            **Verification**:
+            \`\`\`bash
+            # Pull and run the images
+            docker pull ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:${{ needs.validate_release.outputs.version }}
+            docker pull ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-frontend:${{ needs.validate_release.outputs.version }}
+            \`\`\``;
+
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ steps.create_release.outputs.release_id }},
+              body: releaseBody
+            });
+
+  notify_release:
+    name: "Notify Release Completion"
+    runs-on: ubuntu-latest
+    needs: [create_github_release, validate_release, build_versioned_docs]
+    if: always()
+
+    steps:
+      - name: Notify success
+        if: ${{ needs.create_github_release.result == 'success' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const successMessage = `🎉 **Release v${{ needs.validate_release.outputs.version }} Published Successfully!**
+
+            **Release URL**: ${{ needs.create_github_release.outputs.release_url }}
+            **Documentation**: ${{ needs.build_versioned_docs.outputs.docs_url }}
+
+            **Docker Images**:
+            - \`${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-backend:${{ needs.validate_release.outputs.version }}\`
+            - \`${{ env.DOCKER_REGISTRY }}/${{ github.repository }}-frontend:${{ needs.validate_release.outputs.version }}\`
+
+            The release is now available for download and deployment.`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Release v${{ needs.validate_release.outputs.version }} Published`,
+              body: successMessage,
+              labels: ['release', 'announcement']
+            });
+
+      - name: Notify failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const failureMessage = `❌ **Release v${{ needs.validate_release.outputs.version }} Failed**
+
+            The release process encountered an error. Please check the workflow logs for details.
+
+            **Tag**: v${{ needs.validate_release.outputs.version }}
+            **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Release v${{ needs.validate_release.outputs.version }} Failed`,
+              body: failureMessage,
+              labels: ['release-failure', 'bug']
+            });

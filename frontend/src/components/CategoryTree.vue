@@ -11,8 +11,8 @@
           dense
           icon="add"
           color="primary"
-          @click="showCreateDialog = true"
           :disable="loading"
+          @click="showCreateDialog = true"
         >
           <q-tooltip>Add Category</q-tooltip>
         </q-btn>
@@ -22,8 +22,8 @@
           dense
           icon="refresh"
           color="primary"
-          @click="loadCategories"
           :loading="loading"
+          @click="loadCategories"
         >
           <q-tooltip>Refresh</q-tooltip>
         </q-btn>
@@ -39,7 +39,7 @@
       clearable
       class="q-mb-md"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <q-icon name="search" />
       </template>
     </q-input>
@@ -52,7 +52,7 @@
       :no-nodes-label="loading ? 'Loading...' : 'No categories found'"
       class="category-tree-nodes"
     >
-      <template v-slot:default-header="prop">
+      <template #default-header="prop">
         <div class="row items-center full-width">
           <div class="col">
             <div class="text-body2 text-weight-medium">
@@ -106,8 +106,8 @@
                 size="sm"
                 icon="delete"
                 color="negative"
-                @click.stop="deleteCategory(prop.node)"
                 :disable="prop.node.children && prop.node.children.length > 0"
+                @click.stop="deleteCategory(prop.node)"
               >
                 <q-tooltip>
                   {{ prop.node.children && prop.node.children.length > 0
@@ -131,7 +131,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-form @submit="saveCategory" class="q-gutter-md">
+          <q-form class="q-gutter-md" @submit="saveCategory">
             <q-input
               v-model="categoryForm.name"
               label="Category Name"
@@ -167,7 +167,7 @@
                   label="Color"
                   outlined
                 >
-                  <template v-slot:append>
+                  <template #append>
                     <q-icon name="colorize" class="cursor-pointer">
                       <q-popup-proxy>
                         <q-color
@@ -208,8 +208,8 @@
           <q-btn
             color="primary"
             label="Save"
-            @click="saveCategory"
             :loading="saving"
+            @click="saveCategory"
           />
         </q-card-actions>
       </q-card>
@@ -227,7 +227,7 @@
 
           <div v-if="deletingCategory?.component_count > 0" class="q-mt-md">
             <q-banner class="bg-warning text-dark">
-              <template v-slot:avatar>
+              <template #avatar>
                 <q-icon name="warning" />
               </template>
               This category has {{ deletingCategory.component_count }} components.
@@ -258,9 +258,9 @@
           <q-btn
             color="negative"
             label="Delete"
-            @click="confirmDelete"
             :loading="deleting"
             :disable="deletingCategory?.component_count > 0 && !reassignToCategory"
+            @click="confirmDelete"
           />
         </q-card-actions>
       </q-card>
@@ -334,7 +334,7 @@ export default defineComponent({
 
     const parentOptions = computed(() => {
       const flattenCategories = (cats, prefix = '') => {
-        let result = []
+        const result = []
         for (const cat of cats) {
           if (!editingCategory.value || cat.id !== editingCategory.value.id) {
             result.push({

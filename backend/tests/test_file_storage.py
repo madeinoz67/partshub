@@ -3,13 +3,14 @@ Test-Driven Development tests for FileStorageService.
 Tests written BEFORE implementation to define expected behavior.
 """
 
-import pytest
-import tempfile
-import shutil
-from pathlib import Path
-from unittest.mock import Mock, patch
-from PIL import Image
 import io
+import shutil
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+from PIL import Image
 
 
 class TestFileStorageService:
@@ -25,15 +26,16 @@ class TestFileStorageService:
     @pytest.fixture
     def file_storage_service(self, temp_storage_dir):
         """Create FileStorageService instance with temp directory."""
-        from src.services.file_storage import FileStorageService
+        from backend.src.services.file_storage import FileStorageService
+
         return FileStorageService(base_path=temp_storage_dir)
 
     @pytest.fixture
     def sample_image_bytes(self):
         """Create sample JPEG image bytes for testing."""
-        img = Image.new('RGB', (100, 100), color='red')
+        img = Image.new("RGB", (100, 100), color="red")
         img_bytes = io.BytesIO()
-        img.save(img_bytes, format='JPEG')
+        img.save(img_bytes, format="JPEG")
         return img_bytes.getvalue()
 
     @pytest.fixture
@@ -78,11 +80,11 @@ startxref
 
     def test_init_creates_base_directory(self, temp_storage_dir):
         """Test that FileStorageService creates base directory on initialization."""
-        from src.services.file_storage import FileStorageService
+        from backend.src.services.file_storage import FileStorageService
 
         # Create service with non-existent directory
         service_dir = Path(temp_storage_dir) / "new_storage"
-        service = FileStorageService(base_path=str(service_dir))
+        FileStorageService(base_path=str(service_dir))
 
         # Verify directory was created
         assert service_dir.exists()
@@ -142,7 +144,9 @@ startxref
         with pytest.raises(ValueError, match="File type .* is not allowed"):
             file_storage_service._validate_file(invalid_content, "test.exe")
 
-    def test_validate_file_cleans_filename(self, file_storage_service, sample_image_bytes):
+    def test_validate_file_cleans_filename(
+        self, file_storage_service, sample_image_bytes
+    ):
         """Test that unsafe filenames are cleaned."""
         mime_type, safe_filename = file_storage_service._validate_file(
             sample_image_bytes, "test@#$%^&*()file.jpg"
@@ -151,7 +155,9 @@ startxref
         assert mime_type == "image/jpeg"
         assert safe_filename == "testfile.jpg"
 
-    def test_validate_file_generates_filename_if_empty(self, file_storage_service, sample_image_bytes):
+    def test_validate_file_generates_filename_if_empty(
+        self, file_storage_service, sample_image_bytes
+    ):
         """Test that filename is generated if original is invalid."""
         mime_type, safe_filename = file_storage_service._validate_file(
             sample_image_bytes, "!@#$%^&*()"
@@ -166,7 +172,13 @@ startxref
         component_id = "test-component-123"
         filename = "component_image.jpg"
 
-        file_path, thumbnail_path, file_size, mime_type, safe_filename = file_storage_service.store_file(
+        (
+            file_path,
+            thumbnail_path,
+            file_size,
+            mime_type,
+            safe_filename,
+        ) = file_storage_service.store_file(
             component_id, sample_image_bytes, filename, "image"
         )
 
@@ -190,7 +202,13 @@ startxref
         component_id = "test-component-456"
         filename = "datasheet.pdf"
 
-        file_path, thumbnail_path, file_size, mime_type, safe_filename = file_storage_service.store_file(
+        (
+            file_path,
+            thumbnail_path,
+            file_size,
+            mime_type,
+            safe_filename,
+        ) = file_storage_service.store_file(
             component_id, sample_pdf_bytes, filename, "datasheet"
         )
 
@@ -205,7 +223,9 @@ startxref
         full_path = file_storage_service.get_file_path(file_path)
         assert full_path.exists()
 
-    def test_store_file_prevents_name_conflicts(self, file_storage_service, sample_image_bytes):
+    def test_store_file_prevents_name_conflicts(
+        self, file_storage_service, sample_image_bytes
+    ):
         """Test that storing same filename twice creates unique files."""
         component_id = "test-component-789"
         filename = "duplicate.jpg"
@@ -225,16 +245,17 @@ startxref
         assert file_storage_service.get_file_path(file_path1).exists()
         assert file_storage_service.get_file_path(file_path2).exists()
 
-    @patch('src.services.file_storage.Image.open')
-    def test_generate_thumbnail_failure_handling(self, mock_image_open, file_storage_service):
+    @patch("backend.src.services.file_storage.Image.open")
+    def test_generate_thumbnail_failure_handling(
+        self, mock_image_open, file_storage_service
+    ):
         """Test thumbnail generation failure handling."""
         # Mock Image.open to raise exception
         mock_image_open.side_effect = Exception("Mock PIL error")
 
         # This should not raise an exception but return False
         result = file_storage_service._generate_thumbnail(
-            Path("fake_path.jpg"),
-            Path("fake_thumb.jpg")
+            Path("fake_path.jpg"), Path("fake_thumb.jpg")
         )
 
         assert result is False
@@ -282,7 +303,9 @@ startxref
         # File exists after storage
         assert file_storage_service.file_exists(file_path)
 
-    def test_get_component_files(self, file_storage_service, sample_image_bytes, sample_pdf_bytes):
+    def test_get_component_files(
+        self, file_storage_service, sample_image_bytes, sample_pdf_bytes
+    ):
         """Test getting all files for a component."""
         component_id = "test-component-files"
 
@@ -309,8 +332,8 @@ startxref
 
         # Check file types
         file_names = [f.name for f in files]
-        jpg_files = [name for name in file_names if name.endswith('.jpg')]
-        pdf_files = [name for name in file_names if name.endswith('.pdf')]
+        jpg_files = [name for name in file_names if name.endswith(".jpg")]
+        pdf_files = [name for name in file_names if name.endswith(".pdf")]
 
         assert len(pdf_files) >= 1
         assert len(jpg_files) >= 3  # 2 original + 2 thumbnails (at least)
@@ -319,7 +342,9 @@ startxref
         """Test MIME type to extension mapping."""
         assert file_storage_service._get_extension_from_mime("image/jpeg") == ".jpg"
         assert file_storage_service._get_extension_from_mime("image/png") == ".png"
-        assert file_storage_service._get_extension_from_mime("application/pdf") == ".pdf"
+        assert (
+            file_storage_service._get_extension_from_mime("application/pdf") == ".pdf"
+        )
         assert file_storage_service._get_extension_from_mime("unknown/type") == ""
 
     def test_concurrent_file_storage(self, file_storage_service, sample_image_bytes):

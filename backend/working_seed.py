@@ -5,9 +5,16 @@ Creates tables first, then adds test data.
 """
 
 import uuid
-from datetime import datetime
-from src.database import SessionLocal, engine, Base
-from src.models import *
+
+from src.database import Base, SessionLocal, engine
+from src.models import (
+    Category,
+    Component,
+    ComponentLocation,
+    StorageLocation,
+    Tag,
+)
+
 
 def create_working_test_data():
     """Create working test data for the application."""

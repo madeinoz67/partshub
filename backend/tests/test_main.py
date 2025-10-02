@@ -2,10 +2,9 @@
 Basic tests for main application
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
-from src.main import app
+from backend.src.main import app
 
 client = TestClient(app)
 

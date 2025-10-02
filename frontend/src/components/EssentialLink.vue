@@ -1,10 +1,10 @@
 <template>
   <q-item
+    v-if="link.startsWith('http')"
     clickable
     tag="a"
     target="_blank"
     :href="link"
-    v-if="link.startsWith('http')"
   >
     <q-item-section
       v-if="icon"
@@ -20,9 +20,9 @@
   </q-item>
 
   <q-item
+    v-else
     clickable
     :to="link"
-    v-else
   >
     <q-item-section
       v-if="icon"

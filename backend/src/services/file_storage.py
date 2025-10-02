@@ -4,15 +4,15 @@ Implemented following TDD approach based on comprehensive test requirements.
 """
 
 import hashlib
-import os
+import logging
 import uuid
 from pathlib import Path
-from typing import List, Optional, Tuple
+
 import magic
-import logging
 
 try:
     from PIL import Image, ImageOps
+
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
@@ -20,8 +20,8 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Allowed file types
-ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
-ALLOWED_DOCUMENT_TYPES = {'application/pdf'}
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+ALLOWED_DOCUMENT_TYPES = {"application/pdf"}
 ALLOWED_MIME_TYPES = ALLOWED_IMAGE_TYPES | ALLOWED_DOCUMENT_TYPES
 
 # File size limits (in bytes)
@@ -44,6 +44,7 @@ class FileStorageService:
         if base_path is None:
             # Use different defaults based on environment
             import os
+
             if os.getenv("TESTING") == "true":
                 # For testing, use local project directory
                 base_path = "./test_data/attachments"
@@ -66,7 +67,7 @@ class FileStorageService:
         Returns:
             First 2 characters of MD5 hash
         """
-        return hashlib.md5(component_id.encode()).hexdigest()[:2]
+        return hashlib.md5(component_id.encode(), usedforsecurity=False).hexdigest()[:2]
 
     def _get_component_dir(self, component_id: str) -> Path:
         """Get component directory path with hashed structure.
@@ -80,7 +81,7 @@ class FileStorageService:
         hash_prefix = self._get_component_hash(component_id)
         return self.base_path / hash_prefix / component_id
 
-    def _validate_file(self, file_content: bytes, filename: str) -> Tuple[str, str]:
+    def _validate_file(self, file_content: bytes, filename: str) -> tuple[str, str]:
         """Validate file content and return MIME type and cleaned filename.
 
         Args:
@@ -95,7 +96,9 @@ class FileStorageService:
         """
         # Check file size
         if len(file_content) > MAX_FILE_SIZE:
-            raise ValueError(f"File size exceeds maximum of {MAX_FILE_SIZE // (1024*1024)}MB")
+            raise ValueError(
+                f"File size exceeds maximum of {MAX_FILE_SIZE // (1024*1024)}MB"
+            )
 
         # Detect MIME type
         mime_type = magic.from_buffer(file_content, mime=True)
@@ -105,13 +108,17 @@ class FileStorageService:
 
         # Additional check for images
         if mime_type in ALLOWED_IMAGE_TYPES and len(file_content) > MAX_IMAGE_SIZE:
-            raise ValueError(f"Image size exceeds maximum of {MAX_IMAGE_SIZE // (1024*1024)}MB")
+            raise ValueError(
+                f"Image size exceeds maximum of {MAX_IMAGE_SIZE // (1024*1024)}MB"
+            )
 
         # Clean filename
-        safe_filename = "".join(c for c in filename if c.isalnum() or c in "._-").strip()
+        safe_filename = "".join(
+            c for c in filename if c.isalnum() or c in "._-"
+        ).strip()
         if not safe_filename:
             # Generate filename from hash if original is invalid
-            file_hash = hashlib.md5(file_content).hexdigest()[:8]
+            file_hash = hashlib.md5(file_content, usedforsecurity=False).hexdigest()[:8]
             extension = self._get_extension_from_mime(mime_type)
             safe_filename = f"{file_hash}{extension}"
 
@@ -120,13 +127,13 @@ class FileStorageService:
     def _get_extension_from_mime(self, mime_type: str) -> str:
         """Get file extension from MIME type."""
         extensions = {
-            'image/jpeg': '.jpg',
-            'image/png': '.png',
-            'image/gif': '.gif',
-            'image/webp': '.webp',
-            'application/pdf': '.pdf'
+            "image/jpeg": ".jpg",
+            "image/png": ".png",
+            "image/gif": ".gif",
+            "image/webp": ".webp",
+            "application/pdf": ".pdf",
         }
-        return extensions.get(mime_type, '')
+        return extensions.get(mime_type, "")
 
     def _generate_thumbnail(self, image_path: Path, thumbnail_path: Path) -> bool:
         """Generate thumbnail for image file.
@@ -145,16 +152,18 @@ class FileStorageService:
         try:
             with Image.open(image_path) as img:
                 # Convert to RGB if necessary (for PNG with transparency)
-                if img.mode in ('RGBA', 'LA'):
+                if img.mode in ("RGBA", "LA"):
                     # Create white background
-                    background = Image.new('RGB', img.size, (255, 255, 255))
-                    if img.mode == 'RGBA':
-                        background.paste(img, mask=img.split()[-1])  # Use alpha channel as mask
+                    background = Image.new("RGB", img.size, (255, 255, 255))
+                    if img.mode == "RGBA":
+                        background.paste(
+                            img, mask=img.split()[-1]
+                        )  # Use alpha channel as mask
                     else:
                         background.paste(img)
                     img = background
-                elif img.mode != 'RGB':
-                    img = img.convert('RGB')
+                elif img.mode != "RGB":
+                    img = img.convert("RGB")
 
                 # Generate thumbnail maintaining aspect ratio
                 img.thumbnail(THUMBNAIL_SIZE, Image.Resampling.LANCZOS)
@@ -164,7 +173,7 @@ class FileStorageService:
 
                 # Save as JPEG for consistent format
                 thumbnail_path.parent.mkdir(parents=True, exist_ok=True)
-                thumb.save(thumbnail_path, 'JPEG', quality=85, optimize=True)
+                thumb.save(thumbnail_path, "JPEG", quality=85, optimize=True)
 
                 return True
 
@@ -172,8 +181,13 @@ class FileStorageService:
             logger.error(f"Failed to generate thumbnail: {e}")
             return False
 
-    def store_file(self, component_id: str, file_content: bytes, filename: str,
-                   attachment_type: Optional[str] = None) -> Tuple[str, Optional[str], int, str, str]:
+    def store_file(
+        self,
+        component_id: str,
+        file_content: bytes,
+        filename: str,
+        attachment_type: str | None = None,
+    ) -> tuple[str, str | None, int, str, str]:
         """Store file with hashed directory structure.
 
         Args:
@@ -203,23 +217,23 @@ class FileStorageService:
         component_dir.mkdir(parents=True, exist_ok=True)
 
         # Determine subdirectory based on type
-        if attachment_type == 'datasheet' or mime_type == 'application/pdf':
-            subdir = component_dir / 'datasheets'
+        if attachment_type == "datasheet" or mime_type == "application/pdf":
+            subdir = component_dir / "datasheets"
         elif mime_type in ALLOWED_IMAGE_TYPES:
-            subdir = component_dir / 'images'
+            subdir = component_dir / "images"
         else:
-            subdir = component_dir / 'documents'
+            subdir = component_dir / "documents"
 
         subdir.mkdir(parents=True, exist_ok=True)
 
         # Store file
         file_path = subdir / unique_filename
         try:
-            with open(file_path, 'wb') as f:
+            with open(file_path, "wb") as f:
                 f.write(file_content)
-        except IOError as e:
+        except OSError as e:
             logger.error(f"Failed to write file {file_path}: {e}")
-            raise IOError(f"Failed to store file: {e}")
+            raise OSError(f"Failed to store file: {e}")
 
         # Generate thumbnail for images
         thumbnail_path = None
@@ -234,9 +248,15 @@ class FileStorageService:
         # Return relative path from base_path
         relative_file_path = str(file_path.relative_to(self.base_path))
 
-        return relative_file_path, thumbnail_path, len(file_content), mime_type, safe_filename
+        return (
+            relative_file_path,
+            thumbnail_path,
+            len(file_content),
+            mime_type,
+            safe_filename,
+        )
 
-    def delete_file(self, file_path: str, thumbnail_path: Optional[str] = None) -> bool:
+    def delete_file(self, file_path: str, thumbnail_path: str | None = None) -> bool:
         """Delete file and its thumbnail.
 
         Args:
@@ -286,7 +306,7 @@ class FileStorageService:
         """
         return self.get_file_path(relative_path).exists()
 
-    def get_component_files(self, component_id: str) -> List[Path]:
+    def get_component_files(self, component_id: str) -> list[Path]:
         """Get all files for a component.
 
         Args:

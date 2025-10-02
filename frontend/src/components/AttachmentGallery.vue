@@ -9,8 +9,8 @@
         icon="add"
         label="Upload Files"
         color="primary"
-        @click="showUploadDialog = true"
         :disable="!componentId"
+        @click="showUploadDialog = true"
       />
     </div>
 
@@ -134,12 +134,12 @@
               <q-item-label caption>
                 {{ formatFileSize(attachment.file_size) }} • {{ attachment.mime_type }}
               </q-item-label>
-              <q-item-label caption v-if="attachment.description">
+              <q-item-label v-if="attachment.description" caption>
                 {{ attachment.description }}
               </q-item-label>
             </q-item-section>
 
-            <q-item-section side v-if="showActions">
+            <q-item-section v-if="showActions" side>
               <div class="row q-gutter-xs">
                 <q-btn
                   icon="download"
@@ -182,11 +182,11 @@
               <div class="text-h6">{{ currentImage?.title || currentImage?.original_filename }}</div>
               <q-space />
               <q-btn
+                v-if="currentImage"
                 icon="download"
                 flat
                 round
                 @click="downloadAttachment(currentImage)"
-                v-if="currentImage"
               />
               <q-btn
                 icon="close"
@@ -208,13 +208,13 @@
             </div>
 
             <!-- Navigation -->
-            <div class="image-viewer-nav" v-if="imageAttachments.length > 1">
+            <div v-if="imageAttachments.length > 1" class="image-viewer-nav">
               <q-btn
                 icon="chevron_left"
                 round
                 color="white"
-                @click="previousImage"
                 :disable="currentImageIndex === 0"
+                @click="previousImage"
               />
               <div class="nav-info">
                 {{ currentImageIndex + 1 }} / {{ imageAttachments.length }}
@@ -223,8 +223,8 @@
                 icon="chevron_right"
                 round
                 color="white"
-                @click="nextImage"
                 :disable="currentImageIndex === imageAttachments.length - 1"
+                @click="nextImage"
               />
             </div>
           </div>
@@ -265,7 +265,7 @@
         <q-separator />
 
         <q-card-section v-if="editingAttachment">
-          <q-form @submit="saveAttachment" class="q-gutter-md">
+          <q-form class="q-gutter-md" @submit="saveAttachment">
             <q-input
               v-model="editForm.title"
               label="Title"
@@ -323,8 +323,8 @@
             flat
             label="Delete"
             color="negative"
-            @click="deleteAttachment"
             :loading="deleting"
+            @click="deleteAttachment"
           />
         </q-card-actions>
       </q-card>

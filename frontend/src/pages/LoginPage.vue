@@ -11,27 +11,27 @@
 
       <q-card-section>
         <q-form
-          @submit="onSubmit"
-          class="q-gutter-md"
           ref="form"
+          class="q-gutter-md"
+          @submit="onSubmit"
         >
           <q-input
-            filled
             v-model="username"
+            filled
             label="Username"
             hint="Default username: admin"
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Username is required']"
             :readonly="isLoading"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="person" />
             </template>
           </q-input>
 
           <q-input
-            filled
             v-model="password"
+            filled
             label="Password"
             :type="isPwd ? 'password' : 'text'"
             lazy-rules
@@ -39,10 +39,10 @@
             :readonly="isLoading"
             @keyup.enter="onSubmit"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="lock" />
             </template>
-            <template v-slot:append>
+            <template #append>
               <q-icon
                 :name="isPwd ? 'visibility_off' : 'visibility'"
                 class="cursor-pointer"
@@ -81,24 +81,24 @@
           </q-card-section>
 
           <q-card-section>
-            <q-form @submit="onPasswordChange" class="q-gutter-md" ref="passwordForm">
+            <q-form ref="passwordForm" class="q-gutter-md" @submit="onPasswordChange">
               <q-input
-                filled
                 v-model="currentPassword"
+                filled
                 label="Current Password"
                 type="password"
                 lazy-rules
                 :rules="[ val => val && val.length > 0 || 'Current password is required']"
                 :readonly="isLoading"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <q-icon name="lock" />
                 </template>
               </q-input>
 
               <q-input
-                filled
                 v-model="newPassword"
+                filled
                 label="New Password"
                 type="password"
                 lazy-rules
@@ -108,14 +108,14 @@
                 ]"
                 :readonly="isLoading"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <q-icon name="lock_reset" />
                 </template>
               </q-input>
 
               <q-input
-                filled
                 v-model="confirmPassword"
+                filled
                 label="Confirm New Password"
                 type="password"
                 lazy-rules
@@ -126,7 +126,7 @@
                 :readonly="isLoading"
                 @keyup.enter="onPasswordChange"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <q-icon name="lock_reset" />
                 </template>
               </q-input>

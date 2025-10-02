@@ -1,0 +1,113 @@
+name: 🤔 Support & Questions
+description: Get help with using PartsHub or ask questions
+title: "[Question]: "
+labels: ["question", "support"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help with PartsHub? Ask your question here and we'll do our best to help!
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Question Type
+      description: What type of help do you need?
+      options:
+        - Installation/Setup
+        - Configuration
+        - Usage/How-to
+        - API Documentation
+        - Best Practices
+        - Troubleshooting
+        - Performance
+        - Integration
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: PartsHub Version
+      description: What version are you using?
+      placeholder: e.g., v1.2.3 or latest
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like help with?
+      placeholder: |
+        I'm trying to...
+        I expected...
+        But instead...
+
+        How can I...?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context & Background
+      description: Provide any relevant context about your setup or use case
+      placeholder: |
+        I'm using PartsHub to...
+        My setup includes...
+        I'm working with...
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What Have You Tried?
+      description: What steps have you already taken to solve this?
+      placeholder: |
+        I've tried:
+        1. ...
+        2. ...
+        3. ...
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Information about your environment (if relevant)
+      placeholder: |
+        - OS: [e.g. Windows 10, macOS 12.0, Ubuntu 20.04]
+        - Browser: [e.g. Chrome 95, Firefox 94]
+        - Database: [e.g. SQLite, PostgreSQL]
+        - Deployment: [e.g. Docker, local development]
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs or Screenshots
+      description: |
+        If applicable, include any error messages, logs, or screenshots
+        You can attach files by clicking this area and dragging them in.
+      placeholder: Paste logs or error messages here...
+
+  - type: checkboxes
+    id: documentation
+    attributes:
+      label: Documentation Check
+      description: Have you checked the available documentation?
+      options:
+        - label: I have checked the README and project documentation
+          required: false
+        - label: I have searched existing issues and discussions
+          required: false
+        - label: I have looked at the API documentation (if relevant)
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Anything else that might be helpful
+      placeholder: Any other details that might help us understand your question...

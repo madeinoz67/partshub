@@ -4,37 +4,43 @@ Defines the interface for external component data sources.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from pydantic import BaseModel
 
 
 class ComponentSearchResult(BaseModel):
     """Search result from an external provider"""
+
     part_number: str
     manufacturer: str
     description: str
-    category: Optional[str] = None
-    datasheet_url: Optional[str] = None
-    image_url: Optional[str] = None
-    specifications: Dict[str, Any] = {}
-    price_breaks: List[Dict[str, Any]] = []  # [{"quantity": 1, "price": 0.10, "currency": "USD"}]
-    availability: Optional[int] = None
+    category: str | None = None
+    datasheet_url: str | None = None
+    image_url: str | None = None
+    specifications: dict[str, Any] = {}
+    price_breaks: list[
+        dict[str, Any]
+    ] = []  # [{"quantity": 1, "price": 0.10, "currency": "USD"}]
+    availability: int | None = None
     provider_id: str
-    provider_url: Optional[str] = None
-    provider_part_id: Optional[str] = None  # Provider-specific SKU/part ID
+    provider_url: str | None = None
+    provider_part_id: str | None = None  # Provider-specific SKU/part ID
 
 
 class ComponentDataProvider(ABC):
     """Abstract base class for component data providers"""
 
-    def __init__(self, name: str, api_key: Optional[str] = None):
+    def __init__(self, name: str, api_key: str | None = None):
         self.name = name
         self.api_key = api_key
         self.base_url = ""
         self.rate_limit_delay = 1.0  # seconds between requests
 
     @abstractmethod
-    async def search_components(self, query: str, limit: int = 10) -> List[ComponentSearchResult]:
+    async def search_components(
+        self, query: str, limit: int = 10
+    ) -> list[ComponentSearchResult]:
         """
         Search for components by part number or description.
 
@@ -48,7 +54,9 @@ class ComponentDataProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_component_details(self, part_number: str, manufacturer: Optional[str] = None) -> Optional[ComponentSearchResult]:
+    async def get_component_details(
+        self, part_number: str, manufacturer: str | None = None
+    ) -> ComponentSearchResult | None:
         """
         Get detailed information for a specific component.
 
@@ -61,7 +69,9 @@ class ComponentDataProvider(ABC):
         """
         pass
 
-    async def search_by_provider_sku(self, provider_sku: str) -> Optional[ComponentSearchResult]:
+    async def search_by_provider_sku(
+        self, provider_sku: str
+    ) -> ComponentSearchResult | None:
         """
         Search for a component by provider-specific SKU/part ID.
 
@@ -87,12 +97,12 @@ class ComponentDataProvider(ABC):
         """
         try:
             # Try a simple search to verify connectivity
-            results = await self.search_components("test", limit=1)
+            await self.search_components("test", limit=1)
             return True
         except Exception:
             return False
 
-    def get_provider_info(self) -> Dict[str, Any]:
+    def get_provider_info(self) -> dict[str, Any]:
         """
         Get provider information and capabilities.
 
@@ -105,5 +115,5 @@ class ComponentDataProvider(ABC):
             "supports_search": True,
             "supports_details": True,
             "rate_limit_delay": self.rate_limit_delay,
-            "requires_api_key": bool(self.api_key)
+            "requires_api_key": bool(self.api_key),
         }

@@ -2,36 +2,37 @@
 Pytest configuration and shared fixtures
 """
 
-import pytest
 import os
+
+import pytest
+from alembic import command
+from alembic.config import Config
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from backend.src.auth.jwt_auth import create_access_token
+from backend.src.database import get_db
+from backend.src.main import app
+from backend.src.models import APIToken, User
 
 # Set testing environment variables to ensure complete isolation
 os.environ["TESTING"] = "1"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
+os.environ[
+    "DATABASE_URL"
+] = "sqlite:///:memory:"  # Use in-memory database for complete isolation
 os.environ["PORT"] = "8005"  # Use different port for tests (production uses 8000)
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-from alembic.config import Config
-from alembic import command
-
-from src.database.connection import Base, get_db
-from src.main import app
-from src.auth.jwt_auth import create_access_token
-# Import all models to ensure they're registered with Base
-import src.models
-from src.models import User, APIToken
 
 # Test database URL - in-memory database for complete isolation
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
-# Create test engine
+# Create test engine with proper configuration
 test_engine = create_engine(
     TEST_DATABASE_URL,
     poolclass=StaticPool,
     connect_args={"check_same_thread": False},
-    echo=False
+    echo=False,  # Set to True for debugging SQL issues
 )
 
 # Create test session
@@ -54,27 +55,45 @@ def apply_migrations():
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_database():
     """
-    Set up fresh in-memory test database for each test
+    Set up fresh in-memory test database for each test with proper model loading
     """
-    # Use the correct Base from models package to create all tables
-    from src.models import Base as ModelsBase
-    ModelsBase.metadata.create_all(bind=test_engine)
+    # Import the Base from the correct database module
+    from backend.src.database import Base
+
+    # Import all models to ensure they are registered with SQLAlchemy
+    # This is critical for table creation to work properly
+
+    # Enable SQLite-specific features for test database
+    with test_engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys=ON"))
+        conn.execute(text("PRAGMA journal_mode=MEMORY"))  # Use memory mode for tests
+        conn.commit()
+
+    # Create all tables with proper metadata
+    Base.metadata.create_all(bind=test_engine)
 
     yield
 
-    # Drop all tables after test for clean state
-    ModelsBase.metadata.drop_all(bind=test_engine)
+    # Clean up: Drop all tables after test for complete isolation
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Create a database session for each test
+    Create a database session for each test with proper transaction management
     """
     session = TestingSessionLocal()
     try:
+        # Start a transaction that will be rolled back after the test
+        session.begin()
         yield session
+    except Exception:
+        # Rollback on any exception
+        session.rollback()
+        raise
     finally:
+        # Always close the session to release resources
         session.close()
 
 
@@ -85,52 +104,25 @@ def db_session():
 @pytest.fixture(scope="function")
 def client(db_session):
     """
-    Create a test client with shared test database session
-    Following Testing Isolation principle - use same session for fixtures and API
-    Includes auth dependency overrides for TestClient compatibility
+    Create a test client with database session override
     """
-    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-    from src.auth.dependencies import get_optional_user
-    from src.auth.jwt_auth import get_current_user as get_user_from_token
-    from src.models import User
 
     def override_get_db():
-        yield db_session
-
-    async def test_get_optional_user(
-        credentials: HTTPAuthorizationCredentials = None,
-        db = None
-    ):
-        """TestClient-compatible version of get_optional_user"""
-        if not credentials:
-            return None
-
-        # Use the shared test database session
-        test_db = db_session
-
+        """Override database dependency with the test session"""
         try:
-            user_data = get_user_from_token(credentials.credentials)
-            user = test_db.query(User).filter(User.id == user_data["user_id"]).first()
-            if user and user.is_active:
-                return {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "is_admin": user.is_admin,
-                    "auth_type": "jwt"
-                }
-        except Exception:
-            pass
+            yield db_session
+        finally:
+            pass  # Session cleanup is handled by the db_session fixture
 
-        return None
-
+    # Override the database dependency for the test
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[get_optional_user] = test_get_optional_user
 
-    with TestClient(app) as test_client:
-        yield test_client
-
-    # Clean up
-    app.dependency_overrides.clear()
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        # Always clean up dependency overrides after test
+        app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -151,9 +143,9 @@ def sample_component_data():
             "resistance": "10kΩ",
             "tolerance": "±1%",
             "power_rating": "0.125W",
-            "temperature_coefficient": "±100ppm/°C"
+            "temperature_coefficient": "±100ppm/°C",
         },
-        "notes": "General purpose precision resistor"
+        "notes": "General purpose precision resistor",
     }
 
 
@@ -166,7 +158,7 @@ def sample_storage_location_data():
         "name": "drawer-1",
         "description": "Main workbench drawer 1",
         "location_type": "drawer",
-        "is_single_part_only": False
+        "is_single_part_only": False,
     }
 
 
@@ -182,10 +174,7 @@ def auth_headers(client, db_session):
     """
     # Create a test admin user directly in the test database session
     admin_user = User(
-        username="testadmin",
-        full_name="Test Admin",
-        is_admin=True,
-        is_active=True
+        username="testadmin", full_name="Test Admin", is_admin=True, is_active=True
     )
     admin_user.set_password("testpassword")
 
@@ -194,12 +183,14 @@ def auth_headers(client, db_session):
     db_session.refresh(admin_user)
 
     # Create JWT token for this user
-    token = create_access_token({
-        "sub": admin_user.id,  # Use 'sub' as standard JWT claim for user ID
-        "user_id": admin_user.id,  # Keep for backward compatibility
-        "username": admin_user.username,
-        "is_admin": admin_user.is_admin
-    })
+    token = create_access_token(
+        {
+            "sub": admin_user.id,  # Use 'sub' as standard JWT claim for user ID
+            "user_id": admin_user.id,  # Keep for backward compatibility
+            "username": admin_user.username,
+            "is_admin": admin_user.is_admin,
+        }
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -211,10 +202,7 @@ def user_auth_headers(client, db_session):
     """
     # Create a test regular user directly in the test database session
     regular_user = User(
-        username="testuser",
-        full_name="Test User",
-        is_admin=False,
-        is_active=True
+        username="testuser", full_name="Test User", is_admin=False, is_active=True
     )
     regular_user.set_password("testpassword")
 
@@ -223,17 +211,19 @@ def user_auth_headers(client, db_session):
     db_session.refresh(regular_user)
 
     # Create JWT token for this user
-    token = create_access_token({
-        "sub": regular_user.id,  # Use 'sub' as standard JWT claim for user ID
-        "user_id": regular_user.id,  # Keep for backward compatibility
-        "username": regular_user.username,
-        "is_admin": regular_user.is_admin
-    })
+    token = create_access_token(
+        {
+            "sub": regular_user.id,  # Use 'sub' as standard JWT claim for user ID
+            "user_id": regular_user.id,  # Keep for backward compatibility
+            "username": regular_user.username,
+            "is_admin": regular_user.is_admin,
+        }
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
-def api_token_headers(auth_headers, db_session):
+def api_token_headers(auth_headers, client, db_session):
     """
     Create valid API token headers for authenticated requests
     Uses the same admin user created by auth_headers fixture
@@ -242,11 +232,9 @@ def api_token_headers(auth_headers, db_session):
     admin_user = db_session.query(User).filter(User.username == "testadmin").first()
 
     raw_token, api_token = APIToken.generate_token(
-        user_id=admin_user.id,
-        name="Test API Token",
-        description="Token for testing"
+        user_id=admin_user.id, name="Test API Token", description="Token for testing"
     )
     db_session.add(api_token)
     db_session.commit()
 
-    return {"X-API-Key": raw_token}
+    return {"Authorization": f"Bearer {raw_token}"}

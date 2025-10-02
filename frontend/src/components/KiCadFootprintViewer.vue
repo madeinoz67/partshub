@@ -15,7 +15,7 @@
 
     <!-- Error state -->
     <q-banner v-if="error && !loading" class="text-white bg-negative q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
@@ -39,7 +39,7 @@
             <div class="col">
               <strong>Reference:</strong> {{ footprintData.footprint_reference }}
             </div>
-            <div class="col" v-if="footprintData.footprint_library">
+            <div v-if="footprintData.footprint_library" class="col">
               <strong>Library:</strong> {{ footprintData.footprint_library }}
             </div>
           </div>
@@ -74,23 +74,23 @@
               <q-btn
                 flat
                 icon="zoom_in"
-                @click="zoomIn"
                 size="sm"
                 title="Zoom In"
+                @click="zoomIn"
               />
               <q-btn
                 flat
                 icon="zoom_out"
-                @click="zoomOut"
                 size="sm"
                 title="Zoom Out"
+                @click="zoomOut"
               />
               <q-btn
                 flat
                 icon="center_focus_strong"
-                @click="resetZoom"
                 size="sm"
                 title="Reset Zoom"
+                @click="resetZoom"
               />
             </div>
           </div>
@@ -100,19 +100,21 @@
       <!-- SVG Footprint Display -->
       <q-card flat bordered>
         <q-card-section class="footprint-display">
-          <div class="svg-container" ref="svgContainer">
-            <div v-if="!svgContent" class="svg-placeholder">
+          <div ref="svgContainer" class="svg-container">
+            <div v-if="!sanitizedSvgContent" class="svg-placeholder">
               <q-icon name="memory" size="3em" color="grey-5" />
               <div class="text-body2 text-grey q-mt-sm">
                 Footprint visualization will appear here
               </div>
             </div>
+            <!-- eslint-disable vue/no-v-html -->
             <div
               v-else
-              v-html="svgContent"
               class="footprint-svg"
               :style="{ transform: `scale(${zoomLevel})` }"
+              v-html="sanitizedSvgContent"
             ></div>
+            <!-- eslint-enable vue/no-v-html -->
           </div>
         </q-card-section>
       </q-card>
@@ -129,25 +131,25 @@
             :pagination="{ rowsPerPage: 15 }"
             class="pad-table"
           >
-            <template v-slot:body-cell-pad_type="props">
-              <q-td :props="props">
+            <template #body-cell-pad_type="slotProps">
+              <q-td :props="slotProps">
                 <q-chip
-                  :color="getPadTypeColor(props.value)"
+                  :color="getPadTypeColor(slotProps.value)"
                   text-color="white"
-                  :label="props.value"
+                  :label="slotProps.value"
                   size="sm"
                 />
               </q-td>
             </template>
-            <template v-slot:body-cell-drill="props">
-              <q-td :props="props">
-                <span v-if="props.value">{{ props.value }}mm</span>
+            <template #body-cell-drill="slotProps">
+              <q-td :props="slotProps">
+                <span v-if="slotProps.value">{{ slotProps.value }}mm</span>
                 <span v-else class="text-grey">—</span>
               </q-td>
             </template>
-            <template v-slot:body-cell-size="props">
-              <q-td :props="props">
-                {{ props.value }}
+            <template #body-cell-size="slotProps">
+              <q-td :props="slotProps">
+                {{ slotProps.value }}
               </q-td>
             </template>
           </q-table>
@@ -194,34 +196,31 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { api } from '../boot/axios'
+import { sanitizeSvgContent } from '../utils/htmlSanitizer'
+import type { KiCadFootprintData, KiCadPad } from '../types/kicad'
 
 interface Props {
   componentId: string
+  footprintData?: KiCadFootprintData | null
 }
 
-interface KiCadFootprintData {
-  footprint_library: string
-  footprint_name: string
-  footprint_reference: string
-  footprint_data?: Record<string, any>
-}
+// Using KiCadFootprintData from types/kicad.ts
 
-interface PadData {
-  number: string
-  pad_type: string
-  size: string
-  drill?: string
-  position: { x: number; y: number }
-  shape?: string
-}
 
 const props = defineProps<Props>()
+const emit = defineEmits<{
+  (e: 'error', error: string): void
+  (e: 'loaded', data: KiCadFootprintData): void
+}>()
 
 // Reactive state
 const loading = ref(false)
 const error = ref<string | null>(null)
-const footprintData = ref<KiCadFootprintData | null>(null)
+const internalFootprintData = ref<KiCadFootprintData | null>(null)
 const svgContent = ref<string | null>(null)
+
+// Use prop data if provided, otherwise use internal data
+const footprintData = computed(() => props.footprintData ?? internalFootprintData.value)
 const svgContainer = ref<HTMLElement>()
 const viewMode = ref('top')
 const showDimensions = ref(true)
@@ -232,7 +231,7 @@ const zoomLevel = ref(1)
 const padData = computed(() => {
   if (!footprintData.value?.footprint_data?.pads) return []
 
-  return Object.entries(footprintData.value.footprint_data.pads).map(([number, padInfo]: [string, any]) => ({
+  return Object.entries(footprintData.value.footprint_data.pads).map(([number, padInfo]: [string, KiCadPad]) => ({
     number,
     pad_type: padInfo.type || 'smd',
     size: formatPadSize(padInfo.size),
@@ -250,6 +249,12 @@ const filteredProperties = computed(() => {
   delete data.pads
   delete data.dimensions
   return data
+})
+
+// Sanitized SVG content for safe rendering
+const sanitizedSvgContent = computed(() => {
+  if (!svgContent.value) return ''
+  return sanitizeSvgContent(svgContent.value)
 })
 
 const padColumns = [
@@ -290,6 +295,12 @@ const padColumns = [
 
 // Methods
 const fetchFootprintData = async () => {
+  // Skip fetch if footprintData prop is provided (testing mode)
+  if (props.footprintData !== undefined) {
+    generateFootprintSVG()
+    return
+  }
+
   if (!props.componentId) return
 
   loading.value = true
@@ -297,15 +308,21 @@ const fetchFootprintData = async () => {
 
   try {
     const response = await api.get(`/api/v1/kicad/components/${props.componentId}/footprint`)
-    footprintData.value = response.data
+    internalFootprintData.value = response.data
+    emit('loaded', response.data)
 
     // Generate SVG visualization
     generateFootprintSVG()
-  } catch (err: any) {
-    if (err.response?.status === 404) {
+  } catch (err: unknown) {
+    const hasResponse = typeof err === 'object' && err !== null && 'response' in err
+    const response = hasResponse ? (err as { response?: { status?: number; data?: { detail?: string } } }).response : undefined
+    if (response?.status === 404) {
       error.value = null // No footprint data is not an error, just show no-data state
     } else {
-      error.value = err.response?.data?.detail || 'Failed to load footprint data'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load footprint data'
+      const errorMsg = response?.data?.detail || errorMessage
+      error.value = errorMsg
+      emit('error', errorMsg)
     }
   } finally {
     loading.value = false
@@ -314,6 +331,12 @@ const fetchFootprintData = async () => {
 
 const generateFootprintSVG = () => {
   if (!footprintData.value) return
+
+  // If footprint has svg_content, use it directly
+  if (footprintData.value.svg_content) {
+    svgContent.value = footprintData.value.svg_content
+    return
+  }
 
   const pads = padData.value
   if (pads.length === 0) {
@@ -329,7 +352,6 @@ const generateFootprintSVG = () => {
   const isBGA = footprintData.value.footprint_name.toLowerCase().includes('bga')
   const isDIP = footprintData.value.footprint_name.toLowerCase().includes('dip')
   const isSOP = footprintData.value.footprint_name.toLowerCase().includes('sop')
-  const isSMD = footprintData.value.footprint_name.toLowerCase().includes('smd')
 
   // Calculate precise bounds with padding
   const margin = 40
@@ -531,7 +553,7 @@ const generateFootprintSVG = () => {
   svgContent.value = svg
 }
 
-const addEnhancedMeasurements = (svg: string, bodyX: number, bodyY: number, bodyWidth: number, bodyHeight: number, contentWidth: number, contentHeight: number) => {
+const addEnhancedMeasurements = (svg: string, bodyX: number, bodyY: number, bodyWidth: number, bodyHeight: number, _contentWidth: number, _contentHeight: number) => {
   const measurementColor = '#ffff00'
   const offset = 25
 
@@ -573,7 +595,7 @@ const parsePadSize = (sizeStr: string) => {
   }
 }
 
-const formatPadSize = (size: any) => {
+const formatPadSize = (size: { width: number; height: number } | string | number | undefined) => {
   if (typeof size === 'object' && size.width && size.height) {
     return `${size.width}×${size.height}`
   }
@@ -595,7 +617,7 @@ const formatDimensionKey = (key: string) => {
   return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
-const formatDimensionValue = (value: any) => {
+const formatDimensionValue = (value: string | number | undefined) => {
   if (typeof value === 'number') {
     return `${value}mm`
   }
@@ -606,7 +628,7 @@ const formatPropertyKey = (key: string) => {
   return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
-const formatPropertyValue = (value: any) => {
+const formatPropertyValue = (value: unknown) => {
   if (typeof value === 'object') {
     return JSON.stringify(value, null, 2)
   }
@@ -627,11 +649,27 @@ const resetZoom = () => {
 
 // Watchers
 watch(() => props.componentId, fetchFootprintData, { immediate: true })
+watch(() => props.footprintData, () => {
+  if (props.footprintData !== undefined) {
+    generateFootprintSVG()
+  }
+}, { immediate: true })
 watch([viewMode, showDimensions, showPadNumbers], generateFootprintSVG)
 
 // Lifecycle
 onMounted(() => {
   fetchFootprintData()
+})
+
+// Expose refs for testing
+defineExpose({
+  loading,
+  error,
+  footprintData,
+  zoomLevel,
+  viewMode,
+  showDimensions,
+  showPadNumbers
 })
 </script>
 

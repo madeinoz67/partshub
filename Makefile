@@ -30,8 +30,13 @@ help:
 	@echo "  make update      - Update dependencies"
 	@echo ""
 	@echo "📊 Database:"
-	@echo "  make migrate     - Run database migrations"
-	@echo "  make seed        - Seed database with demo data"
+	@echo "  make migrate            - Run database migrations (upgrade to latest)"
+	@echo "  make migrate-downgrade  - Roll back last migration"
+	@echo "  make migrate-reset      - Roll back all migrations (reset to base)"
+	@echo "  make migrate-create     - Create new migration (auto-generate)"
+	@echo "  make migrate-history    - Show migration history"
+	@echo "  make migrate-current    - Show current migration version"
+	@echo "  make seed               - Seed database with demo data"
 	@echo ""
 	@echo "🚢 Deployment:"
 	@echo "  make docker      - Build Docker image"
@@ -138,14 +143,32 @@ build-frontend:
 
 # Database operations
 migrate:
-	@echo "📊 Running database migrations..."
+	@echo "📊 Running database migrations (upgrade)..."
 	cd backend && uv run --project .. alembic upgrade head
 	@echo "✅ Database migrations completed!"
+
+migrate-downgrade:
+	@echo "📊 Rolling back last database migration..."
+	cd backend && uv run --project .. alembic downgrade -1
+	@echo "✅ Database rolled back one migration!"
+
+migrate-reset:
+	@echo "📊 Rolling back all database migrations..."
+	cd backend && uv run --project .. alembic downgrade base
+	@echo "✅ Database reset to base (no migrations applied)!"
 
 migrate-create:
 	@echo "📊 Creating new migration..."
 	@read -p "Migration description: " desc; \
 	cd backend && uv run --project .. alembic revision --autogenerate -m "$$desc"
+
+migrate-history:
+	@echo "📊 Database migration history:"
+	cd backend && uv run --project .. alembic history --verbose
+
+migrate-current:
+	@echo "📊 Current database migration:"
+	cd backend && uv run --project .. alembic current
 
 seed:
 	@echo "🌱 Seeding database with demo data..."

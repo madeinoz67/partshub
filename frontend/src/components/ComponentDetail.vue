@@ -29,11 +29,11 @@
 
     <!-- Error message -->
     <q-banner v-if="error" class="text-white bg-negative q-mb-md">
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="error" />
       </template>
       {{ error }}
-      <template v-slot:action>
+      <template #action>
         <q-btn flat color="white" label="Dismiss" @click="clearError" />
       </template>
     </q-banner>
@@ -118,7 +118,7 @@
             <template v-if="canPerformCrud()">
               <q-separator />
 
-              <q-item clickable @click="deleteComponent" class="text-negative">
+              <q-item clickable class="text-negative" @click="deleteComponent">
                 <q-item-section avatar>
                   <q-icon name="delete" color="negative" />
                 </q-item-section>
@@ -167,7 +167,7 @@
                 <div class="text-h6">{{ stockHistory?.length || 0 }}</div>
                 <div class="text-caption">Transactions</div>
               </div>
-              <div class="stat-item" v-if="component.total_purchase_value">
+              <div v-if="component.total_purchase_value" class="stat-item">
                 <div class="text-h6">${{ component.total_purchase_value.toFixed(0) }}</div>
                 <div class="text-caption">Value</div>
               </div>
@@ -223,27 +223,27 @@
                 <div class="col-8">{{ component.name }}</div>
               </div>
 
-              <div class="row" v-if="component.part_number">
+              <div v-if="component.part_number" class="row">
                 <div class="col-4 text-weight-medium">Part Number:</div>
                 <div class="col-8">{{ component.part_number }}</div>
               </div>
 
-              <div class="row" v-if="component.manufacturer">
+              <div v-if="component.manufacturer" class="row">
                 <div class="col-4 text-weight-medium">Manufacturer:</div>
                 <div class="col-8">{{ component.manufacturer }}</div>
               </div>
 
-              <div class="row" v-if="component.component_type">
+              <div v-if="component.component_type" class="row">
                 <div class="col-4 text-weight-medium">Type:</div>
                 <div class="col-8">{{ component.component_type }}</div>
               </div>
 
-              <div class="row" v-if="component.value">
+              <div v-if="component.value" class="row">
                 <div class="col-4 text-weight-medium">Value:</div>
                 <div class="col-8">{{ component.value }}</div>
               </div>
 
-              <div class="row" v-if="component.package">
+              <div v-if="component.package" class="row">
                 <div class="col-4 text-weight-medium">Package:</div>
                 <div class="col-8">{{ component.package }}</div>
               </div>
@@ -336,17 +336,17 @@
                 <div class="col-6">{{ component.minimum_stock }}</div>
               </div>
 
-              <div class="row" v-if="component.quantity_ordered > 0">
+              <div v-if="component.quantity_ordered > 0" class="row">
                 <div class="col-6 text-weight-medium">On Order:</div>
                 <div class="col-6">{{ component.quantity_ordered }}</div>
               </div>
 
-              <div class="row" v-if="component.average_purchase_price">
+              <div v-if="component.average_purchase_price" class="row">
                 <div class="col-6 text-weight-medium">Avg. Price:</div>
                 <div class="col-6">${{ component.average_purchase_price.toFixed(2) }}</div>
               </div>
 
-              <div class="row" v-if="component.total_purchase_value">
+              <div v-if="component.total_purchase_value" class="row">
                 <div class="col-6 text-weight-medium">Total Value:</div>
                 <div class="col-6">${{ component.total_purchase_value.toFixed(2) }}</div>
               </div>
@@ -369,7 +369,7 @@
     <!-- Full-width sections below -->
     <div v-if="component" class="full-width-sections">
       <!-- Specifications -->
-      <div class="col-12 q-mt-md" v-if="component.specifications && Object.keys(component.specifications).length > 0">
+      <div v-if="component.specifications && Object.keys(component.specifications).length > 0" class="col-12 q-mt-md">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Specifications</div>
@@ -392,7 +392,7 @@
       </div>
 
       <!-- Custom Fields -->
-      <div class="col-12 q-mt-md" v-if="component.custom_fields && Object.keys(component.custom_fields).length > 0">
+      <div v-if="component.custom_fields && Object.keys(component.custom_fields).length > 0" class="col-12 q-mt-md">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Custom Fields</div>
@@ -415,7 +415,7 @@
       </div>
 
       <!-- Tags -->
-      <div class="col-12 q-mt-md" v-if="component.tags && component.tags.length > 0">
+      <div v-if="component.tags && component.tags.length > 0" class="col-12 q-mt-md">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Tags</div>
@@ -433,7 +433,7 @@
       </div>
 
       <!-- Notes -->
-      <div class="col-12 q-mt-md" v-if="component.notes">
+      <div v-if="component.notes" class="col-12 q-mt-md">
         <q-card>
           <q-card-section>
             <div class="text-h6 q-mb-md">Notes</div>
@@ -457,28 +457,28 @@
               flat
               :pagination="{ rowsPerPage: 10 }"
             >
-              <template v-slot:body-cell-transaction_type="props">
-                <q-td :props="props">
+              <template #body-cell-transaction_type="slotProps">
+                <q-td :props="slotProps">
                   <q-chip
-                    :color="getTransactionColor(props.row.transaction_type)"
+                    :color="getTransactionColor(slotProps.row.transaction_type)"
                     text-color="white"
-                    :label="props.row.transaction_type.toUpperCase()"
+                    :label="slotProps.row.transaction_type.toUpperCase()"
                     size="sm"
                   />
                 </q-td>
               </template>
 
-              <template v-slot:body-cell-quantity_change="props">
-                <q-td :props="props">
-                  <span :class="props.row.quantity_change > 0 ? 'text-positive' : 'text-negative'">
-                    {{ props.row.quantity_change > 0 ? '+' : '' }}{{ props.row.quantity_change }}
+              <template #body-cell-quantity_change="slotProps">
+                <q-td :props="slotProps">
+                  <span :class="slotProps.row.quantity_change > 0 ? 'text-positive' : 'text-negative'">
+                    {{ slotProps.row.quantity_change > 0 ? '+' : '' }}{{ slotProps.row.quantity_change }}
                   </span>
                 </q-td>
               </template>
 
-              <template v-slot:body-cell-created_at="props">
-                <q-td :props="props">
-                  {{ formatDate(props.row.created_at) }}
+              <template #body-cell-created_at="slotProps">
+                <q-td :props="slotProps">
+                  {{ formatDate(slotProps.row.created_at) }}
                 </q-td>
               </template>
             </q-table>
@@ -528,19 +528,19 @@
                     :pagination="{ rowsPerPage: 10 }"
                     dense
                   >
-                    <template v-slot:body-cell-quantity_change="props">
-                      <q-td :props="props">
+                    <template #body-cell-quantity_change="slotProps">
+                      <q-td :props="slotProps">
                         <q-chip
-                          :color="props.value > 0 ? 'positive' : 'negative'"
+                          :color="slotProps.value > 0 ? 'positive' : 'negative'"
                           text-color="white"
-                          :label="props.value > 0 ? `+${props.value}` : props.value"
+                          :label="slotProps.value > 0 ? `+${slotProps.value}` : slotProps.value"
                           size="sm"
                         />
                       </q-td>
                     </template>
-                    <template v-slot:body-cell-created_at="props">
-                      <q-td :props="props">
-                        {{ formatDate(props.value) }}
+                    <template #body-cell-created_at="slotProps">
+                      <q-td :props="slotProps">
+                        {{ formatDate(slotProps.value) }}
                       </q-td>
                     </template>
                   </q-table>
@@ -566,7 +566,8 @@
                     <div class="col">
                       <div class="text-subtitle2">
                         KiCad Data Status:
-                        <span :class="{
+                        <span
+:class="{
                           'text-green': kicadDataStatus.completeness === 'complete',
                           'text-amber': kicadDataStatus.completeness === 'partial'
                         }">
@@ -578,13 +579,13 @@
                         Footprint: {{ kicadDataStatus.hasFootprint ? '✓ Available' : '✗ Missing' }}
                       </div>
                     </div>
-                    <div class="col-auto" v-if="canPerformCrud() && kicadDataStatus.completeness !== 'complete'">
+                    <div v-if="canPerformCrud() && kicadDataStatus.completeness !== 'complete'" class="col-auto">
                       <q-btn
                         size="sm"
                         color="primary"
                         :label="kicadDataStatus.completeness === 'partial' ? 'Complete Data' : 'Generate Data'"
-                        @click="generateKiCadData"
                         :loading="generatingKiCad"
+                        @click="generateKiCadData"
                       />
                     </div>
                   </div>
@@ -609,8 +610,8 @@
                   color="primary"
                   label="Generate KiCad Data"
                   icon="auto_fix_high"
-                  @click="generateKiCadData"
                   :loading="generatingKiCad"
+                  @click="generateKiCadData"
                 />
                 <q-btn
                   v-else-if="canPerformCrud()"
@@ -729,7 +730,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const emit = defineEmits<{
+defineEmits<{
   'edit-component': [component: Component]
   'update-stock': [component: Component]
 }>()
@@ -813,7 +814,7 @@ const getTransactionColor = (type: string) => {
   }
 }
 
-const formatSpecValue = (value: any) => {
+const formatSpecValue = (value: unknown) => {
   if (typeof value === 'object') {
     return JSON.stringify(value)
   }
@@ -893,7 +894,7 @@ const generateKiCadData = async () => {
   }
 }
 
-const onKiCadFileUploadSuccess = async (data: any) => {
+const onKiCadFileUploadSuccess = async (_data: unknown) => {
   // Refresh component data to show updated KiCad information
   if (component.value) {
     await componentsStore.fetchComponent(component.value.id)
@@ -907,16 +908,14 @@ const onKiCadSourceUpdated = async () => {
   }
 }
 
-const downloadAttachment = (attachment: any) => {
-  console.log('Download attachment:', attachment.filename)
-}
+// Attachment download logic moved to template handlers
 
-const onAttachmentUpdated = (attachment: any) => {
+const onAttachmentUpdated = (attachment: unknown) => {
   // Optionally refresh component data or handle updated attachment
   console.log('Attachment updated:', attachment)
 }
 
-const onAttachmentDeleted = (attachment: any) => {
+const onAttachmentDeleted = (attachment: unknown) => {
   // Optionally refresh component data or handle deleted attachment
   console.log('Attachment deleted:', attachment)
 }

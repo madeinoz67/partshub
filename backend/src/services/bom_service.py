@@ -6,12 +6,12 @@ Generates BOMs from project components and integrates with provider data.
 import csv
 import io
 import json
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
 import logging
+from datetime import UTC, datetime
+from typing import Any
 
-from ..models import Component, Project, ProjectComponent, ComponentProviderData
 from ..database import get_session
+from ..models import Component, ComponentProviderData, Project, ProjectComponent
 from .provider_service import ProviderService
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class BOMExportFormat:
     """BOM export format enumeration"""
+
     CSV = "csv"
     JSON = "json"
     KICAD = "kicad"
@@ -27,19 +28,27 @@ class BOMExportFormat:
 
 class BOMItem:
     """Individual BOM item with provider integration"""
-    def __init__(self, component: Component, quantity: int, provider_data: Optional[ComponentProviderData] = None):
+
+    def __init__(
+        self,
+        component: Component,
+        quantity: int,
+        provider_data: ComponentProviderData | None = None,
+    ):
         self.component = component
         self.quantity = quantity
         self.provider_data = provider_data
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert BOM item to dictionary"""
         item = {
             "component_id": self.component.id,
             "part_number": self.component.part_number,
             "manufacturer": self.component.manufacturer,
             "description": self.component.notes,
-            "category": self.component.category.name if self.component.category else None,
+            "category": self.component.category.name
+            if self.component.category
+            else None,
             "quantity": self.quantity,
             "unit_cost": None,
             "total_cost": None,
@@ -47,27 +56,36 @@ class BOMItem:
             "provider_name": None,
             "provider_url": None,
             "availability": None,
-            "specifications": self.component.specifications or {}
+            "specifications": self.component.specifications or {},
         }
 
         # Add provider data if available
         if self.provider_data:
-            item.update({
-                "provider_sku": self.provider_data.provider_part_id,
-                "provider_name": self.provider_data.provider_id.split('_')[0] if '_' in self.provider_data.provider_id else self.provider_data.provider_id,
-                "provider_url": self.provider_data.provider_url,
-                "availability": self.provider_data.availability
-            })
+            item.update(
+                {
+                    "provider_sku": self.provider_data.provider_part_id,
+                    "provider_name": self.provider_data.provider_id.split("_")[0]
+                    if "_" in self.provider_data.provider_id
+                    else self.provider_data.provider_id,
+                    "provider_url": self.provider_data.provider_url,
+                    "availability": self.provider_data.availability,
+                }
+            )
 
             # Extract pricing for unit cost
-            if self.provider_data.pricing and isinstance(self.provider_data.pricing, dict):
-                price_breaks = self.provider_data.pricing.get('price_breaks', [])
+            if self.provider_data.pricing and isinstance(
+                self.provider_data.pricing, dict
+            ):
+                price_breaks = self.provider_data.pricing.get("price_breaks", [])
                 if price_breaks:
                     # Find the best price for the required quantity
                     best_price = None
                     for price_break in price_breaks:
-                        if isinstance(price_break, dict) and price_break.get('quantity', 0) <= self.quantity:
-                            best_price = price_break.get('price')
+                        if (
+                            isinstance(price_break, dict)
+                            and price_break.get("quantity", 0) <= self.quantity
+                        ):
+                            best_price = price_break.get("price")
 
                     if best_price:
                         item["unit_cost"] = best_price
@@ -86,8 +104,8 @@ class BOMService:
         self,
         project_id: str,
         include_provider_data: bool = True,
-        refresh_provider_data: bool = False
-    ) -> List[BOMItem]:
+        refresh_provider_data: bool = False,
+    ) -> list[BOMItem]:
         """
         Generate BOM for a specific project.
 
@@ -106,9 +124,11 @@ class BOMService:
             if not project:
                 raise ValueError(f"Project not found: {project_id}")
 
-            project_components = session.query(ProjectComponent).filter(
-                ProjectComponent.project_id == project_id
-            ).all()
+            project_components = (
+                session.query(ProjectComponent)
+                .filter(ProjectComponent.project_id == project_id)
+                .all()
+            )
 
             bom_items = []
 
@@ -118,22 +138,28 @@ class BOMService:
 
                 if include_provider_data:
                     # Get existing provider data
-                    provider_data = session.query(ComponentProviderData).filter(
-                        ComponentProviderData.component_id == component.id
-                    ).first()
+                    provider_data = (
+                        session.query(ComponentProviderData)
+                        .filter(ComponentProviderData.component_id == component.id)
+                        .first()
+                    )
 
                     # Refresh provider data if requested
                     if refresh_provider_data or not provider_data:
                         await self._refresh_component_provider_data(component.id)
                         # Re-query after refresh
-                        provider_data = session.query(ComponentProviderData).filter(
-                            ComponentProviderData.component_id == component.id
-                        ).first()
+                        provider_data = (
+                            session.query(ComponentProviderData)
+                            .filter(ComponentProviderData.component_id == component.id)
+                            .first()
+                        )
 
                 bom_item = BOMItem(component, pc.quantity, provider_data)
                 bom_items.append(bom_item)
 
-            logger.info(f"Generated BOM for project {project_id} with {len(bom_items)} items")
+            logger.info(
+                f"Generated BOM for project {project_id} with {len(bom_items)} items"
+            )
             return bom_items
 
         finally:
@@ -141,9 +167,9 @@ class BOMService:
 
     async def generate_component_list_bom(
         self,
-        component_quantities: List[Tuple[str, int]],
-        include_provider_data: bool = True
-    ) -> List[BOMItem]:
+        component_quantities: list[tuple[str, int]],
+        include_provider_data: bool = True,
+    ) -> list[BOMItem]:
         """
         Generate BOM from a list of component IDs and quantities.
 
@@ -159,21 +185,29 @@ class BOMService:
             bom_items = []
 
             for component_id, quantity in component_quantities:
-                component = session.query(Component).filter(Component.id == component_id).first()
+                component = (
+                    session.query(Component)
+                    .filter(Component.id == component_id)
+                    .first()
+                )
                 if not component:
                     logger.warning(f"Component not found: {component_id}")
                     continue
 
                 provider_data = None
                 if include_provider_data:
-                    provider_data = session.query(ComponentProviderData).filter(
-                        ComponentProviderData.component_id == component_id
-                    ).first()
+                    provider_data = (
+                        session.query(ComponentProviderData)
+                        .filter(ComponentProviderData.component_id == component_id)
+                        .first()
+                    )
 
                 bom_item = BOMItem(component, quantity, provider_data)
                 bom_items.append(bom_item)
 
-            logger.info(f"Generated BOM from component list with {len(bom_items)} items")
+            logger.info(
+                f"Generated BOM from component list with {len(bom_items)} items"
+            )
             return bom_items
 
         finally:
@@ -183,23 +217,26 @@ class BOMService:
         """Refresh provider data for a component"""
         session = get_session()
         try:
-            component = session.query(Component).filter(Component.id == component_id).first()
+            component = (
+                session.query(Component).filter(Component.id == component_id).first()
+            )
             if not component:
                 return
 
             # Search for component in providers
             search_results = await self.provider_service.search_components(
-                query=component.part_number,
-                limit=1
+                query=component.part_number, limit=1
             )
 
             if search_results:
                 result = search_results[0]
 
                 # Update or create provider data
-                provider_data = session.query(ComponentProviderData).filter(
-                    ComponentProviderData.component_id == component_id
-                ).first()
+                provider_data = (
+                    session.query(ComponentProviderData)
+                    .filter(ComponentProviderData.component_id == component_id)
+                    .first()
+                )
 
                 if not provider_data:
                     provider_data = ComponentProviderData(component_id=component_id)
@@ -214,29 +251,39 @@ class BOMService:
                 provider_data.availability = result.availability
                 provider_data.pricing = {
                     "price_breaks": result.price_breaks,
-                    "currency": "USD"
+                    "currency": "USD",
                 }
-                provider_data.last_updated = datetime.utcnow()
+                provider_data.last_updated = datetime.now(UTC)
 
                 session.commit()
                 logger.debug(f"Refreshed provider data for component {component_id}")
 
         except Exception as e:
-            logger.error(f"Error refreshing provider data for component {component_id}: {e}")
+            logger.error(
+                f"Error refreshing provider data for component {component_id}: {e}"
+            )
             session.rollback()
         finally:
             session.close()
 
-    def export_bom_csv(self, bom_items: List[BOMItem]) -> str:
+    def export_bom_csv(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to CSV format"""
         output = io.StringIO()
         writer = csv.writer(output)
 
         # Write header
         headers = [
-            "Part Number", "Manufacturer", "Description", "Category",
-            "Quantity", "Unit Cost", "Total Cost", "Provider SKU",
-            "Provider", "Availability", "Provider URL"
+            "Part Number",
+            "Manufacturer",
+            "Description",
+            "Category",
+            "Quantity",
+            "Unit Cost",
+            "Total Cost",
+            "Provider SKU",
+            "Provider",
+            "Availability",
+            "Provider URL",
         ]
         writer.writerow(headers)
 
@@ -254,42 +301,48 @@ class BOMService:
                 data["provider_sku"] or "",
                 data["provider_name"] or "",
                 data["availability"] or "",
-                data["provider_url"] or ""
+                data["provider_url"] or "",
             ]
             writer.writerow(row)
 
         return output.getvalue()
 
-    def export_bom_json(self, bom_items: List[BOMItem]) -> str:
+    def export_bom_json(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to JSON format"""
         bom_data = {
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "total_items": len(bom_items),
-            "items": [item.to_dict() for item in bom_items]
+            "items": [item.to_dict() for item in bom_items],
         }
 
         # Calculate totals
-        total_cost = sum(
-            item.to_dict().get("total_cost", 0) or 0
-            for item in bom_items
-        )
+        total_cost = sum(item.to_dict().get("total_cost", 0) or 0 for item in bom_items)
         bom_data["total_cost"] = total_cost
 
         return json.dumps(bom_data, indent=2)
 
-    def export_bom_kicad(self, bom_items: List[BOMItem]) -> str:
+    def export_bom_kicad(self, bom_items: list[BOMItem]) -> str:
         """Export BOM to KiCad format"""
         output = io.StringIO()
 
         # KiCad BOM header
         output.write("# Bill of Materials\n")
-        output.write(f"# Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        output.write(
+            f"# Generated on {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}\n"
+        )
         output.write("#\n")
 
         # Tab-separated format for KiCad
         headers = [
-            "Reference", "Value", "Footprint", "Datasheet",
-            "Manufacturer", "MPN", "Supplier", "SPN", "Quantity"
+            "Reference",
+            "Value",
+            "Footprint",
+            "Datasheet",
+            "Manufacturer",
+            "MPN",
+            "Supplier",
+            "SPN",
+            "Quantity",
         ]
         output.write("\t".join(headers) + "\n")
 
@@ -304,13 +357,13 @@ class BOMService:
                 data["part_number"],  # MPN
                 data.get("provider_name", ""),  # Supplier
                 data.get("provider_sku", ""),  # SPN
-                str(data["quantity"])
+                str(data["quantity"]),
             ]
             output.write("\t".join(row) + "\n")
 
         return output.getvalue()
 
-    def calculate_bom_cost(self, bom_items: List[BOMItem]) -> Dict[str, Any]:
+    def calculate_bom_cost(self, bom_items: list[BOMItem]) -> dict[str, Any]:
         """Calculate total BOM cost and statistics"""
         total_cost = 0
         total_items = len(bom_items)
@@ -332,15 +385,17 @@ class BOMService:
             "total_items": total_items,
             "items_with_pricing": items_with_pricing,
             "items_with_availability": items_with_availability,
-            "pricing_coverage": items_with_pricing / total_items if total_items > 0 else 0,
-            "availability_coverage": items_with_availability / total_items if total_items > 0 else 0
+            "pricing_coverage": items_with_pricing / total_items
+            if total_items > 0
+            else 0,
+            "availability_coverage": items_with_availability / total_items
+            if total_items > 0
+            else 0,
         }
 
     async def export_bom(
-        self,
-        bom_items: List[BOMItem],
-        export_format: str = BOMExportFormat.CSV
-    ) -> Tuple[str, str]:
+        self, bom_items: list[BOMItem], export_format: str = BOMExportFormat.CSV
+    ) -> tuple[str, str]:
         """
         Export BOM in specified format.
 

@@ -68,7 +68,8 @@
           <!-- Components List -->
           <div v-else>
             <q-list separator>
-              <q-item v-for="component in components" :key="component.id" clickable
+              <q-item
+v-for="component in components" :key="component.id" clickable
                       :to="{ name: 'component-detail', params: { id: component.id } }"
                       :class="{
                         'depleted-item': component.quantity_on_hand === 0,
@@ -82,7 +83,8 @@
                 </q-item-section>
                 <q-item-section side>
                   <div class="text-right">
-                    <div class="text-body2 stock-quantity"
+                    <div
+class="text-body2 stock-quantity"
                          :class="{
                            'depleted-text': component.quantity_on_hand === 0,
                            'low-stock-text': component.quantity_on_hand > 0 && component.quantity_on_hand <= component.minimum_stock

@@ -3,14 +3,16 @@
 Add dummy data to test multi-location inventory functionality.
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(__file__))
 
-from sqlalchemy.orm import Session
-from src.database import get_session
-from src.models import Component, ComponentLocation, StorageLocation, Category
 import uuid
+
+from src.database import get_session
+from src.models import Component, ComponentLocation, StorageLocation
+
 
 def add_multi_location_data():
     """Add test data for multi-location inventory."""

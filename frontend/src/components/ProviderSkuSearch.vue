@@ -7,7 +7,7 @@
           Search for components using provider-specific SKUs (e.g., LCSC: C123456, Digi-Key: DK123456)
         </p>
 
-        <q-form @submit="searchBySku" class="q-gutter-md">
+        <q-form class="q-gutter-md" @submit="searchBySku">
           <q-input
             v-model="skuQuery"
             label="Provider SKU"
@@ -17,10 +17,10 @@
             :loading="loading"
             @keyup.enter="searchBySku"
           >
-            <template v-slot:prepend>
+            <template #prepend>
               <q-icon name="inventory_2" />
             </template>
-            <template v-slot:append>
+            <template #append>
               <q-btn
                 icon="search"
                 color="primary"
@@ -45,8 +45,8 @@
               label="Clear"
               color="grey"
               flat
-              @click="clearSearch"
               :disable="loading"
+              @click="clearSearch"
             />
           </div>
         </q-form>
@@ -61,10 +61,10 @@
             v-for="provider in providers"
             :key="provider"
             :model-value="selectedProviders.includes(provider)"
-            @update:model-value="toggleProvider(provider)"
             clickable
             :color="selectedProviders.includes(provider) ? 'primary' : 'grey-4'"
             :text-color="selectedProviders.includes(provider) ? 'white' : 'black'"
+            @update:model-value="toggleProvider(provider)"
           >
             {{ provider.toUpperCase() }}
           </q-chip>
@@ -123,7 +123,8 @@
                 </div>
 
                 <!-- Specifications -->
-                <div v-if="result.specifications && Object.keys(result.specifications).length > 0"
+                <div
+v-if="result.specifications && Object.keys(result.specifications).length > 0"
                      class="q-mt-md">
                   <q-expansion-item
                     label="Specifications"
@@ -140,7 +141,8 @@
                 </div>
 
                 <!-- Pricing -->
-                <div v-if="result.price_breaks && result.price_breaks.length > 0"
+                <div
+v-if="result.price_breaks && result.price_breaks.length > 0"
                      class="q-mt-md">
                   <q-expansion-item
                     label="Pricing"
@@ -164,8 +166,8 @@
                     label="Import Component"
                     color="primary"
                     size="sm"
-                    @click="importComponent(result, providerName)"
                     :loading="importing === `${providerName}-${result.provider_part_id}`"
+                    @click="importComponent(result, providerName)"
                   />
                   <q-btn
                     v-if="result.datasheet_url"

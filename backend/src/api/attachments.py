@@ -3,17 +3,18 @@ Nested attachments API endpoints for component file management.
 Implements nested routes under /api/v1/components/{component_id}/attachments
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+import uuid
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-import uuid
 
+from ..auth.dependencies import require_auth
 from ..database import get_db
 from ..services.attachment_service import AttachmentService
 from ..services.file_storage import file_storage
-from ..auth.dependencies import require_auth
+
 
 # Pydantic schemas
 class AttachmentResponse(BaseModel):
@@ -23,11 +24,11 @@ class AttachmentResponse(BaseModel):
     original_filename: str
     file_size: int
     mime_type: str
-    title: Optional[str] = None
-    description: Optional[str] = None
-    attachment_type: Optional[str] = None
+    title: str | None = None
+    description: str | None = None
+    attachment_type: str | None = None
     is_primary_image: bool = False
-    thumbnail_path: Optional[str] = None
+    thumbnail_path: str | None = None
     display_order: int = 0
     created_at: str
     updated_at: str
@@ -35,25 +36,29 @@ class AttachmentResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class AttachmentUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    attachment_type: Optional[str] = None
-    is_primary_image: Optional[bool] = None
-    display_order: Optional[int] = None
+    title: str | None = None
+    description: str | None = None
+    attachment_type: str | None = None
+    is_primary_image: bool | None = None
+    display_order: int | None = None
+
 
 class AttachmentListResponse(BaseModel):
-    attachments: List[AttachmentResponse]
+    attachments: list[AttachmentResponse]
     total: int
+
 
 router = APIRouter()
 
 
-@router.get("/api/v1/components/{component_id}/attachments", response_model=AttachmentListResponse, tags=["attachments"])
-def list_component_attachments(
-    component_id: str,
-    db: Session = Depends(get_db)
-):
+@router.get(
+    "/api/v1/components/{component_id}/attachments",
+    response_model=AttachmentListResponse,
+    tags=["attachments"],
+)
+def list_component_attachments(component_id: str, db: Session = Depends(get_db)):
     """List all attachments for a specific component."""
     try:
         uuid.UUID(component_id)
@@ -79,26 +84,31 @@ def list_component_attachments(
             "thumbnail_path": attachment.thumbnail_path,
             "display_order": attachment.display_order,
             "created_at": attachment.created_at.isoformat(),
-            "updated_at": attachment.updated_at.isoformat()
+            "updated_at": attachment.updated_at.isoformat(),
         }
         attachment_list.append(attachment_dict)
 
     return AttachmentListResponse(
-        attachments=attachment_list,
-        total=len(attachment_list)
+        attachments=attachment_list, total=len(attachment_list)
     )
 
-@router.post("/api/v1/components/{component_id}/attachments", response_model=AttachmentResponse, status_code=status.HTTP_201_CREATED, tags=["attachments"])
+
+@router.post(
+    "/api/v1/components/{component_id}/attachments",
+    response_model=AttachmentResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["attachments"],
+)
 async def upload_attachment(
     component_id: str,
     file: UploadFile = File(...),
-    title: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    attachment_type: Optional[str] = Form(None),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    attachment_type: str | None = Form(None),
     is_primary_image: bool = Form(False),
     display_order: int = Form(0),
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Upload a new attachment for a component."""
     try:
@@ -117,11 +127,17 @@ async def upload_attachment(
         file_content = await file.read()
 
         # Store file using FileStorageService
-        file_path, thumbnail_path, file_size, mime_type, safe_filename = file_storage.store_file(
+        (
+            file_path,
+            thumbnail_path,
+            file_size,
+            mime_type,
+            safe_filename,
+        ) = file_storage.store_file(
             component_id=component_id,
             file_content=file_content,
             filename=file.filename or "unknown",
-            attachment_type=attachment_type
+            attachment_type=attachment_type,
         )
 
         # Create attachment record
@@ -137,7 +153,7 @@ async def upload_attachment(
             "description": description,
             "attachment_type": attachment_type,
             "is_primary_image": is_primary_image,
-            "display_order": display_order
+            "display_order": display_order,
         }
 
         attachment = service.create_attachment(attachment_data)
@@ -156,19 +172,22 @@ async def upload_attachment(
             "thumbnail_path": attachment.thumbnail_path,
             "display_order": attachment.display_order,
             "created_at": attachment.created_at.isoformat(),
-            "updated_at": attachment.updated_at.isoformat()
+            "updated_at": attachment.updated_at.isoformat(),
         }
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Failed to upload file")
 
-@router.get("/api/v1/components/{component_id}/attachments/{attachment_id}", response_model=AttachmentResponse, tags=["attachments"])
+
+@router.get(
+    "/api/v1/components/{component_id}/attachments/{attachment_id}",
+    response_model=AttachmentResponse,
+    tags=["attachments"],
+)
 def get_attachment(
-    component_id: str,
-    attachment_id: str,
-    db: Session = Depends(get_db)
+    component_id: str, attachment_id: str, db: Session = Depends(get_db)
 ):
     """Get details of a specific attachment."""
     try:
@@ -197,16 +216,21 @@ def get_attachment(
         "thumbnail_path": attachment.thumbnail_path,
         "display_order": attachment.display_order,
         "created_at": attachment.created_at.isoformat(),
-        "updated_at": attachment.updated_at.isoformat()
+        "updated_at": attachment.updated_at.isoformat(),
     }
 
-@router.put("/api/v1/components/{component_id}/attachments/{attachment_id}", response_model=AttachmentResponse, tags=["attachments"])
+
+@router.put(
+    "/api/v1/components/{component_id}/attachments/{attachment_id}",
+    response_model=AttachmentResponse,
+    tags=["attachments"],
+)
 def update_attachment(
     component_id: str,
     attachment_id: str,
     attachment_update: AttachmentUpdate,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update attachment metadata."""
     try:
@@ -218,7 +242,9 @@ def update_attachment(
     service = AttachmentService(db)
 
     # Filter out None values
-    update_data = {k: v for k, v in attachment_update.model_dump().items() if v is not None}
+    update_data = {
+        k: v for k, v in attachment_update.model_dump().items() if v is not None
+    }
 
     if not update_data:
         raise HTTPException(status_code=422, detail="No data provided for update")
@@ -242,15 +268,20 @@ def update_attachment(
         "thumbnail_path": attachment.thumbnail_path,
         "display_order": attachment.display_order,
         "created_at": attachment.created_at.isoformat(),
-        "updated_at": attachment.updated_at.isoformat()
+        "updated_at": attachment.updated_at.isoformat(),
     }
 
-@router.delete("/api/v1/components/{component_id}/attachments/{attachment_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["attachments"])
+
+@router.delete(
+    "/api/v1/components/{component_id}/attachments/{attachment_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["attachments"],
+)
 def delete_attachment(
     component_id: str,
     attachment_id: str,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Delete an attachment and its associated files."""
     try:
@@ -275,11 +306,13 @@ def delete_attachment(
     if not success:
         raise HTTPException(status_code=404, detail="Attachment not found")
 
-@router.get("/api/v1/components/{component_id}/attachments/{attachment_id}/download", tags=["attachments"])
+
+@router.get(
+    "/api/v1/components/{component_id}/attachments/{attachment_id}/download",
+    tags=["attachments"],
+)
 def download_attachment(
-    component_id: str,
-    attachment_id: str,
-    db: Session = Depends(get_db)
+    component_id: str, attachment_id: str, db: Session = Depends(get_db)
 ):
     """Download the attachment file."""
     try:
@@ -302,14 +335,16 @@ def download_attachment(
     return FileResponse(
         path=str(file_path),
         filename=attachment.original_filename,
-        media_type=attachment.mime_type
+        media_type=attachment.mime_type,
     )
 
-@router.get("/api/v1/components/{component_id}/attachments/{attachment_id}/thumbnail", tags=["attachments"])
+
+@router.get(
+    "/api/v1/components/{component_id}/attachments/{attachment_id}/thumbnail",
+    tags=["attachments"],
+)
 def get_attachment_thumbnail(
-    component_id: str,
-    attachment_id: str,
-    db: Session = Depends(get_db)
+    component_id: str, attachment_id: str, db: Session = Depends(get_db)
 ):
     """Get thumbnail for an image attachment."""
     try:
@@ -325,24 +360,28 @@ def get_attachment_thumbnail(
         raise HTTPException(status_code=404, detail="Attachment not found")
 
     if not attachment.thumbnail_path:
-        raise HTTPException(status_code=404, detail="No thumbnail available for this attachment")
+        raise HTTPException(
+            status_code=404, detail="No thumbnail available for this attachment"
+        )
 
     thumbnail_path = file_storage.get_file_path(attachment.thumbnail_path)
 
     if not thumbnail_path.exists():
         raise HTTPException(status_code=404, detail="Thumbnail file not found on disk")
 
-    return FileResponse(
-        path=str(thumbnail_path),
-        media_type="image/jpeg"
-    )
+    return FileResponse(path=str(thumbnail_path), media_type="image/jpeg")
 
-@router.post("/api/v1/components/{component_id}/attachments/{attachment_id}/set-primary", response_model=AttachmentResponse, tags=["attachments"])
+
+@router.post(
+    "/api/v1/components/{component_id}/attachments/{attachment_id}/set-primary",
+    response_model=AttachmentResponse,
+    tags=["attachments"],
+)
 def set_primary_image(
     component_id: str,
     attachment_id: str,
     current_user=Depends(require_auth),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Set an image attachment as the primary image for the component."""
     try:
@@ -355,7 +394,9 @@ def set_primary_image(
     attachment = service.set_primary_image(attachment_id, component_id)
 
     if not attachment:
-        raise HTTPException(status_code=404, detail="Attachment not found or not an image")
+        raise HTTPException(
+            status_code=404, detail="Attachment not found or not an image"
+        )
 
     return {
         "id": attachment.id,
@@ -371,5 +412,5 @@ def set_primary_image(
         "thumbnail_path": attachment.thumbnail_path,
         "display_order": attachment.display_order,
         "created_at": attachment.created_at.isoformat(),
-        "updated_at": attachment.updated_at.isoformat()
+        "updated_at": attachment.updated_at.isoformat(),
     }

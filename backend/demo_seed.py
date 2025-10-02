@@ -4,10 +4,9 @@ Demo seed script for PartsHub - creates realistic demonstration data.
 Uses the component service to properly create data with all relationships.
 """
 
-import requests
-import json
 import time
-from typing import Dict, Any
+
+import requests
 
 BASE_URL = "http://localhost:8000/api/v1"
 
@@ -20,7 +19,7 @@ def wait_for_server():
             if response.status_code == 200:
                 print("✅ Server is ready!")
                 return True
-        except:
+        except (requests.RequestException, requests.Timeout):
             time.sleep(1)
     print("❌ Server not responding")
     return False
@@ -160,7 +159,7 @@ def create_tags():
 
     return created_tags
 
-def create_demo_components(categories: Dict[str, str], locations: Dict[str, str], tags: Dict[str, str]):
+def create_demo_components(categories: dict[str, str], locations: dict[str, str], tags: dict[str, str]):
     """Create demonstration components."""
     print("🔧 Creating demo components...")
 
@@ -431,7 +430,7 @@ def create_demo_projects():
         try:
             response = requests.post(f"{BASE_URL}/projects", json=project)
             if response.status_code == 201:
-                result = response.json()
+                response.json()
                 print(f"  ✅ Created project: {project['name']}")
             else:
                 print(f"  ❌ Failed to create {project['name']}: {response.text}")
@@ -463,10 +462,10 @@ def main():
     print(f"📦 Created {len(locations)} storage locations")
     print(f"🏷️ Created {len(tags)} tags")
     print(f"🔧 Created {len(components)} components")
-    print(f"📋 Created demo projects")
+    print("📋 Created demo projects")
     print("\n🚀 Your PartsHub demo is ready!")
     print("   Visit: http://localhost:3000")
-    print(f"   Admin login: admin / roUy5jBBQ4aRFEelXjjjAw")
+    print("   Admin login: admin / roUy5jBBQ4aRFEelXjjjAw")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,50 @@
+labels: ["idea", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Share an Idea 💡
+
+        Have an idea for improving PartsHub? Let's discuss it!
+
+        **This is for:**
+        - Brainstorming new features
+        - Discussing potential improvements
+        - Exploring different approaches to problems
+        - Community feedback on concepts
+
+        **Not for:** Formal feature requests (use Issues for those)
+
+  - type: textarea
+    attributes:
+      label: "Your Idea"
+      description: "What's your idea for improving PartsHub?"
+      placeholder: |
+        Describe your idea clearly:
+        - What problem does it solve?
+        - How would it work?
+        - Who would benefit?
+        - Any inspiration from other tools?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Use Cases & Examples"
+      description: "How would this idea be used in practice?"
+      placeholder: |
+        Provide specific examples:
+        - Describe a typical user workflow
+        - Show how this would improve current processes
+        - Include any mockups or sketches if you have them
+
+  - type: textarea
+    attributes:
+      label: "Discussion Points"
+      description: "What aspects would you like community input on?"
+      placeholder: |
+        Questions for the community:
+        - Should this work differently?
+        - Are there alternative approaches?
+        - What are the pros and cons?
+        - How does this fit with existing features?

@@ -42,7 +42,7 @@
         <q-space />
 
         <!-- Desktop User menu for authenticated users -->
-        <div class="q-mr-md" v-if="authStore.isAuthenticated && $q.screen.gt.sm">
+        <div v-if="authStore.isAuthenticated && $q.screen.gt.sm" class="q-mr-md">
           <q-btn-dropdown
             flat
             :label="authStore.user?.username || 'User'"
@@ -62,8 +62,8 @@
               <q-separator />
 
               <q-item
-                clickable
                 v-close-popup
+                clickable
                 @click="showPasswordChangeDialog = true"
               >
                 <q-item-section avatar>
@@ -74,8 +74,8 @@
 
               <q-item
                 v-if="authStore.isAdmin"
-                clickable
                 v-close-popup
+                clickable
                 @click="$router.push('/admin')"
               >
                 <q-item-section avatar>
@@ -85,8 +85,8 @@
               </q-item>
 
               <q-item
-                clickable
                 v-close-popup
+                clickable
                 @click="logout"
               >
                 <q-item-section avatar>
@@ -110,7 +110,7 @@
         </div>
 
         <!-- Desktop Login button for anonymous users -->
-        <div class="q-mr-md" v-if="!authStore.isAuthenticated && $q.screen.gt.sm">
+        <div v-if="!authStore.isAuthenticated && $q.screen.gt.sm" class="q-mr-md">
           <q-btn
             flat
             icon="login"
@@ -131,7 +131,7 @@
         </div>
 
         <!-- Version - hide on mobile -->
-        <div class="text-caption" v-if="$q.screen.gt.xs">v1.0.0</div>
+        <div v-if="$q.screen.gt.xs" class="text-caption">v1.0.0</div>
       </q-toolbar>
     </q-header>
 
@@ -152,10 +152,10 @@
         <q-item
           v-for="link in visibleLinks"
           :key="link.title"
-          clickable
           v-ripple
-          @click="navigateAndCloseDrawer(link.link)"
+          clickable
           :active="currentTab === link.link"
+          @click="navigateAndCloseDrawer(link.link)"
         >
           <q-item-section avatar>
             <q-icon :name="link.icon" />
@@ -190,8 +190,8 @@
         <q-separator />
 
         <q-item
-          clickable
           v-ripple
+          clickable
           @click="showPasswordChangeDialog = true; rightDrawerOpen = false"
         >
           <q-item-section avatar>
@@ -202,8 +202,8 @@
 
         <q-item
           v-if="authStore.isAdmin"
-          clickable
           v-ripple
+          clickable
           @click="navigateAndCloseDrawer('/admin')"
         >
           <q-item-section avatar>
@@ -213,8 +213,8 @@
         </q-item>
 
         <q-item
-          clickable
           v-ripple
+          clickable
           @click="logout; rightDrawerOpen = false"
         >
           <q-item-section avatar>

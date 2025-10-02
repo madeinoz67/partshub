@@ -3,9 +3,9 @@ Contract test for GET /api/v1/components/{id}
 Tests component details endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestComponentsGetContract:
@@ -31,12 +31,30 @@ class TestComponentsGetContract:
 
             # Test complete component structure
             required_fields = [
-                "id", "name", "part_number", "manufacturer", "category",
-                "storage_location", "component_type", "value", "voltage_rating",
-                "tolerance", "package", "quantity_on_hand", "quantity_ordered",
-                "minimum_stock", "average_purchase_price", "total_purchase_value",
-                "notes", "specifications", "custom_fields", "provider_data",
-                "tags", "attachments", "created_at", "updated_at"
+                "id",
+                "name",
+                "part_number",
+                "manufacturer",
+                "category",
+                "storage_location",
+                "component_type",
+                "value",
+                "voltage_rating",
+                "tolerance",
+                "package",
+                "quantity_on_hand",
+                "quantity_ordered",
+                "minimum_stock",
+                "average_purchase_price",
+                "total_purchase_value",
+                "notes",
+                "specifications",
+                "custom_fields",
+                "provider_data",
+                "tags",
+                "attachments",
+                "created_at",
+                "updated_at",
             ]
 
             for field in required_fields:
@@ -96,10 +114,16 @@ class TestComponentsGetContract:
             data = response.json()
 
             # specifications should be a dict/object or null
-            assert data["specifications"] is None or isinstance(data["specifications"], dict)
+            assert data["specifications"] is None or isinstance(
+                data["specifications"], dict
+            )
 
             # custom_fields should be a dict/object or null
-            assert data["custom_fields"] is None or isinstance(data["custom_fields"], dict)
+            assert data["custom_fields"] is None or isinstance(
+                data["custom_fields"], dict
+            )
 
             # provider_data should be a dict/object or null
-            assert data["provider_data"] is None or isinstance(data["provider_data"], dict)
+            assert data["provider_data"] is None or isinstance(
+                data["provider_data"], dict
+            )

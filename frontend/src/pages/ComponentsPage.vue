@@ -43,13 +43,13 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn v-close-popup flat label="Cancel" color="primary" />
           <q-btn
             flat
             label="Delete"
             color="negative"
-            @click="confirmDelete"
             :loading="deleteLoading"
+            @click="confirmDelete"
           />
         </q-card-actions>
       </q-card>
@@ -114,7 +114,7 @@ const deleteComponent = (component: Component) => {
   showDeleteDialog.value = true
 }
 
-const onComponentSaved = (component: Component) => {
+const onComponentSaved = (_component: Component) => {
   $q.notify({
     type: 'positive',
     message: isEditMode.value ? 'Component updated successfully' : 'Component created successfully',

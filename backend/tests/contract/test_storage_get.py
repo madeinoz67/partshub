@@ -3,9 +3,9 @@ Contract test for GET /api/v1/storage-locations/{id}
 Tests storage location details endpoint according to OpenAPI specification
 """
 
-import pytest
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 
 class TestStorageGetContract:
@@ -32,8 +32,15 @@ class TestStorageGetContract:
 
             # Required fields for StorageLocation
             required_fields = [
-                "id", "name", "description", "type", "location_hierarchy",
-                "parent_id", "qr_code_id", "created_at", "updated_at"
+                "id",
+                "name",
+                "description",
+                "type",
+                "location_hierarchy",
+                "parent_id",
+                "qr_code_id",
+                "created_at",
+                "updated_at",
             ]
 
             for field in required_fields:
@@ -47,7 +54,15 @@ class TestStorageGetContract:
                 assert isinstance(data["parent_id"], str)
 
             # Validate type enum
-            assert data["type"] in ["container", "room", "building", "cabinet", "drawer", "shelf", "bin"]
+            assert data["type"] in [
+                "container",
+                "room",
+                "building",
+                "cabinet",
+                "drawer",
+                "shelf",
+                "bin",
+            ]
 
             # Validate strings
             assert isinstance(data["name"], str)
@@ -59,7 +74,9 @@ class TestStorageGetContract:
         """Test getting storage location with child locations"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}?include_children=true")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}?include_children=true"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -82,7 +99,9 @@ class TestStorageGetContract:
         """Test getting storage location with component count"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}?include_component_count=true")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}?include_component_count=true"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -99,7 +118,9 @@ class TestStorageGetContract:
         """Test getting storage location with full hierarchy path"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}?include_full_hierarchy=true")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}?include_full_hierarchy=true"
+        )
 
         # This will fail until endpoint is implemented
         assert response.status_code in [200, 404]
@@ -162,14 +183,18 @@ class TestStorageGetContract:
         """Test that location_hierarchy string matches actual hierarchy"""
         location_id = str(uuid.uuid4())
 
-        response = client.get(f"/api/v1/storage-locations/{location_id}?include_full_hierarchy=true")
+        response = client.get(
+            f"/api/v1/storage-locations/{location_id}?include_full_hierarchy=true"
+        )
 
         if response.status_code == 200:
             data = response.json()
 
             if "full_hierarchy_path" in data and data["full_hierarchy_path"]:
                 # Build expected hierarchy string from path
-                expected_hierarchy = "/".join([ancestor["name"] for ancestor in data["full_hierarchy_path"]])
+                expected_hierarchy = "/".join(
+                    [ancestor["name"] for ancestor in data["full_hierarchy_path"]]
+                )
                 expected_hierarchy += f"/{data['name']}"
 
                 assert data["location_hierarchy"] == expected_hierarchy
@@ -201,7 +226,9 @@ class TestStorageGetContract:
 
             if data["parent_id"]:
                 # Parent should be accessible
-                parent_response = client.get(f"/api/v1/storage-locations/{data['parent_id']}")
+                parent_response = client.get(
+                    f"/api/v1/storage-locations/{data['parent_id']}"
+                )
                 # Parent should exist (though this test might fail in isolated testing)
                 # This is more of a consistency check
                 assert parent_response.status_code in [200, 404]

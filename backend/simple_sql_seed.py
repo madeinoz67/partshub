@@ -7,6 +7,7 @@ import sqlite3
 import uuid
 from datetime import datetime
 
+
 def create_test_data():
     """Create basic test data using direct SQL."""
 
