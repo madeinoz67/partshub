@@ -123,3 +123,6 @@ nav:
       - developer/index.md
       - Workflows: developer/workflows.md
       - Session Notes (2025-09-27): developer/session-notes-2025-09-27.md
+  - Releases:
+      - releases/v0.1.0.md
+      - Changelog: CHANGELOG.md
