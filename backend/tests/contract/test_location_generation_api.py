@@ -429,8 +429,8 @@ class TestBulkCreateLayoutContract:
             headers=auth_headers,
         )
 
-        # Should return success=False with error message
-        assert response2.status_code == 201, "Returns 201 but with success=False"
+        # Should return 409 Conflict for duplicates
+        assert response2.status_code == 409, "Returns 409 Conflict for duplicates"
         data2 = response2.json()
         assert data2["success"] is False, "Expected success=False for duplicates"
         assert data2["created_count"] == 0, "Expected no locations created"
@@ -585,8 +585,8 @@ class TestBulkCreateLayoutContract:
             headers=auth_headers,
         )
 
-        # Should return 201 with success=False and error
-        assert response.status_code == 201, "Returns 201 with error response"
+        # Should return 400 Bad Request for exceeding limit
+        assert response.status_code == 400, "Returns 400 Bad Request for limit exceeded"
         data = response.json()
         assert data["success"] is False, "Should fail validation"
         assert data["created_count"] == 0, "Should not create any locations"
@@ -637,8 +637,8 @@ class TestBulkCreateLayoutContract:
             headers=auth_headers,
         )
 
-        # Should fail with error (service layer validation)
-        assert response.status_code == 201, "Returns 201 with error response"
+        # Should fail with 404 Not Found for nonexistent parent
+        assert response.status_code == 404, "Returns 404 Not Found for nonexistent parent"
         data = response.json()
         assert data["success"] is False, "Should fail with nonexistent parent"
         assert data["created_count"] == 0, "Should not create any locations"
