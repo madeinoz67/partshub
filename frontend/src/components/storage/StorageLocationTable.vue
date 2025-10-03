@@ -1,5 +1,15 @@
 <template>
   <div class="storage-location-table">
+    <!-- Barcode Scanner Component -->
+    <div v-if="showBarcodeScanner" class="q-mb-sm">
+      <BarcodeScanner
+        ref="barcodeScannerRef"
+        class="barcode-scanner-compact"
+        @scan-result="handleBarcodeScanned"
+        @close-scanner="closeBarcodeScanner"
+      />
+    </div>
+
     <!-- Search Bar and Action Buttons -->
     <div class="row q-gutter-sm items-center q-mb-md">
       <div class="col-md-4 col-xs-12">
@@ -8,11 +18,30 @@
           outlined
           dense
           placeholder="Search locations..."
-          clearable
           data-testid="location-search"
         >
           <template #prepend>
             <q-icon name="search" />
+          </template>
+          <template #append>
+            <q-btn
+              v-if="!searchQuery"
+              icon="qr_code_scanner"
+              flat
+              round
+              dense
+              color="primary"
+              class="q-mr-xs"
+              @click="openBarcodeScanner"
+            >
+              <q-tooltip>Scan QR code to search locations</q-tooltip>
+            </q-btn>
+            <q-icon
+              v-if="searchQuery"
+              name="clear"
+              class="cursor-pointer"
+              @click="clearSearch"
+            />
           </template>
         </q-input>
       </div>
@@ -208,12 +237,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
+import { useQuasar } from 'quasar'
 import QrcodeVue from 'qrcode.vue'
+import BarcodeScanner from '../BarcodeScanner.vue'
 import type { StorageLocation } from '../../services/api'
 import type { QTableColumn } from 'quasar'
 import { useAuth } from '../../composables/useAuth'
 
+interface ScanResult {
+  data: string
+  format: string
+  timestamp: Date
+}
+
+const $q = useQuasar()
 const { canPerformCrud } = useAuth()
 
 interface Props {
@@ -230,6 +268,7 @@ const emit = defineEmits<{
   locationSelected: [location: StorageLocation]
   editLocation: [location: StorageLocation]
   createBulkLocations: []
+  scanResult: [result: ScanResult]
 }>()
 
 // Expanded rows state (only one row can be expanded at a time)
@@ -237,6 +276,10 @@ const expanded = ref<string[]>([])
 
 // Search query for filtering locations
 const searchQuery = ref('')
+
+// Barcode scanner state
+const showBarcodeScanner = ref(false)
+const barcodeScannerRef = ref()
 
 // Filtered locations based on search query
 const filteredLocations = computed(() => {
@@ -341,20 +384,6 @@ const formatDate = (dateString: string): string => {
   return `${year}-${month}-${day} ${hours}:${minutes}`
 }
 
-// Location type icon mapping
-const getLocationIcon = (type: string): string => {
-  const iconMap: Record<string, string> = {
-    building: 'domain',
-    room: 'room',
-    cabinet: 'inventory_2',
-    shelf: 'shelves',
-    drawer: 'inbox',
-    bin: 'archive',
-    container: 'storage'
-  }
-  return iconMap[type] || 'folder'
-}
-
 // Get parent location name from parent_id
 const getParentLocationName = (location: StorageLocation): string | null => {
   if (!location.parent_id) return null
@@ -369,6 +398,56 @@ const getQRCodeValue = (location: StorageLocation): string => {
   // Generate a URL that could be scanned to navigate to this location
   // Format: partshub://location/{id} or use the qr_code_id
   return location.qr_code_id || location.id
+}
+
+// Barcode scanner functions
+const openBarcodeScanner = () => {
+  showBarcodeScanner.value = true
+  // Give Vue time to render the component before starting scanner
+  nextTick(() => {
+    if (barcodeScannerRef.value) {
+      barcodeScannerRef.value.startScanning()
+    }
+  })
+}
+
+const closeBarcodeScanner = () => {
+  if (barcodeScannerRef.value) {
+    barcodeScannerRef.value.stopScanning()
+  }
+  // Completely hide the scanner component
+  showBarcodeScanner.value = false
+}
+
+const clearSearch = () => {
+  searchQuery.value = ''
+}
+
+const handleBarcodeScanned = (scanResult: ScanResult) => {
+  if (scanResult && scanResult.data) {
+    // Completely close the scanner first
+    closeBarcodeScanner()
+
+    // Set the search query from barcode (this will trigger filtering)
+    searchQuery.value = scanResult.data
+
+    // Use nextTick to ensure the search query has been updated and filtering has occurred
+    nextTick(() => {
+      // Emit the scan result to parent for location lookup
+      emit('scanResult', scanResult)
+
+      // Check if location was found in filtered results
+      const foundInResults = filteredLocations.value.length > 0
+
+      $q.notify({
+        type: foundInResults ? 'positive' : 'warning',
+        message: foundInResults
+          ? `QR code scanned: ${scanResult.data}`
+          : `No location found for QR code: ${scanResult.data}`,
+        timeout: 2000
+      })
+    })
+  }
 }
 </script>
 
@@ -563,6 +642,24 @@ const getQRCodeValue = (location: StorageLocation): string => {
         background-color: rgba(0, 0, 0, 0.05);
       }
     }
+  }
+}
+
+/* Responsive barcode scanner sizing */
+.barcode-scanner-compact {
+  max-width: 100%;
+}
+
+/* Make scanner more compact on medium and larger screens */
+@media (min-width: 768px) {
+  .barcode-scanner-compact :deep(.scanner-container) {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .barcode-scanner-compact :deep(.camera-video) {
+    max-height: 300px;
+    object-fit: cover;
   }
 }
 </style>

@@ -22,16 +22,6 @@
 
     <!-- Table View -->
     <div v-if="viewMode === 'table'">
-      <!-- QR Code Scanner (constrained width on larger screens) -->
-      <div class="q-mb-md">
-        <div class="scanner-container-responsive">
-          <BarcodeScanner
-            @scan-result="onQRCodeScanned"
-            @close-scanner="closeBarcodeScanner"
-          />
-        </div>
-      </div>
-
       <q-card>
         <q-card-section>
           <StorageLocationTable
@@ -42,6 +32,7 @@
             @location-selected="onLocationSelected"
             @edit-location="editLocation"
             @create-bulk-locations="openLayoutDialog"
+            @scan-result="onQRCodeScanned"
           />
         </q-card-section>
       </q-card>
@@ -240,7 +231,6 @@ import StorageLocationTree from '../components/StorageLocationTree.vue'
 import StorageLocationForm from '../components/StorageLocationForm.vue'
 import LocationLayoutDialog from '../components/storage/LocationLayoutDialog.vue'
 import StorageLocationTable from '../components/storage/StorageLocationTable.vue'
-import BarcodeScanner from '../components/BarcodeScanner.vue'
 import { useStorageStore } from '../stores/storage'
 import { useAuth } from '../composables/useAuth'
 import type { StorageLocation, Component } from '../services/api'
@@ -483,45 +473,12 @@ const onQRCodeScanned = (result: ScanResult) => {
   )
 
   if (foundLocation) {
-    // Location found - select it and show notification
+    // Location found - select it
     onLocationSelected(foundLocation)
 
-    $q.notify({
-      type: 'positive',
-      message: `Found location: ${foundLocation.name}`,
-      position: 'top-right'
-    })
+    // Show notification - already shown in StorageLocationTable
   } else {
-    // Location not found
-    $q.notify({
-      type: 'warning',
-      message: `No location found for QR code: ${qrCode}`,
-      position: 'top-right'
-    })
+    // Location not found - notification already shown in StorageLocationTable
   }
-}
-
-const closeBarcodeScanner = () => {
-  // Scanner closed - nothing special to do
 }
 </script>
-
-<style scoped lang="scss">
-// Constrain scanner width on medium and large displays to match mobile size
-.scanner-container-responsive {
-  width: 100%;
-  max-width: 100%;
-
-  // Medium screens and up (tablets)
-  @media (min-width: 768px) {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  // Large screens (desktop)
-  @media (min-width: 1024px) {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-}
-</style>
