@@ -488,21 +488,6 @@ const filterComponents = () => {
   loadComponents()
 }
 
-const clearFilters = () => {
-  searchQuery.value = ''
-  selectedCategory.value = null
-  selectedLocation.value = null
-  selectedType.value = null
-  stockStatus.value = null
-  minQuantity.value = null
-  maxQuantity.value = null
-  manufacturer.value = ''
-  packageFilter.value = ''
-  showAdvancedFilters.value = false
-  currentPage.value = 1
-  loadComponents()
-}
-
 // Barcode scanner functions
 const openBarcodeScanner = () => {
   showBarcodeDialog.value = true

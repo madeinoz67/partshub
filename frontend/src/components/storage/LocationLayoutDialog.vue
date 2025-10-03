@@ -156,18 +156,37 @@ const props = withDefaults(defineProps<Props>(), {
   parentLocationOptions: () => []
 })
 
+interface CreateResponse {
+  created_count: number
+  locations: Array<{ id: string; name: string }>
+}
+
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  'created': [response: any]
+  'created': [response: CreateResponse]
 }>()
 
 const $q = useQuasar()
 
+interface RangeSpec {
+  range_type: 'letters' | 'numbers'
+  start: string | number
+  end: string | number
+  capitalize?: boolean
+  zero_pad?: boolean
+}
+
+interface LayoutConfig {
+  prefix: string
+  ranges: RangeSpec[]
+  separators: string[]
+}
+
 const selectedLayoutType = ref<'single' | 'row' | 'grid' | 'grid_3d'>('single')
-const layoutConfig = ref({
+const layoutConfig = ref<LayoutConfig>({
   prefix: '',
-  ranges: [] as any[],
-  separators: [] as string[]
+  ranges: [],
+  separators: []
 })
 const locationType = ref('bin')
 const parentLocationId = ref<string | null>(null)
@@ -193,7 +212,7 @@ const onLayoutTypeChange = () => {
   previewData.value = null
 }
 
-const onConfigChange = (config: any) => {
+const onConfigChange = (config: LayoutConfig) => {
   layoutConfig.value = config
 
   // Clear existing preview (will be refetched with debounce)
@@ -229,10 +248,13 @@ const fetchPreview = async () => {
     }
 
     previewData.value = await locationLayoutService.generatePreview(config)
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error && 'response' in error
+      ? (error.response as { data?: { detail?: string } })?.data?.detail
+      : 'Failed to generate preview'
     $q.notify({
       type: 'negative',
-      message: error.response?.data?.detail || 'Failed to generate preview',
+      message: errorMessage,
       position: 'top-right'
     })
   } finally {
@@ -268,10 +290,13 @@ const createLocations = async () => {
 
     emit('created', response)
     closeDialog()
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error && 'response' in error
+      ? (error.response as { data?: { detail?: string } })?.data?.detail
+      : 'Failed to create locations'
     $q.notify({
       type: 'negative',
-      message: error.response?.data?.detail || 'Failed to create locations',
+      message: errorMessage,
       position: 'top-right'
     })
   } finally {

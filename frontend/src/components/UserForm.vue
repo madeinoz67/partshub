@@ -240,11 +240,12 @@ async function handleSubmit() {
   saving.value = true
 
   try {
-    const userData: any = {
+    const userData: Partial<User> & { password?: string } = {
       username: formData.value.username,
       full_name: formData.value.full_name,
       is_admin: formData.value.role === 'admin', // Convert role string to is_admin boolean
-      is_active: formData.value.is_active
+      is_active: formData.value.is_active,
+      must_change_password: formData.value.require_password_change
     }
 
     if (!isEditing.value) {

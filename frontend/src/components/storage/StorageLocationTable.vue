@@ -70,8 +70,8 @@
       @row-click="onRowClick"
     >
       <!-- Custom Body with Expandable Rows -->
-      <template #body="props">
-        <q-tr :props="props">
+      <template #body="bodyProps">
+        <q-tr :props="bodyProps">
           <q-td style="padding: 0 !important; width: 1% !important;">
             <q-btn
               flat
@@ -80,51 +80,51 @@
               size="sm"
               color="accent"
               style="margin: 2px;"
-              :icon="expanded.includes(props.row.id) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
-              @click.stop="toggleExpand(props.row.id)"
+              :icon="expanded.includes(bodyProps.row.id) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
+              @click.stop="toggleExpand(bodyProps.row.id)"
             />
           </q-td>
-          <q-td key="location" :props="props">
+          <q-td key="location" :props="bodyProps">
             <div class="row items-center q-gutter-xs">
               <q-icon
-                :name="getLocationIcon(props.row.type)"
-                :color="getLocationColor(props.row.type)"
+                :name="getLocationIcon(bodyProps.row.type)"
+                :color="getLocationColor(bodyProps.row.type)"
                 size="18px"
               />
-              <div class="text-weight-medium">{{ props.row.name }}</div>
+              <div class="text-weight-medium">{{ bodyProps.row.name }}</div>
             </div>
           </q-td>
-          <q-td key="last_used" :props="props">
-            <span v-if="props.row.last_used_at">{{ formatDate(props.row.last_used_at) }}</span>
+          <q-td key="last_used" :props="bodyProps">
+            <span v-if="bodyProps.row.last_used_at">{{ formatDate(bodyProps.row.last_used_at) }}</span>
             <span v-else class="text-grey-5">—</span>
           </q-td>
-          <q-td key="part_count" :props="props">
+          <q-td key="part_count" :props="bodyProps">
             <q-chip
-              :color="props.row.component_count > 0 ? 'primary' : 'grey-4'"
-              :text-color="props.row.component_count > 0 ? 'white' : 'grey-7'"
+              :color="bodyProps.row.component_count > 0 ? 'primary' : 'grey-4'"
+              :text-color="bodyProps.row.component_count > 0 ? 'white' : 'grey-7'"
               size="sm"
             >
-              {{ props.row.component_count || 0 }}
+              {{ bodyProps.row.component_count || 0 }}
             </q-chip>
           </q-td>
-          <q-td key="description" :props="props">
-            <div v-if="props.row.description" class="ellipsis" style="max-width: 300px">
-              {{ props.row.description }}
+          <q-td key="description" :props="bodyProps">
+            <div v-if="bodyProps.row.description" class="ellipsis" style="max-width: 300px">
+              {{ bodyProps.row.description }}
             </div>
             <span v-else class="text-grey-5">—</span>
           </q-td>
         </q-tr>
 
         <!-- Expanded Details Row -->
-        <q-tr v-if="expanded.includes(props.row.id)" :props="props">
+        <q-tr v-if="expanded.includes(bodyProps.row.id)" :props="bodyProps">
           <q-td colspan="100%" class="bg-grey-1">
             <div class="q-pa-lg">
               <!-- Header with location name and icon -->
               <div class="row items-center q-mb-lg">
                 <q-icon name="archive" size="32px" color="primary" class="q-mr-md" />
                 <div class="text-h5">
-                  Storage location: {{ props.row.name }}
-                  <span class="text-grey-7">(parts: {{ props.row.component_count || 0 }})</span>
+                  Storage location: {{ bodyProps.row.name }}
+                  <span class="text-grey-7">(parts: {{ bodyProps.row.component_count || 0 }})</span>
                 </div>
                 <q-space />
                 <q-btn
@@ -132,7 +132,7 @@
                   color="primary"
                   icon="edit"
                   label="Edit"
-                  @click="emit('editLocation', props.row)"
+                  @click="emit('editLocation', bodyProps.row)"
                 />
               </div>
 
@@ -151,46 +151,46 @@
                         <!-- Storage location name -->
                         <div class="col-12 col-md-6">
                           <div class="text-caption text-grey-7">Storage location name:</div>
-                          <div class="text-body1">{{ props.row.name }}</div>
+                          <div class="text-body1">{{ bodyProps.row.name }}</div>
                         </div>
 
                         <!-- Physical Location (Parent) -->
                         <div class="col-12 col-md-6">
                           <div class="text-caption text-grey-7">Physical Location:</div>
-                          <div class="text-body1">{{ getParentLocationName(props.row) || '—' }}</div>
+                          <div class="text-body1">{{ getParentLocationName(bodyProps.row) || '—' }}</div>
                         </div>
 
                         <!-- Type -->
                         <div class="col-12 col-md-6">
                           <div class="text-caption text-grey-7">Location Type:</div>
-                          <div class="text-body1">{{ props.row.type }}</div>
+                          <div class="text-body1">{{ bodyProps.row.type }}</div>
                         </div>
 
                         <!-- QR Code ID -->
                         <div class="col-12 col-md-6">
                           <div class="text-caption text-grey-7">QR Code ID:</div>
-                          <div class="text-body1">{{ props.row.qr_code_id || '—' }}</div>
+                          <div class="text-body1">{{ bodyProps.row.qr_code_id || '—' }}</div>
                         </div>
 
                         <!-- Description -->
                         <div class="col-12">
                           <div class="text-caption text-grey-7">Description:</div>
-                          <div class="text-body1">{{ props.row.description || '—' }}</div>
+                          <div class="text-body1">{{ bodyProps.row.description || '—' }}</div>
                         </div>
                       </div>
                     </div>
 
                     <!-- Right column with QR code -->
-                    <div v-if="props.row.qr_code_id" class="col-12 col-md-4 flex flex-center">
+                    <div v-if="bodyProps.row.qr_code_id" class="col-12 col-md-4 flex flex-center">
                       <div class="text-center">
                         <div class="text-caption text-grey-7 q-mb-sm">QR Code</div>
                         <QrcodeVue
-                          :value="getQRCodeValue(props.row)"
+                          :value="getQRCodeValue(bodyProps.row)"
                           :size="150"
                           level="H"
                           render-as="svg"
                         />
-                        <div class="text-caption text-grey-7 q-mt-xs">{{ props.row.qr_code_id }}</div>
+                        <div class="text-caption text-grey-7 q-mt-xs">{{ bodyProps.row.qr_code_id }}</div>
                       </div>
                     </div>
                   </div>
@@ -205,7 +205,7 @@
                     Parts stored in this location
                   </div>
 
-                  <div v-if="props.row.component_count === 0" class="row items-center q-pa-md bg-blue-1 rounded-borders">
+                  <div v-if="bodyProps.row.component_count === 0" class="row items-center q-pa-md bg-blue-1 rounded-borders">
                     <q-icon name="info" size="48px" color="blue-7" class="q-mr-md" />
                     <div>
                       <div class="text-subtitle1 text-weight-medium">Storage location is empty</div>
@@ -214,7 +214,7 @@
                   </div>
 
                   <div v-else class="text-body2 text-grey-7">
-                    {{ props.row.component_count }} part{{ props.row.component_count !== 1 ? 's' : '' }} stored here
+                    {{ bodyProps.row.component_count }} part{{ bodyProps.row.component_count !== 1 ? 's' : '' }} stored here
                     <div class="text-caption q-mt-sm">Click "Go to storage location" above to view and manage parts</div>
                   </div>
                 </q-card-section>

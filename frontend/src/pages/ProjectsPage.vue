@@ -895,14 +895,6 @@
     loadProjects()
   }
 
-  const clearFilters = () => {
-    searchQuery.value = ''
-    selectedStatus.value = null
-    activeFilter.value = 'all'
-    tablePagination.value.page = 1
-    loadProjects()
-  }
-
   const filterByStatus = (status) => {
     activeFilter.value = status
     if (status === 'all') {
