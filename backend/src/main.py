@@ -5,6 +5,7 @@ Main FastAPI application entry point
 
 import os
 from contextlib import asynccontextmanager
+from importlib.metadata import version
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -96,10 +97,16 @@ async def lifespan(app: FastAPI):
     # Add any cleanup code here
 
 
+# Get version from pyproject.toml
+try:
+    __version__ = version("partshub")
+except Exception:
+    __version__ = "0.1.0"  # Fallback version
+
 app = FastAPI(
     title="PartsHub API",
     description="Electronic parts inventory management system",
-    version="0.1.0",
+    version=__version__,
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
