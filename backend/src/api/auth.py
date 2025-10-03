@@ -149,6 +149,18 @@ async def get_current_user_info(
 
 
 # Admin-only endpoints
+@router.get("/users", response_model=list[UserResponse])
+async def list_users(
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """List all users (admin only)."""
+    from ..models.user import User
+
+    users = db.query(User).all()
+    return users
+
+
 @router.post("/users", response_model=UserResponse)
 async def create_new_user(
     user_data: UserCreate,
