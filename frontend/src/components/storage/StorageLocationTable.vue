@@ -233,10 +233,12 @@
 
       <!-- Empty State -->
       <template #no-data>
-        <div class="full-width column flex-center q-pa-xl">
-          <q-icon name="inventory_2" size="4em" color="grey-4" />
-          <div class="text-h6 text-grey-6 q-mt-md">No storage locations</div>
-          <div class="text-grey-5">Create your first location to get started</div>
+        <div class="full-width row flex-center text-center q-py-xl">
+          <div>
+            <q-icon name="folder_open" size="80px" color="grey-4" />
+            <div class="text-h6 text-grey-6 q-mt-md">No storage locations found</div>
+            <div class="text-body2 text-grey-5 q-mt-sm">Create your first location to get started</div>
+          </div>
         </div>
       </template>
     </q-table>

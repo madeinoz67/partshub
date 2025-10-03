@@ -11,13 +11,6 @@
         </div>
         <div v-if="canPerformCrud()" class="col-auto">
           <q-btn
-            color="primary"
-            icon="add"
-            label="New Project"
-            class="q-mr-sm"
-            @click="showCreateDialog = true"
-          />
-          <q-btn
             color="secondary"
             icon="analytics"
             label="Reports"
@@ -216,6 +209,20 @@
           dense
           @request="onTableRequest"
         >
+          <!-- Empty State -->
+          <template #no-data>
+            <div class="full-width row flex-center text-center q-py-xl">
+              <div>
+                <q-icon name="folder_open" size="80px" color="grey-4" />
+                <div class="text-h6 text-grey-6 q-mt-md">
+                  {{ hasActiveFilters ? 'No projects match your filters' : 'No projects found' }}
+                </div>
+                <div class="text-body2 text-grey-5 q-mt-sm">
+                  {{ hasActiveFilters ? 'Try adjusting your search criteria' : 'Create your first project to get started' }}
+                </div>
+              </div>
+            </div>
+          </template>
           <!-- Use body slot for internal expansion model -->
           <template #body="props">
             <!-- Regular row -->
@@ -560,39 +567,6 @@
             </q-card-actions>
           </q-card>
         </div>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center q-py-lg">
-        <q-spinner size="50px" color="primary" />
-        <div class="text-subtitle2 q-mt-md">Loading projects...</div>
-      </div>
-
-      <!-- Empty State -->
-      <div v-if="!loading && projects.length === 0" class="text-center q-py-xl">
-        <q-icon name="folder_open" size="80px" color="grey-4" />
-        <div class="text-h6 text-grey-6 q-mt-md">
-          {{ hasActiveFilters ? 'No projects match your filters' : 'No projects found' }}
-        </div>
-        <div class="text-body2 text-grey-5 q-mt-sm">
-          {{ hasActiveFilters ? 'Try adjusting your search criteria' : 'Create your first project to get started' }}
-        </div>
-        <q-btn
-          v-if="!hasActiveFilters"
-          color="primary"
-          icon="add"
-          label="New Project"
-          class="q-mt-md"
-          @click="showCreateDialog = true"
-        />
-        <q-btn
-          v-else
-          flat
-          color="primary"
-          label="Clear Filters"
-          class="q-mt-md"
-          @click="clearFilters"
-        />
       </div>
 
     </div>

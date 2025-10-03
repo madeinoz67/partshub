@@ -78,9 +78,12 @@
       </template>
 
       <template #no-data>
-        <div class="full-width row flex-center q-gutter-sm text-grey-6">
-          <q-icon size="2em" name="key_off" />
-          <span>No API tokens found</span>
+        <div class="full-width row flex-center text-center q-py-xl">
+          <div>
+            <q-icon name="key_off" size="80px" color="grey-4" />
+            <div class="text-h6 text-grey-6 q-mt-md">No API tokens found</div>
+            <div class="text-body2 text-grey-5 q-mt-sm">Create your first token to get started</div>
+          </div>
         </div>
       </template>
     </q-table>
