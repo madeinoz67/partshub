@@ -170,14 +170,14 @@ const rangeTypeOptions = [
 ]
 
 const config = ref<LayoutConfig>({
-  prefix: '',
+  prefix: 'Box-',
   ranges: [],
   separators: []
 })
 
 const rangeErrors = ref<string[]>([])
 
-// Initialize ranges based on layout type
+// Initialize ranges based on layout type with PartsBox-style defaults
 const initializeRanges = () => {
   const rangeCount = props.layoutType === 'single' ? 0 :
                      props.layoutType === 'row' ? 1 :
@@ -185,8 +185,8 @@ const initializeRanges = () => {
 
   config.value.ranges = Array.from({ length: rangeCount }, () => ({
     range_type: 'letters' as const,
-    start: '',
-    end: '',
+    start: 'a',
+    end: 'f',
     capitalize: false
   }))
 
@@ -212,14 +212,15 @@ const getRangeLabel = (index: number): string => {
 const onRangeTypeChange = (index: number) => {
   const range = config.value.ranges[index]
 
-  // Reset start/end and set appropriate defaults
-  range.start = ''
-  range.end = ''
-
+  // Reset start/end with PartsBox-style defaults
   if (range.range_type === 'letters') {
+    range.start = 'a'
+    range.end = 'f'
     delete range.zero_pad
     range.capitalize = false
   } else {
+    range.start = 1
+    range.end = 5
     delete range.capitalize
     range.zero_pad = false
   }

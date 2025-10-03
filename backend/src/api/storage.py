@@ -739,54 +739,24 @@ def generate_preview(
     This endpoint does not require authentication as it's a read-only preview operation.
     Returns the first 5 location names, last name, total count, and validation errors/warnings.
     """
-    from ..services.location_generator import LocationGeneratorService
+    import logging
 
-    service = LocationGeneratorService(db)
+    from ..services.preview_service import PreviewService
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Received config: {config}")
+
+    service = PreviewService(db)
 
     try:
-        # Convert Pydantic model to dict for service layer
-        config_dict = {
-            "layout_type": config.layout_type.value,
-            "prefix": config.prefix,
-            "ranges": [
-                {
-                    "range_type": r.range_type.value,
-                    "start": r.start,
-                    "end": r.end,
-                    "capitalize": r.capitalize,
-                    "zero_pad": r.zero_pad,
-                }
-                for r in config.ranges
-            ],
-            "separators": config.separators,
-            "parent_id": config.parent_id,
-            "location_type": config.location_type.value,
-            "single_part_only": config.single_part_only,
-        }
-
-        # Validate configuration
-        is_valid, errors, warnings = service.validate_configuration(config_dict)
-
-        # Generate preview
-        preview = service.generate_preview(
-            config.prefix,
-            config_dict["ranges"],
-            config.separators,
-        )
-
-        return PreviewResponse(
-            sample_names=preview["sample_names"],
-            last_name=preview["last_name"],
-            total_count=preview["total_count"],
-            warnings=warnings,
-            errors=errors,
-            is_valid=is_valid,
-        )
+        return service.generate_preview(config)
 
     except ValueError as e:
         # Pydantic validation errors
+        logger.error(f"Validation error: {str(e)}")
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
+        logger.error(f"Internal error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
@@ -806,68 +776,24 @@ def bulk_create_layout(
     Requires authentication. This operation is transactional - either all locations
     are created successfully, or none are created (rollback on error).
     """
-    from ..services.location_generator import LocationGeneratorService
+    import logging
 
-    service = LocationGeneratorService(db)
+    from ..services.bulk_create_service import BulkCreateService
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Bulk create request - layout_type: {config.layout_type}, prefix: {config.prefix}, ranges: {config.ranges}")
+
+    service = BulkCreateService(db)
 
     try:
-        # Convert Pydantic model to dict for service layer
-        config_dict = {
-            "layout_type": config.layout_type.value,
-            "prefix": config.prefix,
-            "ranges": [
-                {
-                    "range_type": r.range_type.value,
-                    "start": r.start,
-                    "end": r.end,
-                    "capitalize": r.capitalize,
-                    "zero_pad": r.zero_pad,
-                }
-                for r in config.ranges
-            ],
-            "separators": config.separators,
-            "parent_id": config.parent_id,
-            "location_type": config.location_type.value,
-            "single_part_only": config.single_part_only,
-        }
+        # Get user ID from current_user
+        user_id = current_user.id if current_user else None
 
         # Create locations using service
-        created_locations = service.bulk_create_locations(config_dict)
+        result = service.bulk_create_locations(config, user_id)
+        logger.info(f"Bulk create result - created_count: {result.created_count}, success: {result.success}, errors: {result.errors}")
+        return result
 
-        # Extract IDs
-        created_ids = [loc.id for loc in created_locations]
-
-        return BulkCreateResponse(
-            created_ids=created_ids,
-            created_count=len(created_ids),
-            success=True,
-            errors=None,
-        )
-
-    except ValueError as e:
-        # Validation errors
-        return BulkCreateResponse(
-            created_ids=[],
-            created_count=0,
-            success=False,
-            errors=[str(e)],
-        )
-    except IntegrityError as e:
-        # Database constraint violations
-        db.rollback()
-        error_msg = "Database constraint violation"
-        if "UNIQUE constraint failed" in str(e):
-            if "name" in str(e):
-                error_msg = "Duplicate storage location name"
-            elif "qr_code_id" in str(e):
-                error_msg = "Duplicate QR code ID"
-
-        return BulkCreateResponse(
-            created_ids=[],
-            created_count=0,
-            success=False,
-            errors=[error_msg],
-        )
     except Exception as e:
         # Rollback on any error
         db.rollback()

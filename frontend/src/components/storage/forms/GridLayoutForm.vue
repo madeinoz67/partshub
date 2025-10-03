@@ -75,8 +75,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: Partial<LayoutConfiguration>]
 }>()
 
-// Local state
-const localPrefix = ref<string>(props.modelValue.prefix || '')
+// Local state with PartsBox-style defaults
+const localPrefix = ref<string>(props.modelValue.prefix || 'Box-')
 const localSeparator = ref<string>(props.modelValue.separators?.[0] || '-')
 const localRowRange = ref<RangeSpecification | null>(
   props.modelValue.ranges?.[0] || null

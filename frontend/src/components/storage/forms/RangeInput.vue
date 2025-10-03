@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { RangeSpecification } from '../../../types/locationLayout'
 
 // Props
@@ -92,15 +92,15 @@ const emit = defineEmits<{
   'update:modelValue': [value: RangeSpecification]
 }>()
 
-// Local state
+// Local state with PartsBox-style defaults
 const localRangeType = ref<'letters' | 'numbers'>(
   props.modelValue?.range_type || 'letters'
 )
 const localStart = ref<string>(
-  props.modelValue?.start?.toString() || ''
+  props.modelValue?.start?.toString() || (localRangeType.value === 'letters' ? 'a' : '1')
 )
 const localEnd = ref<string>(
-  props.modelValue?.end?.toString() || ''
+  props.modelValue?.end?.toString() || (localRangeType.value === 'letters' ? 'f' : '5')
 )
 const localCapitalize = ref<boolean>(props.modelValue?.capitalize || false)
 const localZeroPad = ref<boolean>(props.modelValue?.zero_pad || false)
@@ -158,9 +158,9 @@ const endRules = computed(() => [
 
 // Handlers
 const onRangeTypeChange = () => {
-  // Reset values when switching range type
-  localStart.value = ''
-  localEnd.value = ''
+  // Reset values with defaults when switching range type
+  localStart.value = localRangeType.value === 'letters' ? 'a' : '1'
+  localEnd.value = localRangeType.value === 'letters' ? 'f' : '5'
   localCapitalize.value = false
   localZeroPad.value = false
   validationError.value = null
@@ -248,6 +248,13 @@ watch(
   },
   { deep: true }
 )
+
+// Emit default values on mount if no modelValue provided
+onMounted(() => {
+  if (!props.modelValue) {
+    onValueChange()
+  }
+})
 </script>
 
 <style scoped>
