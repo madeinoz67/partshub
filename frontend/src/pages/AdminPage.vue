@@ -1329,23 +1329,17 @@
     </div>
 
     <!-- Create User Dialog -->
-    <q-dialog v-model="showCreateUserDialog" persistent max-width="500px">
-      <UserForm
-        mode="create"
-        @saved="handleUserSaved"
-        @cancelled="showCreateUserDialog = false"
-      />
-    </q-dialog>
+    <UserForm
+      v-model="showCreateUserDialog"
+      @user-saved="handleUserSaved"
+    />
 
     <!-- Edit User Dialog -->
-    <q-dialog v-model="showEditUserDialog" persistent max-width="500px">
-      <UserForm
-        mode="edit"
-        :user="selectedUser"
-        @saved="handleUserSaved"
-        @cancelled="showEditUserDialog = false"
-      />
-    </q-dialog>
+    <UserForm
+      v-model="showEditUserDialog"
+      :user="selectedUser"
+      @user-saved="handleUserSaved"
+    />
   </q-page>
 </template>
 
