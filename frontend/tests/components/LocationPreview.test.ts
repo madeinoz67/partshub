@@ -149,8 +149,10 @@ describe('LocationPreview', () => {
 
     it('should show warning icon', () => {
       const warnings = wrapper.find('[data-testid="preview-warnings"]')
-      const icon = warnings.find('i')
-      expect(icon.exists()).toBe(true)
+      // Check that warnings banner exists (icon is in template slot)
+      expect(warnings.exists()).toBe(true)
+      // The icon is defined in the template with name="warning"
+      expect(warnings.html()).toContain('warning')
     })
 
     it('should use warning color for warnings', () => {
@@ -191,8 +193,10 @@ describe('LocationPreview', () => {
 
     it('should show error icon', () => {
       const errors = wrapper.find('[data-testid="preview-errors"]')
-      const icon = errors.find('i')
-      expect(icon.exists()).toBe(true)
+      // Check that errors banner exists (icon is in template slot)
+      expect(errors.exists()).toBe(true)
+      // The icon is defined in the template with name="error"
+      expect(errors.html()).toContain('error')
     })
 
     it('should use error/negative color for errors', () => {

@@ -170,7 +170,7 @@ const rangeTypeOptions = [
 ]
 
 const config = ref<LayoutConfig>({
-  prefix: 'Box-',
+  prefix: '',
   ranges: [],
   separators: []
 })

@@ -57,13 +57,13 @@ describe('LocationLayoutDialog', () => {
     it('should render Cancel button', () => {
       const cancelBtn = wrapper.find('[data-testid="cancel-button"]')
       expect(cancelBtn.exists()).toBe(true)
-      expect(cancelBtn.text()).toContain('Cancel')
+      expect(cancelBtn.attributes('label')).toContain('Cancel')
     })
 
     it('should render Create button', () => {
       const createBtn = wrapper.find('[data-testid="create-button"]')
       expect(createBtn.exists()).toBe(true)
-      expect(createBtn.text()).toContain('Create')
+      expect(createBtn.attributes('label')).toContain('Create')
     })
 
     it('should emit close event when Cancel is clicked', async () => {
@@ -78,9 +78,9 @@ describe('LocationLayoutDialog', () => {
       // Set invalid configuration (will be handled by preview validation)
       const createBtn = wrapper.find('[data-testid="create-button"]')
 
-      // Button should be disabled if no valid preview
+      // Button should be disabled if no valid preview (Quasar uses 'disable' not 'disabled')
       await wrapper.vm.$nextTick()
-      expect(createBtn.attributes('disabled')).toBeDefined()
+      expect(createBtn.attributes('disable')).toBeDefined()
     })
   })
 
