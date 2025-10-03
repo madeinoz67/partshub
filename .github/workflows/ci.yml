@@ -54,7 +54,7 @@ jobs:
       - name: Run backend unit tests (fast, no coverage)
         run: |
           cd backend
-          uv run --project .. pytest -x --tb=short -q
+          uv run --project .. pytest -m unit -x --tb=short -q
 
   # Full test suite for PRs and main branch
   backend_tests:
