@@ -400,7 +400,8 @@ const getLocationIcon = (type: string): string => {
     shelf: 'shelves',
     drawer: 'inbox',
     bin: 'archive',
-    container: 'storage'
+    container: 'storage',
+    bag: 'shopping_bag'
   }
   return iconMap[type] || 'folder'
 }
@@ -414,7 +415,8 @@ const getLocationColor = (type: string): string => {
     shelf: 'purple',
     drawer: 'teal',
     bin: 'amber',
-    container: 'grey'
+    container: 'grey',
+    bag: 'brown'
   }
   return colorMap[type] || 'grey'
 }

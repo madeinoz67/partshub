@@ -162,6 +162,10 @@
                   <q-icon name="storage" color="grey" class="q-mr-sm" />
                   <span class="text-caption"><strong>Container:</strong> Boxes or other containers</span>
                 </div>
+                <div class="row items-center">
+                  <q-icon name="shopping_bag" color="brown" class="q-mr-sm" />
+                  <span class="text-caption"><strong>Bag:</strong> Bags or pouches for parts</span>
+                </div>
               </div>
             </q-card-section>
           </q-card>
@@ -234,7 +238,8 @@ const locationTypeOptions = [
   { label: 'Shelf', value: 'shelf' },
   { label: 'Drawer', value: 'drawer' },
   { label: 'Bin', value: 'bin' },
-  { label: 'Container', value: 'container' }
+  { label: 'Container', value: 'container' },
+  { label: 'Bag', value: 'bag' }
 ]
 
 const parentLocationOptions = computed(() => {
