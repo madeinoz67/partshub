@@ -11,22 +11,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..auth.dependencies import require_auth
+from ..constants import StorageLocationType
 from ..database import get_db
 from ..services.storage_service import StorageLocationService
-
-
-# Enums for validation and OpenAPI documentation
-class StorageLocationType(str, Enum):
-    """Valid storage location types matching database constraints."""
-
-    CONTAINER = "container"
-    ROOM = "room"
-    BUILDING = "building"
-    CABINET = "cabinet"
-    DRAWER = "drawer"
-    SHELF = "shelf"
-    BIN = "bin"
-    BAG = "bag"
 
 
 # Pydantic schemas

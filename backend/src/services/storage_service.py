@@ -8,14 +8,15 @@ from typing import Any
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 
+from ..constants import StorageLocationType
 from ..models import Component, ComponentLocation, StorageLocation
 
 
 class StorageLocationService:
     """Service layer for storage location operations."""
 
-    # Valid storage location types
-    VALID_TYPES = {"container", "room", "building", "cabinet", "drawer", "shelf", "bin", "bag"}
+    # Valid storage location types - derived from API enum to maintain DRY principle
+    VALID_TYPES = {t.value for t in StorageLocationType}
 
     def __init__(self, db: Session):
         self.db = db
