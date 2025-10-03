@@ -32,16 +32,18 @@ class Test3DGridLayout:
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "c"},
                 {"range_type": "numbers", "start": 1, "end": 4},
-                {"range_type": "numbers", "start": 1, "end": 3}
+                {"range_type": "numbers", "start": 1, "end": 3},
             ],
             "separators": ["-", "."],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
 
-        assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"
+        assert (
+            response.status_code == 200
+        ), f"Expected 200 OK, got {response.status_code}"
 
         data = response.json()
         assert data["is_valid"] is True, "Configuration should be valid"
@@ -53,13 +55,16 @@ class Test3DGridLayout:
             "warehouse-a-1.2",
             "warehouse-a-1.3",
             "warehouse-a-2.1",
-            "warehouse-a-2.2"
+            "warehouse-a-2.2",
         ]
-        assert data["sample_names"] == expected_samples, \
-            f"Expected {expected_samples}, got {data['sample_names']}"
+        assert (
+            data["sample_names"] == expected_samples
+        ), f"Expected {expected_samples}, got {data['sample_names']}"
 
         # Verify last name
-        assert data["last_name"] == "warehouse-c-4.3", "Last location should be warehouse-c-4.3"
+        assert (
+            data["last_name"] == "warehouse-c-4.3"
+        ), "Last location should be warehouse-c-4.3"
 
     def test_create_3d_grid_all_36_locations(self, client: TestClient, auth_token: str):
         """
@@ -73,24 +78,30 @@ class Test3DGridLayout:
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "c"},
                 {"range_type": "numbers", "start": 1, "end": 4},
-                {"range_type": "numbers", "start": 1, "end": 3}
+                {"range_type": "numbers", "start": 1, "end": 3},
             ],
             "separators": ["-", "."],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
-        assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+        assert (
+            response.status_code == 201
+        ), f"Expected 201 Created, got {response.status_code}"
 
         data = response.json()
         assert data["success"] is True, "Operation should succeed"
         assert data["created_count"] == 36, "Should create all 36 locations"
         assert len(data["created_ids"]) == 36, "Should return 36 location IDs"
 
-    def test_3d_grid_with_different_separators(self, client: TestClient, auth_token: str):
+    def test_3d_grid_with_different_separators(
+        self, client: TestClient, auth_token: str
+    ):
         """
         Given: User configures 3D grid with custom separators
         When: User creates locations
@@ -102,15 +113,17 @@ class Test3DGridLayout:
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "b"},
                 {"range_type": "numbers", "start": 1, "end": 2},
-                {"range_type": "numbers", "start": 1, "end": 2}
+                {"range_type": "numbers", "start": 1, "end": 2},
             ],
             "separators": ["_", "-"],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
         assert response.status_code == 201
         data = response.json()
@@ -128,15 +141,17 @@ class Test3DGridLayout:
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "b"},
                 {"range_type": "letters", "start": "x", "end": "y"},
-                {"range_type": "letters", "start": "m", "end": "n"}
+                {"range_type": "letters", "start": "m", "end": "n"},
             ],
             "separators": ["-", "-"],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
         assert response.status_code == 201
         data = response.json()
@@ -155,11 +170,11 @@ class Test3DGridLayout:
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "b"},
                 {"range_type": "numbers", "start": 1, "end": 2},
-                {"range_type": "numbers", "start": 1, "end": 2}
+                {"range_type": "numbers", "start": 1, "end": 2},
             ],
             "separators": ["-"],  # Should have 2 separators
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -184,11 +199,11 @@ class Test3DGridLayout:
             "ranges": [
                 {"range_type": "numbers", "start": 1, "end": 10},
                 {"range_type": "numbers", "start": 1, "end": 10},
-                {"range_type": "numbers", "start": 1, "end": 5}
+                {"range_type": "numbers", "start": 1, "end": 5},
             ],
             "separators": ["-", "."],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)

@@ -519,7 +519,7 @@ class TestStorageLocationModel:
 
     def test_storage_location_last_used_tracking(self, db_session):
         """Test that last_used_at is only updated when components are moved, not on edits"""
-        from datetime import datetime, timedelta
+        from datetime import datetime
 
         # Create a storage location
         location = StorageLocation(
@@ -535,7 +535,6 @@ class TestStorageLocationModel:
 
         # Initially, last_used_at should be None
         assert location.last_used_at is None
-        initial_created_at = location.created_at
         initial_updated_at = location.updated_at
 
         # Edit the location (change name) - should NOT update last_used_at
@@ -601,7 +600,6 @@ class TestStorageLocationModel:
 
         # Initially last_used_at is None
         assert location.last_used_at is None
-        initial_qr_code = location.qr_code_id
 
         # Manually change QR code (shouldn't happen normally but testing)
         location.qr_code_id = "LOC-CUSTOM1"

@@ -14,7 +14,6 @@ Test Coverage (T045):
 NOTE: Test isolation - uses in-memory SQLite from conftest.py fixtures
 """
 
-import pytest
 
 from backend.src.models.storage_location import StorageLocation
 from backend.src.schemas.location_layout import (

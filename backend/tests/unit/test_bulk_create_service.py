@@ -16,7 +16,6 @@ Test Coverage (T047):
 NOTE: Test isolation - uses in-memory SQLite from conftest.py fixtures
 """
 
-import pytest
 
 from backend.src.models.storage_location import StorageLocation
 from backend.src.schemas.location_layout import (
@@ -92,7 +91,9 @@ class TestBulkCreateLocations:
         assert len(response.created_ids) == 6
 
         # Verify locations in database
-        locations = db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        locations = (
+            db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        )
         assert len(locations) == 6
         assert locations[0].name == "boxA-1"
         assert locations[-1].name == "boxB-3"
@@ -192,7 +193,9 @@ class TestBulkCreateLocations:
 
         # Verify all locations have correct parent_id
         child_locations = (
-            db_session.query(StorageLocation).filter(StorageLocation.name.like("slot-%")).all()
+            db_session.query(StorageLocation)
+            .filter(StorageLocation.name.like("slot-%"))
+            .all()
         )
         assert len(child_locations) == 5
         for child in child_locations:
@@ -288,7 +291,9 @@ class TestBulkCreateLocations:
 
         # Verify NO new locations were created (all-or-nothing)
         new_locations = (
-            db_session.query(StorageLocation).filter(StorageLocation.name.like("bin-%")).all()
+            db_session.query(StorageLocation)
+            .filter(StorageLocation.name.like("bin-%"))
+            .all()
         )
         assert len(new_locations) == 1  # Only the existing one
 
@@ -472,7 +477,9 @@ class TestTransactionSemantics:
 
         # Verify IDs exist in database
         for location_id in response.created_ids:
-            location = db_session.query(StorageLocation).filter_by(id=location_id).first()
+            location = (
+                db_session.query(StorageLocation).filter_by(id=location_id).first()
+            )
             assert location is not None
             assert location.name.startswith("verify-")
 
@@ -515,7 +522,9 @@ class TestTransactionSemantics:
         assert final_count == initial_count
 
         # Verify original locations still exist
-        existing = db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        existing = (
+            db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        )
         assert len(existing) == 2
         assert existing[0].name == "initial-1"
         assert existing[1].name == "initial-2"
@@ -546,7 +555,9 @@ class TestBulkCreateEdgeCases:
         assert response.created_count == 10
 
         # Verify names have padding
-        locations = db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        locations = (
+            db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        )
         assert locations[0].name == "pad-01"
         assert locations[9].name == "pad-10"
 
@@ -575,7 +586,9 @@ class TestBulkCreateEdgeCases:
         assert response.created_count == 5
 
         # Verify capitalization
-        locations = db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        locations = (
+            db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        )
         expected_names = ["SHELF-A", "SHELF-B", "SHELF-C", "SHELF-D", "SHELF-E"]
         actual_names = [loc.name for loc in locations]
         assert actual_names == expected_names
@@ -611,7 +624,9 @@ class TestBulkCreateEdgeCases:
         assert response.created_count == 8
 
         # Verify separator usage
-        locations = db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        locations = (
+            db_session.query(StorageLocation).order_by(StorageLocation.name).all()
+        )
         assert locations[0].name == "locX:1.1"
         assert locations[-1].name == "locY:2.2"
 

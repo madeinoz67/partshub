@@ -14,7 +14,6 @@ Test Coverage (T044):
 NOTE: Test isolation - pure business logic, no database dependencies
 """
 
-import pytest
 
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
@@ -465,7 +464,10 @@ class TestGenerateNames:
                     range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False
                 ),
                 RangeSpecification(
-                    range_type=RangeType.NUMBERS, start=1, end=2, zero_pad=False,
+                    range_type=RangeType.NUMBERS,
+                    start=1,
+                    end=2,
+                    zero_pad=False,
                 ),
             ],
             separators=["-", "-"],

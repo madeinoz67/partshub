@@ -64,7 +64,11 @@ class TestDuplicatePrevention:
             error_text = " ".join(data["errors"]).lower()
             assert "duplicate" in error_text or "already exists" in error_text
             # Should mention the duplicate location names
-            assert "test-a" in error_text or "test-b" in error_text or "test-c" in error_text
+            assert (
+                "test-a" in error_text
+                or "test-b" in error_text
+                or "test-c" in error_text
+            )
 
     def test_transactional_rollback_on_partial_duplicate(
         self, client: TestClient, auth_token: str
@@ -153,9 +157,7 @@ class TestDuplicatePrevention:
         # This tests the actual behavior
         assert response2.status_code in [201, 409]
 
-    def test_duplicate_with_different_parent(
-        self, client: TestClient, auth_token: str
-    ):
+    def test_duplicate_with_different_parent(self, client: TestClient, auth_token: str):
         """
         Given: Location 'child-a' exists under parent1
         When: User tries to create 'child-a' under parent2
@@ -222,9 +224,7 @@ class TestDuplicatePrevention:
         # Should detect duplicate (names are globally unique per spec)
         assert response2.status_code == 409
 
-    def test_no_duplicates_within_same_batch(
-        self, client: TestClient, auth_token: str
-    ):
+    def test_no_duplicates_within_same_batch(self, client: TestClient, auth_token: str):
         """
         Given: User configures valid layout
         When: Layout generates unique names

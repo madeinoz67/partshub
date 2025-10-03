@@ -66,9 +66,7 @@ class TestParentLocationAssignment:
         assert data["created_count"] == 4, "Should create 4 child locations"
         assert len(data["created_ids"]) == 4
 
-    def test_reject_nonexistent_parent_id(
-        self, client: TestClient, auth_token: str
-    ):
+    def test_reject_nonexistent_parent_id(self, client: TestClient, auth_token: str):
         """
         Given: User specifies non-existent parent_id
         When: User tries to create child locations

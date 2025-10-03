@@ -40,9 +40,7 @@ class TestInvalidRangeValidation:
         # Accept either 422 (schema validation) or 200 with errors (business logic)
         if response.status_code == 200:
             data = response.json()
-            assert (
-                data["is_valid"] is False
-            ), "Should be invalid for reversed range"
+            assert data["is_valid"] is False, "Should be invalid for reversed range"
             assert len(data["errors"]) > 0, "Should have validation errors"
             error_text = " ".join(data["errors"]).lower()
             assert "start" in error_text and "end" in error_text

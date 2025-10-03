@@ -104,9 +104,7 @@ class TestLargeBatchWarning:
         assert data["total_count"] == 101
         assert len(data["warnings"]) > 0, "Should show warning at 101 locations"
 
-    def test_user_can_create_despite_warning(
-        self, client: TestClient, auth_token: str
-    ):
+    def test_user_can_create_despite_warning(self, client: TestClient, auth_token: str):
         """
         Given: User has warning in preview
         When: User proceeds with creation

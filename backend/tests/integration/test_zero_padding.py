@@ -29,7 +29,9 @@ class TestZeroPadding:
         payload = {
             "layout_type": "row",
             "prefix": "bin-",
-            "ranges": [{"range_type": "numbers", "start": 1, "end": 15, "zero_pad": True}],
+            "ranges": [
+                {"range_type": "numbers", "start": 1, "end": 15, "zero_pad": True}
+            ],
             "separators": [],
             "location_type": "bin",
             "single_part_only": False,
@@ -86,7 +88,9 @@ class TestZeroPadding:
         payload = {
             "layout_type": "row",
             "prefix": "padded-",
-            "ranges": [{"range_type": "numbers", "start": 1, "end": 10, "zero_pad": True}],
+            "ranges": [
+                {"range_type": "numbers", "start": 1, "end": 10, "zero_pad": True}
+            ],
             "separators": [],
             "location_type": "bin",
             "single_part_only": False,
@@ -180,7 +184,6 @@ class TestZeroPadding:
         assert data["total_count"] == 100  # 2 × 10 × 5
 
         # Verify both number ranges are padded
-        expected_first = "3d-a-01.1"  # First dimension padded to 2, second to 1
         # Note: Actual padding behavior depends on implementation
         # This tests that the flag is accepted and processed
 

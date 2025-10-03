@@ -37,6 +37,7 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     """Schema for updating user properties (admin only)."""
+
     is_active: bool | None = None
     is_admin: bool | None = None
     full_name: str | None = None
@@ -209,14 +210,14 @@ async def update_user(
         # Count active admins
         active_admin_count = (
             db.query(User)
-            .filter(User.is_admin == True, User.is_active == True)
+            .filter(User.is_admin.is_(True), User.is_active.is_(True))
             .count()
         )
 
         if active_admin_count <= 1:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot deactivate or remove admin privileges from the last active admin user"
+                detail="Cannot deactivate or remove admin privileges from the last active admin user",
             )
 
     # Update fields if provided
@@ -241,8 +242,10 @@ async def reset_user_password(
     """Reset user password to a random value (admin only)."""
     import secrets
     import string
-    from ..models.user import User
+
     from passlib.context import CryptContext
+
+    from ..models.user import User
 
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

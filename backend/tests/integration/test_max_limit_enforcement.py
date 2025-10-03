@@ -51,9 +51,7 @@ class TestMaxLimitEnforcement:
         # Verify error message mentions 500 limit
         assert len(data["errors"]) > 0, "Should have error messages"
         error_text = " ".join(data["errors"]).lower()
-        assert (
-            "500" in error_text
-        ), "Error should mention the 500 location limit"
+        assert "500" in error_text, "Error should mention the 500 location limit"
         assert "780" in error_text or "exceeds" in error_text
 
     def test_preview_accepts_exactly_500_locations(self, client: TestClient):
@@ -80,9 +78,7 @@ class TestMaxLimitEnforcement:
         data = response.json()
         assert data["total_count"] == 500
         assert data["is_valid"] is True, "Should be valid at exactly 500 locations"
-        assert (
-            len(data["warnings"]) > 0
-        ), "Should still show warning for large batch"
+        assert len(data["warnings"]) > 0, "Should still show warning for large batch"
 
     def test_preview_rejects_501_locations(self, client: TestClient):
         """
@@ -103,9 +99,7 @@ class TestMaxLimitEnforcement:
 
         data = response.json()
         assert data["total_count"] == 501
-        assert (
-            data["is_valid"] is False
-        ), "Should be invalid at 501 locations"
+        assert data["is_valid"] is False, "Should be invalid at 501 locations"
         assert len(data["errors"]) > 0
 
     def test_bulk_create_rejects_exceeding_limit(
@@ -140,9 +134,7 @@ class TestMaxLimitEnforcement:
             422,
         ], f"Expected 400/422, got {response.status_code}"
 
-    def test_bulk_create_accepts_exactly_500(
-        self, client: TestClient, auth_token: str
-    ):
+    def test_bulk_create_accepts_exactly_500(self, client: TestClient, auth_token: str):
         """
         Given: User is authenticated
         When: User creates exactly 500 locations
