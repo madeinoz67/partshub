@@ -268,7 +268,7 @@ class TestBulkCreateContract:
         """
         # Create initial location
         initial_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "txn-a",
             "ranges": [],
             "separators": [],
@@ -353,7 +353,7 @@ class TestBulkCreateContract:
 
         # First create parent location
         parent_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "parent-cabinet",
             "ranges": [],
             "separators": [],

@@ -165,7 +165,7 @@ class TestSinglePartFlag:
 
         # Create parent
         parent_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "parent-box",
             "ranges": [],
             "separators": [],

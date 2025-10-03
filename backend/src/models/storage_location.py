@@ -3,6 +3,7 @@ StorageLocation model with hierarchy support for organizing components.
 """
 
 import uuid
+from datetime import UTC
 
 from sqlalchemy import (
     JSON,
@@ -223,6 +224,17 @@ def update_hierarchy_on_name_change(target, value, oldvalue, initiator):
 def generate_qr_code_id(mapper, connection, target):
     """Auto-generate QR code ID if not already set."""
     if not target.qr_code_id:
+        # Ensure ID is generated first if not already set
+        if not target.id:
+            target.id = str(uuid.uuid4())
         # Generate a unique QR code ID using the location's UUID
         # Format: LOC-<first 8 chars of UUID>
         target.qr_code_id = f"LOC-{target.id[:8].upper()}"
+
+
+@event.listens_for(StorageLocation, "before_update")
+def update_updated_at(mapper, connection, target):
+    """Update updated_at timestamp on every update."""
+    from datetime import datetime
+
+    target.updated_at = datetime.now(UTC)

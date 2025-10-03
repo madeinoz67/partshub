@@ -167,7 +167,7 @@ class TestDuplicatePrevention:
 
         # Create two parent locations
         parent1_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "parent1",
             "ranges": [],
             "separators": [],
@@ -180,7 +180,7 @@ class TestDuplicatePrevention:
         parent1_id = parent1_resp.json()["created_ids"][0]
 
         parent2_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "parent2",
             "ranges": [],
             "separators": [],

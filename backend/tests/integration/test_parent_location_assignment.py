@@ -32,7 +32,7 @@ class TestParentLocationAssignment:
 
         # Create parent location
         parent_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "cabinet-1",
             "ranges": [],
             "separators": [],
@@ -130,7 +130,7 @@ class TestParentLocationAssignment:
 
         # Level 1: Building
         building_payload = {
-            "layout_type": "row",
+            "layout_type": "single",
             "prefix": "building-A",
             "ranges": [],
             "separators": [],
