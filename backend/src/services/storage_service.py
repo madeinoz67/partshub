@@ -15,7 +15,7 @@ class StorageLocationService:
     """Service layer for storage location operations."""
 
     # Valid storage location types
-    VALID_TYPES = {"container", "room", "building", "cabinet", "drawer", "shelf", "bin"}
+    VALID_TYPES = {"container", "room", "building", "cabinet", "drawer", "shelf", "bin", "bag"}
 
     def __init__(self, db: Session):
         self.db = db
