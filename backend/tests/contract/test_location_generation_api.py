@@ -638,7 +638,9 @@ class TestBulkCreateLayoutContract:
         )
 
         # Should fail with 404 Not Found for nonexistent parent
-        assert response.status_code == 404, "Returns 404 Not Found for nonexistent parent"
+        assert (
+            response.status_code == 404
+        ), "Returns 404 Not Found for nonexistent parent"
         data = response.json()
         assert data["success"] is False, "Should fail with nonexistent parent"
         assert data["created_count"] == 0, "Should not create any locations"
