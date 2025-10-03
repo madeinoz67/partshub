@@ -202,6 +202,23 @@ async def update_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Prevent deactivating or demoting the last admin
+    if user.is_admin and (
+        (user_data.is_active is False) or (user_data.is_admin is False)
+    ):
+        # Count active admins
+        active_admin_count = (
+            db.query(User)
+            .filter(User.is_admin == True, User.is_active == True)
+            .count()
+        )
+
+        if active_admin_count <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot deactivate or remove admin privileges from the last active admin user"
+            )
+
     # Update fields if provided
     if user_data.is_active is not None:
         user.is_active = user_data.is_active
