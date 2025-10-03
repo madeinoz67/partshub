@@ -18,7 +18,7 @@ from ..schemas.location_layout import (
 from ..services.bulk_create_service import BulkCreateService
 from ..services.preview_service import PreviewService
 
-router = APIRouter(prefix="/api/storage-locations", tags=["Storage Locations"])
+router = APIRouter(prefix="/api/v1/storage-locations", tags=["Storage Locations"])
 
 
 @router.post(
@@ -56,7 +56,7 @@ def generate_preview(
 
 
 @router.post(
-    "/bulk-create",
+    "/bulk-create-layout",
     response_model=BulkCreateResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Bulk create storage locations from layout",

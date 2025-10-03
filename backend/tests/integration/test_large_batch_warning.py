@@ -39,7 +39,9 @@ class TestLargeBatchWarning:
         }
         # Total: 6 * 25 = 150 locations
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -76,7 +78,9 @@ class TestLargeBatchWarning:
         }
         # Total: 4 * 25 = 100 locations
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 100
@@ -98,7 +102,9 @@ class TestLargeBatchWarning:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 101
@@ -125,7 +131,9 @@ class TestLargeBatchWarning:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201, "Should allow creation despite warning"
@@ -152,7 +160,9 @@ class TestLargeBatchWarning:
         }
         # Total: 26 * 19 = 494 locations
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 494

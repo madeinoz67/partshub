@@ -38,7 +38,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Should NOT return 404 (endpoint should exist)
         assert response.status_code != 404, "Preview endpoint should exist"
@@ -59,7 +61,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
     def test_preview_accepts_grid_layout_schema(self, client: TestClient):
@@ -80,7 +84,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
     def test_preview_accepts_3d_grid_layout_schema(self, client: TestClient):
@@ -102,7 +108,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
     def test_preview_response_has_required_fields(self, client: TestClient):
@@ -120,7 +128,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200
 
         data = response.json()
@@ -146,7 +156,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         data = response.json()
 
         # Validate field types
@@ -170,7 +182,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert (
             response.status_code == 422
         ), f"Expected 422 for invalid enum, got {response.status_code}"
@@ -188,7 +202,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert (
             response.status_code == 422
         ), f"Expected 422 for invalid range_type, got {response.status_code}"
@@ -204,7 +220,7 @@ class TestGeneratePreviewContract:
         }
 
         response = client.post(
-            "/api/storage-locations/generate-preview", json=incomplete_payload
+            "/api/v1/storage-locations/generate-preview", json=incomplete_payload
         )
         assert (
             response.status_code == 422
@@ -225,7 +241,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Accept either schema validation (422) or business logic validation (200 with errors)
         if response.status_code == 200:
@@ -262,7 +280,9 @@ class TestGeneratePreviewContract:
         }
         # Total: 26 * 30 = 780 > 500
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200
 
         data = response.json()
@@ -291,7 +311,9 @@ class TestGeneratePreviewContract:
         }
         # Total: 6 * 25 = 150 (> 100 but < 500)
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200
 
         data = response.json()
@@ -317,7 +339,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         data = response.json()
 
         assert (
@@ -343,7 +367,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         # Should accept parent_id in schema (validation of existence happens at create time)
         assert response.status_code == 200
 
@@ -362,7 +388,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200
 
     def test_preview_accepts_number_range_options(self, client: TestClient):
@@ -380,7 +408,9 @@ class TestGeneratePreviewContract:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
         assert response.status_code == 200
 
     def test_preview_returns_400_for_malformed_json(self, client: TestClient):
@@ -388,7 +418,7 @@ class TestGeneratePreviewContract:
         Error handling: Malformed JSON should return 400 Bad Request
         """
         response = client.post(
-            "/api/storage-locations/generate-preview",
+            "/api/v1/storage-locations/generate-preview",
             data="invalid json{",
             headers={"Content-Type": "application/json"},
         )

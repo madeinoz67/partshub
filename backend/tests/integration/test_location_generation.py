@@ -395,7 +395,7 @@ class TestLocationGenerationIntegration:
             json=config,
             headers=auth_headers,
         )
-        assert create_response_2.status_code == 201  # Still 201 but with errors
+        assert create_response_2.status_code == 409  # 409 Conflict for duplicates
         result_2 = create_response_2.json()
         assert result_2["success"] is False
         assert result_2["created_count"] == 0
@@ -795,7 +795,7 @@ class TestLocationGenerationEdgeCases:
             json=config,
             headers=auth_headers,
         )
-        assert create_response.status_code == 201
+        assert create_response.status_code == 409  # 409 Conflict for duplicates
         result = create_response.json()
 
         assert result["success"] is False

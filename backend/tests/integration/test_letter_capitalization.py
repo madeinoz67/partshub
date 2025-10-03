@@ -37,7 +37,9 @@ class TestLetterCapitalization:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -67,7 +69,9 @@ class TestLetterCapitalization:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -97,7 +101,9 @@ class TestLetterCapitalization:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -123,7 +129,9 @@ class TestLetterCapitalization:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -158,7 +166,9 @@ class TestLetterCapitalization:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 8  # 2 × 2 × 2
@@ -188,7 +198,9 @@ class TestLetterCapitalization:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         # Default should be lowercase
@@ -217,7 +229,9 @@ class TestLetterCapitalization:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Should return validation error (422 or 200 with errors)
         if response.status_code == 200:
@@ -248,7 +262,9 @@ class TestLetterCapitalization:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -276,7 +292,9 @@ class TestLetterCapitalization:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Should accept and process (normalize case or keep uppercase)
         assert response.status_code == 200

@@ -39,7 +39,9 @@ class Test3DGridLayout:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert (
             response.status_code == 200
@@ -87,7 +89,9 @@ class Test3DGridLayout:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert (
@@ -122,7 +126,9 @@ class Test3DGridLayout:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -150,7 +156,9 @@ class Test3DGridLayout:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -177,7 +185,9 @@ class Test3DGridLayout:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Should return validation error (422 or 200 with errors)
         if response.status_code == 200:
@@ -206,7 +216,9 @@ class Test3DGridLayout:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()

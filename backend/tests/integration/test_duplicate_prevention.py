@@ -42,14 +42,18 @@ class TestDuplicatePrevention:
 
         # First creation - should succeed
         response1 = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
         assert response1.status_code == 201, "First creation should succeed"
         assert response1.json()["created_count"] == 3
 
         # Second creation with same configuration - should fail
         response2 = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should return 409 Conflict
@@ -90,7 +94,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         response1 = client.post(
-            "/api/storage-locations/bulk-create", json=single_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=single_payload,
+            headers=headers,
         )
         assert response1.status_code == 201
 
@@ -104,7 +110,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         response2 = client.post(
-            "/api/storage-locations/bulk-create", json=batch_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=batch_payload,
+            headers=headers,
         )
 
         assert response2.status_code == 409
@@ -136,7 +144,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         response1 = client.post(
-            "/api/storage-locations/bulk-create", json=upper_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=upper_payload,
+            headers=headers,
         )
         assert response1.status_code == 201
 
@@ -150,7 +160,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         response2 = client.post(
-            "/api/storage-locations/bulk-create", json=lower_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=lower_payload,
+            headers=headers,
         )
 
         # Design choice: case-sensitive should succeed, case-insensitive should fail
@@ -175,7 +187,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         parent1_resp = client.post(
-            "/api/storage-locations/bulk-create", json=parent1_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=parent1_payload,
+            headers=headers,
         )
         parent1_id = parent1_resp.json()["created_ids"][0]
 
@@ -188,7 +202,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         parent2_resp = client.post(
-            "/api/storage-locations/bulk-create", json=parent2_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=parent2_payload,
+            headers=headers,
         )
         parent2_id = parent2_resp.json()["created_ids"][0]
 
@@ -203,7 +219,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         response1 = client.post(
-            "/api/storage-locations/bulk-create", json=child1_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=child1_payload,
+            headers=headers,
         )
         assert response1.status_code == 201
 
@@ -218,7 +236,9 @@ class TestDuplicatePrevention:
             "single_part_only": False,
         }
         response2 = client.post(
-            "/api/storage-locations/bulk-create", json=child2_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=child2_payload,
+            headers=headers,
         )
 
         # Should detect duplicate (names are globally unique per spec)
@@ -244,7 +264,9 @@ class TestDuplicatePrevention:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should succeed - grid layout generates unique names

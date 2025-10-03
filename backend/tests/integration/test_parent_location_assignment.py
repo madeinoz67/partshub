@@ -41,7 +41,9 @@ class TestParentLocationAssignment:
         }
 
         parent_response = client.post(
-            "/api/storage-locations/bulk-create", json=parent_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=parent_payload,
+            headers=headers,
         )
         assert parent_response.status_code == 201
         parent_id = parent_response.json()["created_ids"][0]
@@ -58,7 +60,9 @@ class TestParentLocationAssignment:
         }
 
         response = client.post(
-            "/api/storage-locations/bulk-create", json=child_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=child_payload,
+            headers=headers,
         )
 
         assert response.status_code == 201, "Child locations should be created"
@@ -88,7 +92,9 @@ class TestParentLocationAssignment:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should reject with 400 Bad Request or 404 Not Found
@@ -114,7 +120,9 @@ class TestParentLocationAssignment:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -138,7 +146,9 @@ class TestParentLocationAssignment:
             "single_part_only": False,
         }
         building_resp = client.post(
-            "/api/storage-locations/bulk-create", json=building_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=building_payload,
+            headers=headers,
         )
         building_id = building_resp.json()["created_ids"][0]
 
@@ -153,7 +163,9 @@ class TestParentLocationAssignment:
             "single_part_only": False,
         }
         room_resp = client.post(
-            "/api/storage-locations/bulk-create", json=room_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=room_payload,
+            headers=headers,
         )
         assert room_resp.status_code == 201
         room_id = room_resp.json()["created_ids"][0]
@@ -169,7 +181,9 @@ class TestParentLocationAssignment:
             "single_part_only": False,
         }
         cabinet_resp = client.post(
-            "/api/storage-locations/bulk-create", json=cabinet_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=cabinet_payload,
+            headers=headers,
         )
 
         assert cabinet_resp.status_code == 201
@@ -193,7 +207,9 @@ class TestParentLocationAssignment:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -218,7 +234,9 @@ class TestParentLocationAssignment:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Preview should accept parent_id without validating existence
         assert response.status_code == 200

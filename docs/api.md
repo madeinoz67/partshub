@@ -57,9 +57,22 @@
 }
 ```
 
-### Example Layout Configuration
+### Example Layout Configurations
 
-**Row Layout (a-f bins)**:
+#### Single Layout (single location)
+```json
+{
+    "layout_type": "single",
+    "prefix": "warehouse-",
+    "ranges": [
+        {"range_type": "letters", "start": "a", "end": "a"}
+    ],
+    "separators": [],
+    "location_type": "room"
+}
+```
+
+#### Row Layout (a-f bins)
 ```json
 {
     "layout_type": "row",
@@ -67,23 +80,57 @@
     "ranges": [{
         "range_type": "letters",
         "start": "a",
-        "end": "f"
+        "end": "f",
+        "capitalize": true,
+        "zero_pad": false
     }],
     "separators": [],
     "location_type": "bin"
 }
 ```
 
-**Grid Layout (drawer grid)**:
+#### Grid Layout (drawer grid)
 ```json
 {
     "layout_type": "grid",
     "prefix": "drawer-",
     "ranges": [
         {"range_type": "letters", "start": "a", "end": "f"},
-        {"range_type": "numbers", "start": 1, "end": 5}
+        {"range_type": "numbers", "start": 1, "end": 5", "zero_pad": true}
     ],
     "separators": ["-"],
     "location_type": "drawer"
 }
 ```
+
+#### 3D Grid Layout (complex warehouse shelving)
+```json
+{
+    "layout_type": "grid_3d",
+    "prefix": "warehouse-rack",
+    "ranges": [
+        {"range_type": "letters", "start": "a", "end": "c"},     // Rows
+        {"range_type": "numbers", "start": 1, "end": 5"},        // Columns
+        {"range_type": "letters", "start": "a", "end": "d"}      // Levels
+    ],
+    "separators": ["-", "-"],
+    "location_type": "shelf"
+}
+```
+
+### Validation and Limitations
+
+!!! warning "Layout Generation Limits"
+    - Maximum of 500 locations can be generated in a single request
+    - Warning issued when generating more than 100 locations
+    - Duplicate location names are prevented
+    - Parent-child hierarchy must be valid
+    - Location names are validated against existing records
+
+### Error Handling
+
+When validation fails, the API returns detailed error messages:
+
+- `422 Unprocessable Entity`: Invalid configuration
+- Errors include specific validation details (range mismatches, duplicate names, etc.)
+- Some non-blocking issues return warnings in the preview response

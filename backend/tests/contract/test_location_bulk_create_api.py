@@ -41,7 +41,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should NOT return 404 (endpoint should exist)
@@ -66,7 +68,9 @@ class TestBulkCreateContract:
         }
 
         # Request without auth token
-        response = client.post("/api/storage-locations/bulk-create", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/bulk-create-layout", json=payload
+        )
 
         assert (
             response.status_code == 401
@@ -91,7 +95,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": "Bearer invalid_token_12345"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert (
@@ -115,7 +121,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert (
@@ -141,7 +149,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -169,7 +179,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         data = response.json()
@@ -205,7 +217,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         data = response.json()
@@ -235,14 +249,18 @@ class TestBulkCreateContract:
 
         # First creation should succeed
         response1 = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
         assert response1.status_code == 201, "First creation should succeed"
         assert response1.json()["created_count"] == 2, "Should create 2 locations"
 
         # Second creation with same names should fail
         response2 = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should return 409 Conflict
@@ -278,7 +296,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         client.post(
-            "/api/storage-locations/bulk-create", json=initial_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=initial_payload,
+            headers=headers,
         )
 
         # Try to create batch that includes the duplicate
@@ -294,7 +314,7 @@ class TestBulkCreateContract:
         }
 
         response = client.post(
-            "/api/storage-locations/bulk-create",
+            "/api/v1/storage-locations/bulk-create-layout",
             json=duplicate_batch_payload,
             headers=headers,
         )
@@ -332,7 +352,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should reject with 400 or 422
@@ -362,7 +384,9 @@ class TestBulkCreateContract:
         }
 
         parent_response = client.post(
-            "/api/storage-locations/bulk-create", json=parent_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=parent_payload,
+            headers=headers,
         )
         assert parent_response.status_code == 201
         parent_id = parent_response.json()["created_ids"][0]
@@ -379,7 +403,9 @@ class TestBulkCreateContract:
         }
 
         response = client.post(
-            "/api/storage-locations/bulk-create", json=child_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=child_payload,
+            headers=headers,
         )
 
         assert response.status_code == 201, "Should accept parent_id"
@@ -405,7 +431,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should reject with 400 or 404
@@ -431,7 +459,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201, "Should accept single_part_only flag"
@@ -460,7 +490,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -482,7 +514,9 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=invalid_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=invalid_payload,
+            headers=headers,
         )
 
         assert (
@@ -503,7 +537,7 @@ class TestBulkCreateContract:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create",
+            "/api/v1/storage-locations/bulk-create-layout",
             json=incomplete_payload,
             headers=headers,
         )
@@ -533,7 +567,9 @@ class TestBulkCreateContract:
             }
 
             response = client.post(
-                "/api/storage-locations/bulk-create", json=payload, headers=headers
+                "/api/v1/storage-locations/bulk-create-layout",
+                json=payload,
+                headers=headers,
             )
             assert (
                 response.status_code == 201

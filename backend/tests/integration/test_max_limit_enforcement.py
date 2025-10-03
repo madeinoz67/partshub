@@ -39,7 +39,9 @@ class TestMaxLimitEnforcement:
         }
         # Total: 26 * 30 = 780 > 500
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -73,7 +75,9 @@ class TestMaxLimitEnforcement:
         }
         # Total: 20 * 25 = 500
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 500
@@ -95,7 +99,9 @@ class TestMaxLimitEnforcement:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 501
@@ -125,7 +131,9 @@ class TestMaxLimitEnforcement:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should reject with client error status
@@ -155,7 +163,9 @@ class TestMaxLimitEnforcement:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201, "Should accept exactly 500 locations"
@@ -182,7 +192,9 @@ class TestMaxLimitEnforcement:
         }
         # Total: 10 * 10 * 6 = 600 > 500
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         data = response.json()
         assert data["total_count"] == 600

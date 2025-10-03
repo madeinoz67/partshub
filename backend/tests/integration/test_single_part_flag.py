@@ -39,7 +39,9 @@ class TestSinglePartFlag:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -70,7 +72,9 @@ class TestSinglePartFlag:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -91,7 +95,9 @@ class TestSinglePartFlag:
             "single_part_only": True,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -119,7 +125,9 @@ class TestSinglePartFlag:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         assert response.status_code == 201
@@ -144,7 +152,9 @@ class TestSinglePartFlag:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should accept request with default value
@@ -173,7 +183,9 @@ class TestSinglePartFlag:
             "single_part_only": False,
         }
         parent_resp = client.post(
-            "/api/storage-locations/bulk-create", json=parent_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=parent_payload,
+            headers=headers,
         )
         parent_id = parent_resp.json()["created_ids"][0]
 
@@ -188,7 +200,9 @@ class TestSinglePartFlag:
             "single_part_only": True,
         }
         response = client.post(
-            "/api/storage-locations/bulk-create", json=child_payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=child_payload,
+            headers=headers,
         )
 
         assert response.status_code == 201

@@ -35,7 +35,9 @@ class TestInvalidRangeValidation:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Accept either 422 (schema validation) or 200 with errors (business logic)
         if response.status_code == 200:
@@ -64,7 +66,9 @@ class TestInvalidRangeValidation:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         if response.status_code == 200:
             data = response.json()
@@ -88,7 +92,9 @@ class TestInvalidRangeValidation:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -114,7 +120,9 @@ class TestInvalidRangeValidation:
 
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(
-            "/api/storage-locations/bulk-create", json=payload, headers=headers
+            "/api/v1/storage-locations/bulk-create-layout",
+            json=payload,
+            headers=headers,
         )
 
         # Should reject with validation error
@@ -138,7 +146,9 @@ class TestInvalidRangeValidation:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         if response.status_code == 200:
             data = response.json()
@@ -162,7 +172,9 @@ class TestInvalidRangeValidation:
             "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/generate-preview", json=payload)
+        response = client.post(
+            "/api/v1/storage-locations/generate-preview", json=payload
+        )
 
         # Should either normalize case or reject mixed case
         # This tests the implementation's handling of case
