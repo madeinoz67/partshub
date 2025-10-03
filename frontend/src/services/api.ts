@@ -110,6 +110,7 @@ export interface StorageLocation {
   qr_code_id: string | null
   created_at: string
   updated_at: string
+  last_used_at: string | null
   children?: StorageLocation[]
   component_count?: number
   full_hierarchy_path?: Array<{ id: string; name: string }>

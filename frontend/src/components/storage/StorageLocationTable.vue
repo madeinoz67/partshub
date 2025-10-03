@@ -25,17 +25,18 @@
       :expanded="expanded"
       flat
       bordered
+      dense
       @row-click="onRowClick"
     >
       <!-- Custom Body with Expandable Rows -->
       <template #body="props">
         <q-tr :props="props">
-          <q-td auto-width>
+          <q-td>
             <q-btn
               flat
-              round
               dense
-              :icon="expanded.includes(props.row.id) ? 'expand_less' : 'expand_more'"
+              size="sm"
+              :icon="expanded.includes(props.row.id) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
               @click.stop="toggleExpand(props.row.id)"
             />
           </q-td>
@@ -43,7 +44,7 @@
             <div class="text-weight-medium">{{ props.row.name }}</div>
           </q-td>
           <q-td key="last_used" :props="props">
-            <span v-if="hasBeenUsed(props.row)">{{ formatDate(props.row.updated_at) }}</span>
+            <span v-if="props.row.last_used_at">{{ formatDate(props.row.last_used_at) }}</span>
             <span v-else class="text-grey-5">—</span>
           </q-td>
           <q-td key="part_count" :props="props">
@@ -252,7 +253,7 @@ const columns = computed<QTableColumn[]>(() => [
     align: 'left',
     required: true,
     sortable: false,
-    style: 'width: 50px'
+    style: 'width: 40px'
   },
   {
     name: 'location',
@@ -345,25 +346,6 @@ const getParentLocationName = (location: StorageLocation): string | null => {
   return parent ? parent.name : null
 }
 
-// Check if location has been used (has parts or had parts moved in/out)
-const hasBeenUsed = (location: StorageLocation): boolean => {
-  // Location is considered "used" if:
-  // 1. It currently has parts (component_count > 0), OR
-  // 2. It has an updated_at timestamp that differs from created_at (indicating activity)
-
-  if (location.component_count && location.component_count > 0) {
-    return true
-  }
-
-  // If no parts currently, check if updated_at differs from created_at
-  // This would indicate parts were added/removed at some point
-  if (location.updated_at && location.created_at) {
-    return location.updated_at !== location.created_at
-  }
-
-  return false
-}
-
 // Generate QR code value for location
 const getQRCodeValue = (location: StorageLocation): string => {
   // Generate a URL that could be scanned to navigate to this location
@@ -377,6 +359,14 @@ const getQRCodeValue = (location: StorageLocation): string => {
   width: 100%;
 
   :deep(.q-table) {
+    // Make table rows more compact across all screen sizes
+    thead tr th,
+    tbody tr td {
+      padding: 4px 8px !important;
+      height: 36px !important;
+      font-size: 13px;
+    }
+
     // Responsive table adjustments for mobile (< 768px)
     @media (max-width: 767px) {
       // Hide last_used column on mobile
@@ -384,18 +374,11 @@ const getQRCodeValue = (location: StorageLocation): string => {
         display: none !important;
       }
 
-      // Adjust table padding for mobile
-      thead tr th,
-      tbody tr td {
-        padding: 8px 4px;
-        font-size: 14px;
-      }
-
       // Touch-friendly expand button
       .q-btn {
-        padding: 12px;
-        min-width: 48px;
-        min-height: 48px;
+        padding: 8px;
+        min-width: 40px;
+        min-height: 40px;
       }
 
       // Ensure location column takes available space

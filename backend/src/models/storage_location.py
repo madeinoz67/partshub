@@ -58,6 +58,9 @@ class StorageLocation(Base):
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    last_used_at = Column(
+        DateTime(timezone=True), nullable=True
+    )  # Only updated when components are moved in/out
 
     # Relationships
     parent = relationship(

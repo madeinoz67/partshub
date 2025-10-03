@@ -33,9 +33,20 @@
 
     <!-- Table View -->
     <div v-if="viewMode === 'table'">
+      <!-- QR Code Scanner (constrained width on larger screens) -->
+      <div class="q-mb-md">
+        <div class="scanner-container-responsive">
+          <BarcodeScanner
+            @scan-result="onQRCodeScanned"
+            @close-scanner="closeBarcodeScanner"
+          />
+        </div>
+      </div>
+
       <q-card>
         <q-card-section>
           <StorageLocationTable
+            ref="locationTableRef"
             :locations="allLocations"
             :loading="isLoading"
             @refresh="refreshLocations"
@@ -239,9 +250,16 @@ import StorageLocationTree from '../components/StorageLocationTree.vue'
 import StorageLocationForm from '../components/StorageLocationForm.vue'
 import LocationLayoutDialog from '../components/storage/LocationLayoutDialog.vue'
 import StorageLocationTable from '../components/storage/StorageLocationTable.vue'
+import BarcodeScanner from '../components/BarcodeScanner.vue'
 import { useStorageStore } from '../stores/storage'
 import { useAuth } from '../composables/useAuth'
 import type { StorageLocation, Component } from '../services/api'
+
+interface ScanResult {
+  data: string
+  format: string
+  timestamp: Date
+}
 
 const $q = useQuasar()
 const storageStore = useStorageStore()
@@ -262,6 +280,7 @@ const showDeleteDialog = ref(false)
 const isEditMode = ref(false)
 const deleteLoading = ref(false)
 const viewMode = ref<'table' | 'tree'>('table')
+const locationTableRef = ref<InstanceType<typeof StorageLocationTable> | null>(null)
 
 // Computed options for parent location selector in layout dialog
 const parentLocationOptions = computed(() => {
@@ -463,4 +482,56 @@ const onBulkLocationsCreated = (response: { created_count: number; created_ids: 
   // Refresh the locations (works for both tree and table view)
   refreshLocations()
 }
+
+// QR Code Scanner handlers
+const onQRCodeScanned = (result: ScanResult) => {
+  const qrCode = result.data
+
+  // Search for location by QR code ID
+  const foundLocation = allLocations.value.find(loc =>
+    loc.qr_code_id === qrCode || loc.id === qrCode
+  )
+
+  if (foundLocation) {
+    // Location found - select it and show notification
+    onLocationSelected(foundLocation)
+
+    $q.notify({
+      type: 'positive',
+      message: `Found location: ${foundLocation.name}`,
+      position: 'top-right'
+    })
+  } else {
+    // Location not found
+    $q.notify({
+      type: 'warning',
+      message: `No location found for QR code: ${qrCode}`,
+      position: 'top-right'
+    })
+  }
+}
+
+const closeBarcodeScanner = () => {
+  // Scanner closed - nothing special to do
+}
 </script>
+
+<style scoped lang="scss">
+// Constrain scanner width on medium and large displays to match mobile size
+.scanner-container-responsive {
+  width: 100%;
+  max-width: 100%;
+
+  // Medium screens and up (tablets)
+  @media (min-width: 768px) {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  // Large screens (desktop)
+  @media (min-width: 1024px) {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+</style>
