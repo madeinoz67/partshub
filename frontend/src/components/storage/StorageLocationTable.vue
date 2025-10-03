@@ -31,11 +31,14 @@
       <!-- Custom Body with Expandable Rows -->
       <template #body="props">
         <q-tr :props="props">
-          <q-td>
+          <q-td style="padding: 0 !important; width: 1% !important;">
             <q-btn
               flat
+              round
               dense
               size="sm"
+              color="accent"
+              style="margin: 2px;"
               :icon="expanded.includes(props.row.id) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
               @click.stop="toggleExpand(props.row.id)"
             />
@@ -252,8 +255,7 @@ const columns = computed<QTableColumn[]>(() => [
     field: '',
     align: 'left',
     required: true,
-    sortable: false,
-    style: 'width: 40px'
+    sortable: false
   },
   {
     name: 'location',
@@ -365,6 +367,18 @@ const getQRCodeValue = (location: StorageLocation): string => {
       padding: 4px 8px !important;
       height: 36px !important;
       font-size: 13px;
+    }
+
+    // Make expand column extra compact with minimal width
+    tbody tr td:first-child {
+      padding: 2px 4px !important;
+      width: 1px !important; // Forces column to minimum width
+      white-space: nowrap;
+    }
+
+    thead tr th:first-child {
+      width: 1px !important;
+      padding: 2px 4px !important;
     }
 
     // Responsive table adjustments for mobile (< 768px)
