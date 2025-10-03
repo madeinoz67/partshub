@@ -79,7 +79,7 @@ class StorageLocation(Base):
     # Table constraints
     __table_args__ = (
         CheckConstraint(
-            "type IN ('container', 'room', 'building', 'cabinet', 'drawer', 'shelf', 'bin', 'bag')",
+            "type IN ('container', 'room', 'building', 'cabinet', 'drawer', 'shelf', 'bin', 'box', 'bag')",
             name="ck_storage_location_type_valid",
         ),
     )

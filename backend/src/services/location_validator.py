@@ -33,18 +33,21 @@ class LocationValidatorService:
         self.generator = LocationGeneratorService()
 
     def validate_configuration(
-        self, config: LayoutConfiguration
-    ) -> tuple[list[str], list[str]]:
+        self, config: LayoutConfiguration, validate_parent: bool = True
+    ) -> tuple[list[str], list[str], int]:
         """
         Validate layout configuration against business rules.
 
         Args:
             config: Layout configuration to validate
+            validate_parent: Whether to validate parent_id existence (default: True)
+                           Set to False for preview mode where parent validation is not needed
 
         Returns:
-            Tuple of (errors, warnings)
+            Tuple of (errors, warnings, total_count)
             - errors: List of validation errors (blocks creation)
             - warnings: List of warnings (allows creation but shows caution)
+            - total_count: Total number of locations that would be generated
         """
         errors = []
         warnings = []
@@ -57,8 +60,8 @@ class LocationValidatorService:
             errors.append(
                 f"Total location count ({total_count}) exceeds maximum limit of 500"
             )
-            # Return early - no point in checking other validations if count is too high
-            return errors, warnings
+            # Return early with total_count - no point in checking other validations if count is too high
+            return errors, warnings, total_count
 
         # Check for duplicate names in database (FR-007)
         all_names = self.generator.generate_names(config)
@@ -77,7 +80,8 @@ class LocationValidatorService:
             )
 
         # Validate parent_id exists if provided (FR-014)
-        if config.parent_id:
+        # Skip parent validation in preview mode (validate_parent=False)
+        if validate_parent and config.parent_id:
             parent = (
                 self.db.query(StorageLocation).filter_by(id=config.parent_id).first()
             )
@@ -90,4 +94,4 @@ class LocationValidatorService:
                 f"Creating {total_count} locations cannot be undone. Locations cannot be deleted."
             )
 
-        return errors, warnings
+        return errors, warnings, total_count

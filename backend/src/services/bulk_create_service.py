@@ -54,7 +54,7 @@ class BulkCreateService:
             IntegrityError: If database constraints are violated
         """
         # Validate configuration first (FR-006, FR-007, FR-008)
-        errors, _ = self.validator.validate_configuration(config)
+        errors, _, _ = self.validator.validate_configuration(config)
 
         if errors:
             # Validation failed - return error response without creating anything

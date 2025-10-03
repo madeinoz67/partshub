@@ -44,15 +44,18 @@ class PreviewService:
         Returns:
             PreviewResponse with sample names, validation errors, and warnings
         """
-        # Validate configuration
-        errors, warnings = self.validator.validate_configuration(config)
+        # Validate configuration (returns errors, warnings, and total_count)
+        # Skip parent validation in preview mode - parent existence is only validated at creation time
+        errors, warnings, total_count = self.validator.validate_configuration(
+            config, validate_parent=False
+        )
 
-        # If validation fails, return preview with errors and no names
+        # If validation fails, return preview with errors and total_count
         if errors:
             return PreviewResponse(
                 sample_names=[],
                 last_name="",
-                total_count=0,
+                total_count=total_count,
                 warnings=warnings,
                 errors=errors,
                 is_valid=False,
@@ -60,7 +63,6 @@ class PreviewService:
 
         # Generate names
         all_names = self.generator.generate_names(config)
-        total_count = len(all_names)
 
         # Get first 5 and last name (FR-013)
         sample_names = all_names[:5]

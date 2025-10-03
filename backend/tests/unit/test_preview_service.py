@@ -206,7 +206,7 @@ class TestGeneratePreview:
         preview = service.generate_preview(config)
 
         assert preview.is_valid is False
-        assert preview.total_count == 0  # No preview when invalid
+        assert preview.total_count == 780  # Real count even when invalid (per FR-008)
         assert preview.sample_names == []
         assert preview.last_name == ""
         assert len(preview.errors) > 0
@@ -242,7 +242,7 @@ class TestGeneratePreview:
         preview = service.generate_preview(config)
 
         assert preview.is_valid is False
-        assert preview.total_count == 0
+        assert preview.total_count == 5  # Real count even when duplicates exist
         assert preview.sample_names == []
         assert len(preview.errors) > 0
         assert any("duplicate" in error.lower() for error in preview.errors)
@@ -365,7 +365,11 @@ class TestPreviewEdgeCases:
     """Test edge cases and error scenarios."""
 
     def test_preview_with_parent_id_not_found(self, db_session):
-        """Test preview shows error when parent_id doesn't exist."""
+        """Test preview accepts parent_id without validating existence.
+
+        Parent validation only happens at creation time, not during preview.
+        This follows FR-014 and integration test requirements.
+        """
         service = PreviewService(db_session)
         config = LayoutConfiguration(
             layout_type=LayoutType.ROW,
@@ -383,9 +387,10 @@ class TestPreviewEdgeCases:
 
         preview = service.generate_preview(config)
 
-        assert preview.is_valid is False
-        assert len(preview.errors) > 0
-        assert any("parent" in error.lower() for error in preview.errors)
+        # Preview should succeed - parent validation only happens at creation time
+        assert preview.is_valid is True
+        assert len(preview.errors) == 0
+        assert preview.total_count == 5
 
     def test_preview_with_valid_parent_id(self, db_session):
         """Test preview succeeds when parent_id exists."""
@@ -604,8 +609,9 @@ class TestPreviewValidationIntegration:
         preview = service.generate_preview(config)
 
         # Should return immediately with error, no names generated
+        # But total_count should still be calculated (per FR-008 integration tests)
         assert preview.is_valid is False
-        assert preview.total_count == 0
+        assert preview.total_count == 1300  # Real count even when validation fails
         assert preview.sample_names == []
         assert preview.last_name == ""
         assert len(preview.errors) > 0

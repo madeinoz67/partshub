@@ -860,7 +860,10 @@ class TestLocationGenerationEdgeCases:
 
     def test_invalid_parent_id(self, client, auth_headers):
         """
-        Test validation error when parent_id does not exist
+        Test validation error when parent_id does not exist.
+
+        Preview accepts parent_id without validation (FR-014).
+        Validation happens at creation time, not preview time.
         """
         config = {
             "layout_type": "row",
@@ -878,13 +881,13 @@ class TestLocationGenerationEdgeCases:
             "single_part_only": False,
         }
 
-        # Preview should show error about missing parent
+        # Preview should succeed (parent validation happens at creation time)
         preview_response = client.post(
             "/api/v1/storage-locations/generate-preview", json=config
         )
         assert preview_response.status_code == 200
         preview = preview_response.json()
 
-        assert preview["is_valid"] is False
-        assert len(preview["errors"]) > 0
-        assert any("parent" in e.lower() for e in preview["errors"])
+        assert preview["is_valid"] is True  # Preview doesn't validate parent_id
+        assert len(preview["errors"]) == 0
+        assert preview["total_count"] == 3

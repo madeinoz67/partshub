@@ -15,4 +15,5 @@ class StorageLocationType(str, Enum):
     DRAWER = "drawer"
     SHELF = "shelf"
     BIN = "bin"
+    BOX = "box"
     BAG = "bag"

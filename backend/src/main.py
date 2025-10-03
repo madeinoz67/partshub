@@ -7,8 +7,10 @@ import os
 from contextlib import asynccontextmanager
 from importlib.metadata import version
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 # Import all models to ensure SQLAlchemy relationships are configured
 from .api.attachments import router as attachments_router
@@ -111,6 +113,46 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+
+# Custom exception handler for JSON decode errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Custom handler for validation errors to return 400 for JSON decode errors.
+
+    FastAPI returns 422 by default for all validation errors, but malformed JSON
+    should return 400 Bad Request per HTTP standards.
+    """
+    # Check if the error is due to JSON decode failure
+    errors = exc.errors()
+    if errors and any(
+        error.get("type") == "json_invalid" or "JSON" in str(error.get("msg", ""))
+        for error in errors
+    ):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"detail": "Invalid JSON in request body"},
+        )
+
+    # For other validation errors, return 422 as usual
+    # Convert error objects to serializable format
+    serializable_errors = []
+    for error in errors:
+        serializable_errors.append(
+            {
+                "type": error.get("type"),
+                "loc": error.get("loc"),
+                "msg": str(error.get("msg", "")),
+                "input": str(error.get("input", "")) if "input" in error else None,
+            }
+        )
+
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": serializable_errors},
+    )
+
 
 # CORS middleware for frontend integration
 app.add_middleware(

@@ -47,7 +47,7 @@ class TestValidateConfiguration:
             single_part_only=False,
         )
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
         assert warnings == []
@@ -75,7 +75,7 @@ class TestValidateConfiguration:
         )
         # Total: 26 * 30 = 780 > 500
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert len(errors) > 0
         assert any("500" in error for error in errors)
@@ -104,7 +104,7 @@ class TestValidateConfiguration:
         )
         # Total: 26 * 19 = 494 <= 500 (just under limit)
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
         # Should have warning because it's > 100
@@ -133,7 +133,7 @@ class TestValidateConfiguration:
         )
         # Total: 6 * 20 = 120 > 100
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []  # Valid, just warning
         assert len(warnings) > 0
@@ -163,7 +163,7 @@ class TestValidateConfiguration:
         )
         # Total: 5 * 20 = 100 (no warning)
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
         assert warnings == []
@@ -191,7 +191,7 @@ class TestValidateConfiguration:
         )
         # Total: 4 * 10 = 40 (no warning)
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
         assert warnings == []
@@ -226,7 +226,7 @@ class TestValidateConfiguration:
         # Will try to create: drawer-a, drawer-b, drawer-c, drawer-d, drawer-e
         # drawer-a, drawer-b, drawer-c already exist
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert len(errors) > 0
         assert any("duplicate" in error.lower() for error in errors)
@@ -262,7 +262,7 @@ class TestValidateConfiguration:
         )
         # Will create: drawer-a, drawer-b, drawer-c (no conflicts with shelf-x, shelf-y)
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
 
@@ -288,7 +288,7 @@ class TestValidateConfiguration:
         )
         # Will try to create: bin-1 to bin-10, but bin-5 exists
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert len(errors) > 0
         assert any("duplicate" in error.lower() for error in errors)
@@ -314,7 +314,7 @@ class TestValidateConfiguration:
             single_part_only=False,
         )
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert len(errors) > 0
         assert any("parent" in error.lower() for error in errors)
@@ -343,7 +343,7 @@ class TestValidateConfiguration:
             single_part_only=False,
         )
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
 
@@ -367,7 +367,7 @@ class TestValidateConfiguration:
             single_part_only=False,
         )
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
 
@@ -400,7 +400,7 @@ class TestValidateConfiguration:
         )
         # Has issues: > 500 limit, duplicate, parent not found
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         # Should return error for > 500 limit immediately (early return)
         assert len(errors) > 0
@@ -418,7 +418,7 @@ class TestValidateConfiguration:
             single_part_only=False,
         )
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
         assert warnings == []  # Only 1 location, no warnings
@@ -449,7 +449,7 @@ class TestValidateConfiguration:
             single_part_only=False,
         )
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert len(errors) > 0
         # Should show first 5 duplicates + "..."
@@ -491,7 +491,7 @@ class TestValidatorIntegration:
         # Total: 3 * 4 * 5 = 60
 
         # Should pass validation (< 500, < 100 so no warning)
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert errors == []
         assert warnings == []
@@ -525,7 +525,7 @@ class TestValidatorIntegration:
         # Will generate: prefixA-1, prefixA-2, prefixA-3, prefixB-1, prefixB-2, ...
         # prefixB-2 exists as duplicate
 
-        errors, warnings = validator.validate_configuration(config)
+        errors, warnings, _ = validator.validate_configuration(config)
 
         assert len(errors) > 0
         assert any("prefixB-2" in error for error in errors)

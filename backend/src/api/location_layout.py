@@ -5,7 +5,7 @@ Implements the OpenAPI specification for bulk location generation with
 preview and creation endpoints.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from ..auth.dependencies import require_auth
@@ -65,12 +65,21 @@ Create multiple storage locations based on layout configuration.
 All locations are created in a single transaction (all-or-nothing).
 Requires authentication. Maximum 500 locations per request.
     """,
+    responses={
+        201: {"description": "Locations created successfully"},
+        400: {
+            "description": "Validation error (exceeds limit)",
+            "model": BulkCreateResponse,
+        },
+        404: {"description": "Parent location not found", "model": BulkCreateResponse},
+        409: {"description": "Duplicate location names", "model": BulkCreateResponse},
+    },
 )
 def bulk_create_locations(
     config: LayoutConfiguration,
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_auth),
-) -> BulkCreateResponse:
+):
     """
     Create storage locations in bulk based on layout configuration.
 
@@ -92,12 +101,9 @@ def bulk_create_locations(
 
     Returns:
         BulkCreateResponse with created location IDs and operation status
-
-    Raises:
-        HTTPException 401: If not authenticated
-        HTTPException 409: If duplicate location names exist
-        HTTPException 400: If validation fails (e.g., exceeding 500 limit)
     """
+    from fastapi.responses import JSONResponse
+
     bulk_service = BulkCreateService(db)
 
     # Create locations
@@ -105,34 +111,34 @@ def bulk_create_locations(
         config, user_id=current_user.get("user_id")
     )
 
-    # If validation failed, return 400 Bad Request
+    # If validation failed, return appropriate error status with full response
     if not response.success and response.errors:
         # Check if it's a duplicate error (FR-007)
         error_text = " ".join(response.errors).lower()
         if "duplicate" in error_text or "already exist" in error_text:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"errors": response.errors},
+                content=response.model_dump(),
             )
 
         # Check if it's a limit error (FR-008)
         if "500" in error_text or "limit" in error_text:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"errors": response.errors},
+                content=response.model_dump(),
             )
 
         # Check if it's a parent error (FR-014)
         if "parent" in error_text:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail={"errors": response.errors},
+                content=response.model_dump(),
             )
 
         # Generic validation error
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"errors": response.errors},
+            content=response.model_dump(),
         )
 
     # Success - return 201 Created with response
