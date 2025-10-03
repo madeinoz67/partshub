@@ -131,7 +131,7 @@
         </div>
 
         <!-- Version - hide on mobile -->
-        <div v-if="$q.screen.gt.xs" class="text-caption">v1.0.0</div>
+        <div v-if="$q.screen.gt.xs" class="text-caption">v{{ packageInfo.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -242,6 +242,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import PasswordChangeDialog from '../components/PasswordChangeDialog.vue'
+import packageInfo from '../../package.json'
 
 interface EssentialLink {
   title: string
