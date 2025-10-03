@@ -303,7 +303,8 @@ const onSubmit = async () => {
 
   try {
     const locationData = {
-      ...form.value,
+      name: form.value.name,
+      type: form.value.type,
       parent_id: form.value.parent_id || null,
       description: form.value.description || null,
       qr_code_id: form.value.qr_code_id || null
