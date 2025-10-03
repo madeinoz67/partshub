@@ -85,7 +85,14 @@
             />
           </q-td>
           <q-td key="location" :props="props">
-            <div class="text-weight-medium">{{ props.row.name }}</div>
+            <div class="row items-center q-gutter-xs">
+              <q-icon
+                :name="getLocationIcon(props.row.type)"
+                :color="getLocationColor(props.row.type)"
+                size="18px"
+              />
+              <div class="text-weight-medium">{{ props.row.name }}</div>
+            </div>
           </q-td>
           <q-td key="last_used" :props="props">
             <span v-if="props.row.last_used_at">{{ formatDate(props.row.last_used_at) }}</span>
@@ -382,6 +389,34 @@ const formatDate = (dateString: string): string => {
   const minutes = String(date.getMinutes()).padStart(2, '0')
 
   return `${year}-${month}-${day} ${hours}:${minutes}`
+}
+
+// Location type icon mapping
+const getLocationIcon = (type: string): string => {
+  const iconMap: Record<string, string> = {
+    building: 'domain',
+    room: 'room',
+    cabinet: 'inventory_2',
+    shelf: 'shelves',
+    drawer: 'inbox',
+    bin: 'archive',
+    container: 'storage'
+  }
+  return iconMap[type] || 'folder'
+}
+
+// Location type color mapping
+const getLocationColor = (type: string): string => {
+  const colorMap: Record<string, string> = {
+    building: 'blue',
+    room: 'green',
+    cabinet: 'orange',
+    shelf: 'purple',
+    drawer: 'teal',
+    bin: 'amber',
+    container: 'grey'
+  }
+  return colorMap[type] || 'grey'
 }
 
 // Get parent location name from parent_id
