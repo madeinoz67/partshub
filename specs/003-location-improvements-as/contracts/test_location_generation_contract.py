@@ -11,9 +11,9 @@ Test Categories:
 4. Error response formats
 """
 
+
 import pytest
 from fastapi.testclient import TestClient
-from typing import Dict, Any
 
 
 # These tests will fail until the endpoints are implemented
@@ -25,12 +25,10 @@ class TestGeneratePreviewContract:
         payload = {
             "layout_type": "row",
             "prefix": "box1-",
-            "ranges": [
-                {"range_type": "letters", "start": "a", "end": "f"}
-            ],
+            "ranges": [{"range_type": "letters", "start": "a", "end": "f"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -45,11 +43,11 @@ class TestGeneratePreviewContract:
             "prefix": "shelf-",
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "c"},
-                {"range_type": "numbers", "start": 1, "end": 5}
+                {"range_type": "numbers", "start": 1, "end": 5},
             ],
             "separators": ["-"],
             "location_type": "drawer",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -63,11 +61,11 @@ class TestGeneratePreviewContract:
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "b"},
                 {"range_type": "numbers", "start": 1, "end": 3},
-                {"range_type": "numbers", "start": 1, "end": 2}
+                {"range_type": "numbers", "start": 1, "end": 2},
             ],
             "separators": ["-", "."],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -81,7 +79,7 @@ class TestGeneratePreviewContract:
             "ranges": [{"range_type": "letters", "start": "a", "end": "c"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -111,7 +109,7 @@ class TestGeneratePreviewContract:
             "ranges": [{"range_type": "invalid", "start": "a", "end": "c"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -125,7 +123,7 @@ class TestGeneratePreviewContract:
             "ranges": [{"range_type": "letters", "start": "z", "end": "a"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         response = client.post("/api/storage-locations/generate-preview", json=payload)
@@ -133,7 +131,9 @@ class TestGeneratePreviewContract:
 
         # Should either return 422 or 200 with errors in response
         if response.status_code == 200:
-            assert data["is_valid"] is False, "Expected is_valid=False for invalid range"
+            assert (
+                data["is_valid"] is False
+            ), "Expected is_valid=False for invalid range"
             assert len(data["errors"]) > 0, "Expected validation errors"
         else:
             assert response.status_code == 422
@@ -145,11 +145,11 @@ class TestGeneratePreviewContract:
             "prefix": "big-",
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "z"},  # 26
-                {"range_type": "numbers", "start": 1, "end": 30}      # 30
+                {"range_type": "numbers", "start": 1, "end": 30},  # 30
             ],
             "separators": ["-"],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
         # Total: 26 * 30 = 780 > 500
 
@@ -157,7 +157,9 @@ class TestGeneratePreviewContract:
         data = response.json()
 
         assert data["is_valid"] is False, "Expected is_valid=False for 780 locations"
-        assert any("500" in error for error in data["errors"]), "Expected 500 limit error"
+        assert any(
+            "500" in error for error in data["errors"]
+        ), "Expected 500 limit error"
 
     def test_preview_shows_warning_above_100_locations(self, client: TestClient):
         """FR-009: Warning when creating > 100 locations"""
@@ -166,11 +168,11 @@ class TestGeneratePreviewContract:
             "prefix": "warn-",
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "f"},  # 6
-                {"range_type": "numbers", "start": 1, "end": 20}     # 20
+                {"range_type": "numbers", "start": 1, "end": 20},  # 20
             ],
             "separators": ["-"],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
         # Total: 6 * 20 = 120 > 100
 
@@ -193,15 +195,19 @@ class TestBulkCreateContract:
             "ranges": [{"range_type": "letters", "start": "a", "end": "b"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         # Request without auth token
         response = client.post("/api/storage-locations/bulk-create", json=payload)
 
-        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+        assert (
+            response.status_code == 401
+        ), f"Expected 401 Unauthorized, got {response.status_code}"
 
-    def test_bulk_create_accepts_authenticated_request(self, client: TestClient, auth_token: str):
+    def test_bulk_create_accepts_authenticated_request(
+        self, client: TestClient, auth_token: str
+    ):
         """FR-001: Authenticated users can create locations"""
         payload = {
             "layout_type": "row",
@@ -209,16 +215,20 @@ class TestBulkCreateContract:
             "ranges": [{"range_type": "letters", "start": "a", "end": "b"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
         # Should return 201 Created (not 401)
         assert response.status_code == 201, f"Expected 201, got {response.status_code}"
 
-    def test_bulk_create_response_has_required_fields(self, client: TestClient, auth_token: str):
+    def test_bulk_create_response_has_required_fields(
+        self, client: TestClient, auth_token: str
+    ):
         """FR-022, FR-023: Bulk create response schema validation"""
         payload = {
             "layout_type": "row",
@@ -226,11 +236,13 @@ class TestBulkCreateContract:
             "ranges": [{"range_type": "letters", "start": "a", "end": "c"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
         data = response.json()
 
         # Validate response schema
@@ -243,7 +255,9 @@ class TestBulkCreateContract:
         assert isinstance(data["created_count"], int), "created_count must be integer"
         assert isinstance(data["success"], bool), "success must be boolean"
 
-    def test_bulk_create_prevents_duplicate_names(self, client: TestClient, auth_token: str):
+    def test_bulk_create_prevents_duplicate_names(
+        self, client: TestClient, auth_token: str
+    ):
         """FR-007: Cannot create locations with existing names"""
         payload = {
             "layout_type": "row",
@@ -251,17 +265,21 @@ class TestBulkCreateContract:
             "ranges": [{"range_type": "letters", "start": "a", "end": "b"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
 
         # First creation should succeed
-        response1 = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response1 = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
         assert response1.status_code == 201
 
         # Second creation with same names should fail
-        response2 = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response2 = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
         # Should return 409 Conflict or 200 with success=False
         if response2.status_code == 200:
@@ -269,9 +287,13 @@ class TestBulkCreateContract:
             assert data["success"] is False, "Expected success=False for duplicates"
             assert data["created_count"] == 0, "Expected no locations created"
         else:
-            assert response2.status_code == 409, f"Expected 409 Conflict, got {response2.status_code}"
+            assert (
+                response2.status_code == 409
+            ), f"Expected 409 Conflict, got {response2.status_code}"
 
-    def test_bulk_create_supports_parent_location(self, client: TestClient, auth_token: str):
+    def test_bulk_create_supports_parent_location(
+        self, client: TestClient, auth_token: str
+    ):
         """FR-014: Can assign generated locations to parent"""
         # First create parent location
         parent_payload = {
@@ -280,12 +302,13 @@ class TestBulkCreateContract:
             "ranges": [],
             "separators": [],
             "location_type": "box",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        parent_response = client.post("/api/storage-locations/bulk-create",
-                                      json=parent_payload, headers=headers)
+        parent_response = client.post(
+            "/api/storage-locations/bulk-create", json=parent_payload, headers=headers
+        )
         parent_id = parent_response.json()["created_ids"][0]
 
         # Create child locations with parent_id
@@ -296,15 +319,18 @@ class TestBulkCreateContract:
             "separators": [],
             "parent_id": parent_id,
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
-        response = client.post("/api/storage-locations/bulk-create",
-                              json=child_payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=child_payload, headers=headers
+        )
 
         assert response.status_code == 201, "Should accept parent_id"
 
-    def test_bulk_create_supports_single_part_only_flag(self, client: TestClient, auth_token: str):
+    def test_bulk_create_supports_single_part_only_flag(
+        self, client: TestClient, auth_token: str
+    ):
         """FR-015: Can mark locations as single-part only"""
         payload = {
             "layout_type": "row",
@@ -312,30 +338,36 @@ class TestBulkCreateContract:
             "ranges": [{"range_type": "letters", "start": "a", "end": "b"}],
             "separators": [],
             "location_type": "bin",
-            "single_part_only": True  # Test this flag
+            "single_part_only": True,  # Test this flag
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
         assert response.status_code == 201, "Should accept single_part_only flag"
 
-    def test_bulk_create_stores_layout_config_metadata(self, client: TestClient, auth_token: str):
+    def test_bulk_create_stores_layout_config_metadata(
+        self, client: TestClient, auth_token: str
+    ):
         """FR-016: Layout configuration persisted for audit"""
         payload = {
             "layout_type": "grid",
             "prefix": "audit-",
             "ranges": [
                 {"range_type": "letters", "start": "a", "end": "b"},
-                {"range_type": "numbers", "start": 1, "end": 2}
+                {"range_type": "numbers", "start": 1, "end": 2},
             ],
             "separators": ["-"],
             "location_type": "bin",
-            "single_part_only": False
+            "single_part_only": False,
         }
 
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = client.post("/api/storage-locations/bulk-create", json=payload, headers=headers)
+        response = client.post(
+            "/api/storage-locations/bulk-create", json=payload, headers=headers
+        )
 
         assert response.status_code == 201
 
