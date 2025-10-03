@@ -64,7 +64,7 @@
             />
           </div>
 
-          <div v-if="canPerformCrud()" class="col-md-1 col-xs-6">
+          <div v-if="canPerformCrud()" class="col-md-1 col-xs-12">
             <q-btn
               class="add-button-primary"
               icon="add"

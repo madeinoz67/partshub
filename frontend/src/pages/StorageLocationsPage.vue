@@ -7,27 +7,16 @@
         <div class="text-caption text-grey">Organize your workspace with hierarchical storage</div>
       </div>
       <div class="col-auto">
-        <div class="row items-center q-gutter-md">
-          <!-- View Toggle -->
-          <q-btn-toggle
-            v-model="viewMode"
-            toggle-color="primary"
-            :options="[
-              { label: 'Table', value: 'table', icon: 'table_chart' },
-              { label: 'Tree', value: 'tree', icon: 'account_tree' }
-            ]"
-            unelevated
-          />
-          <!-- Create Button -->
-          <q-btn
-            v-if="canPerformCrud()"
-            color="primary"
-            icon="add"
-            label="Create Bulk Locations"
-            unelevated
-            @click="openLayoutDialog"
-          />
-        </div>
+        <!-- View Toggle -->
+        <q-btn-toggle
+          v-model="viewMode"
+          toggle-color="primary"
+          :options="[
+            { label: 'Table', value: 'table', icon: 'table_chart' },
+            { label: 'Tree', value: 'tree', icon: 'account_tree' }
+          ]"
+          unelevated
+        />
       </div>
     </div>
 
@@ -52,6 +41,7 @@
             @refresh="refreshLocations"
             @location-selected="onLocationSelected"
             @edit-location="editLocation"
+            @create-bulk-locations="openLayoutDialog"
           />
         </q-card-section>
       </q-card>

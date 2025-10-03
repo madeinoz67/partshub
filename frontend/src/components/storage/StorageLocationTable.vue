@@ -1,19 +1,31 @@
 <template>
   <div class="storage-location-table">
-    <!-- Search Bar -->
-    <div class="q-mb-md">
-      <q-input
-        v-model="searchQuery"
-        outlined
-        dense
-        placeholder="Search locations..."
-        clearable
-        data-testid="location-search"
-      >
-        <template #prepend>
-          <q-icon name="search" />
-        </template>
-      </q-input>
+    <!-- Search Bar and Action Buttons -->
+    <div class="row q-gutter-sm items-center q-mb-md">
+      <div class="col-md-4 col-xs-12">
+        <q-input
+          v-model="searchQuery"
+          outlined
+          dense
+          placeholder="Search locations..."
+          clearable
+          data-testid="location-search"
+        >
+          <template #prepend>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </div>
+      <div v-if="canPerformCrud()" class="col-md-1 col-xs-12">
+        <q-btn
+          class="add-button-primary"
+          icon="add"
+          @click="emit('createBulkLocations')"
+        >
+          <span class="add-text-full">Add Location</span>
+          <span class="add-text-short">Add</span>
+        </q-btn>
+      </div>
     </div>
 
     <q-table
@@ -200,6 +212,9 @@ import { ref, computed } from 'vue'
 import QrcodeVue from 'qrcode.vue'
 import type { StorageLocation } from '../../services/api'
 import type { QTableColumn } from 'quasar'
+import { useAuth } from '../../composables/useAuth'
+
+const { canPerformCrud } = useAuth()
 
 interface Props {
   locations: StorageLocation[]
@@ -214,6 +229,7 @@ const emit = defineEmits<{
   refresh: []
   locationSelected: [location: StorageLocation]
   editLocation: [location: StorageLocation]
+  createBulkLocations: []
 }>()
 
 // Expanded rows state (only one row can be expanded at a time)

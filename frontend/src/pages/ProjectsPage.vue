@@ -9,7 +9,7 @@
             Track component allocation and project lifecycle
           </div>
         </div>
-        <div class="col-auto">
+        <div v-if="canPerformCrud()" class="col-auto">
           <q-btn
             color="primary"
             icon="add"
@@ -53,14 +53,14 @@
               </q-input>
             </div>
 
-            <div class="col-md-1 col-xs-12">
+            <div v-if="canPerformCrud()" class="col-md-1 col-xs-12">
               <q-btn
                 class="add-button-primary"
                 icon="add"
                 @click="showCreateDialog = true"
               >
-                <span class="add-text-full">New Project</span>
-                <span class="add-text-short">New</span>
+                <span class="add-text-full">Add Project</span>
+                <span class="add-text-short">Add</span>
               </q-btn>
             </div>
 
@@ -651,8 +651,10 @@ import ProjectForm from '../components/ProjectForm.vue'
 import ProjectView from '../components/ProjectView.vue'
 import ComponentAllocation from '../components/ComponentAllocation.vue'
 import ProjectReports from '../components/ProjectReports.vue'
+import { useAuth } from '../composables/useAuth'
 
 const $q = useQuasar()
+const { canPerformCrud } = useAuth()
 
 // Reactive data
 const projects = ref([])
