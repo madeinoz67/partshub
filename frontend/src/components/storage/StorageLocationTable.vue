@@ -1,7 +1,23 @@
 <template>
   <div class="storage-location-table">
+    <!-- Search Bar -->
+    <div class="q-mb-md">
+      <q-input
+        v-model="searchQuery"
+        outlined
+        dense
+        placeholder="Search locations..."
+        clearable
+        data-testid="location-search"
+      >
+        <template #prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </div>
+
     <q-table
-      :rows="locations"
+      :rows="filteredLocations"
       :columns="columns"
       row-key="id"
       :loading="loading"
@@ -11,61 +27,7 @@
       bordered
       @row-click="onRowClick"
     >
-      <!-- Expandable Row Icon -->
-      <template #body-cell-expand="props">
-        <q-td :props="props">
-          <q-btn
-            flat
-            round
-            dense
-            :icon="expanded.includes(props.row.id) ? 'expand_less' : 'expand_more'"
-            @click.stop="toggleExpand(props.row.id)"
-          />
-        </q-td>
-      </template>
-
-      <!-- Location Column with Hierarchy -->
-      <template #body-cell-location="props">
-        <q-td :props="props">
-          <div class="text-weight-medium">{{ props.row.name }}</div>
-          <div v-if="props.row.location_hierarchy" class="text-caption text-grey-7">
-            {{ props.row.location_hierarchy }}
-          </div>
-        </q-td>
-      </template>
-
-      <!-- Last Used Column -->
-      <template #body-cell-last_used="props">
-        <q-td :props="props">
-          <span v-if="props.row.updated_at">{{ formatDate(props.row.updated_at) }}</span>
-          <span v-else class="text-grey-5">Never</span>
-        </q-td>
-      </template>
-
-      <!-- Part Count Column -->
-      <template #body-cell-part_count="props">
-        <q-td :props="props">
-          <q-chip
-            :color="props.row.component_count > 0 ? 'primary' : 'grey-4'"
-            :text-color="props.row.component_count > 0 ? 'white' : 'grey-7'"
-            size="sm"
-          >
-            {{ props.row.component_count || 0 }}
-          </q-chip>
-        </q-td>
-      </template>
-
-      <!-- Description Column -->
-      <template #body-cell-description="props">
-        <q-td :props="props">
-          <div v-if="props.row.description" class="ellipsis" style="max-width: 300px">
-            {{ props.row.description }}
-          </div>
-          <span v-else class="text-grey-5">—</span>
-        </q-td>
-      </template>
-
-      <!-- Expanded Row Content -->
+      <!-- Custom Body with Expandable Rows -->
       <template #body="props">
         <q-tr :props="props">
           <q-td auto-width>
@@ -77,83 +39,103 @@
               @click.stop="toggleExpand(props.row.id)"
             />
           </q-td>
-          <q-td v-for="col in props.cols.filter(c => c.name !== 'expand')" :key="col.name" :props="props">
-            <component
-              :is="getBodyCellComponent(col.name)"
-              v-if="hasBodyCellSlot(col.name)"
-              :props="props"
-            />
-            <template v-else>
-              {{ col.value }}
-            </template>
+          <q-td key="location" :props="props">
+            <div class="text-weight-medium">{{ props.row.name }}</div>
+          </q-td>
+          <q-td key="last_used" :props="props">
+            <span v-if="hasBeenUsed(props.row)">{{ formatDate(props.row.updated_at) }}</span>
+            <span v-else class="text-grey-5">—</span>
+          </q-td>
+          <q-td key="part_count" :props="props">
+            <q-chip
+              :color="props.row.component_count > 0 ? 'primary' : 'grey-4'"
+              :text-color="props.row.component_count > 0 ? 'white' : 'grey-7'"
+              size="sm"
+            >
+              {{ props.row.component_count || 0 }}
+            </q-chip>
+          </q-td>
+          <q-td key="description" :props="props">
+            <div v-if="props.row.description" class="ellipsis" style="max-width: 300px">
+              {{ props.row.description }}
+            </div>
+            <span v-else class="text-grey-5">—</span>
           </q-td>
         </q-tr>
 
         <!-- Expanded Details Row -->
         <q-tr v-if="expanded.includes(props.row.id)" :props="props">
           <q-td colspan="100%" class="bg-grey-1">
-            <div class="row q-pa-md q-gutter-md">
-              <!-- Full Hierarchy Path -->
-              <div class="col-12 col-md-6">
-                <div class="text-subtitle2 text-grey-7 q-mb-xs">Full Hierarchy</div>
-                <div class="text-body2">
-                  {{ props.row.location_hierarchy || props.row.name }}
+            <div class="q-pa-lg">
+              <!-- Header with location name and icon -->
+              <div class="row items-center q-mb-lg">
+                <q-icon name="archive" size="32px" color="primary" class="q-mr-md" />
+                <div class="text-h5">
+                  Storage location: {{ props.row.name }}
+                  <span class="text-grey-7">(parts: {{ props.row.component_count || 0 }})</span>
                 </div>
+                <q-space />
+                <q-btn outline color="primary" icon="edit" label="Edit" />
               </div>
 
-              <!-- Description (Full) -->
-              <div v-if="props.row.description" class="col-12 col-md-6">
-                <div class="text-subtitle2 text-grey-7 q-mb-xs">Description</div>
-                <div class="text-body2">{{ props.row.description }}</div>
-              </div>
+              <!-- Location Info Card -->
+              <q-card flat bordered class="q-mb-md">
+                <q-card-section>
+                  <div class="text-subtitle1 text-weight-medium q-mb-md">
+                    <q-icon name="info" class="q-mr-sm" />
+                    Location Info
+                  </div>
 
-              <!-- Metadata -->
-              <div class="col-12">
-                <div class="text-subtitle2 text-grey-7 q-mb-xs">Metadata</div>
-                <div class="row q-gutter-sm">
-                  <q-chip
-                    outline
-                    color="primary"
-                    size="sm"
-                    :icon="getLocationIcon(props.row.type)"
-                  >
-                    Type: {{ props.row.type }}
-                  </q-chip>
-                  <q-chip
-                    v-if="props.row.qr_code_id"
-                    outline
-                    color="secondary"
-                    size="sm"
-                    icon="qr_code"
-                  >
-                    QR: {{ props.row.qr_code_id }}
-                  </q-chip>
-                </div>
-              </div>
+                  <div class="row q-col-gutter-md">
+                    <!-- Storage location name -->
+                    <div class="col-12 col-md-6">
+                      <div class="text-caption text-grey-7">Storage location name:</div>
+                      <div class="text-body1">{{ props.row.name }}</div>
+                    </div>
 
-              <!-- Layout Config (if exists) -->
-              <div v-if="props.row.layout_config" class="col-12">
-                <div class="text-subtitle2 text-grey-7 q-mb-xs">Layout Configuration</div>
-                <div class="row q-gutter-sm">
-                  <q-chip
-                    outline
-                    color="accent"
-                    size="sm"
-                    icon="grid_view"
-                  >
-                    Type: {{ props.row.layout_config.layout_type }}
-                  </q-chip>
-                  <q-chip
-                    v-if="props.row.layout_config.prefix"
-                    outline
-                    color="accent"
-                    size="sm"
-                    icon="label"
-                  >
-                    Prefix: {{ props.row.layout_config.prefix }}
-                  </q-chip>
-                </div>
-              </div>
+                    <!-- Physical Location (Parent) -->
+                    <div class="col-12 col-md-6">
+                      <div class="text-caption text-grey-7">Physical Location:</div>
+                      <div class="text-body1">{{ getParentLocationName(props.row) || '—' }}</div>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="col-12 col-md-6">
+                      <div class="text-caption text-grey-7">Location Type:</div>
+                      <div class="text-body1">{{ props.row.type }}</div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                      <div class="text-caption text-grey-7">Description:</div>
+                      <div class="text-body1">{{ props.row.description || '—' }}</div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Parts stored in this location -->
+              <q-card flat bordered>
+                <q-card-section>
+                  <div class="text-subtitle1 text-weight-medium q-mb-md">
+                    <q-icon name="inventory" class="q-mr-sm" />
+                    Parts stored in this location
+                  </div>
+
+                  <div v-if="props.row.component_count === 0" class="row items-center q-pa-md bg-blue-1 rounded-borders">
+                    <q-icon name="info" size="48px" color="blue-7" class="q-mr-md" />
+                    <div>
+                      <div class="text-subtitle1 text-weight-medium">Storage location is empty</div>
+                      <div class="text-body2 text-grey-8">There are no parts in this storage location.</div>
+                    </div>
+                  </div>
+
+                  <div v-else class="text-body2 text-grey-7">
+                    {{ props.row.component_count }} part{{ props.row.component_count !== 1 ? 's' : '' }} stored here
+                    <div class="text-caption q-mt-sm">Click "Go to storage location" above to view and manage parts</div>
+                  </div>
+                </q-card-section>
+              </q-card>
             </div>
           </q-td>
         </q-tr>
@@ -200,10 +182,30 @@ const emit = defineEmits<{
 // Expanded rows state (only one row can be expanded at a time)
 const expanded = ref<string[]>([])
 
-// Pagination
+// Search query for filtering locations
+const searchQuery = ref('')
+
+// Filtered locations based on search query
+const filteredLocations = computed(() => {
+  if (!searchQuery.value) {
+    return props.locations
+  }
+
+  const query = searchQuery.value.toLowerCase().trim()
+  return props.locations.filter(location => {
+    return (
+      location.name.toLowerCase().includes(query) ||
+      location.type.toLowerCase().includes(query) ||
+      location.description?.toLowerCase().includes(query) ||
+      location.location_hierarchy?.toLowerCase().includes(query)
+    )
+  })
+})
+
+// Pagination with default sorting by name
 const pagination = ref({
   rowsPerPage: 25,
-  sortBy: 'name',
+  sortBy: 'location',
   descending: false
 })
 
@@ -273,28 +275,17 @@ const onRowClick = (_evt: Event, row: StorageLocation) => {
   emit('locationSelected', row)
 }
 
-// Date formatter
+// Date formatter - format as "YYYY-MM-DD HH:MM"
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) {
-    return 'Today'
-  } else if (diffDays === 1) {
-    return 'Yesterday'
-  } else if (diffDays < 7) {
-    return `${diffDays} days ago`
-  } else if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7)
-    return `${weeks} week${weeks > 1 ? 's' : ''} ago`
-  } else if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30)
-    return `${months} month${months > 1 ? 's' : ''} ago`
-  } else {
-    return date.toLocaleDateString()
-  }
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+
+  return `${year}-${month}-${day} ${hours}:${minutes}`
 }
 
 // Location type icon mapping
@@ -311,14 +302,32 @@ const getLocationIcon = (type: string): string => {
   return iconMap[type] || 'folder'
 }
 
-// Helper methods for template component rendering
-const getBodyCellComponent = (colName: string) => {
-  // This would return the appropriate slot component if needed
-  return 'div'
+// Get parent location name from parent_id
+const getParentLocationName = (location: StorageLocation): string | null => {
+  if (!location.parent_id) return null
+
+  // Find parent in the locations list
+  const parent = props.locations.find(loc => loc.id === location.parent_id)
+  return parent ? parent.name : null
 }
 
-const hasBodyCellSlot = (colName: string) => {
-  return ['location', 'last_used', 'part_count', 'description'].includes(colName)
+// Check if location has been used (has parts or had parts moved in/out)
+const hasBeenUsed = (location: StorageLocation): boolean => {
+  // Location is considered "used" if:
+  // 1. It currently has parts (component_count > 0), OR
+  // 2. It has an updated_at timestamp that differs from created_at (indicating activity)
+
+  if (location.component_count && location.component_count > 0) {
+    return true
+  }
+
+  // If no parts currently, check if updated_at differs from created_at
+  // This would indicate parts were added/removed at some point
+  if (location.updated_at && location.created_at) {
+    return location.updated_at !== location.created_at
+  }
+
+  return false
 }
 </script>
 

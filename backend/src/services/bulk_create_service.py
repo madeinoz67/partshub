@@ -91,17 +91,21 @@ class BulkCreateService:
         try:
             for name in all_names:
                 location = StorageLocation(
-                    name=name,
                     type=config.location_type,  # FR-021
                     parent_id=config.parent_id,  # FR-014
                     description=f"Auto-generated {config.layout_type.value} layout location",
                 )
 
+                # Add to session first so event listeners have session context
+                self.db.add(location)
+
+                # Set name AFTER adding to session to trigger hierarchy update with proper context
+                location.name = name
+
                 # Store the layout configuration as JSON (FR-016)
                 # Note: SQLite stores this as JSON text, but SQLAlchemy handles conversion
                 location.layout_config = layout_config
 
-                self.db.add(location)
                 created_locations.append(location)
 
             # Commit all at once (transactional)

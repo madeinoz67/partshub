@@ -776,22 +776,16 @@ def bulk_create_layout(
     Requires authentication. This operation is transactional - either all locations
     are created successfully, or none are created (rollback on error).
     """
-    import logging
-
     from ..services.bulk_create_service import BulkCreateService
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Bulk create request - layout_type: {config.layout_type}, prefix: {config.prefix}, ranges: {config.ranges}")
 
     service = BulkCreateService(db)
 
     try:
-        # Get user ID from current_user
-        user_id = current_user.id if current_user else None
+        # Get user ID from current_user (current_user is a dict, not an object)
+        user_id = current_user.get("id") if current_user else None
 
         # Create locations using service
         result = service.bulk_create_locations(config, user_id)
-        logger.info(f"Bulk create result - created_count: {result.created_count}, success: {result.success}, errors: {result.errors}")
         return result
 
     except Exception as e:
