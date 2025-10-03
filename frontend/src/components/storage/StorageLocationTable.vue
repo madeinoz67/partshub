@@ -75,7 +75,13 @@
                   <span class="text-grey-7">(parts: {{ props.row.component_count || 0 }})</span>
                 </div>
                 <q-space />
-                <q-btn outline color="primary" icon="edit" label="Edit" />
+                <q-btn
+                  outline
+                  color="primary"
+                  icon="edit"
+                  label="Edit"
+                  @click="emit('editLocation', props.row)"
+                />
               </div>
 
               <!-- Location Info Card -->
@@ -87,28 +93,53 @@
                   </div>
 
                   <div class="row q-col-gutter-md">
-                    <!-- Storage location name -->
-                    <div class="col-12 col-md-6">
-                      <div class="text-caption text-grey-7">Storage location name:</div>
-                      <div class="text-body1">{{ props.row.name }}</div>
+                    <!-- Left column with details -->
+                    <div class="col-12 col-md-8">
+                      <div class="row q-col-gutter-md">
+                        <!-- Storage location name -->
+                        <div class="col-12 col-md-6">
+                          <div class="text-caption text-grey-7">Storage location name:</div>
+                          <div class="text-body1">{{ props.row.name }}</div>
+                        </div>
+
+                        <!-- Physical Location (Parent) -->
+                        <div class="col-12 col-md-6">
+                          <div class="text-caption text-grey-7">Physical Location:</div>
+                          <div class="text-body1">{{ getParentLocationName(props.row) || '—' }}</div>
+                        </div>
+
+                        <!-- Type -->
+                        <div class="col-12 col-md-6">
+                          <div class="text-caption text-grey-7">Location Type:</div>
+                          <div class="text-body1">{{ props.row.type }}</div>
+                        </div>
+
+                        <!-- QR Code ID -->
+                        <div class="col-12 col-md-6">
+                          <div class="text-caption text-grey-7">QR Code ID:</div>
+                          <div class="text-body1">{{ props.row.qr_code_id || '—' }}</div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                          <div class="text-caption text-grey-7">Description:</div>
+                          <div class="text-body1">{{ props.row.description || '—' }}</div>
+                        </div>
+                      </div>
                     </div>
 
-                    <!-- Physical Location (Parent) -->
-                    <div class="col-12 col-md-6">
-                      <div class="text-caption text-grey-7">Physical Location:</div>
-                      <div class="text-body1">{{ getParentLocationName(props.row) || '—' }}</div>
-                    </div>
-
-                    <!-- Type -->
-                    <div class="col-12 col-md-6">
-                      <div class="text-caption text-grey-7">Location Type:</div>
-                      <div class="text-body1">{{ props.row.type }}</div>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="col-12">
-                      <div class="text-caption text-grey-7">Description:</div>
-                      <div class="text-body1">{{ props.row.description || '—' }}</div>
+                    <!-- Right column with QR code -->
+                    <div v-if="props.row.qr_code_id" class="col-12 col-md-4 flex flex-center">
+                      <div class="text-center">
+                        <div class="text-caption text-grey-7 q-mb-sm">QR Code</div>
+                        <QrcodeVue
+                          :value="getQRCodeValue(props.row)"
+                          :size="150"
+                          level="H"
+                          render-as="svg"
+                        />
+                        <div class="text-caption text-grey-7 q-mt-xs">{{ props.row.qr_code_id }}</div>
+                      </div>
                     </div>
                   </div>
                 </q-card-section>
@@ -162,6 +193,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import QrcodeVue from 'qrcode.vue'
 import type { StorageLocation } from '../../services/api'
 import type { QTableColumn } from 'quasar'
 
@@ -177,6 +209,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   refresh: []
   locationSelected: [location: StorageLocation]
+  editLocation: [location: StorageLocation]
 }>()
 
 // Expanded rows state (only one row can be expanded at a time)
@@ -328,6 +361,13 @@ const hasBeenUsed = (location: StorageLocation): boolean => {
   }
 
   return false
+}
+
+// Generate QR code value for location
+const getQRCodeValue = (location: StorageLocation): string => {
+  // Generate a URL that could be scanned to navigate to this location
+  // Format: partshub://location/{id} or use the qr_code_id
+  return location.qr_code_id || location.id
 }
 </script>
 

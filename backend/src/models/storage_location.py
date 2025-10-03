@@ -214,3 +214,12 @@ def update_hierarchy_on_name_change(target, value, oldvalue, initiator):
             parent = session.get(StorageLocation, target.parent_id)
             if parent:
                 target.location_hierarchy = f"{parent.location_hierarchy}/{value}"
+
+
+@event.listens_for(StorageLocation, "before_insert")
+def generate_qr_code_id(mapper, connection, target):
+    """Auto-generate QR code ID if not already set."""
+    if not target.qr_code_id:
+        # Generate a unique QR code ID using the location's UUID
+        # Format: LOC-<first 8 chars of UUID>
+        target.qr_code_id = f"LOC-{target.id[:8].upper()}"

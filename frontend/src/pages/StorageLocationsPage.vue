@@ -40,6 +40,7 @@
             :loading="isLoading"
             @refresh="refreshLocations"
             @location-selected="onLocationSelected"
+            @edit-location="editLocation"
           />
         </q-card-section>
       </q-card>
