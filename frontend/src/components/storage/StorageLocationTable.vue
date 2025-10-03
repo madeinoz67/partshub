@@ -230,7 +230,8 @@ const filteredLocations = computed(() => {
       location.name.toLowerCase().includes(query) ||
       location.type.toLowerCase().includes(query) ||
       location.description?.toLowerCase().includes(query) ||
-      location.location_hierarchy?.toLowerCase().includes(query)
+      location.location_hierarchy?.toLowerCase().includes(query) ||
+      location.qr_code_id?.toLowerCase().includes(query)
     )
   })
 })
