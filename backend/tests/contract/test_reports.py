@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestReportsContract:
     """Contract tests for reports API endpoints."""
 

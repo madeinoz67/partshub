@@ -3,9 +3,11 @@ Contract test for POST /api/v1/kicad/libraries/sync
 Tests KiCad library synchronization endpoint according to OpenAPI specification
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestKiCadSyncContract:
     """Contract tests for KiCad library synchronization endpoint"""
 

@@ -25,6 +25,7 @@ from backend.src.database import Base, get_db
 from backend.src.main import app
 
 
+@pytest.mark.integration
 class TestLocationGenerationPerformance:
     """Performance validation tests (T058-T059)"""
 
@@ -447,6 +448,7 @@ class TestLocationGenerationPerformance:
         return {"Authorization": f"Bearer {token}"}
 
 
+@pytest.mark.integration
 class TestPerformanceScalability:
     """
     Additional scalability and bottleneck analysis tests.

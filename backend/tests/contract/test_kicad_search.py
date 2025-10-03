@@ -3,9 +3,11 @@ Contract test for GET /api/v1/kicad/components
 Tests KiCad component search endpoint according to OpenAPI specification
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestKiCadSearchContract:
     """Contract tests for KiCad component search endpoint"""
 

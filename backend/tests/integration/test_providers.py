@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from backend.src.auth.admin import ensure_admin_exists
 
 
+@pytest.mark.integration
 class TestProviderIntegration:
     """Integration tests for component data provider functionality"""
 

@@ -15,6 +15,8 @@ NOTE: Test isolation - uses in-memory SQLite from conftest.py fixtures
 """
 
 
+import pytest
+
 from backend.src.models.storage_location import StorageLocation
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
@@ -25,6 +27,7 @@ from backend.src.schemas.location_layout import (
 from backend.src.services.location_validator import LocationValidatorService
 
 
+@pytest.mark.unit
 class TestValidateConfiguration:
     """Test suite for validate_configuration method."""
 
@@ -461,6 +464,7 @@ class TestValidateConfiguration:
         assert duplicate_names_shown <= 5
 
 
+@pytest.mark.unit
 class TestValidatorIntegration:
     """Integration tests for validator with generator service."""
 

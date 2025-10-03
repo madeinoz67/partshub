@@ -19,6 +19,7 @@ from backend.src.models.storage_location import StorageLocation
 from backend.src.models.tag import Tag
 
 
+@pytest.mark.unit
 class TestComponentModel:
     """Unit tests for Component model"""
 

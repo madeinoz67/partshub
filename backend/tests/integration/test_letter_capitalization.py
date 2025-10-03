@@ -10,9 +10,11 @@ Functional Requirements: FR-010 (Letter range capitalization option)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestLetterCapitalization:
     """
     Scenario 11: Letter Capitalization (FR-010)

@@ -22,9 +22,12 @@ NOTE: Test isolation - each test uses isolated in-memory SQLite database via fix
 """
 
 
+import pytest
+
 from backend.src.models.storage_location import StorageLocation
 
 
+@pytest.mark.integration
 class TestLocationGenerationIntegration:
     """Integration tests for all quickstart.md scenarios using API endpoints"""
 
@@ -634,6 +637,7 @@ class TestLocationGenerationIntegration:
         assert locations[2].name == "BIN-C"
 
 
+@pytest.mark.integration
 class TestLocationGenerationEdgeCases:
     """Additional integration tests for edge cases and authentication"""
 

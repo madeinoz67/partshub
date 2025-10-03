@@ -6,6 +6,8 @@ Full test suite should be in test_location_generator.py (TDD Phase 3.3).
 """
 
 
+import pytest
+
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
     LayoutType,
@@ -15,6 +17,7 @@ from backend.src.schemas.location_layout import (
 from backend.src.services.location_generator import LocationGeneratorService
 
 
+@pytest.mark.unit
 def test_generate_letter_range():
     """Test generating a letter range."""
     service = LocationGeneratorService()
@@ -25,6 +28,7 @@ def test_generate_letter_range():
     assert result == ["a", "b", "c"]
 
 
+@pytest.mark.unit
 def test_generate_number_range():
     """Test generating a number range."""
     service = LocationGeneratorService()
@@ -35,6 +39,7 @@ def test_generate_number_range():
     assert result == ["1", "2", "3"]
 
 
+@pytest.mark.unit
 def test_generate_number_range_with_zero_padding():
     """Test generating a number range with zero padding."""
     service = LocationGeneratorService()
@@ -45,6 +50,7 @@ def test_generate_number_range_with_zero_padding():
     assert result == ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
 
 
+@pytest.mark.unit
 def test_calculate_total_count_row():
     """Test calculating total count for row layout."""
     service = LocationGeneratorService()
@@ -59,6 +65,7 @@ def test_calculate_total_count_row():
     assert count == 3
 
 
+@pytest.mark.unit
 def test_calculate_total_count_grid():
     """Test calculating total count for grid layout."""
     service = LocationGeneratorService()
@@ -76,6 +83,7 @@ def test_calculate_total_count_grid():
     assert count == 15  # 3 letters * 5 numbers
 
 
+@pytest.mark.unit
 def test_generate_all_names_row():
     """Test generating all names for row layout."""
     service = LocationGeneratorService()
@@ -90,6 +98,7 @@ def test_generate_all_names_row():
     assert names == ["box-a", "box-b", "box-c"]
 
 
+@pytest.mark.unit
 def test_generate_all_names_grid():
     """Test generating all names for grid layout."""
     service = LocationGeneratorService()
@@ -107,6 +116,7 @@ def test_generate_all_names_grid():
     assert names == ["shelf-a-1", "shelf-a-2", "shelf-b-1", "shelf-b-2"]
 
 
+@pytest.mark.unit
 def test_generate_preview():
     """Test generating preview - uses PreviewService not LocationGeneratorService."""
     # Note: Preview functionality has been moved to PreviewService
@@ -128,6 +138,7 @@ def test_generate_preview():
     assert names == ["box-a", "box-b", "box-c", "box-d", "box-e", "box-f"]
 
 
+@pytest.mark.unit
 def test_validate_configuration_exceeds_limit():
     """Test validation - now handled by LocationValidatorService."""
     # Note: Validation has been moved to LocationValidatorService
@@ -145,6 +156,7 @@ def test_validate_configuration_exceeds_limit():
     assert count == 600  # Generator correctly calculates count
 
 
+@pytest.mark.unit
 def test_validate_configuration_warning_for_large_batch():
     """Test warning for large batches - now handled by LocationValidatorService."""
     # Note: Warning logic has been moved to LocationValidatorService

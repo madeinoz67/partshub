@@ -10,9 +10,11 @@ Functional Requirements: FR-007 (Duplicate prevention), Transactional behavior
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestDuplicatePrevention:
     """
     Scenario 7: Duplicate Prevention (FR-007)

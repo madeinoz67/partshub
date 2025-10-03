@@ -13,6 +13,7 @@ from backend.src.models import TransactionType
 from backend.src.services.stock_service import StockService
 
 
+@pytest.mark.unit
 class TestStockService:
     """Test StockService functionality."""
 

@@ -16,9 +16,11 @@ Test Categories:
 5. Business logic validation (limits, duplicates, warnings)
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestGeneratePreviewContract:
     """Contract tests for POST /api/v1/storage-locations/generate-preview (T010)"""
 
@@ -316,6 +318,7 @@ class TestGeneratePreviewContract:
         assert response.status_code == 422, f"Expected 422, got {response.status_code}"
 
 
+@pytest.mark.contract
 class TestBulkCreateLayoutContract:
     """Contract tests for POST /api/v1/storage-locations/bulk-create-layout (T011)"""
 

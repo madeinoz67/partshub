@@ -12,9 +12,11 @@ References:
 - Functional Requirements: FR-001 through FR-023
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestGeneratePreviewContract:
     """
     Contract tests for preview endpoint (no authentication required)

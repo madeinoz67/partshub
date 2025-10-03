@@ -6,6 +6,8 @@ Tests that preview generation meets the <200ms requirement for 500 locations.
 
 import time
 
+import pytest
+
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
     LayoutType,
@@ -15,6 +17,7 @@ from backend.src.schemas.location_layout import (
 from backend.src.services.location_generator import LocationGeneratorService
 
 
+@pytest.mark.unit
 def test_preview_performance_500_locations():
     """Test that name generation completes quickly for 500 locations."""
     service = LocationGeneratorService()
@@ -55,6 +58,7 @@ def test_preview_performance_500_locations():
     ), f"Name generation took {elapsed_ms:.2f}ms, exceeding 200ms requirement"
 
 
+@pytest.mark.unit
 def test_all_names_generation_performance():
     """Test full name generation for benchmarking."""
     service = LocationGeneratorService()

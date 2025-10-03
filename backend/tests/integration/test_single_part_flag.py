@@ -10,9 +10,11 @@ Functional Requirements: FR-015 (Single-part only designation)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestSinglePartFlag:
     """
     Scenario 9: Single-Part Only Flag (FR-015)

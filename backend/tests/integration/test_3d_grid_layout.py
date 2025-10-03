@@ -10,9 +10,11 @@ Functional Requirements: FR-004 (3D Grid layout support)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class Test3DGridLayout:
     """
     Scenario 3: 3D Grid Layout (FR-004)

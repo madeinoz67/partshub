@@ -5,9 +5,11 @@ Tests component deletion endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestComponentsDeleteContract:
     """Contract tests for component deletion endpoint"""
 

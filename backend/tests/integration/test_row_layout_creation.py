@@ -10,9 +10,11 @@ Functional Requirements: FR-002 (Row layout support)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestRowLayoutCreation:
     """
     Scenario 1: Row Layout Creation (FR-002)

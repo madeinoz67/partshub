@@ -16,6 +16,7 @@ from backend.src.models.component_location import ComponentLocation
 from backend.src.models.storage_location import StorageLocation
 
 
+@pytest.mark.unit
 class TestStorageLocationModel:
     """Unit tests for StorageLocation model"""
 

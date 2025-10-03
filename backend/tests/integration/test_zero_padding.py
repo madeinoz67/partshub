@@ -10,9 +10,11 @@ Functional Requirements: FR-011 (Number range zero-padding option)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestZeroPadding:
     """
     Scenario 10: Zero-Padding for Numbers (FR-011)

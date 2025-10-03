@@ -15,6 +15,8 @@ NOTE: Test isolation - pure business logic, no database dependencies
 """
 
 
+import pytest
+
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
     LayoutType,
@@ -24,6 +26,7 @@ from backend.src.schemas.location_layout import (
 from backend.src.services.location_generator import LocationGeneratorService
 
 
+@pytest.mark.unit
 class TestGenerateRange:
     """Test suite for generate_range method."""
 
@@ -163,6 +166,7 @@ class TestGenerateRange:
         assert result[-1] == "999"
 
 
+@pytest.mark.unit
 class TestCalculateTotalCount:
     """Test suite for calculate_total_count method."""
 
@@ -307,6 +311,7 @@ class TestCalculateTotalCount:
         assert result == 520  # 26 letters * 20 numbers = 520 locations
 
 
+@pytest.mark.unit
 class TestGenerateNames:
     """Test suite for generate_names method."""
 

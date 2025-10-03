@@ -7,7 +7,10 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
 
+
+@pytest.mark.unit
 class TestAPIEndpointsBasic:
     """Basic tests for API endpoints to increase API coverage."""
 
@@ -44,6 +47,7 @@ class TestAPIEndpointsBasic:
         assert callable(get_session)
 
 
+@pytest.mark.unit
 class TestModelInitialization:
     """Test model initialization and basic properties."""
 
@@ -111,6 +115,7 @@ class TestModelInitialization:
         assert attachment.file_size == 12345
 
 
+@pytest.mark.unit
 class TestServiceInitialization:
     """Test service initialization and basic methods."""
 
@@ -151,6 +156,7 @@ class TestServiceInitialization:
         assert hasattr(service, "enabled_providers")
 
 
+@pytest.mark.unit
 class TestUtilityFunctions:
     """Test utility functions and helper methods."""
 
@@ -212,6 +218,7 @@ class TestUtilityFunctions:
         assert component.display_name == "Resistor"
 
 
+@pytest.mark.unit
 class TestErrorHandling:
     """Test error handling and edge cases."""
 
@@ -248,6 +255,7 @@ class TestErrorHandling:
             pass
 
 
+@pytest.mark.unit
 class TestJSONSerializationMethods:
     """Test to_dict and JSON serialization methods for coverage."""
 
@@ -292,6 +300,7 @@ class TestJSONSerializationMethods:
         assert kicad_data.get_symbol_reference() == "lib:sym"
 
 
+@pytest.mark.unit
 class TestProviderImplementations:
     """Test provider implementations for coverage."""
 
@@ -327,6 +336,7 @@ class TestProviderImplementations:
         assert ComponentDataProvider is not None
 
 
+@pytest.mark.unit
 class TestMainApplicationSetup:
     """Test main application setup and configuration."""
 

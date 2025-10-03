@@ -14,9 +14,11 @@ References:
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestBulkCreateContract:
     """
     Contract tests for bulk create endpoint (authentication required)

@@ -16,6 +16,8 @@ NOTE: Test isolation - uses in-memory SQLite from conftest.py fixtures
 """
 
 
+import pytest
+
 from backend.src.models.storage_location import StorageLocation
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
@@ -26,6 +28,7 @@ from backend.src.schemas.location_layout import (
 from backend.src.services.preview_service import PreviewService
 
 
+@pytest.mark.unit
 class TestGeneratePreview:
     """Test suite for generate_preview method."""
 
@@ -361,6 +364,7 @@ class TestGeneratePreview:
         assert preview.last_name == "SHELF-J"
 
 
+@pytest.mark.unit
 class TestPreviewEdgeCases:
     """Test edge cases and error scenarios."""
 
@@ -520,6 +524,7 @@ class TestPreviewEdgeCases:
         assert preview.warnings == []  # 60 < 100, no warning
 
 
+@pytest.mark.unit
 class TestPreviewValidationIntegration:
     """Test integration between PreviewService and LocationValidatorService."""
 

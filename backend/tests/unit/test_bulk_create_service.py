@@ -17,6 +17,8 @@ NOTE: Test isolation - uses in-memory SQLite from conftest.py fixtures
 """
 
 
+import pytest
+
 from backend.src.models.storage_location import StorageLocation
 from backend.src.schemas.location_layout import (
     LayoutConfiguration,
@@ -27,6 +29,7 @@ from backend.src.schemas.location_layout import (
 from backend.src.services.bulk_create_service import BulkCreateService
 
 
+@pytest.mark.unit
 class TestBulkCreateLocations:
     """Test suite for bulk_create_locations method."""
 
@@ -418,6 +421,7 @@ class TestBulkCreateLocations:
         assert len(locations) == 100
 
 
+@pytest.mark.unit
 class TestTransactionSemantics:
     """Test transactional behavior and rollback scenarios."""
 
@@ -530,6 +534,7 @@ class TestTransactionSemantics:
         assert existing[1].name == "initial-2"
 
 
+@pytest.mark.unit
 class TestBulkCreateEdgeCases:
     """Test edge cases and special scenarios."""
 

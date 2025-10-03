@@ -10,9 +10,11 @@ Functional Requirements: FR-008 (Maximum 500 locations limit)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestMaxLimitEnforcement:
     """
     Scenario 5: Maximum Limit Enforcement (FR-008)

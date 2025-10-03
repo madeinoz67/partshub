@@ -10,9 +10,11 @@ Functional Requirements: FR-003 (Grid layout), FR-013 (Preview format)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestGridLayoutPreview:
     """
     Scenario 2: Grid Layout with Preview (FR-003, FR-013)

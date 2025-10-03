@@ -3,9 +3,11 @@ Contract test for POST /api/v1/storage-locations/bulk-create
 Tests bulk storage location creation endpoint according to OpenAPI specification
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestStorageBulkContract:
     """Contract tests for bulk storage location creation endpoint"""
 

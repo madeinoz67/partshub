@@ -10,9 +10,11 @@ Functional Requirements: FR-014 (Parent location assignment)
 This test follows TDD and will FAIL until the feature is implemented.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestParentLocationAssignment:
     """
     Scenario 8: Parent Location Assignment (FR-014)

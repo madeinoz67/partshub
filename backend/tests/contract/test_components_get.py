@@ -5,9 +5,11 @@ Tests component details endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestComponentsGetContract:
     """Contract tests for component details endpoint"""
 

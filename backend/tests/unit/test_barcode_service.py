@@ -7,11 +7,13 @@ import base64
 import io
 from unittest.mock import Mock, patch
 
+import pytest
 from PIL import Image
 
 from backend.src.services.barcode_service import BarcodeResult, BarcodeService
 
 
+@pytest.mark.unit
 class TestBarcodeResult:
     """Test BarcodeResult data class."""
 
@@ -32,6 +34,7 @@ class TestBarcodeResult:
         assert result.confidence == 1.0
 
 
+@pytest.mark.unit
 class TestBarcodeService:
     """Test BarcodeService functionality."""
 
