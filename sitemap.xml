@@ -2,82 +2,94 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://madeinoz67.github.io/partshub/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/CHANGELOG/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
+    </url>
+    <url>
+         <loc>https://madeinoz67.github.io/partshub/api/</loc>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/repository-setup/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/architecture/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/architecture/barcode-scanning/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/architecture/kicad-integration/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/backend/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/backend/kicad-field-mappings/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/backend/testing/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/database/performance/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/developer/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/developer/session-notes-2025-09-27/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/developer/workflows/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
+    </url>
+    <url>
+         <loc>https://madeinoz67.github.io/partshub/features/storage-location-layout/</loc>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/frontend/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
+    </url>
+    <url>
+         <loc>https://madeinoz67.github.io/partshub/migrations/003-location-generation/</loc>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/releases/v0.1.0/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/user/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/user/getting-started/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/user/kicad-workflows/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/workflows/branch-protection/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/workflows/troubleshooting/</loc>
-         <lastmod>2025-10-02</lastmod>
+         <lastmod>2025-10-04</lastmod>
     </url>
 </urlset>
