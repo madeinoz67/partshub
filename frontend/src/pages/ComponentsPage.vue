@@ -1,10 +1,18 @@
 <template>
   <q-page class="q-pa-md">
-    <!-- Page Title -->
+    <!-- Page Title and Bulk Operations -->
     <div class="row items-center q-mb-lg">
       <div class="col">
         <div class="text-h4">Components</div>
         <div class="text-caption text-grey">Manage your electronic components inventory</div>
+      </div>
+      <div class="col-auto">
+        <!-- Bulk Operations Menu -->
+        <BulkOperationMenu
+          @add-tags="showTagDialog = true"
+          @add-to-project="showProjectDialog = true"
+          @delete="handleBulkDelete"
+        />
       </div>
     </div>
 
@@ -54,6 +62,44 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Tag Management Dialog -->
+    <TagManagementDialog
+      v-model="showTagDialog"
+      :component-ids="selectionStore.getSelectedArray()"
+      @applied="onTagsApplied"
+    />
+
+    <!-- Add to Project Dialog -->
+    <AddToProjectDialog
+      v-model="showProjectDialog"
+      :component-ids="selectionStore.getSelectedArray()"
+      @added="onAddedToProject"
+    />
+
+    <!-- Bulk Delete Confirmation Dialog -->
+    <q-dialog v-model="showBulkDeleteDialog" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="delete" color="negative" text-color="white" />
+          <span class="q-ml-sm">
+            Are you sure you want to delete <strong>{{ selectionStore.selectedCount }}</strong> selected components?
+            This action cannot be undone.
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn v-close-popup flat label="Cancel" color="primary" />
+          <q-btn
+            flat
+            label="Delete All"
+            color="negative"
+            :loading="bulkDeleteLoading"
+            @click="confirmBulkDelete"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -64,21 +110,31 @@ import { useQuasar } from 'quasar'
 import ComponentList from '../components/ComponentList.vue'
 import ComponentForm from '../components/ComponentForm.vue'
 import StockUpdateDialog from '../components/StockUpdateDialog.vue'
+import BulkOperationMenu from '../components/BulkOperationMenu.vue'
+import TagManagementDialog from '../components/TagManagementDialog.vue'
+import AddToProjectDialog from '../components/AddToProjectDialog.vue'
 import { useComponentsStore } from '../stores/components'
+import { useSelectionStore } from '../stores/selection'
 import { useAuth } from '../composables/useAuth'
+import { bulkOperationsApi } from '../services/bulkOperationsApi'
 import type { Component } from '../services/api'
 
 const router = useRouter()
 const $q = useQuasar()
 const componentsStore = useComponentsStore()
+const selectionStore = useSelectionStore()
 const { requireAuth } = useAuth()
 
 const selectedComponent = ref<Component | null>(null)
 const showCreateDialog = ref(false)
 const showStockDialog = ref(false)
 const showDeleteDialog = ref(false)
+const showTagDialog = ref(false)
+const showProjectDialog = ref(false)
+const showBulkDeleteDialog = ref(false)
 const isEditMode = ref(false)
 const deleteLoading = ref(false)
+const bulkDeleteLoading = ref(false)
 
 const viewComponent = (component: Component) => {
   router.push(`/components/${component.id}`)
@@ -162,5 +218,63 @@ const confirmDelete = async () => {
   } finally {
     deleteLoading.value = false
   }
+}
+
+// Bulk operations handlers
+const handleBulkDelete = () => {
+  if (!requireAuth('delete components')) return
+  showBulkDeleteDialog.value = true
+}
+
+const confirmBulkDelete = async () => {
+  if (selectionStore.selectedCount === 0) return
+
+  bulkDeleteLoading.value = true
+  try {
+    const result = await bulkOperationsApi.bulkDelete(selectionStore.getSelectedArray())
+
+    $q.notify({
+      type: 'positive',
+      message: `${result.deleted_count || 0} components deleted successfully`,
+      caption: result.failed_count > 0 ? `${result.failed_count} failed` : undefined,
+      position: 'top-right'
+    })
+
+    // Clear selection and refresh
+    selectionStore.clearSelection()
+    await componentsStore.fetchComponents()
+    showBulkDeleteDialog.value = false
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to delete components',
+      caption: error instanceof Error ? error.message : 'Unknown error',
+      position: 'top-right'
+    })
+  } finally {
+    bulkDeleteLoading.value = false
+  }
+}
+
+const onTagsApplied = async () => {
+  $q.notify({
+    type: 'positive',
+    message: 'Tags updated successfully',
+    position: 'top-right'
+  })
+
+  // Refresh components while preserving selection
+  await componentsStore.fetchComponents()
+}
+
+const onAddedToProject = async () => {
+  $q.notify({
+    type: 'positive',
+    message: 'Components added to project successfully',
+    position: 'top-right'
+  })
+
+  // Refresh components while preserving selection
+  await componentsStore.fetchComponents()
 }
 </script>

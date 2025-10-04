@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 from .api.attachments import router as attachments_router
 from .api.auth import router as auth_router
 from .api.bom import router as bom_router
+from .api.bulk_operations import router as bulk_operations_router
 from .api.categories import router as categories_router
 
 # Import API routers
@@ -183,6 +184,7 @@ app.include_router(projects_router)
 app.include_router(reports_router)
 app.include_router(bom_router)
 app.include_router(categories_router)
+app.include_router(bulk_operations_router)
 
 
 @app.get("/")

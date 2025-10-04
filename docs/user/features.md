@@ -135,7 +135,39 @@ Seamlessly transfer component data between PartsHub and KiCad for PCB design wor
 
 **Detailed KiCad workflows available in [KiCad Workflows Guide](kicad-workflows.md)**
 
-## 6. API Access and Token Management
+## 6. Bulk Operations (Admin Only)
+
+### Overview
+Bulk operations allow admin users to perform actions on multiple components simultaneously, saving time when managing large inventories.
+
+### Key Capabilities
+- **Tag Management**: Add or remove tags from multiple components at once
+- **Project Assignment**: Assign components to projects in bulk with custom quantities
+- **Mass Deletion**: Delete multiple components with atomic transaction safety
+- **Future Features**: Meta-parts, purchase lists, low-stock alerts, attribution management
+
+### Workflow
+1. Select multiple components using checkboxes
+2. Click "Selected..." button to open bulk operations menu
+3. Choose operation (add tags, assign to project, delete, etc.)
+4. Configure operation parameters in dialog
+5. Preview changes (for tag operations)
+6. Execute with automatic all-or-nothing transaction safety
+
+### Transaction Safety
+- **Atomic Operations**: All changes succeed or all are rolled back
+- **Concurrent Modification Detection**: Prevents conflicts when multiple users edit simultaneously
+- **Cross-Page Selection**: Selection persists across pagination
+- **Error Reporting**: Detailed failure information for troubleshooting
+
+### Access Control
+- Only admin users can perform bulk operations
+- Non-admin users will not see bulk operation controls
+- JWT authentication required for API access
+
+**Detailed bulk operations guide available in [Bulk Operations Guide](bulk-operations.md)**
+
+## 7. API Access and Token Management
 
 ### API Token Generation
 - Available for Authenticated and Admin users
@@ -152,7 +184,7 @@ Seamlessly transfer component data between PartsHub and KiCad for PCB design wor
 - Use the most restrictive token possible
 - Never share tokens publicly
 
-## 7. Authentication and Access Levels
+## 8. Authentication and Access Levels
 
 ### User Tiers
 
@@ -172,6 +204,7 @@ Seamlessly transfer component data between PartsHub and KiCad for PCB design wor
 
 #### Admin Users
 - **All Authenticated Permissions, Plus:**
+  - Bulk operations on components
   - API token management
   - User administration (future feature)
   - System-wide configuration

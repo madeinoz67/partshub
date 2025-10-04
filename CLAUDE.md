@@ -16,6 +16,8 @@ Auto-generated from all feature plans. Last updated: 2025-09-27
 - SQLite database with SQLAlchemy ORM (existing storage_locations table) (003-location-improvements-as)
 - Markdown, MkDocs (Python 3.11 for docs server) + MkDocs, Docker, existing PartsHub infrastructure (004-docker-and-user)
 - N/A - Documentation files only (004-docker-and-user)
+- Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend); Quasar Framework, Pinia (frontend) (005-improve-component-functions)
+- SQLite with SQLAlchemy ORM (existing components, projects, tags tables) (005-improve-component-functions)
 
 ## Project Structure
 ```
@@ -49,10 +51,10 @@ make docs         # Start documentation server
 - Run tests locally: `cd backend && uv run pytest`
 
 ## Recent Changes
+- 005-improve-component-functions: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend); Quasar Framework, Pinia (frontend)
 - 004-docker-and-user: Added Markdown, MkDocs (Python 3.11 for docs server) + MkDocs, Docker, existing PartsHub infrastructure
 - 003-location-improvements-as: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend), Quasar Framework, Pinia (frontend)
 
-- 002-github-workflows: Added GitHub Actions YAML workflows, Python 3.11+ (backend), Node.js 18+ (frontend) + GitHub Actions ecosystem, Mike (docs versioning), Release Please (release automation), Docker/GitHub Container Registry
 
 <!-- MANUAL ADDITIONS START -->
 
@@ -74,5 +76,26 @@ All commits, pull requests, and git history MUST NOT contain references to AI as
 - Remove any AI acknowledgment footers before committing
 - Use standard commit message format without tool attribution
 - Focus commit messages on the actual changes, not the process used to create them
+
+## Git Workflow (NON-NEGOTIABLE)
+
+**Commit Early, Commit Often**:
+- Commit after completing each logical unit of work (not just at end of session)
+- Push to remote regularly to prevent data loss and enable collaboration
+- Use conventional commit format: `type(scope): description` (e.g., `feat(bulk-ops): add tag management service`)
+- Atomic commits: Each commit should represent one cohesive change
+
+**When to Commit**:
+- After completing each task from tasks.md
+- After fixing a bug or implementing a feature
+- Before switching to a different task or feature
+- After making significant progress (don't wait for "perfect")
+- At natural breakpoints (end of function, end of test suite, etc.)
+
+**Push Regularly**:
+- Push after every 2-3 commits (or sooner for important changes)
+- Always push before ending a work session
+- Push immediately after completing a major milestone
+- Use `git push` or `git push -u origin <branch-name>` for new branches
 
 <!-- MANUAL ADDITIONS END -->

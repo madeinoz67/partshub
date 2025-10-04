@@ -39,11 +39,29 @@ class ComponentBase(BaseModel):
     tags: list[str] | None = None  # List of tag IDs
 
 
-class ComponentCreate(ComponentBase):
-    # Override fields from ComponentBase to make them required
-    part_number: str  # Required for component identification
-    manufacturer: str  # Required for component sourcing
-    component_type: str  # Required for component categorization
+class ComponentCreate(BaseModel):
+    # Only name and quantities are required - ALL OTHER FIELDS ARE OPTIONAL
+    name: str = Field(..., min_length=1, description="Component name cannot be empty")
+    part_number: str | None = None
+    local_part_id: str | None = None
+    barcode_id: str | None = None
+    manufacturer_part_number: str | None = None
+    provider_sku: str | None = None
+    manufacturer: str | None = None
+    category_id: str | None = None
+    storage_location_id: str | None = None
+    component_type: str | None = None
+    value: str | None = None
+    package: str | None = None
+    quantity_on_hand: int = Field(default=0, ge=0)
+    quantity_ordered: int = Field(default=0, ge=0)
+    minimum_stock: int = Field(default=0, ge=0)
+    average_purchase_price: float | None = None
+    total_purchase_value: float | None = None
+    notes: str | None = None
+    specifications: dict | None = None
+    custom_fields: dict | None = None
+    tags: list[str] | None = None
 
 
 class ComponentUpdate(BaseModel):
@@ -277,9 +295,15 @@ def create_component(
             "component_type": created_component.component_type,
             "value": created_component.value,
             "package": created_component.package,
-            "quantity_on_hand": created_component.quantity_on_hand,
-            "quantity_ordered": created_component.quantity_ordered,
-            "minimum_stock": created_component.minimum_stock,
+            "quantity_on_hand": created_component.quantity_on_hand
+            if created_component.locations
+            else 0,
+            "quantity_ordered": created_component.quantity_ordered
+            if created_component.locations
+            else 0,
+            "minimum_stock": created_component.minimum_stock
+            if created_component.locations
+            else 0,
             "average_purchase_price": float(created_component.average_purchase_price)
             if created_component.average_purchase_price
             else None,
@@ -289,6 +313,7 @@ def create_component(
             "notes": created_component.notes,
             "specifications": created_component.specifications,
             "custom_fields": created_component.custom_fields,
+            "storage_locations": [],
             "category": {
                 "id": created_component.category.id,
                 "name": created_component.category.name,
@@ -314,8 +339,12 @@ def create_component(
         }
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Internal server error")
+    except Exception as e:
+        # Log the actual error for debugging
+        import traceback
+
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.get("/{component_id}", response_model=ComponentResponse)

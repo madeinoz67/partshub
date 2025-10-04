@@ -153,12 +153,14 @@
     <!-- Components Table -->
     <q-table
       v-model:expanded="expanded"
+      v-model:selected="selected"
       :rows="components"
       :columns="columns"
       row-key="id"
       :loading="loading"
       :pagination="{ sortBy: 'updated_at', descending: true, page: 1, rowsPerPage: 25 }"
       :rows-per-page-options="[25, 50, 100]"
+      selection="multiple"
       dense
       flat
       bordered
@@ -166,6 +168,28 @@
       class="compact-table responsive-table"
       @row-click="onRowClick"
     >
+      <!-- Custom header for proper checkbox alignment -->
+      <template #header="props">
+        <q-tr :props="props">
+          <!-- Empty column for expand button -->
+          <q-th auto-width />
+
+          <!-- Select all checkbox column -->
+          <q-th auto-width>
+            <q-checkbox v-model="props.selected" dense />
+          </q-th>
+
+          <!-- Rest of the headers -->
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
       <!-- Use body slot for internal expansion model -->
       <template #body="props">
         <!-- Regular row -->
@@ -181,6 +205,11 @@
               :icon="props.expand ? 'keyboard_arrow_down' : 'keyboard_arrow_right'"
               @click="toggleExpand(props)"
             />
+          </q-td>
+
+          <!-- Selection checkbox column -->
+          <q-td auto-width>
+            <q-checkbox v-model="props.selected" dense />
           </q-td>
 
           <!-- Component name column -->
@@ -1089,10 +1118,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
+import { useSelectionStore } from '../stores/selection'
 import { useAuth } from '../composables/useAuth'
 import FileUpload from './FileUpload.vue'
 import BarcodeScanner from './BarcodeScanner.vue'
@@ -1130,8 +1160,9 @@ defineEmits<{
   'delete-component': [component: Component]
 }>()
 
-// Store
+// Stores
 const componentsStore = useComponentsStore()
+const selectionStore = useSelectionStore()
 const { canPerformCrud } = useAuth()
 const $q = useQuasar()
 const {
@@ -1150,10 +1181,29 @@ const selectedCategory = ref('')
 const activeFilter = ref('all')
 // Sorting is handled by store filters
 const expanded = ref<string[]>([])
+const selected = ref<Component[]>([])
 const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
 const detailedAttachments = ref<Record<string, unknown[]>>({})
 const barcodeScannerRef = ref()
 const showBarcodeScanner = ref(false)
+
+// Sync selection with store
+watch(selected, (newSelected) => {
+  const newIds = newSelected.map(c => c.id)
+  const currentIds = selectionStore.getSelectedArray()
+
+  // Add new selections
+  const toAdd = newIds.filter(id => !currentIds.includes(id))
+  if (toAdd.length > 0) {
+    selectionStore.addSelection(toAdd)
+  }
+
+  // Remove deselections
+  const toRemove = currentIds.filter(id => !newIds.includes(id))
+  if (toRemove.length > 0) {
+    selectionStore.removeSelection(toRemove)
+  }
+}, { deep: true })
 
 // Table configuration
 const columns = [
@@ -1491,7 +1541,8 @@ const handleBarcodeScanned = (scanResult: ScanResult) => {
   $q.notify({
     type: 'positive',
     message: `Barcode scanned: ${scanResult.data}`,
-    timeout: 2000
+    timeout: 2000,
+    position: 'top-right'
   })
 }
 
@@ -1581,14 +1632,14 @@ const deleteAttachment = async (attachment: ComponentAttachment, componentId: st
     $q.notify({
       type: 'positive',
       message: 'Attachment deleted successfully',
-      position: 'top'
+      position: 'top-right'
     })
   } catch (error) {
     console.error('Failed to delete attachment:', error)
     $q.notify({
       type: 'negative',
       message: 'Failed to delete attachment',
-      position: 'top'
+      position: 'top-right'
     })
   }
 }
@@ -1597,7 +1648,21 @@ const deleteAttachment = async (attachment: ComponentAttachment, componentId: st
 onMounted(() => {
   componentsStore.fetchComponents()
   componentsStore.fetchMetrics()
+
+  // Restore selections from store
+  const storedIds = selectionStore.getSelectedArray()
+  if (storedIds.length > 0) {
+    selected.value = components.value.filter(c => storedIds.includes(c.id))
+  }
 })
+
+// Also update selection when components change
+watch(components, () => {
+  const storedIds = selectionStore.getSelectedArray()
+  if (storedIds.length > 0) {
+    selected.value = components.value.filter(c => storedIds.includes(c.id))
+  }
+}, { deep: true })
 </script>
 
 <style scoped>

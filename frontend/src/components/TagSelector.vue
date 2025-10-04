@@ -93,7 +93,7 @@
           />
 
           <div class="q-mt-md">
-            <q-label>Color</q-label>
+            <div class="text-caption q-mb-xs">Color</div>
             <div class="row q-gutter-sm q-mt-xs">
               <q-btn
                 v-for="color in colorOptions"

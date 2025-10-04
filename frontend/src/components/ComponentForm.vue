@@ -25,7 +25,7 @@
       <q-separator />
 
       <q-card-section class="col scroll">
-        <q-form ref="formRef" class="q-gutter-md" @submit="onSubmit">
+        <q-form ref="formRef" class="q-gutter-md" greedy @submit="onSubmit">
           <!-- Basic Information -->
           <div class="text-h6 q-mt-md q-mb-sm">Basic Information</div>
           <div class="row q-gutter-md">
@@ -160,7 +160,10 @@
                 type="number"
                 outlined
                 min="0"
-                :rules="[val => val >= 0 || 'Quantity must be positive']"
+                :rules="[
+                  val => val !== null && val !== undefined && val !== '' || 'Current stock is required',
+                  val => val >= 0 || 'Quantity must be positive'
+                ]"
               />
             </div>
 
@@ -348,6 +351,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
 import { useStorageStore } from '../stores/storage'
 import type { Component } from '../services/api'
@@ -375,6 +379,7 @@ const emit = defineEmits<{
   'saved': [component: Component]
 }>()
 
+const $q = useQuasar()
 const formRef = ref<QForm>()
 const componentsStore = useComponentsStore()
 const storageStore = useStorageStore()
@@ -518,7 +523,14 @@ const onSubmit = async () => {
   if (!formRef.value) return
 
   const valid = await formRef.value.validate()
-  if (!valid) return
+  if (!valid) {
+    $q.notify({
+      type: 'negative',
+      message: 'Please fill in all required fields correctly',
+      position: 'top'
+    })
+    return
+  }
 
   try {
     const specsObject = specifications.value.reduce((acc, spec) => {
@@ -535,12 +547,36 @@ const onSubmit = async () => {
       return acc
     }, {} as Record<string, string>)
 
-    const componentData = {
-      ...form.value,
-      specifications: Object.keys(specsObject).length > 0 ? specsObject : null,
-      custom_fields: Object.keys(fieldsObject).length > 0 ? fieldsObject : null,
-      total_purchase_value: form.value.quantity_on_hand * (form.value.average_purchase_price || 0)
+    // Build component data, omitting empty/null optional fields
+    const componentData: Record<string, unknown> = {
+      name: form.value.name,
+      quantity_on_hand: form.value.quantity_on_hand,
+      quantity_ordered: form.value.quantity_ordered,
+      minimum_stock: form.value.minimum_stock,
     }
+
+    // Only include optional fields if they have values
+    if (form.value.part_number) componentData.part_number = form.value.part_number
+    if (form.value.local_part_id) componentData.local_part_id = form.value.local_part_id
+    if (form.value.barcode_id) componentData.barcode_id = form.value.barcode_id
+    if (form.value.manufacturer_part_number) componentData.manufacturer_part_number = form.value.manufacturer_part_number
+    if (form.value.provider_sku) componentData.provider_sku = form.value.provider_sku
+    if (form.value.manufacturer) componentData.manufacturer = form.value.manufacturer
+    if (form.value.category_id) componentData.category_id = form.value.category_id
+    if (form.value.storage_location_id) componentData.storage_location_id = form.value.storage_location_id
+    if (form.value.component_type) componentData.component_type = form.value.component_type
+    if (form.value.value) componentData.value = form.value.value
+    if (form.value.package) componentData.package = form.value.package
+    if (form.value.average_purchase_price) componentData.average_purchase_price = form.value.average_purchase_price
+    if (form.value.notes) componentData.notes = form.value.notes
+    if (form.value.tags.length > 0) componentData.tags = form.value.tags
+
+    // Add calculated total value
+    componentData.total_purchase_value = form.value.quantity_on_hand * (form.value.average_purchase_price || 0)
+
+    // Add specifications and custom fields if present
+    if (Object.keys(specsObject).length > 0) componentData.specifications = specsObject
+    if (Object.keys(fieldsObject).length > 0) componentData.custom_fields = fieldsObject
 
     let result: Component
     if (props.isEdit && props.component) {
@@ -549,10 +585,36 @@ const onSubmit = async () => {
       result = await componentsStore.createComponent(componentData)
     }
 
+    $q.notify({
+      type: 'positive',
+      message: `Component ${props.isEdit ? 'updated' : 'created'} successfully`,
+      position: 'top'
+    })
+
     emit('saved', result)
     emit('update:model-value', false)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to save component:', error)
+
+    // Extract detailed error message from API response
+    let errorMessage = 'Failed to save component. Please try again.'
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { detail?: unknown } } }
+      if (axiosError.response?.data?.detail) {
+        errorMessage = typeof axiosError.response.data.detail === 'string'
+          ? axiosError.response.data.detail
+          : JSON.stringify(axiosError.response.data.detail)
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+
+    $q.notify({
+      type: 'negative',
+      message: errorMessage,
+      position: 'top',
+      timeout: 5000
+    })
   }
 }
 

@@ -1,5 +1,62 @@
 # PartsHub API Documentation
 
+## Overview
+
+PartsHub provides a RESTful API for electronic component inventory management. The API supports:
+
+- **Storage Location Layout Generation**: Bulk creation of organized storage hierarchies
+- **Component Bulk Operations**: Admin-only atomic operations on multiple components
+- **Component CRUD**: Individual component management
+- **Projects, Tags, and more**: Full inventory system capabilities
+
+**Base URL**: `http://localhost:8000/api/v1`
+
+**Authentication**: Most endpoints require JWT bearer token authentication
+
+**Interactive Docs**:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+---
+
+## Bulk Operations (Admin Only)
+
+**New in v0.1.2**: Admin users can perform atomic operations on multiple components simultaneously.
+
+### Key Features
+- ✅ **Atomic transactions**: All-or-nothing (automatic rollback on any failure)
+- ✅ **Concurrent modification detection**: Version-based optimistic locking
+- ✅ **Admin-only access**: JWT authentication with admin role required
+- ✅ **Batch operations**: Up to 1000 components per request
+- ✅ **Performance optimized**: <200ms for <100 components, <500ms for 100-1000
+
+### Available Endpoints
+
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/components/bulk/tags/add` | POST | Add tags to multiple components | ✅ Implemented |
+| `/components/bulk/tags/remove` | POST | Remove tags from multiple components | ✅ Implemented |
+| `/components/bulk/tags/preview` | GET | Preview tag changes before applying | ✅ Implemented |
+| `/components/bulk/projects/assign` | POST | Assign components to project | ✅ Implemented |
+| `/components/bulk/delete` | POST | Delete multiple components | ✅ Implemented |
+| `/components/bulk/meta-parts/add` | POST | Add to meta-part | 🚧 Stub |
+| `/components/bulk/purchase-lists/add` | POST | Add to purchase list | 🚧 Stub |
+| `/components/bulk/low-stock/set` | POST | Set low-stock thresholds | 🚧 Stub |
+| `/components/bulk/attribution/set` | POST | Set attribution metadata | 🚧 Stub |
+
+**📖 Complete Documentation**: See [Bulk Operations API Guide](api/bulk-operations.md) for detailed endpoint documentation, examples, and error handling.
+
+**Quick Example**:
+```bash
+# Add tags to multiple components
+curl -X POST http://localhost:8000/api/v1/components/bulk/tags/add \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"component_ids": [1,2,3], "tags": ["resistor", "SMD"]}'
+```
+
+---
+
 ## Storage Location Layout Generation Endpoints
 
 ### POST /api/v1/storage-locations/generate-preview
