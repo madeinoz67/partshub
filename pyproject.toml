@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "partshub"
 version = "0.1.1"
-description = "Electronic parts inventory management system"
+description = "Electronic parts inventory management system for Makers"
 authors = [
-    {name = "PartsHub Team"}
+    {name = "Stephen Eaton"}
 ]
-readme = {text = "PartsHub - Electronic parts inventory management system", content-type = "text/plain"}
+readme = {text = "PartsHub - Electronic parts inventory management system for Makers", content-type = "text/plain"}
 requires-python = ">=3.11"
 dependencies = [
     # Core backend dependencies
