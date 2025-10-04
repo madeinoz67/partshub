@@ -263,8 +263,7 @@ const onTagsApplied = async () => {
     position: 'top-right'
   })
 
-  // Clear selection and refresh
-  selectionStore.clearSelection()
+  // Refresh components while preserving selection
   await componentsStore.fetchComponents()
 }
 
@@ -275,8 +274,7 @@ const onAddedToProject = async () => {
     position: 'top-right'
   })
 
-  // Clear selection and refresh
-  selectionStore.clearSelection()
+  // Refresh components while preserving selection
   await componentsStore.fetchComponents()
 }
 </script>

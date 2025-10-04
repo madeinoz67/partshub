@@ -43,16 +43,14 @@ export interface BulkOperationResponse {
 }
 
 export interface TagPreview {
-  component_id: number
+  component_id: string
   component_name: string
-  current_user_tags: string[]
-  current_auto_tags: string[]
-  proposed_user_tags: string[]
-  proposed_auto_tags: string[]
+  current_tags: string[]
+  resulting_tags: string[]
 }
 
 export interface TagPreviewResponse {
-  previews: TagPreview[]
+  components: TagPreview[]
 }
 
 export interface CommonTag {
@@ -98,11 +96,12 @@ export const bulkOperationsApi = {
     addTags: string[],
     removeTags: string[]
   ): Promise<TagPreviewResponse> {
-    const response = await bulkApi.post('/api/v1/components/bulk/tags/preview', {
-      component_ids: componentIds,
-      add_tags: addTags,
-      remove_tags: removeTags,
+    const params = new URLSearchParams({
+      component_ids: componentIds.join(','),
+      tags_to_add: addTags.join(','),
+      tags_to_remove: removeTags.join(','),
     })
+    const response = await bulkApi.get(`/api/v1/components/bulk/tags/preview?${params}`)
     return response.data
   },
 

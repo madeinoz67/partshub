@@ -41,10 +41,10 @@
             dense
             :rows-per-page-options="[5, 10, 20]"
           >
-            <template #body-cell-current_user_tags="props">
+            <template #body-cell-current_tags="props">
               <q-td :props="props">
                 <q-chip
-                  v-for="tag in props.row.current_user_tags"
+                  v-for="tag in props.row.current_tags"
                   :key="tag"
                   dense
                   size="sm"
@@ -55,10 +55,10 @@
                 </q-chip>
               </q-td>
             </template>
-            <template #body-cell-proposed_user_tags="props">
+            <template #body-cell-resulting_tags="props">
               <q-td :props="props">
                 <q-chip
-                  v-for="tag in props.row.proposed_user_tags"
+                  v-for="tag in props.row.resulting_tags"
                   :key="tag"
                   dense
                   size="sm"
@@ -109,7 +109,7 @@ import { bulkOperationsApi, type TagPreview } from '../services/bulkOperationsAp
 // Props
 interface Props {
   modelValue: boolean
-  componentIds: number[]
+  componentIds: string[]
 }
 
 const props = defineProps<Props>()
@@ -146,15 +146,15 @@ const previewColumns = [
     align: 'left' as const,
   },
   {
-    name: 'current_user_tags',
+    name: 'current_tags',
     label: 'Current Tags',
-    field: 'current_user_tags',
+    field: 'current_tags',
     align: 'left' as const,
   },
   {
-    name: 'proposed_user_tags',
-    label: 'Proposed Tags',
-    field: 'proposed_user_tags',
+    name: 'resulting_tags',
+    label: 'Resulting Tags',
+    field: 'resulting_tags',
     align: 'left' as const,
   },
 ]
@@ -179,7 +179,7 @@ async function loadPreview() {
       removeTags
     )
 
-    preview.value = response.previews
+    preview.value = response.components
   } catch (error) {
     $q.notify({
       type: 'negative',
