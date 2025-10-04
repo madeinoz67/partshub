@@ -77,4 +77,25 @@ All commits, pull requests, and git history MUST NOT contain references to AI as
 - Use standard commit message format without tool attribution
 - Focus commit messages on the actual changes, not the process used to create them
 
+## Git Workflow (NON-NEGOTIABLE)
+
+**Commit Early, Commit Often**:
+- Commit after completing each logical unit of work (not just at end of session)
+- Push to remote regularly to prevent data loss and enable collaboration
+- Use conventional commit format: `type(scope): description` (e.g., `feat(bulk-ops): add tag management service`)
+- Atomic commits: Each commit should represent one cohesive change
+
+**When to Commit**:
+- After completing each task from tasks.md
+- After fixing a bug or implementing a feature
+- Before switching to a different task or feature
+- After making significant progress (don't wait for "perfect")
+- At natural breakpoints (end of function, end of test suite, etc.)
+
+**Push Regularly**:
+- Push after every 2-3 commits (or sooner for important changes)
+- Always push before ending a work session
+- Push immediately after completing a major milestone
+- Use `git push` or `git push -u origin <branch-name>` for new branches
+
 <!-- MANUAL ADDITIONS END -->
