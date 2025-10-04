@@ -6,7 +6,7 @@
 
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
-**Latest Release**: v0.1.1 (October 2025) - Now featuring an advanced Storage Location Layout Generator!
+**Latest Release**: v0.2.1 (October 2025) - Now featuring Bulk Operations for Component Management!
 
 ## Features
 
@@ -16,6 +16,7 @@ A modern, web-based inventory management system designed specifically for electr
 - **Storage location management** with hierarchical organization
 - **Category and tagging system** for easy organization and searching
 - **Stock history tracking** with transaction logs
+- **Bulk operations** for efficient management of multiple components (v0.2.0+)
 
 ### 🔐 Tiered Access Control
 - **Anonymous browsing** - Read-only access to all inventory data
@@ -100,9 +101,46 @@ make docs          # Start documentation server
 make clean         # Clean build artifacts
 ```
 
-### Storage Location Layout Generation
+### Bulk Operations for Component Management (v0.2.0+)
 
-PartsHub provides a powerful bulk storage location generation feature (v0.1.1) to quickly create systematic storage locations with advanced organizational capabilities.
+PartsHub provides powerful bulk operations for admin users to efficiently manage multiple components simultaneously with atomic transaction safety.
+
+#### Available Operations
+
+- **Add/Remove Tags**: Manage tags across multiple components with preview
+- **Add to Project**: Assign components to projects with quantity controls
+- **Delete Components**: Permanently remove multiple components atomically
+- **Manage Meta-Parts**: Group components into meta-part definitions
+- **Purchase Lists**: Queue components for purchasing workflows
+- **Stock Updates**: Bulk update inventory quantities
+- **Attribution Management**: Track sourcing and attribution data
+
+#### Key Features
+
+- **Cross-Page Selection**: Selection persists across pagination
+- **Admin-Only Access**: Secure operations requiring admin authentication
+- **Atomic Transactions**: All-or-nothing execution ensures data consistency
+- **Concurrent Modification Detection**: Prevents conflicting updates
+- **Real-time Preview**: See changes before applying (for tag operations)
+
+#### API Example
+
+```bash
+# Add tags to multiple components
+curl -X POST http://localhost:8000/api/v1/components/bulk/tags/add \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "component_ids": ["uuid-1", "uuid-2", "uuid-3"],
+    "tags": ["resistor", "SMD"]
+  }'
+```
+
+For detailed documentation, see [Bulk Operations User Guide](docs/user/bulk-operations.md) and [Bulk Operations API Guide](docs/api/bulk-operations.md).
+
+### Storage Location Layout Generation (v0.1.1)
+
+PartsHub provides a powerful bulk storage location generation feature to quickly create systematic storage locations with advanced organizational capabilities.
 
 #### Four Layout Types
 
@@ -191,6 +229,7 @@ partshub/
 ### Admin Users
 - All authenticated permissions plus:
 - Create and manage API tokens
+- **Bulk operations** for efficient multi-component management
 - System administration capabilities
 - User management (future feature)
 
