@@ -204,7 +204,7 @@
 
 ### Backend API Endpoints
 
-- [ ] **T016** [P] [api] Implement POST /api/v1/components/{id}/stock/add endpoint
+- [x] **T016** [P] [api] Implement POST /api/v1/components/{id}/stock/add endpoint
   - **Agent**: `api` (FastAPI routing expert)
   - **File**: `backend/src/api/stock_operations.py`
   - **Task**: Create FastAPI endpoint calling `add_stock` service method; admin-only dependency (403 for non-admin); error handling (400 validation, 404 not found, 409 conflict/lock); return StockHistoryEntry response
@@ -212,7 +212,7 @@
   - **Validation**: T003 contract tests fully pass; admin access enforced; error codes correct
   - **Dependencies**: T013 (service implemented), T003 (tests failing)
 
-- [ ] **T017** [P] [api] Implement POST /api/v1/components/{id}/stock/remove endpoint
+- [x] **T017** [P] [api] Implement POST /api/v1/components/{id}/stock/remove endpoint
   - **Agent**: `api` (FastAPI routing expert)
   - **File**: `backend/src/api/stock_operations.py`
   - **Task**: Create FastAPI endpoint calling `remove_stock` service method; admin-only; error handling; return response with `capped` flag and `location_deleted` flag
@@ -220,7 +220,7 @@
   - **Validation**: T004 contract tests fully pass; auto-cap behavior working; location deletion flagged
   - **Dependencies**: T014 (service implemented), T004 (tests failing)
 
-- [ ] **T018** [P] [api] Implement POST /api/v1/components/{id}/stock/move endpoint
+- [x] **T018** [P] [api] Implement POST /api/v1/components/{id}/stock/move endpoint
   - **Agent**: `api` (FastAPI routing expert)
   - **File**: `backend/src/api/stock_operations.py`
   - **Task**: Create FastAPI endpoint calling `move_stock` service method; admin-only; same-location validation (400); error handling; return source/dest state changes
