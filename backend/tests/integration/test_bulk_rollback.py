@@ -17,7 +17,9 @@ from backend.src.models import Component, Tag
 
 
 @pytest.mark.integration
-@pytest.mark.skip(reason="Optimistic locking rollback behavior needs verification - test may need adjustment")
+@pytest.mark.skip(
+    reason="Optimistic locking rollback behavior needs verification - test may need adjustment"
+)
 class TestBulkOperationRollback:
     """Integration test for bulk operation rollback on concurrent modification"""
 
