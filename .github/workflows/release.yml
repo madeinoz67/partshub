@@ -121,7 +121,7 @@ jobs:
           mkdir -p release-artifacts
 
           # Create backend source distribution
-          uv build --no-build-isolation
+          uv build
           cp dist/*.tar.gz release-artifacts/partshub-backend-${{ needs.validate_release.outputs.version }}.tar.gz
           cp dist/*.whl release-artifacts/
 
