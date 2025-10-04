@@ -4,23 +4,6 @@ name: "Continuous Deployment"
   push:
     branches: ["main"]
   workflow_dispatch:
-    inputs:
-      deployment_environment:
-        description: 'Deployment environment'
-        required: true
-        default: 'production'
-        type: choice
-        options:
-          - production
-      skip_tests:
-        description: 'Skip CI tests (emergency deployment)'
-        required: false
-        default: false
-        type: boolean
-      docs_version:
-        description: 'Docs version/branch to deploy (leave empty for latest/main)'
-        required: false
-        type: string
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -29,7 +12,6 @@ env:
 permissions:
   contents: write      # For GitHub Pages deployment and repo checkout
   packages: write      # For pushing Docker images to GHCR
-  issues: write        # For creating/commenting on deployment tracking issues
   checks: read         # For checking CI workflow status
   actions: write       # For GitHub Actions cache (Docker layer caching)
   statuses: read       # For workflow status checks
@@ -38,7 +20,6 @@ jobs:
   check_ci_status:
     name: "Check CI Status"
     runs-on: ubuntu-latest
-    if: ${{ !inputs.skip_tests }}
     outputs:
       ci_passed: ${{ steps.check.outputs.ci_passed }}
 
@@ -79,15 +60,13 @@ jobs:
         id: check
         run: echo "ci_passed=true" >> $GITHUB_OUTPUT
 
-  deploy_application:
-    name: "Deploy Application (All-in-One)"
+  publish_docker_image:
+    name: "Publish Docker Image"
     runs-on: ubuntu-latest
     needs: [check_ci_status]
-    if: ${{ always() && (needs.check_ci_status.outputs.ci_passed == 'true' || inputs.skip_tests) }}
-    environment: production
+    if: ${{ always() && needs.check_ci_status.outputs.ci_passed == 'true' }}
     outputs:
-      deployment_status: ${{ steps.deploy.outputs.status }}
-      deployment_url: ${{ steps.deploy.outputs.url }}
+      publish_status: ${{ steps.publish.outputs.status }}
 
     steps:
       - name: Checkout code
@@ -128,45 +107,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy application to production
-        id: deploy
-        run: |
-          echo "Deploying all-in-one image: ${{ steps.version.outputs.tag }}"
-          # Note: This is a placeholder for actual deployment logic
-          # In a real scenario, this would use kubectl, docker-compose, or deployment service
-          echo "status=success" >> $GITHUB_OUTPUT
-          echo "url=https://partshub.production" >> $GITHUB_OUTPUT
-
-      - name: Health check - Backend
-        run: |
-          echo "Performing backend health check..."
-          # Note: Replace with actual health check endpoint
-          # curl -f https://partshub.production/health || exit 1
-          sleep 3
-          echo "Backend health check passed"
-
-      - name: Health check - Frontend
-        run: |
-          echo "Verifying frontend accessibility..."
-          # Note: Replace with actual frontend URL
-          # curl -f https://partshub.production || exit 1
-          sleep 3
-          echo "Frontend accessible"
-
-      - name: Upload deployment logs
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: deployment-logs
-          path: |
-            /tmp/deployment-*.log
-          retention-days: 90
+      - name: Mark publish as successful
+        id: publish
+        run: echo "status=success" >> $GITHUB_OUTPUT
 
   build_and_deploy_docs:
     name: "Build and Deploy Documentation"
     runs-on: ubuntu-latest
     needs: [check_ci_status]
-    if: ${{ always() && (needs.check_ci_status.outputs.ci_passed == 'true' || inputs.skip_tests) }}
+    if: ${{ always() && needs.check_ci_status.outputs.ci_passed == 'true' }}
     outputs:
       docs_url: ${{ steps.deploy.outputs.docs_url }}
 
@@ -174,7 +123,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.docs_version || 'main' }}
           fetch-depth: 0  # Fetch full history for mike
 
       - name: Set up Python
@@ -202,133 +150,22 @@ jobs:
       - name: Set docs URL
         id: deploy
         run: |
-          VERSION="${{ inputs.docs_version || 'latest' }}"
-          echo "docs_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }} (${VERSION})" >> $GITHUB_OUTPUT
+          echo "docs_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
 
-  notify_deployment:
-    name: "Notify Deployment Results"
+  notify_publish:
+    name: "Publish Summary"
     runs-on: ubuntu-latest
-    needs: [deploy_application, build_and_deploy_docs]
+    needs: [publish_docker_image, build_and_deploy_docs]
     if: always()
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Prepare deployment summary
-        id: summary
+      - name: Output publish summary
         run: |
-          APP_STATUS="${{ needs.deploy_application.outputs.deployment_status || 'skipped' }}"
-          APP_URL="${{ needs.deploy_application.outputs.deployment_url || 'N/A' }}"
-          DOCS_URL="${{ needs.build_and_deploy_docs.outputs.docs_url || 'N/A' }}"
-
-          SUMMARY="🚀 **Deployment Summary**
-
-          - **Application**: $APP_STATUS
-          - **Application URL**: $APP_URL
-          - **Documentation**: [Available]($DOCS_URL)
-
-          **Commit**: ${{ github.sha }}
-          **Branch**: ${{ github.ref_name }}
-          **Triggered by**: ${{ github.actor }}"
-
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
-          echo "$SUMMARY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create deployment issue comment
-        if: github.event_name == 'push'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const summary = `${{ steps.summary.outputs.summary }}`;
-
-            // Find or create a deployment tracking issue
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['deployment-tracking'],
-              state: 'open'
-            });
-
-            let issueNumber;
-            if (issues.length === 0) {
-              // Create new deployment tracking issue
-              const { data: newIssue } = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'Deployment Tracking',
-                body: 'This issue tracks deployment activities.',
-                labels: ['deployment-tracking']
-              });
-              issueNumber = newIssue.number;
-            } else {
-              issueNumber = issues[0].number;
-            }
-
-            // Add comment with deployment summary
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: summary
-            });
-
-      - name: Notify on failure
-        if: ${{ failure() }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const failureSummary = `❌ **Deployment Failed**
-
-            **Commit**: ${{ github.sha }}
-            **Branch**: ${{ github.ref_name }}
-            **Workflow**: ${{ github.workflow }}
-            **Run**: ${{ github.run_id }}
-
-            Please check the workflow logs for details.`;
-
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Deployment Failure - ' + new Date().toISOString(),
-              body: failureSummary,
-              labels: ['deployment-failure', 'bug']
-            });
-
-  rollback_on_failure:
-    name: "Automatic Rollback"
-    runs-on: ubuntu-latest
-    needs: [deploy_application]
-    if: ${{ failure() && needs.deploy_application.result == 'failure' }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Perform rollback
-        run: |
-          echo "Performing automatic rollback..."
-          # Note: This is a placeholder for actual rollback logic
-          # In a real scenario, this would revert to the previous working deployment
-          echo "Rollback completed"
-
-      - name: Notify rollback
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const rollbackSummary = `🔄 **Automatic Rollback Performed**
-
-            **Reason**: Application deployment failure
-            **Commit**: ${{ github.sha }}
-            **Rollback Time**: ${new Date().toISOString()}
-
-            The system has been automatically rolled back to the previous working state.`;
-
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Automatic Rollback - ' + new Date().toISOString(),
-              body: rollbackSummary,
-              labels: ['rollback', 'deployment']
-            });
+          echo "# 🚀 Publish Summary"
+          echo ""
+          echo "**Docker Image**: ${{ needs.publish_docker_image.outputs.publish_status || 'skipped' }}"
+          echo "**Documentation**: ${{ needs.build_and_deploy_docs.outputs.docs_url || 'N/A' }}"
+          echo ""
+          echo "**Commit**: ${{ github.sha }}"
+          echo "**Branch**: ${{ github.ref_name }}"
+          echo "**Triggered by**: ${{ github.actor }}"
