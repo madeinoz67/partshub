@@ -49,14 +49,14 @@
 
 ## Phase 3.1: Setup & Database Migration
 
-- [ ] **T001** [db] Create Alembic migration for StockTransaction model extensions
+- [x] **T001** [db] Create Alembic migration for StockTransaction model extensions
   - **Agent**: `db` (database schema expert)
   - **File**: `backend/alembic/versions/YYYYMMDD_HHMM_add_stock_transaction_pricing.py`
   - **Task**: Create database migration adding `lot_id` (String 100), `price_per_unit` (Numeric 10,4), `total_price` (Numeric 10,4) to `stock_transactions` table
   - **Validation**: Migration runs cleanly up and down; no data loss
   - **Dependencies**: None (prerequisite for all other tasks)
 
-- [ ] **T002** [P] [api] Create Pydantic schemas for stock operations
+- [x] **T002** [P] [api] Create Pydantic schemas for stock operations
   - **Agent**: `api` (FastAPI/Pydantic expert)
   - **File**: `backend/src/schemas/stock_operations.py`
   - **Task**: Define request/response schemas: `AddStockRequest`, `AddStockResponse`, `RemoveStockRequest`, `RemoveStockResponse`, `MoveStockRequest`, `MoveStockResponse`, `StockHistoryEntry`
@@ -86,7 +86,7 @@
 
 ### Contract Tests (API Endpoint Validation)
 
-- [ ] **T003** [P] [test] Contract test for POST /api/v1/components/{id}/stock/add
+- [x] **T003** [P] [test] Contract test for POST /api/v1/components/{id}/stock/add
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/contract/test_add_stock.py`
   - **Task**: Write pytest contract tests from `contracts/add-stock.yaml` - test request/response schemas, status codes (200/400/403/404/409), admin JWT requirement, examples (manual entry, order receiving, no pricing)
@@ -94,7 +94,7 @@
   - **Validation**: Test fails (endpoint not implemented yet); covers all response codes and examples
   - **Dependencies**: T001 (migration)
 
-- [ ] **T004** [P] [test] Contract test for POST /api/v1/components/{id}/stock/remove
+- [x] **T004** [P] [test] Contract test for POST /api/v1/components/{id}/stock/remove
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/contract/test_remove_stock.py`
   - **Task**: Write pytest contract tests from `contracts/remove-stock.yaml` - test auto-capping behavior, location deletion flag, admin-only access
@@ -102,7 +102,7 @@
   - **Validation**: Test fails (endpoint not implemented); validates auto-cap and location cleanup
   - **Dependencies**: T001 (migration)
 
-- [ ] **T005** [P] [test] Contract test for POST /api/v1/components/{id}/stock/move
+- [x] **T005** [P] [test] Contract test for POST /api/v1/components/{id}/stock/move
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/contract/test_move_stock.py`
   - **Task**: Write pytest contract tests from `contracts/move-stock.yaml` - test atomicity, pricing inheritance, source/destination updates, same-location validation
@@ -112,7 +112,7 @@
 
 ### Integration Tests (User Story Validation)
 
-- [ ] **T006** [P] [test] Integration tests for Add Stock user stories
+- [x] **T006** [P] [test] Integration tests for Add Stock user stories
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/integration/test_add_stock_scenarios.py`
   - **Task**: Write pytest integration tests for 6 Add Stock acceptance scenarios from spec.md (inline form display, manual entry, pricing calculation, order receiving, quantity update, multi-row operations)
@@ -120,7 +120,7 @@
   - **Validation**: Tests fail (no implementation); each scenario covered; use in-memory SQLite
   - **Dependencies**: T001 (migration)
 
-- [ ] **T007** [P] [test] Integration tests for Remove Stock user stories
+- [x] **T007** [P] [test] Integration tests for Remove Stock user stories
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/integration/test_remove_stock_scenarios.py`
   - **Task**: Write pytest integration tests for 5 Remove Stock acceptance scenarios from spec.md (inline form, quantity validation, stock reduction, zero-quantity cleanup, multi-row operations)
@@ -128,7 +128,7 @@
   - **Validation**: Tests fail (no implementation); auto-capping tested; location deletion verified
   - **Dependencies**: T001 (migration)
 
-- [ ] **T008** [P] [test] Integration tests for Move Stock user stories
+- [x] **T008** [P] [test] Integration tests for Move Stock user stories
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/integration/test_move_stock_scenarios.py`
   - **Task**: Write pytest integration tests for 7 Move Stock acceptance scenarios from spec.md (inline form, destination options, quantity validation, new location creation, atomic transfer, source cleanup, multi-row operations)
@@ -138,7 +138,7 @@
 
 ### Unit Tests (Business Logic)
 
-- [ ] **T009** [P] [test] Unit tests for pessimistic locking behavior
+- [x] **T009** [P] [test] Unit tests for pessimistic locking behavior
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/unit/test_locking.py`
   - **Task**: Write pytest unit tests for pessimistic locking: acquire lock with `with_for_update(nowait=False)`, concurrent access blocking, lock release on commit/rollback, deadlock prevention with consistent ordering
@@ -146,7 +146,7 @@
   - **Validation**: Tests fail (locking not implemented); concurrent access scenarios covered
   - **Dependencies**: T001 (migration)
 
-- [ ] **T010** [P] [test] Unit tests for stock operations service business logic
+- [x] **T010** [P] [test] Unit tests for stock operations service business logic
   - **Agent**: `test` (TDD testing expert)
   - **File**: `backend/tests/unit/test_stock_operations_service.py`
   - **Task**: Write pytest unit tests for service methods: add_stock, remove_stock, move_stock - test auto-capping, quantity validation, pricing calculations, transaction creation, total quantity updates

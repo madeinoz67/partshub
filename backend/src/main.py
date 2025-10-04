@@ -103,8 +103,11 @@ async def lifespan(app: FastAPI):
 # Get version from pyproject.toml
 try:
     __version__ = version("partshub")
+    # Ensure version is not empty
+    if not __version__:
+        __version__ = "0.2.1"
 except Exception:
-    __version__ = "0.1.0"  # Fallback version
+    __version__ = "0.2.1"  # Fallback version
 
 app = FastAPI(
     title="PartsHub API",
