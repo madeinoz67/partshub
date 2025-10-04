@@ -72,9 +72,9 @@ class TestBulkTagsPreviewContract:
         assert response.status_code == 200
 
         data = response.json()
-        assert "previews" in data
-        assert isinstance(data["previews"], list)
-        assert len(data["previews"]) == 2
+        assert "components" in data
+        assert isinstance(data["components"], list)
+        assert len(data["components"]) == 2
 
     def test_bulk_tags_preview_requires_component_ids(
         self, client: TestClient, auth_headers
@@ -118,30 +118,26 @@ class TestBulkTagsPreviewContract:
         data = response.json()
 
         # Required field per TagPreviewResponse schema
-        assert "previews" in data
-        assert isinstance(data["previews"], list)
+        assert "components" in data
+        assert isinstance(data["components"], list)
 
-        if len(data["previews"]) > 0:
-            preview = data["previews"][0]
+        if len(data["components"]) > 0:
+            preview = data["components"][0]
 
             # Required fields per ComponentTagPreview schema
             required_fields = [
                 "component_id",
-                "part_number",
-                "current_user_tags",
-                "current_auto_tags",
-                "resulting_user_tags",
-                "resulting_auto_tags",
+                "component_name",
+                "current_tags",
+                "resulting_tags",
             ]
 
             for field in required_fields:
                 assert field in preview
 
             # All tag fields should be arrays
-            assert isinstance(preview["current_user_tags"], list)
-            assert isinstance(preview["current_auto_tags"], list)
-            assert isinstance(preview["resulting_user_tags"], list)
-            assert isinstance(preview["resulting_auto_tags"], list)
+            assert isinstance(preview["current_tags"], list)
+            assert isinstance(preview["resulting_tags"], list)
 
     def test_bulk_tags_preview_with_add_and_remove(
         self, client: TestClient, auth_headers, db_session
@@ -170,8 +166,8 @@ class TestBulkTagsPreviewContract:
         assert response.status_code == 200
 
         data = response.json()
-        assert "previews" in data
-        assert len(data["previews"]) == 1
+        assert "components" in data
+        assert len(data["components"]) == 1
 
     def test_bulk_tags_preview_with_only_remove(
         self, client: TestClient, auth_headers, db_session
@@ -200,7 +196,7 @@ class TestBulkTagsPreviewContract:
         assert response.status_code == 200
 
         data = response.json()
-        assert "previews" in data
+        assert "components" in data
 
     def test_bulk_tags_preview_with_multiple_components(
         self, client: TestClient, auth_headers, db_session
@@ -235,5 +231,5 @@ class TestBulkTagsPreviewContract:
         assert response.status_code == 200
 
         data = response.json()
-        assert "previews" in data
-        assert len(data["previews"]) == 3
+        assert "components" in data
+        assert len(data["components"]) == 3

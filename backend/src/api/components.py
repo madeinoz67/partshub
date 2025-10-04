@@ -41,7 +41,7 @@ class ComponentBase(BaseModel):
 
 class ComponentCreate(BaseModel):
     # Only name and quantities are required - ALL OTHER FIELDS ARE OPTIONAL
-    name: str
+    name: str = Field(..., min_length=1, description="Component name cannot be empty")
     part_number: str | None = None
     local_part_id: str | None = None
     barcode_id: str | None = None
