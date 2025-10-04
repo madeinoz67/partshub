@@ -226,7 +226,13 @@ class StockHistoryService:
 
         # Generate timestamp for filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        component_name = component.name.replace(" ", "_").replace("/", "_")
+        # Sanitize component name for filename (ASCII-safe for HTTP headers)
+        component_name = (
+            component.name.replace(" ", "_")
+            .replace("/", "_")
+            .encode("ascii", errors="ignore")
+            .decode("ascii")
+        )
 
         # Export based on format
         if export_format == "csv":

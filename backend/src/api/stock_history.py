@@ -137,7 +137,7 @@ async def get_stock_history(
 async def export_stock_history(
     component_id: UUID,
     format: str = Query(
-        "csv",
+        ...,
         pattern="^(csv|xlsx|json)$",
         description="Export format (csv, xlsx, or json)",
     ),
@@ -208,10 +208,16 @@ async def export_stock_history(
             # CSV or JSON format (text)
             stream = io.BytesIO(content.encode("utf-8"))
 
+        # Ensure stream is at beginning before reading
+        stream.seek(0)
+
         return StreamingResponse(
             stream,
             media_type=content_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
+            headers={
+                "Content-Type": content_type,  # Explicit header to prevent charset=utf-8 addition
+                "Content-Disposition": f"attachment; filename={filename}",
+            },
         )
     except HTTPException:
         raise

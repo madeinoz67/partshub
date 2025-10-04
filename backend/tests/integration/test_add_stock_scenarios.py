@@ -128,7 +128,11 @@ class TestAddStockScenarios:
         # Create existing location
         location_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Existing Location", "description": "Already exists"},
+            json={
+                "name": "Existing Location",
+                "description": "Already exists",
+                "type": "drawer",
+            },
             headers=auth_headers,
         )
         existing_location_id = location_resp.json()["id"]
@@ -167,6 +171,7 @@ class TestAddStockScenarios:
             json={
                 "name": "New Location Created During Add Stock",
                 "description": "New",
+                "type": "drawer",
             },
             headers=auth_headers,
         )
@@ -271,14 +276,14 @@ class TestAddStockScenarios:
         # Create multiple locations
         location_a_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location A"},
+            json={"name": "Location A", "type": "drawer"},
             headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location B"},
+            json={"name": "Location B", "type": "drawer"},
             headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
@@ -325,17 +330,17 @@ class TestAddStockScenarios:
         When user submits a form,
         Then system applies the operation only to the component associated with that specific row
         """
-        # Create two different components
+        # Create two different components (without quantity_on_hand - will be set via ComponentLocation)
         component_a_resp = client.post(
             "/api/v1/components",
-            json={"name": "Component A", "quantity_on_hand": 0, "minimum_stock": 0},
+            json={"name": "Component A"},
             headers=auth_headers,
         )
         component_a_id = component_a_resp.json()["id"]
 
         component_b_resp = client.post(
             "/api/v1/components",
-            json={"name": "Component B", "quantity_on_hand": 0, "minimum_stock": 0},
+            json={"name": "Component B"},
             headers=auth_headers,
         )
         component_b_id = component_b_resp.json()["id"]
@@ -343,14 +348,14 @@ class TestAddStockScenarios:
         # Create locations
         location_1_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location 1"},
+            json={"name": "Location 1", "type": "drawer"},
             headers=auth_headers,
         )
         location_1_id = location_1_resp.json()["id"]
 
         location_2_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location 2"},
+            json={"name": "Location 2", "type": "drawer"},
             headers=auth_headers,
         )
         location_2_id = location_2_resp.json()["id"]

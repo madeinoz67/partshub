@@ -19,14 +19,14 @@ class TestPessimisticLocking:
         Test 1: Acquire pessimistic lock with with_for_update(nowait=False)
         Verifies that lock can be acquired successfully on a ComponentLocation
         """
-        # Create test data
+        # Create test data (Component quantity_on_hand is a calculated property)
         component = Component(
             id="test-component-1",
             name="Test Component",
-            quantity_on_hand=0,
-            minimum_stock=0,
         )
-        storage_location = StorageLocation(id="test-location-1", name="Test Location")
+        storage_location = StorageLocation(
+            id="test-location-1", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-1",
             component_id=component.id,
@@ -64,14 +64,14 @@ class TestPessimisticLocking:
         Verifies that a second transaction attempting to lock the same row
         will block until the first transaction commits or rolls back
         """
-        # Create test data
+        # Create test data (Component quantity_on_hand is a calculated property)
         component = Component(
             id="test-component-2",
             name="Test Component 2",
-            quantity_on_hand=0,
-            minimum_stock=0,
         )
-        storage_location = StorageLocation(id="test-location-2", name="Test Location 2")
+        storage_location = StorageLocation(
+            id="test-location-2", name="Test Location 2", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-2",
             component_id=component.id,
@@ -110,14 +110,14 @@ class TestPessimisticLocking:
         Test 3: Lock release on commit
         Verifies that pessimistic lock is automatically released when transaction commits
         """
-        # Create test data
+        # Create test data (Component quantity_on_hand is a calculated property)
         component = Component(
             id="test-component-3",
             name="Test Component 3",
-            quantity_on_hand=0,
-            minimum_stock=0,
         )
-        storage_location = StorageLocation(id="test-location-3", name="Test Location 3")
+        storage_location = StorageLocation(
+            id="test-location-3", name="Test Location 3", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-3",
             component_id=component.id,
@@ -154,14 +154,14 @@ class TestPessimisticLocking:
         Verifies that pessimistic lock is automatically released when transaction rolls back
         and that changes are reverted
         """
-        # Create test data
+        # Create test data (Component quantity_on_hand is a calculated property)
         component = Component(
             id="test-component-4",
             name="Test Component 4",
-            quantity_on_hand=0,
-            minimum_stock=0,
         )
-        storage_location = StorageLocation(id="test-location-4", name="Test Location 4")
+        storage_location = StorageLocation(
+            id="test-location-4", name="Test Location 4", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-4",
             component_id=component.id,
@@ -197,15 +197,18 @@ class TestPessimisticLocking:
         Test 5: Deadlock prevention with consistent lock ordering
         Verifies that locking rows in consistent order (sorted by ID) prevents deadlocks
         """
-        # Create test data - two locations
+        # Create test data - two locations (Component quantity_on_hand is a calculated property)
+        # Use distinct IDs so auto-generated QR codes don't conflict
         component = Component(
             id="test-component-5",
             name="Test Component 5",
-            quantity_on_hand=0,
-            minimum_stock=0,
         )
-        location_a = StorageLocation(id="location-a", name="Location A")
-        location_b = StorageLocation(id="location-b", name="Location B")
+        location_a = StorageLocation(
+            id="aaa-loc-alpha", name="Location A", type="drawer"
+        )
+        location_b = StorageLocation(
+            id="bbb-loc-beta", name="Location B", type="drawer"
+        )
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,
@@ -287,16 +290,14 @@ class TestPessimisticLocking:
         Test acquiring locks on multiple ComponentLocations for the same component
         Verifies that locks on different rows don't interfere
         """
-        # Create component with stock in multiple locations
+        # Create component with stock in multiple locations (Component quantity_on_hand is a calculated property)
         component = Component(
             id="test-component-6",
             name="Test Component 6",
-            quantity_on_hand=0,
-            minimum_stock=0,
         )
-        location_1 = StorageLocation(id="loc-1", name="Location 1")
-        location_2 = StorageLocation(id="loc-2", name="Location 2")
-        location_3 = StorageLocation(id="loc-3", name="Location 3")
+        location_1 = StorageLocation(id="loc-1", name="Location 1", type="drawer")
+        location_2 = StorageLocation(id="loc-2", name="Location 2", type="drawer")
+        location_3 = StorageLocation(id="loc-3", name="Location 3", type="drawer")
 
         comp_loc_1 = ComponentLocation(
             id="comp-loc-1",
