@@ -78,7 +78,7 @@
 
 ### T003 [P] Setup test infrastructure and fixtures
 **File**: `backend/tests/conftest.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Create pytest fixtures for FastAPI TestClient, test database, and auth tokens
 **Requirements**:
 - `client` fixture: FastAPI TestClient with test database
@@ -89,7 +89,7 @@
 
 ### T004 [P] Contract tests for generate-preview endpoint
 **File**: `backend/tests/contract/test_location_preview_api.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Implement contract tests from contracts/test_location_generation_contract.py::TestGeneratePreviewContract
 **Test Cases**:
 - `test_preview_accepts_row_layout_schema` (FR-002)
@@ -104,7 +104,7 @@
 
 ### T005 [P] Contract tests for bulk-create endpoint
 **File**: `backend/tests/contract/test_location_bulk_create_api.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Implement contract tests from contracts/test_location_generation_contract.py::TestBulkCreateContract
 **Test Cases**:
 - `test_bulk_create_requires_authentication` (FR-024)
@@ -120,7 +120,7 @@
 
 ### T006 [P] Integration test: Row layout creation (Scenario 1)
 **File**: `backend/tests/integration/test_row_layout_creation.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test complete flow of creating 6 storage bins with letter sequence
 **Test Scenario**: quickstart.md Scenario 1
 **Steps**:
@@ -134,7 +134,7 @@
 
 ### T007 [P] Integration test: Grid layout with preview (Scenario 2)
 **File**: `backend/tests/integration/test_grid_layout_preview.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test 30-location grid creation with preview validation
 **Test Scenario**: quickstart.md Scenario 2
 **Steps**:
@@ -147,7 +147,7 @@
 
 ### T008 [P] Integration test: 3D grid layout (Scenario 3)
 **File**: `backend/tests/integration/test_3d_grid_layout.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test warehouse 3D grid (aisle-shelf-bin structure)
 **Test Scenario**: quickstart.md Scenario 3
 **Requirements**:
@@ -158,7 +158,7 @@
 
 ### T009 [P] Integration test: Large batch warning (Scenario 4)
 **File**: `backend/tests/integration/test_large_batch_warning.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test warning displayed for 100+ locations
 **Test Scenario**: quickstart.md Scenario 4 (FR-009)
 **Assertions**:
@@ -168,7 +168,7 @@
 
 ### T010 [P] Integration test: Maximum limit enforcement (Scenario 5)
 **File**: `backend/tests/integration/test_max_limit_enforcement.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test 500-location limit prevents creation
 **Test Scenario**: quickstart.md Scenario 5 (FR-008)
 **Assertions**:
@@ -178,7 +178,7 @@
 
 ### T011 [P] Integration test: Invalid range validation (Scenario 6)
 **File**: `backend/tests/integration/test_invalid_range_validation.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test start > end validation
 **Test Scenario**: quickstart.md Scenario 6 (FR-019)
 **Assertions**:
@@ -187,7 +187,7 @@
 
 ### T012 [P] Integration test: Duplicate prevention (Scenario 7)
 **File**: `backend/tests/integration/test_duplicate_prevention.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test duplicate location names prevented with rollback
 **Test Scenario**: quickstart.md Scenario 7 (FR-007)
 **Assertions**:
@@ -198,7 +198,7 @@
 
 ### T013 [P] Integration test: Parent location assignment (Scenario 8)
 **File**: `backend/tests/integration/test_parent_location_assignment.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test child locations created under parent
 **Test Scenario**: quickstart.md Scenario 8 (FR-014)
 **Assertions**:
@@ -209,7 +209,7 @@
 
 ### T014 [P] Integration test: Single-part only flag (Scenario 9)
 **File**: `backend/tests/integration/test_single_part_flag.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test single_part_only flag persistence
 **Test Scenario**: quickstart.md Scenario 9 (FR-015)
 **Assertions**:
@@ -219,7 +219,7 @@
 
 ### T015 [P] Integration test: Zero-padding (Scenario 10)
 **File**: `backend/tests/integration/test_zero_padding.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test number zero-padding (01, 02, ..., 15)
 **Test Scenario**: quickstart.md Scenario 10 (FR-011)
 **Assertions**:
@@ -229,7 +229,7 @@
 
 ### T016 [P] Integration test: Letter capitalization (Scenario 11)
 **File**: `backend/tests/integration/test_letter_capitalization.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test uppercase letter generation
 **Test Scenario**: quickstart.md Scenario 11 (FR-010)
 **Assertions**:
@@ -245,7 +245,7 @@
 
 ### T017 [X] Create RangeType and LayoutType enums
 **File**: `backend/src/schemas/location_generation.py`
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Define enums for range types (letters/numbers) and layout types (single/row/grid/grid_3d)
 **Implementation**:
 ```python
@@ -265,7 +265,7 @@ class LayoutType(str, Enum):
 
 ### T018 [X] Create RangeSpecification schema
 **File**: `backend/src/schemas/location_generation.py` (same file as T017)
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Pydantic model for range specification with validation
 **Requirements**:
 - Fields: range_type, start, end, capitalize, zero_pad
@@ -275,7 +275,7 @@ class LayoutType(str, Enum):
 
 ### T019 [X] Create LayoutConfiguration schema
 **File**: `backend/src/schemas/location_generation.py` (same file as T017-T018)
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Pydantic model for layout configuration with business logic validation
 **Requirements**:
 - Fields: layout_type, prefix, ranges, separators, parent_id, location_type, single_part_only
@@ -289,7 +289,7 @@ class LayoutType(str, Enum):
 
 ### T020 [X] Create PreviewResponse schema
 **File**: `backend/src/schemas/location_generation.py` (same file as T017-T019)
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Pydantic model for preview response
 **Requirements**:
 - Fields: sample_names, last_name, total_count, warnings, errors, is_valid
@@ -298,7 +298,7 @@ class LayoutType(str, Enum):
 
 ### T021 [X] Create BulkCreateResponse schema
 **File**: `backend/src/schemas/location_generation.py` (same file as T017-T020)
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Pydantic model for bulk create response
 **Requirements**:
 - Fields: created_ids, created_count, success, errors
@@ -309,7 +309,7 @@ class LayoutType(str, Enum):
 
 ### T022 [X] Create LocationGenerator service class
 **File**: `backend/src/services/location_generator.py`
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Service class for generating location names from layout configs
 **Methods**:
 - `generate_names(config: LayoutConfiguration) -> List[str]`: Generate all location names
@@ -328,7 +328,7 @@ class LayoutType(str, Enum):
 
 ### T023 [X] Create LocationValidator service class
 **File**: `backend/src/services/location_validator.py`
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Service class for validating layout configurations
 **Methods**:
 - `validate_configuration(config: LayoutConfiguration) -> Tuple[List[str], List[str]]`: Returns (errors, warnings)
@@ -344,7 +344,7 @@ class LayoutType(str, Enum):
 
 ### T024 [X] Create PreviewService class
 **File**: `backend/src/services/preview_service.py`
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Service for generating location previews without database writes
 **Methods**:
 - `generate_preview(config: LayoutConfiguration, db_session) -> PreviewResponse`: Generate preview
@@ -359,7 +359,7 @@ class LayoutType(str, Enum):
 
 ### T025 [X] Create BulkCreateService class
 **File**: `backend/src/services/bulk_create_service.py`
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: Service for transactional bulk creation of storage locations
 **Methods**:
 - `bulk_create_locations(config: LayoutConfiguration, db_session, user_id: str) -> BulkCreateResponse`: Create locations
@@ -379,7 +379,7 @@ class LayoutType(str, Enum):
 
 ### T026 [X] Update StorageLocation model with layout_config field
 **File**: `backend/src/models/storage_location.py`
-**Agent**: `database-performance-specialist`
+**Agent**: `db`
 **Description**: Add layout_config JSONB field to existing StorageLocation model
 **Requirements**:
 - Add `layout_config: Optional[dict] = Column(JSONB, nullable=True)`
@@ -391,7 +391,7 @@ class LayoutType(str, Enum):
 
 ### T027 [X] Create POST /api/storage-locations/generate-preview endpoint
 **File**: `backend/src/api/endpoints/storage_locations.py`
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: API endpoint for generating preview without creating locations
 **Implementation**:
 - Route: `POST /api/storage-locations/generate-preview`
@@ -404,7 +404,7 @@ class LayoutType(str, Enum):
 
 ### T028 [X] Create POST /api/storage-locations/bulk-create endpoint
 **File**: `backend/src/api/endpoints/storage_locations.py` (same file as T027)
-**Agent**: `python-fastapi-architect`
+**Agent**: `api`
 **Description**: API endpoint for authenticated bulk location creation
 **Implementation**:
 - Route: `POST /api/storage-locations/bulk-create`
@@ -419,7 +419,7 @@ class LayoutType(str, Enum):
 
 ### T029 [X] Run contract tests - verify all pass
 **Command**: `cd backend && uv run --project .. pytest tests/contract/ -v`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Run contract tests from T004-T005 and verify they all pass
 **Expected**: All tests pass (green)
 **Validation**: Zero failures, endpoints implemented correctly
@@ -432,7 +432,7 @@ class LayoutType(str, Enum):
 
 ### T030 [P] Create LocationLayoutDialog component structure
 **File**: `frontend/src/components/locations/LocationLayoutDialog.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Main dialog component for location layout generation with tab navigation
 **Requirements**:
 - Quasar QDialog wrapper
@@ -445,7 +445,7 @@ class LayoutType(str, Enum):
 
 ### T031 [P] Create RowLayoutForm component
 **File**: `frontend/src/components/locations/forms/RowLayoutForm.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Form for row layout configuration (1D)
 **Requirements**:
 - Prefix input (QInput)
@@ -457,7 +457,7 @@ class LayoutType(str, Enum):
 
 ### T032 [P] Create GridLayoutForm component
 **File**: `frontend/src/components/locations/forms/GridLayoutForm.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Form for grid layout configuration (2D)
 **Requirements**:
 - Prefix input
@@ -471,7 +471,7 @@ class LayoutType(str, Enum):
 
 ### T033 [P] Create Grid3DLayoutForm component
 **File**: `frontend/src/components/locations/forms/Grid3DLayoutForm.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Form for 3D grid layout configuration
 **Requirements**:
 - Prefix input
@@ -483,7 +483,7 @@ class LayoutType(str, Enum):
 
 ### T034 [P] Create RangeInput reusable component
 **File**: `frontend/src/components/locations/forms/RangeInput.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Reusable component for range specification input
 **Requirements**:
 - Range type selector (letters/numbers)
@@ -496,7 +496,7 @@ class LayoutType(str, Enum):
 
 ### T035 [P] Create LocationPreview component
 **File**: `frontend/src/components/locations/LocationPreview.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Real-time preview display with validation feedback
 **Requirements**:
 - Show first 5 names + ellipsis + last name
@@ -511,7 +511,7 @@ class LayoutType(str, Enum):
 
 ### T036 Create locationGenerationStore
 **File**: `frontend/src/stores/locationGenerationStore.ts`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Pinia store for location generation state management
 **State**:
 - currentConfig: LayoutConfiguration
@@ -532,7 +532,7 @@ class LayoutType(str, Enum):
 
 ### T037 [P] Create locationGenerationService
 **File**: `frontend/src/services/locationGenerationService.ts`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: TypeScript service for API calls
 **Methods**:
 - `generatePreview(config: LayoutConfiguration): Promise<PreviewResponse>`
@@ -548,7 +548,7 @@ class LayoutType(str, Enum):
 
 ### T038 Add "Create Locations" button to StorageLocationsPage
 **File**: `frontend/src/pages/StorageLocationsPage.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Add button to trigger LocationLayoutDialog
 **Requirements**:
 - Button in page header/toolbar
@@ -559,7 +559,7 @@ class LayoutType(str, Enum):
 
 ### T039 Implement dialog workflow and validation
 **File**: `frontend/src/components/locations/LocationLayoutDialog.vue` (update T030)
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Wire up dialog workflow with store and validation
 **Requirements**:
 - Load store on dialog open
@@ -573,7 +573,7 @@ class LayoutType(str, Enum):
 
 ### T040 Run integration tests - verify frontend integration
 **Command**: `cd frontend && npm test -- LocationLayoutDialog.test.ts`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Run frontend component tests (if implemented)
 **Expected**: Component renders, user interactions work
 **Note**: E2E tests optional, focus on backend integration tests
@@ -584,7 +584,7 @@ class LayoutType(str, Enum):
 
 ### T041 [P] Create StorageLocationTable component
 **File**: `frontend/src/components/locations/StorageLocationTable.vue`
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Responsive table/grid view for storage locations with expandable rows
 **Requirements**:
 - Quasar QTable with columns: Location, Last used, Part count, Description
@@ -597,7 +597,7 @@ class LayoutType(str, Enum):
 
 ### T042 Update StorageLocationsPage to use table view as default
 **File**: `frontend/src/pages/StorageLocationsPage.vue` (update from T038)
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Replace existing storage locations view with StorageLocationTable component
 **Requirements**:
 - Use StorageLocationTable as default view
@@ -609,7 +609,7 @@ class LayoutType(str, Enum):
 
 ### T043 [P] Add responsive styles for mobile/tablet
 **File**: `frontend/src/components/locations/StorageLocationTable.vue` (update T041)
-**Agent**: `frontend-tdd-specialist`
+**Agent**: `vue`
 **Description**: Implement responsive table layout for mobile devices
 **Requirements**:
 - Column priority: Location > Part count > Last used > Description
@@ -626,7 +626,7 @@ class LayoutType(str, Enum):
 
 ### T044 [P] Unit tests for LocationGenerator service
 **File**: `backend/tests/unit/test_location_generator.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test name generation algorithms in isolation
 **Test Cases**:
 - Letter ranges (a-z, capitalization)
@@ -637,7 +637,7 @@ class LayoutType(str, Enum):
 
 ### T045 [P] Unit tests for LocationValidator service
 **File**: `backend/tests/unit/test_location_validator.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test validation rules in isolation
 **Test Cases**:
 - Range validation (start ≤ end)
@@ -648,7 +648,7 @@ class LayoutType(str, Enum):
 
 ### T046 [P] Unit tests for PreviewService
 **File**: `backend/tests/unit/test_preview_service.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test preview generation logic
 **Test Cases**:
 - First 5 + last name extraction
@@ -659,7 +659,7 @@ class LayoutType(str, Enum):
 
 ### T047 [P] Unit tests for BulkCreateService
 **File**: `backend/tests/unit/test_bulk_create_service.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Test bulk creation logic with mocked database
 **Test Cases**:
 - Successful creation
@@ -672,7 +672,7 @@ class LayoutType(str, Enum):
 
 ### T048 [P] Update OpenAPI documentation
 **File**: `backend/src/main.py` or OpenAPI spec file
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Ensure OpenAPI spec includes new endpoints with examples
 **Requirements**:
 - POST /api/storage-locations/generate-preview documented
@@ -683,7 +683,7 @@ class LayoutType(str, Enum):
 
 ### T049 [P] Update backend README with feature usage
 **File**: `backend/README.md` or `docs/features/location-generation.md`
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Document how to use location generation endpoints
 **Requirements**:
 - API endpoint usage examples
@@ -694,7 +694,7 @@ class LayoutType(str, Enum):
 
 ### T050 [P] Update frontend component documentation
 **File**: `frontend/docs/components/location-layout-dialog.md` or inline JSDoc
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Document LocationLayoutDialog component usage
 **Requirements**:
 - Component props and events
@@ -704,7 +704,7 @@ class LayoutType(str, Enum):
 
 ### T051 [P] Create migration guide for existing users
 **File**: `docs/migrations/003-location-generation.md`
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Guide for users upgrading to version with location generation
 **Requirements**:
 - Database migration steps
@@ -729,7 +729,7 @@ class LayoutType(str, Enum):
 
 ### T054 Run full test suite with coverage
 **Command**: `cd backend && uv run --project .. pytest --cov=src --cov-report=term-missing --cov-report=html`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Run all tests and check coverage
 **Expected**:
 - All tests pass
@@ -739,7 +739,7 @@ class LayoutType(str, Enum):
 
 ### T055 Verify test isolation and parallelization
 **Command**: `cd backend && uv run --project .. pytest -n auto --random-order`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Run tests in parallel with random order to verify isolation
 **Expected**: All tests pass regardless of order (Principle VI)
 **Reference**: Principle VI
@@ -753,7 +753,7 @@ class LayoutType(str, Enum):
 
 ### T057 Performance test: Preview endpoint (<200ms)
 **File**: `backend/tests/performance/test_preview_performance.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Verify preview generation meets performance target
 **Test**:
 - Generate preview for 500-location config
@@ -762,7 +762,7 @@ class LayoutType(str, Enum):
 
 ### T058 Performance test: Bulk create endpoint (<2s)
 **File**: `backend/tests/performance/test_bulk_create_performance.py`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Verify bulk creation meets performance target
 **Test**:
 - Create 500 locations
@@ -788,7 +788,7 @@ class LayoutType(str, Enum):
 - [ ] Scenario 11: Letter capitalization (A-C)
 
 ### T060 Verify documentation completeness
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Check all documentation requirements met (Principle VII)
 **Checklist**:
 - [ ] OpenAPI spec updated (T048)
@@ -804,7 +804,7 @@ class LayoutType(str, Enum):
 
 ### T061 [X] Run full integration test suite
 **Command**: `cd backend && uv run --project .. pytest tests/integration/ -v`
-**Agent**: `testing-specialist`
+**Agent**: `test`
 **Description**: Run all integration tests (T006-T016) and verify pass
 **Expected**: All 11 integration tests pass
 **Status**: ✅ COMPLETE - 148 passed, 1 skipped
@@ -885,7 +885,7 @@ class LayoutType(str, Enum):
 **Status**: ✅ COMPLETE - All commits follow conventional format, no AI attribution
 
 ### T072 [X] Final code review checklist
-**Agent**: `code-reviewer`
+**Agent**: `review`
 **Description**: Self-review all code changes
 **Checklist**:
 - [x] No commented-out code blocks
@@ -899,7 +899,7 @@ class LayoutType(str, Enum):
 
 ### T073 Create feature demo script
 **File**: `specs/003-location-improvements-as/demo-script.md`
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Step-by-step script for demonstrating feature
 **Contents**:
 - Setup instructions (start servers)
@@ -909,7 +909,7 @@ class LayoutType(str, Enum):
 
 ### T074 [X] Update CHANGELOG.md
 **File**: `CHANGELOG.md`
-**Agent**: `tech-docs-specialist`
+**Agent**: `docs`
 **Description**: Add feature to changelog under "Unreleased" section
 **Format**:
 ```markdown
@@ -984,12 +984,12 @@ T061-T074 after all above tasks complete
 ### Phase 3.2: Launch all contract tests in parallel with testing-specialist
 ```bash
 # After T003 fixtures are ready
-# Launch testing-specialist agent for contract tests
+# Launch test agent for contract tests
 ```
 
 ### Phase 3.3: Backend implementation with python-fastapi-architect
 ```bash
-# Launch python-fastapi-architect agent for:
+# Launch api agent for:
 # - T017-T021: Schemas (single file, conceptually parallel)
 # - T022: LocationGenerator service
 # - T023: LocationValidator service
@@ -1000,7 +1000,7 @@ T061-T074 after all above tasks complete
 
 ### Phase 3.4: Frontend components with frontend-tdd-specialist
 ```bash
-# Launch frontend-tdd-specialist agent for:
+# Launch vue agent for:
 # - T030-T035: Component creation (parallel)
 # - T036: Store creation
 # - T037: API service
@@ -1010,7 +1010,7 @@ T061-T074 after all above tasks complete
 
 ### Phase 3.6: Documentation with tech-docs-specialist
 ```bash
-# Launch tech-docs-specialist agent for:
+# Launch docs agent for:
 # - T048-T051: All documentation tasks (parallel)
 # - T060: Documentation verification
 # - T073: Demo script
@@ -1019,7 +1019,7 @@ T061-T074 after all above tasks complete
 
 ### Phase 3.7: Final review with code-reviewer
 ```bash
-# Launch code-reviewer agent for:
+# Launch review agent for:
 # - T072: Final code review checklist
 ```
 
