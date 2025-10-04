@@ -217,6 +217,7 @@ When users select the "Add to project..." option, a modal dialog displays with t
 - **FR-029**: System MUST display a modal dialog titled "Add parts to a project" when the add to project operation is selected
 - **FR-030**: System MUST display a table showing all selected components with Part, Description, and Quantity columns
 - **FR-031**: System MUST provide quantity adjustment controls (increment/decrement buttons) for each component
+- **FR-031a**: Component quantities MUST be >= 1 and <= 9999 per project assignment. System MUST prevent values outside this range (disable decrement at 1, disable increment at 9999)
 - **FR-032**: System MUST default the quantity to 1 for each selected component
 - **FR-033**: System MUST provide a dropdown menu to select the target project
 - **FR-034**: System MUST display a placeholder "Choose project..." in the project dropdown when no project is selected
