@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/madeinoz67/partshub/compare/v0.1.0...v0.1.1) (2025-10-04)
+
+
+### Miscellaneous Chores
+
+* release 0.1.1 ([9659cc4](https://github.com/madeinoz67/partshub/commit/9659cc4a5f07a51bf222e6216e5b9fb7a011857b))
+
 ## 0.1.0 (2025-10-02)
 
 
