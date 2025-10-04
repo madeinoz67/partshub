@@ -152,9 +152,13 @@ PartsHub container is configured with:
      - Configure max attachment size in application settings
 
 ### Backup Recommendations
-- Regularly backup `/app/data/partshub.db`
-- Use SQLite's online backup methods
-- Consider periodic volume snapshots
+- **Always backup the entire `/app/data` directory** (database + attachments together)
+- Backup both `/app/data/partshub.db` AND `/app/data/attachments/` as a complete unit
+- Use volume snapshots or complete directory backups
+- See [Backup & Recovery Guide](backup.md) for detailed procedures
+
+!!! warning "Complete Backups Required"
+    Never backup only the database! Attachments must be backed up together with the database to maintain file reference integrity.
 
 ## Best Practices
 
