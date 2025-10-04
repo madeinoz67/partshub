@@ -108,7 +108,7 @@ The component table view displays a list of electronic parts with the following 
 - Add to purchase list...
 - Set low-stock levels...
 - Set part attribution...
-- Download as CSV
+- Download as CSV *(Future feature - v0.2.0)*
 - Delete...
 - Deselect all
 
@@ -196,7 +196,7 @@ When users select the "Add to project..." option, a modal dialog displays with t
 - **FR-012**: System MUST provide "Add to purchase list..." option to add selected components to a purchase list
 - **FR-013**: System MUST provide "Set low-stock levels..." option to configure stock thresholds for selected components
 - **FR-014**: System MUST provide "Set part attribution..." option to update attribution data for selected components
-- **FR-015**: System MUST provide "Download as CSV" option to export selected component data
+- **FR-015**: System MUST provide "Download as CSV" option to export selected component data *(Future feature - planned for v0.2.0)*
 - **FR-016**: System MUST provide "Delete..." option to remove selected components with confirmation
 - **FR-017**: System MUST provide "Deselect all" option to clear current selection
 
