@@ -33,8 +33,8 @@ services:
       - partshub_data:/app/data  # Persistent data volume
     environment:
       - DATABASE_URL=sqlite:///./data/partshub.db
-      - ENVIRONMENT=production
-      - SEED_DB=true  # Seed the database on startup
+      - ENVIRONMENT=development
+      - SEED_DB=true  # Demo data only - DO NOT use in production!
     restart: unless-stopped  # Automatically restart unless manually stopped
 
 volumes:
