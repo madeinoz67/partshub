@@ -1,12 +1,22 @@
 import { config } from '@vue/test-utils'
 import { createPinia } from 'pinia'
-import { Quasar } from 'quasar'
+import { Quasar, Notify } from 'quasar'
+import { vi } from 'vitest'
 
 // Create a global Pinia instance for tests
 const pinia = createPinia()
 
+// Mock Quasar Notify
+const mockNotify = {
+  create: vi.fn()
+}
+
 // Global mount options
-config.global.plugins = [pinia, [Quasar, {}]]
+config.global.plugins = [pinia, [Quasar, {
+  plugins: {
+    Notify: mockNotify
+  }
+}]]
 config.global.stubs = {
   'q-card': { template: '<div class="q-card"><slot /></div>' },
   'q-card-section': { template: '<div class="q-card-section"><slot /></div>' },
@@ -34,5 +44,12 @@ config.global.stubs = {
   'q-icon': { template: '<i class="q-icon"><slot /></i>' },
   'q-table': { template: '<table><slot /></table>' },
   'q-spinner': { template: '<div class="q-spinner"></div>' },
-  'q-avatar': { template: '<div class="q-avatar"><slot /></div>' }
+  'q-avatar': { template: '<div class="q-avatar"><slot /></div>' },
+  'q-stepper': { template: '<div class="q-stepper"><slot /><div class="q-stepper-navigation"><slot name="navigation" /></div></div>' },
+  'q-step': { template: '<div class="q-step"><slot /></div>', props: ['name', 'title', 'icon', 'done'] },
+  'q-stepper-navigation': { template: '<div class="q-stepper-navigation"><slot /></div>' },
+  'q-form': { template: '<form @submit="$emit(\'submit\', $event)"><slot /></form>', emits: ['submit'] }
 }
+
+// Export mock Notify for use in tests
+export { mockNotify }
