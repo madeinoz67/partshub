@@ -109,7 +109,16 @@ nav:
   - User Guide:
       - user/index.md
       - Getting Started: user/getting-started.md
+      - Docker Quickstart: user/docker-quickstart.md
+      - Features: user/features.md
       - KiCad Workflows: user/kicad-workflows.md
+  - Deployment:
+      - Docker: deployment/docker.md
+      - Docker Compose: deployment/docker-compose.md
+      - Environment Variables: deployment/environment.md
+      - Data Volumes: deployment/volumes.md
+      - Backup & Recovery: deployment/backup.md
+      - Production Deployment: deployment/production.md
   - Architecture:
       - architecture/index.md
       - Barcode Scanning: architecture/barcode-scanning.md

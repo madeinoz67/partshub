@@ -2,15 +2,30 @@
 
 PartsHub is an electronic parts inventory management system with a Vue.js frontend and FastAPI backend.
 
-## Prerequisites
+## Docker Deployment (Recommended for Quick Start)
 
-- **Node.js** (v16 or higher)
-- **Python** (3.10 or higher)
-- **uv** (Python package manager)
+**[📦 Docker Quick Start Guide](docker-quickstart.md){ .md-button .md-button--primary }**
 
-## Quick Start
+**Easiest Way to Get Started!**
+- Single command deployment
+- No local dependencies required
+- Consistent environment across all systems
+- Instant setup in under 5 minutes
 
-### 1. Clone and Setup
+```bash
+docker run -p 3000:3000 ghcr.io/your-org/partshub:latest
+```
+
+## Local Development Setup
+
+### Prerequisites
+
+- **Docker** (recommended) or:
+  - **Node.js** (v16 or higher)
+  - **Python** (3.10 or higher)
+  - **uv** (Python package manager)
+
+### Manual Setup: 1. Clone and Setup
 
 ```bash
 git clone <repository-url>

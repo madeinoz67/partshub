@@ -14,6 +14,8 @@ Auto-generated from all feature plans. Last updated: 2025-09-27
 - YAML workflow files in `.github/workflows/`, GitHub Container Registry for Docker images (002-github-workflows)
 - Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend), Quasar Framework, Pinia (frontend) (003-location-improvements-as)
 - SQLite database with SQLAlchemy ORM (existing storage_locations table) (003-location-improvements-as)
+- Markdown, MkDocs (Python 3.11 for docs server) + MkDocs, Docker, existing PartsHub infrastructure (004-docker-and-user)
+- N/A - Documentation files only (004-docker-and-user)
 
 ## Project Structure
 ```
@@ -47,10 +49,10 @@ make docs         # Start documentation server
 - Run tests locally: `cd backend && uv run pytest`
 
 ## Recent Changes
+- 004-docker-and-user: Added Markdown, MkDocs (Python 3.11 for docs server) + MkDocs, Docker, existing PartsHub infrastructure
 - 003-location-improvements-as: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend), Quasar Framework, Pinia (frontend)
 
 - 002-github-workflows: Added GitHub Actions YAML workflows, Python 3.11+ (backend), Node.js 18+ (frontend) + GitHub Actions ecosystem, Mike (docs versioning), Release Please (release automation), Docker/GitHub Container Registry
-- 002-github-workflows: Added YAML (GitHub Actions), Shell scripting, Python 3.11+ (for tooling) + GitHub Actions, Docker, MkDocs, pytest, ruff, uv, Node.js/npm
 
 <!-- MANUAL ADDITIONS START -->
 
