@@ -12,13 +12,13 @@
         <meta name="author" content="Stephen Eaton">
       
       
-        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.1.1/">
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.2.0/">
       
       
-        <link rel="prev" href="../v0.2.0/">
+        <link rel="prev" href="../../developer/session-notes-2025-09-27/">
       
       
-        <link rel="next" href="../v0.1.0/">
+        <link rel="next" href="../v0.1.1/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Release Notes for PartsHub v0.1.1 - PartsHub Documentation</title>
+        <title>Release Notes for PartsHub v0.2.0 - PartsHub Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-for-partshub-v011" class="md-skip">
+        <a href="#release-notes-for-partshub-v020" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release Notes for PartsHub v0.1.1
+              Release Notes for PartsHub v0.2.0
             
           </span>
         </div>
@@ -405,7 +405,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../v0.2.0/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -1417,29 +1417,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../v0.2.0/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Release Notes for PartsHub v0.2.0
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1457,7 +1434,7 @@
   
   
   <span class="md-ellipsis">
-    Release Notes for PartsHub v0.1.1
+    Release Notes for PartsHub v0.2.0
     
   </span>
   
@@ -1470,7 +1447,7 @@
   
   
   <span class="md-ellipsis">
-    Release Notes for PartsHub v0.1.1
+    Release Notes for PartsHub v0.2.0
     
   </span>
   
@@ -1512,23 +1489,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-1-complete" class="md-nav__link">
+  <a href="#bulk-operations-for-component-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage Location Layout Generator (Phase 1 Complete)
+      Bulk Operations for Component Management
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Storage Location Layout Generator (Phase 1 Complete)">
+    <nav class="md-nav" aria-label="Bulk Operations for Component Management">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#four-layout-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Four Layout Types
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#key-capabilities" class="md-nav__link">
@@ -1540,9 +1508,27 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#available-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#api-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       API Endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
     </span>
   </a>
   
@@ -1577,145 +1563,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#test-coverage-achievement" class="md-nav__link">
+  <a href="#api-changes" class="md-nav__link">
     <span class="md-ellipsis">
-      Test Coverage Achievement
+      API Changes
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Test Coverage Achievement">
+    <nav class="md-nav" aria-label="API Changes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#backend-tests-473473-passing-100" class="md-nav__link">
+  <a href="#new-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Backend Tests: 473/473 Passing (100%)
+      New Endpoints
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frontend-tests-157157-passing-100" class="md-nav__link">
+  <a href="#requestresponse-schemas" class="md-nav__link">
     <span class="md-ellipsis">
-      Frontend Tests: 157/157 Passing (100%)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cicd-test-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      CI/CD Test Improvements
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#database-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Database Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Database Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#schema-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Schema Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-optimizations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance Optimizations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-quality-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Code Quality Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Code Quality Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#backend-excellence" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Excellence
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Quality
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#infrastructure-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Infrastructure Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#github-actions-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      GitHub Actions Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#docker-enhancements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Docker Enhancements
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-resolutions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Resolutions
+      Request/Response Schemas
     </span>
   </a>
   
@@ -1737,9 +1606,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#api-backend" class="md-nav__link">
+  <a href="#backend" class="md-nav__link">
     <span class="md-ellipsis">
-      API &amp; Backend
+      Backend
     </span>
   </a>
   
@@ -1755,9 +1624,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-infrastructure" class="md-nav__link">
+  <a href="#tests" class="md-nav__link">
     <span class="md-ellipsis">
-      Test Infrastructure
+      Tests
     </span>
   </a>
   
@@ -1769,35 +1638,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#api-changes" class="md-nav__link">
+  <a href="#security" class="md-nav__link">
     <span class="md-ellipsis">
-      API Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#consistency-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consistency Updates
+      Security
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#new-endpoints" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      New Endpoints
+      Documentation
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1821,9 +1675,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#database-migration-required" class="md-nav__link">
+  <a href="#no-database-migration-required" class="md-nav__link">
     <span class="md-ellipsis">
-      Database Migration Required
+      No Database Migration Required
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frontend-type-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Type Updates
     </span>
   </a>
   
@@ -1833,15 +1696,6 @@
   <a href="#api-endpoint-updates" class="md-nav__link">
     <span class="md-ellipsis">
       API Endpoint Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#no-code-changes-required" class="md-nav__link">
-    <span class="md-ellipsis">
-      No Code Changes Required
     </span>
   </a>
   
@@ -1872,9 +1726,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#upgrading-from-v010" class="md-nav__link">
+  <a href="#upgrading-from-v01x" class="md-nav__link">
     <span class="md-ellipsis">
-      Upgrading from v0.1.0
+      Upgrading from v0.1.x
     </span>
   </a>
   
@@ -1882,15 +1736,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
   
 </li>
       
@@ -1928,37 +1773,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#files-changed" class="md-nav__link">
+  <a href="#whats-next-v030-preview" class="md-nav__link">
     <span class="md-ellipsis">
-      Files Changed
+      What's Next (v0.3.0 Preview)
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next-v020-preview" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next (v0.2.0 Preview)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What&#39;s Next (v0.2.0 Preview)">
+    <nav class="md-nav" aria-label="What&#39;s Next (v0.3.0 Preview)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-2" class="md-nav__link">
+  <a href="#enhanced-bulk-operations" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage Location Layout Generator - Phase 2
+      Enhanced Bulk Operations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#enhanced-features" class="md-nav__link">
+  <a href="#additional-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Enhanced Features
+      Additional Features
     </span>
   </a>
   
@@ -1988,15 +1824,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#acknowledgments" class="md-nav__link">
-    <span class="md-ellipsis">
-      Acknowledgments
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#support-feedback" class="md-nav__link">
     <span class="md-ellipsis">
       Support &amp; Feedback
@@ -2009,6 +1836,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.1.1
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2113,23 +1963,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-1-complete" class="md-nav__link">
+  <a href="#bulk-operations-for-component-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage Location Layout Generator (Phase 1 Complete)
+      Bulk Operations for Component Management
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Storage Location Layout Generator (Phase 1 Complete)">
+    <nav class="md-nav" aria-label="Bulk Operations for Component Management">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#four-layout-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Four Layout Types
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#key-capabilities" class="md-nav__link">
@@ -2141,9 +1982,27 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#available-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#api-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       API Endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
     </span>
   </a>
   
@@ -2178,145 +2037,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#test-coverage-achievement" class="md-nav__link">
+  <a href="#api-changes" class="md-nav__link">
     <span class="md-ellipsis">
-      Test Coverage Achievement
+      API Changes
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Test Coverage Achievement">
+    <nav class="md-nav" aria-label="API Changes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#backend-tests-473473-passing-100" class="md-nav__link">
+  <a href="#new-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Backend Tests: 473/473 Passing (100%)
+      New Endpoints
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frontend-tests-157157-passing-100" class="md-nav__link">
+  <a href="#requestresponse-schemas" class="md-nav__link">
     <span class="md-ellipsis">
-      Frontend Tests: 157/157 Passing (100%)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cicd-test-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      CI/CD Test Improvements
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#database-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Database Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Database Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#schema-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Schema Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-optimizations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance Optimizations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-quality-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Code Quality Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Code Quality Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#backend-excellence" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Excellence
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Quality
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#infrastructure-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Infrastructure Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#github-actions-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      GitHub Actions Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#docker-enhancements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Docker Enhancements
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-resolutions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Resolutions
+      Request/Response Schemas
     </span>
   </a>
   
@@ -2338,9 +2080,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#api-backend" class="md-nav__link">
+  <a href="#backend" class="md-nav__link">
     <span class="md-ellipsis">
-      API &amp; Backend
+      Backend
     </span>
   </a>
   
@@ -2356,9 +2098,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-infrastructure" class="md-nav__link">
+  <a href="#tests" class="md-nav__link">
     <span class="md-ellipsis">
-      Test Infrastructure
+      Tests
     </span>
   </a>
   
@@ -2370,35 +2112,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#api-changes" class="md-nav__link">
+  <a href="#security" class="md-nav__link">
     <span class="md-ellipsis">
-      API Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#consistency-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consistency Updates
+      Security
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#new-endpoints" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      New Endpoints
+      Documentation
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2422,9 +2149,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#database-migration-required" class="md-nav__link">
+  <a href="#no-database-migration-required" class="md-nav__link">
     <span class="md-ellipsis">
-      Database Migration Required
+      No Database Migration Required
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frontend-type-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Type Updates
     </span>
   </a>
   
@@ -2434,15 +2170,6 @@
   <a href="#api-endpoint-updates" class="md-nav__link">
     <span class="md-ellipsis">
       API Endpoint Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#no-code-changes-required" class="md-nav__link">
-    <span class="md-ellipsis">
-      No Code Changes Required
     </span>
   </a>
   
@@ -2473,9 +2200,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#upgrading-from-v010" class="md-nav__link">
+  <a href="#upgrading-from-v01x" class="md-nav__link">
     <span class="md-ellipsis">
-      Upgrading from v0.1.0
+      Upgrading from v0.1.x
     </span>
   </a>
   
@@ -2483,15 +2210,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
   
 </li>
       
@@ -2529,37 +2247,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#files-changed" class="md-nav__link">
+  <a href="#whats-next-v030-preview" class="md-nav__link">
     <span class="md-ellipsis">
-      Files Changed
+      What's Next (v0.3.0 Preview)
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next-v020-preview" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next (v0.2.0 Preview)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What&#39;s Next (v0.2.0 Preview)">
+    <nav class="md-nav" aria-label="What&#39;s Next (v0.3.0 Preview)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-2" class="md-nav__link">
+  <a href="#enhanced-bulk-operations" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage Location Layout Generator - Phase 2
+      Enhanced Bulk Operations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#enhanced-features" class="md-nav__link">
+  <a href="#additional-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Enhanced Features
+      Additional Features
     </span>
   </a>
   
@@ -2583,15 +2292,6 @@
   <a href="#known-issues" class="md-nav__link">
     <span class="md-ellipsis">
       Known Issues
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#acknowledgments" class="md-nav__link">
-    <span class="md-ellipsis">
-      Acknowledgments
     </span>
   </a>
   
@@ -2622,7 +2322,7 @@
 
 
   
-    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.1.1.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.2.0.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2631,365 +2331,324 @@
     
       
     
-    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.1.1.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.2.0.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="release-notes-for-partshub-v011">Release Notes for PartsHub v0.1.1<a class="headerlink" href="#release-notes-for-partshub-v011" title="Permanent link">&para;</a></h1>
+<h1 id="release-notes-for-partshub-v020">Release Notes for PartsHub v0.2.0<a class="headerlink" href="#release-notes-for-partshub-v020" title="Permanent link">&para;</a></h1>
 <p><strong>Release Date</strong>: October 4, 2025
-<strong>GitHub Release</strong>: <a href="https://github.com/madeinoz67/partshub/releases/tag/v0.1.1">v0.1.1</a>
-<strong>Comparison</strong>: <a href="https://github.com/madeinoz67/partshub/compare/v0.1.0...v0.1.1">v0.1.0...v0.1.1</a></p>
+<strong>GitHub Release</strong>: <a href="https://github.com/madeinoz67/partshub/releases/tag/v0.2.0">v0.2.0</a>
+<strong>Comparison</strong>: <a href="https://github.com/madeinoz67/partshub/compare/v0.1.2...v0.2.0">v0.1.2...v0.2.0</a></p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>PartsHub v0.1.1 introduces the <strong>Storage Location Layout Generator</strong>, a powerful feature enabling bulk creation of systematic storage locations with automated naming patterns. This release transforms how users organize their electronic parts inventory, allowing creation of up to 500 locations in seconds with four flexible layout types. Additionally, this release achieves 100% test pass rate, resolves all security vulnerabilities, and significantly improves CI/CD infrastructure.</p>
+<p>PartsHub v0.2.0 introduces <strong>Bulk Operations for Component Management</strong>, a powerful admin feature enabling efficient management of large component inventories. This release allows administrators to perform actions on multiple components simultaneously with atomic transaction safety, cross-page selection persistence, and comprehensive error handling. The feature includes 9 different bulk operations covering tags, projects, deletion, meta-parts, purchase lists, stock levels, and attribution management.</p>
 <h2 id="major-features">Major Features<a class="headerlink" href="#major-features" title="Permanent link">&para;</a></h2>
-<h3 id="storage-location-layout-generator-phase-1-complete">Storage Location Layout Generator (Phase 1 Complete)<a class="headerlink" href="#storage-location-layout-generator-phase-1-complete" title="Permanent link">&para;</a></h3>
-<p>The headline feature of v0.1.1 is the new bulk storage location generation system enabling rapid creation of organized storage hierarchies.</p>
-<h4 id="four-layout-types">Four Layout Types<a class="headerlink" href="#four-layout-types" title="Permanent link">&para;</a></h4>
-<ol>
-<li><strong>Single Layout</strong></li>
-<li>Create individual named locations</li>
-<li>
-<p>Perfect for unique storage needs</p>
-</li>
-<li>
-<p><strong>Row Layout (1D)</strong></p>
-</li>
-<li>Generate linear sequences (e.g., <code>box1-a</code> through <code>box1-f</code>)</li>
-<li>
-<p>Ideal for shelf bins, drawer rows, or sequential containers</p>
-</li>
-<li>
-<p><strong>Grid Layout (2D)</strong></p>
-</li>
-<li>Create 2D organizational grids (e.g., <code>drawer-a-1</code> to <code>drawer-f-5</code>)</li>
-<li>
-<p>Perfect for grid-style storage systems, PCB racks, or matrix layouts</p>
-</li>
-<li>
-<p><strong>3D Grid Layout</strong></p>
-</li>
-<li>Generate multi-level hierarchical storage systems</li>
-<li>Supports complex cabinet systems with shelves, rows, and columns</li>
-<li>Full parent-child relationship support</li>
-</ol>
+<h3 id="bulk-operations-for-component-management">Bulk Operations for Component Management<a class="headerlink" href="#bulk-operations-for-component-management" title="Permanent link">&para;</a></h3>
+<p>The headline feature of v0.2.0 is the new bulk operations system enabling administrators to manage multiple components efficiently.</p>
 <h4 id="key-capabilities">Key Capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>Real-time Preview</strong>: See the first 5 and last location names before creation</li>
-<li><strong>Bulk Creation</strong>: Create up to 500 locations per batch with warnings at 100+</li>
-<li><strong>Flexible Naming</strong>:</li>
-<li>Letter ranges (a-z or A-Z) with capitalization options</li>
-<li>Number ranges (1-999) with optional zero-padding (01, 02, etc.)</li>
-<li>Custom separators and prefixes</li>
-<li><strong>Hierarchical Support</strong>: Parent-child location relationships for nested organization</li>
-<li><strong>Single-Part Designation</strong>: Mark locations for single-part storage only</li>
-<li><strong>Configuration Audit Trail</strong>: Layout configurations stored as JSONB in database</li>
-<li><strong>Duplicate Prevention</strong>: Transaction-safe validation prevents duplicate location names</li>
-<li><strong>Authentication-Gated</strong>: Anonymous users can preview, authenticated users can create</li>
+<li><strong>Cross-Page Selection</strong>: Selection persists across pagination - select components from multiple pages and perform operations on all selected items</li>
+<li><strong>Selection Counter</strong>: Real-time display of selected component count in the UI</li>
+<li><strong>Admin-Only Access</strong>: All bulk operations require admin authentication for security</li>
+<li><strong>Atomic Transactions</strong>: All-or-nothing execution ensures data consistency</li>
+<li><strong>Concurrent Modification Detection</strong>: Prevents conflicting updates from multiple users</li>
+<li><strong>Comprehensive Error Handling</strong>: Detailed error reporting with automatic rollback on failure</li>
 </ul>
+<h4 id="available-operations">Available Operations<a class="headerlink" href="#available-operations" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Add or Remove Tags</strong></li>
+<li>Add multiple tags to selected components</li>
+<li>Remove tags from selected components</li>
+<li>View common tags (present on ALL selected) and all tags (present on ANY selected)</li>
+<li>
+<p>Real-time preview of tag changes before applying</p>
+</li>
+<li>
+<p><strong>Add to Project</strong></p>
+</li>
+<li>Assign multiple components to a project</li>
+<li>Specify quantities for each component (default: 1)</li>
+<li>
+<p>Adjust quantities with &plusmn; buttons in the dialog</p>
+</li>
+<li>
+<p><strong>Delete Components</strong></p>
+</li>
+<li>Permanently remove multiple components</li>
+<li>Atomic transaction ensures all-or-nothing deletion</li>
+<li>
+<p>Confirmation dialog prevents accidental deletions</p>
+</li>
+<li>
+<p><strong>Add to Meta-Part</strong></p>
+</li>
+<li>Group components into meta-part definitions</li>
+<li>
+<p>Simplify component management and organization</p>
+</li>
+<li>
+<p><strong>Add to Purchase List</strong></p>
+</li>
+<li>Queue multiple components for purchasing</li>
+<li>
+<p>Streamline procurement workflows</p>
+</li>
+<li>
+<p><strong>Update Stock Levels</strong></p>
+</li>
+<li>Bulk update inventory quantities</li>
+<li>
+<p>Efficient stock management for large inventories</p>
+</li>
+<li>
+<p><strong>Update Attribution</strong></p>
+</li>
+<li>Manage component attribution data in bulk</li>
+<li>
+<p>Track sourcing and attribution information</p>
+</li>
+<li>
+<p><strong>Update Meta-Part</strong></p>
+</li>
+<li>Modify meta-part assignments for multiple components</li>
+<li>
+<p>Reorganize component groupings</p>
+</li>
+<li>
+<p><strong>Deselect All</strong></p>
+</li>
+<li>Clear current selection</li>
+<li>Reset for new bulk operation</li>
+</ol>
 <h4 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Preview locations before creating (no authentication required)</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>POST<span class="w"> </span>/api/v1/storage-locations/generate-preview
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Content-Type:<span class="w"> </span>application/json
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="o">{</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="s2">&quot;layout_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;row&quot;</span>,
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="s2">&quot;prefix&quot;</span>:<span class="w"> </span><span class="s2">&quot;box1-&quot;</span>,
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="s2">&quot;ranges&quot;</span>:<span class="w"> </span><span class="o">[{</span><span class="s2">&quot;range_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;letters&quot;</span>,<span class="w"> </span><span class="s2">&quot;start&quot;</span>:<span class="w"> </span><span class="s2">&quot;a&quot;</span>,<span class="w"> </span><span class="s2">&quot;end&quot;</span>:<span class="w"> </span><span class="s2">&quot;f&quot;</span><span class="o">}]</span>,
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="s2">&quot;separators&quot;</span>:<span class="w"> </span><span class="o">[]</span>,
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="s2">&quot;location_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;bin&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="o">}</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Response: 200 OK</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="o">{</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="s2">&quot;sample_names&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;box1-a&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-b&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-c&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-d&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-e&quot;</span><span class="o">]</span>,
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="s2">&quot;total_count&quot;</span>:<span class="w"> </span><span class="m">6</span>,
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="s2">&quot;validation&quot;</span>:<span class="w"> </span><span class="o">{</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="s2">&quot;valid&quot;</span>:<span class="w"> </span>true,
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="s2">&quot;warnings&quot;</span>:<span class="w"> </span><span class="o">[]</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="o">}</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="o">}</span>
+<p>All endpoints are under <code>/api/v1/components/bulk</code> and require admin authentication.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Add tags to components</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>POST<span class="w"> </span>/api/v1/components/bulk/tags/add
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;admin-token&gt;
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Content-Type:<span class="w"> </span>application/json
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="o">{</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="s2">&quot;component_ids&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;uuid-1&quot;</span>,<span class="w"> </span><span class="s2">&quot;uuid-2&quot;</span>,<span class="w"> </span><span class="s2">&quot;uuid-3&quot;</span><span class="o">]</span>,
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="s2">&quot;tags&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;resistor&quot;</span>,<span class="w"> </span><span class="s2">&quot;SMD&quot;</span><span class="o">]</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="o">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Response: 200 OK</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="o">{</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="s2">&quot;success&quot;</span>:<span class="w"> </span>true,
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="s2">&quot;affected_count&quot;</span>:<span class="w"> </span><span class="m">3</span>,
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="s2">&quot;errors&quot;</span>:<span class="w"> </span>null
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="o">}</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># Remove tags from components</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>POST<span class="w"> </span>/api/v1/components/bulk/tags/remove
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;admin-token&gt;
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>Content-Type:<span class="w"> </span>application/json
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># Bulk create locations (authentication required)</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>POST<span class="w"> </span>/api/v1/storage-locations/bulk-create-layout
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;token&gt;
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>Content-Type:<span class="w"> </span>application/json
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="o">{</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="s2">&quot;component_ids&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;uuid-1&quot;</span>,<span class="w"> </span><span class="s2">&quot;uuid-2&quot;</span><span class="o">]</span>,
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="s2">&quot;tags&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;obsolete&quot;</span><span class="o">]</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="o">}</span>
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># Response: 201 Created</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="o">{</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="s2">&quot;created_ids&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">5</span>,<span class="w"> </span><span class="m">6</span><span class="o">]</span>,
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">  </span><span class="s2">&quot;count&quot;</span>:<span class="w"> </span><span class="m">6</span>,
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">  </span><span class="s2">&quot;success&quot;</span>:<span class="w"> </span><span class="nb">true</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="o">}</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="c1"># Error responses:</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="c1"># 409 Conflict - Duplicate location names</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="c1"># 400 Bad Request - Location limit exceeded</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="c1"># 404 Not Found - Invalid parent location</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># Add components to project</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>POST<span class="w"> </span>/api/v1/components/bulk/add-to-project
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;admin-token&gt;
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>Content-Type:<span class="w"> </span>application/json
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="o">{</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">  </span><span class="s2">&quot;project_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;project-uuid&quot;</span>,
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span><span class="s2">&quot;quantities&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="s2">&quot;component-uuid-1&quot;</span>:<span class="w"> </span><span class="m">10</span>,
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="s2">&quot;component-uuid-2&quot;</span>:<span class="w"> </span><span class="m">5</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">  </span><span class="o">}</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="o">}</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="c1"># Delete components</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>POST<span class="w"> </span>/api/v1/components/bulk/delete
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;admin-token&gt;
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>Content-Type:<span class="w"> </span>application/json
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="o">{</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">  </span><span class="s2">&quot;component_ids&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;uuid-1&quot;</span>,<span class="w"> </span><span class="s2">&quot;uuid-2&quot;</span>,<span class="w"> </span><span class="s2">&quot;uuid-3&quot;</span><span class="o">]</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="o">}</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="c1"># Error responses:</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="c1"># 400 Bad Request - Invalid request body or parameters</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="c1"># 401 Unauthorized - Missing or invalid JWT token</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="c1"># 403 Forbidden - User is not an admin</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="c1"># 409 Conflict - Concurrent modification detected (rolled back)</span>
 </span></code></pre></div>
+<h4 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Target</strong>: &lt;200ms for operations on &lt;100 components</li>
+<li><strong>Atomic Transactions</strong>: Ensures data consistency across all operations</li>
+<li><strong>Optimized Queries</strong>: Efficient database operations for large datasets</li>
+</ul>
 <h3 id="frontend-components">Frontend Components<a class="headerlink" href="#frontend-components" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>LocationLayoutDialog</strong>: Main dialog with tabbed layout type selection</li>
-<li><strong>LayoutTypeTabs</strong>: Tab navigation for 4 layout types</li>
-<li><strong>RangeConfigurator</strong>: Dynamic range configuration based on layout</li>
-<li><strong>LocationPreview</strong>: Preview with warnings/errors display</li>
-<li><strong>Responsive Storage Table</strong>: Expandable rows for detailed location information</li>
+<li><strong>BulkOperationsMenu</strong>: Dropdown menu with all bulk operations</li>
+<li><strong>AddTagsDialog</strong>: Dialog for adding/removing tags with preview</li>
+<li><strong>AddToProjectDialog</strong>: Dialog for assigning components to projects with quantity controls</li>
+<li><strong>DeleteDialog</strong>: Confirmation dialog for bulk deletions</li>
+<li><strong>Selection State Management</strong>: Pinia store for cross-page selection persistence</li>
+<li><strong>Disabled State Handling</strong>: Automatic button state updates based on selection</li>
 </ul>
 <h3 id="backend-services">Backend Services<a class="headerlink" href="#backend-services" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>BulkCreateService</strong>: Orchestrates bulk location creation with validation</li>
-<li><strong>LocationGenerator</strong>: Generates location names from configurations</li>
-<li><strong>LocationValidator</strong>: Validates business rules (duplicates, limits, parents)</li>
-<li><strong>PreviewService</strong>: Provides preview without database persistence</li>
+<li><strong>BulkOperationsRouter</strong>: FastAPI router with 9 bulk operation endpoints</li>
+<li><strong>BulkOperationsService</strong>: Business logic orchestration with transaction management</li>
+<li><strong>Tag Management</strong>: Create/assign/remove tags with duplicate prevention</li>
+<li><strong>Project Assignment</strong>: Bulk component-to-project relationships</li>
+<li><strong>Concurrent Modification Detection</strong>: Version checking to prevent conflicts</li>
+<li><strong>Transaction Safety</strong>: Automatic rollback on any operation failure</li>
 </ul>
-<h2 id="test-coverage-achievement">Test Coverage Achievement<a class="headerlink" href="#test-coverage-achievement" title="Permanent link">&para;</a></h2>
-<p><strong>100% test pass rate</strong> across the entire test suite - a major quality milestone!</p>
-<h3 id="backend-tests-473473-passing-100">Backend Tests: 473/473 Passing (100%)<a class="headerlink" href="#backend-tests-473473-passing-100" title="Permanent link">&para;</a></h3>
+<h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
+<h3 id="new-endpoints">New Endpoints<a class="headerlink" href="#new-endpoints" title="Permanent link">&para;</a></h3>
+<p>All bulk operations are under the <code>/api/v1/components/bulk</code> prefix:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>POST /api/v1/components/bulk/tags/add
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>POST /api/v1/components/bulk/tags/remove
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>POST /api/v1/components/bulk/add-to-project
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>POST /api/v1/components/bulk/delete
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>POST /api/v1/components/bulk/add-to-meta-part
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>POST /api/v1/components/bulk/add-to-purchase-list
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>POST /api/v1/components/bulk/update-stock
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>POST /api/v1/components/bulk/update-attribution
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>POST /api/v1/components/bulk/update-meta-part
+</span></code></pre></div>
+<h3 id="requestresponse-schemas">Request/Response Schemas<a class="headerlink" href="#requestresponse-schemas" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Contract Tests</strong>: 21/21 (100%) - API endpoint validation</li>
-<li><strong>Integration Tests</strong>: 149/149 (100%) - End-to-end workflows</li>
-<li><strong>Unit Tests</strong>: 303/303 (100%) - Service/model logic</li>
+<li><strong>BulkTagOperation</strong>: <code>component_ids</code> (string[]), <code>tags</code> (string[])</li>
+<li><strong>BulkProjectAssignment</strong>: <code>project_id</code> (string), <code>quantities</code> (Record<string, number>)</li>
+<li><strong>BulkDeleteRequest</strong>: <code>component_ids</code> (string[])</li>
+<li><strong>BulkOperationResponse</strong>: <code>success</code> (boolean), <code>affected_count</code> (number), <code>errors</code> (array or null)</li>
 </ul>
-<h3 id="frontend-tests-157157-passing-100">Frontend Tests: 157/157 Passing (100%)<a class="headerlink" href="#frontend-tests-157157-passing-100" title="Permanent link">&para;</a></h3>
-<ul>
-<li>All component tests passing with TypeScript strict mode</li>
-<li>Quasar testing patterns established</li>
-<li>Proper interfaces for all components</li>
-</ul>
-<h3 id="cicd-test-improvements">CI/CD Test Improvements<a class="headerlink" href="#cicd-test-improvements" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Applied pytest markers (<code>@pytest.mark.unit/integration/contract</code>) to all 767 tests</li>
-<li>Fast checks now run only unit tests (~3s vs ~80s for full suite)</li>
-<li>Selective test execution enables efficient CI pipelines</li>
-<li>Enhanced mock patterns and fixture organization</li>
-</ul>
-<h2 id="database-changes">Database Changes<a class="headerlink" href="#database-changes" title="Permanent link">&para;</a></h2>
-<h3 id="schema-updates">Schema Updates<a class="headerlink" href="#schema-updates" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>New Storage Location Type</strong>: Added <code>'bag'</code> to storage location types enum</li>
-<li><strong>New Field</strong>: Added <code>location_code</code> field to <code>storage_locations</code> table</li>
-<li><strong>Enhanced Metadata</strong>: JSONB storage for layout configurations</li>
-<li><strong>Migration</strong>: <code>add_location_code_to_storage_locations</code></li>
-</ul>
-<h3 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h3>
-<p>Significant database performance improvements implemented:</p>
-<ul>
-<li><strong>40-60% query performance boost</strong> from critical performance indexes</li>
-<li><strong>50-70% faster</strong> inventory breakdown queries using optimized CTEs</li>
-<li><strong>60-70% faster</strong> financial analytics queries</li>
-<li>SQLite WAL mode with performance tuning enabled</li>
-<li>Comprehensive database constraints and validation</li>
-</ul>
-<h2 id="code-quality-improvements">Code Quality Improvements<a class="headerlink" href="#code-quality-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="backend-excellence">Backend Excellence<a class="headerlink" href="#backend-excellence" title="Permanent link">&para;</a></h3>
-<ul>
-<li>✅ <strong>0 ruff linting errors</strong> (reduced from 81 errors)</li>
-<li>✅ <strong>All files ruff formatted</strong> (91 Python files)</li>
-<li>✅ Comprehensive type hints throughout codebase</li>
-<li>✅ SQLAlchemy 2.0 compatibility complete</li>
-<li>✅ Pydantic V2 migration complete (<code>.model_dump()</code>, <code>@field_validator</code>)</li>
-<li>✅ Modern FastAPI patterns with lifespan context manager</li>
-</ul>
-<h3 id="frontend-quality">Frontend Quality<a class="headerlink" href="#frontend-quality" title="Permanent link">&para;</a></h3>
-<ul>
-<li>✅ <strong>0 ESLint errors, 0 warnings</strong></li>
-<li>✅ TypeScript strict mode, no <code>any</code> types</li>
-<li>✅ Proper interfaces for all components</li>
-<li>✅ Vue 3 composition API patterns</li>
-<li>✅ Standardized slot syntax (<code>#</code> instead of <code>v-slot:</code>)</li>
-<li>✅ HTML sanitization utilities for XSS protection</li>
-</ul>
-<h2 id="infrastructure-improvements">Infrastructure Improvements<a class="headerlink" href="#infrastructure-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="github-actions-updates">GitHub Actions Updates<a class="headerlink" href="#github-actions-updates" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Updated deprecated actions from v3 to v4:</li>
-<li><code>actions/upload-artifact@v3</code> → <code>v4</code></li>
-<li><code>actions/download-artifact@v3</code> → <code>v4</code></li>
-<li><code>actions/cache@v3</code> → <code>v4</code></li>
-<li><code>actions/setup-python@v4</code> → <code>v5</code></li>
-<li>Modernized release workflow with <code>softprops/action-gh-release@v1</code></li>
-<li>Eliminated UV deprecation warnings</li>
-<li>Enhanced test execution with pytest markers</li>
-</ul>
-<h3 id="docker-enhancements">Docker Enhancements<a class="headerlink" href="#docker-enhancements" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Complete multi-stage Dockerfile rebuild with proper targets</li>
-<li>Consolidated backend and frontend into all-in-one Docker image</li>
-<li>Frontend dev server binds to 0.0.0.0 for container access</li>
-<li>Node.js upgraded from 18 to 20</li>
-<li>Improved build caching and layer optimization</li>
-</ul>
-<h3 id="security-resolutions">Security Resolutions<a class="headerlink" href="#security-resolutions" title="Permanent link">&para;</a></h3>
-<p>Resolved multiple CVE vulnerabilities in dependencies:</p>
-<ul>
-<li><strong>FastAPI/Starlette</strong> → 0.115.0+ (multiple CVE fixes)</li>
-<li><strong>python-multipart</strong> (CVE-2024-53981)</li>
-<li><strong>python-jose</strong> (CVE-2024-33663, CVE-2024-33664)</li>
-<li><strong>requests</strong> (CVE-2024-47081, CVE-2024-35195)</li>
-<li><strong>pillow</strong> (CVE-2023-50447, CVE-2024-28219)</li>
-<li><strong>black</strong> (CVE-2024-21503)</li>
-<li><strong>anyio</strong> (PVE-2024-71199)</li>
-</ul>
-<p><strong>Known Issue</strong>: ecdsa library vulnerabilities documented but unfixed (no available patches)</p>
 <h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
-<h3 id="api-backend">API &amp; Backend<a class="headerlink" href="#api-backend" title="Permanent link">&para;</a></h3>
+<h3 id="backend">Backend<a class="headerlink" href="#backend" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Fixed duplicate API endpoint in <code>storage.py</code> causing validation bypass</li>
-<li>Corrected integration test URLs to use proper <code>/api/v1</code> prefix</li>
-<li>Resolved API endpoint URL mismatch between frontend and backend</li>
-<li>Fixed authentication test database session isolation</li>
-<li>Added component validation for required fields (part_number, manufacturer, component_type)</li>
-<li>Improved Component model property setters for quantity updates</li>
-<li>Enhanced error handling with appropriate HTTP status codes:</li>
-<li><code>409 Conflict</code> for duplicate locations</li>
-<li><code>400 Bad Request</code> for location limit exceeded</li>
-<li><code>404 Not Found</code> for invalid parent locations</li>
+<li>Fixed release workflow to trigger correctly from release-please branch</li>
+<li>Corrected GitHub action links in README to reflect repository owner</li>
 </ul>
 <h3 id="frontend">Frontend<a class="headerlink" href="#frontend" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented responsive storage location table with expandable rows</li>
-<li>Enhanced bulk creation dialog with comprehensive validation feedback</li>
-<li>Improved type-safe error handling in Pinia stores</li>
-<li>Fixed event handling for <code>@update:model-value</code> emissions</li>
-<li>Standardized component formatting and readability</li>
+<li>Updated bulk operations API routing from <code>/api/components/bulk</code> to <code>/api/v1/components/bulk</code></li>
+<li>Fixed type definitions: <code>componentIds</code> changed from <code>number[]</code> to <code>string[]</code> (UUIDs)</li>
+<li>Fixed project ID types from <code>number</code> to <code>string</code> throughout bulk operations</li>
+<li>Updated quantities type from <code>Record&lt;number, number&gt;</code> to <code>Record&lt;string, number&gt;</code></li>
+<li>Changed bulk delete HTTP method from DELETE to POST to match backend</li>
+<li>Removed duplicate success toast in AddToProjectDialog (parent already handles it)</li>
 </ul>
-<h3 id="test-infrastructure">Test Infrastructure<a class="headerlink" href="#test-infrastructure" title="Permanent link">&para;</a></h3>
+<h3 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Fixed authentication test fixtures across 38+ contract tests</li>
-<li>Resolved SQLAlchemy <code>func.case()</code> syntax for 2.0 compatibility</li>
-<li>Updated OAuth2 authentication to use form data instead of JSON</li>
-<li>Fixed provider integration test authentication patterns</li>
-<li>Improved mock patterns and fixture organization</li>
-<li>Enhanced component validation tests</li>
+<li>Updated all bulk operation test URLs to use <code>/api/v1/components/bulk</code> prefix</li>
+<li>Fixed type mismatches in bulk operations tests</li>
+<li>Ensured consistent UUID usage across test suite</li>
 </ul>
-<h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
-<h3 id="consistency-updates">Consistency Updates<a class="headerlink" href="#consistency-updates" title="Permanent link">&para;</a></h3>
-<p>All storage location endpoints now use the <code>/api/v1/storage-locations</code> prefix for consistency.</p>
-<p><strong>Before</strong>: Mixed prefixes
-<strong>After</strong>: <code>/api/v1/storage-locations/*</code></p>
-<p>The frontend has been automatically updated. If you're using the API directly, update your endpoints accordingly.</p>
-<h3 id="new-endpoints">New Endpoints<a class="headerlink" href="#new-endpoints" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>POST /api/v1/storage-locations/generate-preview
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>POST /api/v1/storage-locations/bulk-create-layout
-</span></code></pre></div>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Admin-Only Access</strong>: All bulk operations require admin authentication</li>
+<li><strong>JWT Bearer Token</strong>: Secure authentication using industry-standard tokens</li>
+<li><strong>Atomic Transactions</strong>: Prevent partial updates and data inconsistencies</li>
+<li><strong>Concurrent Modification Detection</strong>: Prevents race conditions and conflicting updates</li>
+<li><strong>Input Validation</strong>: Comprehensive validation of request bodies and parameters</li>
+</ul>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<p>New comprehensive documentation added:</p>
+<ul>
+<li><strong>User Guide</strong>: <a href="../../user/bulk-operations/">docs/user/bulk-operations.md</a> - Complete user workflows and troubleshooting</li>
+<li><strong>API Guide</strong>: <a href="../../api/bulk-operations/">docs/api/bulk-operations.md</a> - Detailed endpoint documentation with examples</li>
+<li><strong>Features Overview</strong>: Updated <a href="../../user/features/">docs/user/features.md</a> to include bulk operations</li>
+<li><strong>API Reference</strong>: Updated <a href="../../api/">docs/api.md</a> with bulk operations endpoint table</li>
+</ul>
+<p>Documentation covers:
+- Selection features (cross-page persistence, counters)
+- All 9 bulk operations with step-by-step instructions
+- Transaction safety and atomic operations
+- Concurrent modification detection
+- Troubleshooting common issues
+- Security and best practices
+- Client examples (Python, JavaScript, cURL)
+- Migration guide from individual operations</p>
 <h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
 <p><strong>None</strong> - All changes are additive and backward compatible.</p>
 <h2 id="migration-instructions">Migration Instructions<a class="headerlink" href="#migration-instructions" title="Permanent link">&para;</a></h2>
-<h3 id="database-migration-required">Database Migration Required<a class="headerlink" href="#database-migration-required" title="Permanent link">&para;</a></h3>
-<p>Run the database migration to add the new indexes and schema updates:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Using Make (recommended)</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>make<span class="w"> </span>migrate
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># OR manually</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">cd</span><span class="w"> </span>backend
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;sqlite:///data/partshub.db&quot;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
-</span></code></pre></div>
+<h3 id="no-database-migration-required">No Database Migration Required<a class="headerlink" href="#no-database-migration-required" title="Permanent link">&para;</a></h3>
+<p>This release does not introduce any database schema changes. The bulk operations use existing tables and relationships.</p>
+<h3 id="frontend-type-updates">Frontend Type Updates<a class="headerlink" href="#frontend-type-updates" title="Permanent link">&para;</a></h3>
+<p>If you're using the frontend bulk operations types, note the following changes:
+- <code>componentIds</code>: <code>number[]</code> → <code>string[]</code> (UUIDs)
+- <code>projectId</code>: <code>number</code> → <code>string</code> (UUID)
+- <code>quantities</code>: <code>Record&lt;number, number&gt;</code> → <code>Record&lt;string, number&gt;</code></p>
 <h3 id="api-endpoint-updates">API Endpoint Updates<a class="headerlink" href="#api-endpoint-updates" title="Permanent link">&para;</a></h3>
-<p>If you're using the storage locations API directly, update your endpoints to use the <code>/api/v1/storage-locations</code> prefix. The frontend has been updated automatically.</p>
-<h3 id="no-code-changes-required">No Code Changes Required<a class="headerlink" href="#no-code-changes-required" title="Permanent link">&para;</a></h3>
-<p>All application code is backward compatible. Simply pull the latest changes and run migrations.</p>
+<p>If you're integrating with the bulk operations API externally, use the correct prefix:
+- <strong>Correct</strong>: <code>/api/v1/components/bulk/*</code>
+- <strong>Incorrect</strong>: <code>/api/components/bulk/*</code></p>
 <h2 id="installation-upgrade">Installation &amp; Upgrade<a class="headerlink" href="#installation-upgrade" title="Permanent link">&para;</a></h2>
 <h3 id="fresh-installation">Fresh Installation<a class="headerlink" href="#fresh-installation" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Clone repository</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/madeinoz67/partshub.git
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">cd</span><span class="w"> </span>partshub
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Install dependencies</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>make<span class="w"> </span>install
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Run database migrations</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>make<span class="w"> </span>migrate
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1"># Start development servers</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>make<span class="w"> </span>dev
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Clone repository</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/madeinoz67/partshub.git
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">cd</span><span class="w"> </span>partshub
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Install dependencies</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>make<span class="w"> </span>install
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># Start development servers</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>make<span class="w"> </span>dev
 </span></code></pre></div>
-<h3 id="upgrading-from-v010">Upgrading from v0.1.0<a class="headerlink" href="#upgrading-from-v010" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Pull latest changes</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Install any new dependencies</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>make<span class="w"> </span>install
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Run database migrations</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>make<span class="w"> </span>migrate
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Restart development servers</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>make<span class="w"> </span>dev
+<h3 id="upgrading-from-v01x">Upgrading from v0.1.x<a class="headerlink" href="#upgrading-from-v01x" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Pull latest changes</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Install any new dependencies</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>make<span class="w"> </span>install
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Restart development servers</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>make<span class="w"> </span>dev
 </span></code></pre></div>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Feature Guide</strong>: <code>docs/features/storage-location-layout.md</code></li>
-<li><strong>API Documentation</strong>: <code>docs/api.md</code> with comprehensive examples</li>
-<li><strong>CHANGELOG</strong>: Full changelog at <code>CHANGELOG.md</code></li>
-<li><strong>Developer Workflows</strong>: Enhanced developer documentation in <code>docs/</code></li>
-</ul>
 <h2 id="development-tools">Development Tools<a class="headerlink" href="#development-tools" title="Permanent link">&para;</a></h2>
 <h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>make<span class="w"> </span>install<span class="w">       </span><span class="c1"># Install all dependencies (Python + Node.js)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>make<span class="w"> </span>dev<span class="w">          </span><span class="c1"># Start backend + frontend + docs servers</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>make<span class="w"> </span><span class="nb">test</span><span class="w">         </span><span class="c1"># Run all tests (100% passing!)</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>make<span class="w"> </span>lint<span class="w">         </span><span class="c1"># Run ruff checks (0 errors!)</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>make<span class="w"> </span>docs<span class="w">         </span><span class="c1"># Start documentation server</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>make<span class="w"> </span>migrate<span class="w">      </span><span class="c1"># Run database migrations</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>make<span class="w"> </span>install<span class="w">       </span><span class="c1"># Install all dependencies (Python + Node.js)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>make<span class="w"> </span>dev<span class="w">          </span><span class="c1"># Start backend + frontend + docs servers</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>make<span class="w"> </span><span class="nb">test</span><span class="w">         </span><span class="c1"># Run all tests</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>make<span class="w"> </span>lint<span class="w">         </span><span class="c1"># Run ruff checks</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>make<span class="w"> </span>docs<span class="w">         </span><span class="c1"># Start documentation server</span>
 </span></code></pre></div>
 <h3 id="test-execution">Test Execution<a class="headerlink" href="#test-execution" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># All tests</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># By category (using markers)</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>unit<span class="w">          </span><span class="c1"># ~3s - fast unit tests only</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>integration<span class="w">   </span><span class="c1"># ~30s - integration tests</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>contract<span class="w">      </span><span class="c1"># ~10s - API contract tests</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># With coverage</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>src<span class="w"> </span>--cov-report<span class="o">=</span>html
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># All tests</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># By category (using markers)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>unit<span class="w">          </span><span class="c1"># Fast unit tests only</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>integration<span class="w">   </span><span class="c1"># Integration tests</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>contract<span class="w">      </span><span class="c1"># API contract tests</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1"># With coverage</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>src<span class="w"> </span>--cov-report<span class="o">=</span>html
 </span></code></pre></div>
-<h2 id="files-changed">Files Changed<a class="headerlink" href="#files-changed" title="Permanent link">&para;</a></h2>
-<p><strong>305 files changed</strong>: 47,152 insertions(+), 8,723 deletions(-)</p>
-<p><strong>Key additions</strong>:
-- Backend: 14 new service/API files for layout generation
-- Frontend: 9 new Vue components
-- Tests: 34 new test files (21 contract, 11 integration, 2 unit)
-- Documentation: 2 new feature documentation files
-- Migrations: 1 new database migration</p>
-<h2 id="whats-next-v020-preview">What's Next (v0.2.0 Preview)<a class="headerlink" href="#whats-next-v020-preview" title="Permanent link">&para;</a></h2>
-<h3 id="storage-location-layout-generator-phase-2">Storage Location Layout Generator - Phase 2<a class="headerlink" href="#storage-location-layout-generator-phase-2" title="Permanent link">&para;</a></h3>
+<h2 id="whats-next-v030-preview">What's Next (v0.3.0 Preview)<a class="headerlink" href="#whats-next-v030-preview" title="Permanent link">&para;</a></h2>
+<h3 id="enhanced-bulk-operations">Enhanced Bulk Operations<a class="headerlink" href="#enhanced-bulk-operations" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Template-based location generation</li>
-<li>Import/export of location configurations</li>
-<li>Visual layout preview with drag-and-drop</li>
-<li>Batch editing of generated locations</li>
+<li>Import/export component data in bulk (CSV, JSON)</li>
+<li>Bulk update of component specifications</li>
+<li>Advanced filtering for bulk selections</li>
+<li>Undo/redo for bulk operations</li>
 </ul>
-<h3 id="enhanced-features">Enhanced Features<a class="headerlink" href="#enhanced-features" title="Permanent link">&para;</a></h3>
+<h3 id="additional-features">Additional Features<a class="headerlink" href="#additional-features" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Improved KiCad integration with real-time symbol updates</li>
-<li>AI-powered component search and suggestions</li>
-<li>Advanced filtering and reporting</li>
-<li>Multi-user collaboration features</li>
-<li>Enhanced barcode scanning with batch operations</li>
+<li>Real-time collaboration with live updates</li>
+<li>Enhanced search with AI-powered suggestions</li>
+<li>Mobile app for barcode scanning and quick updates</li>
+<li>Advanced reporting and analytics dashboard</li>
 </ul>
 <h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
 <ul>
+<li>Performance monitoring and optimization</li>
+<li>Enhanced caching strategies</li>
+<li>WebSocket support for real-time features</li>
 <li>Additional provider integrations</li>
-<li>Real-time inventory notifications</li>
-<li>Enhanced mobile experience</li>
-<li>Performance monitoring and analytics</li>
 </ul>
 <h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h2>
-<ul>
-<li>ecdsa library has unfixed vulnerabilities (documented in security scanning, no patches available)</li>
-<li>Mypy configured with permissive settings for incremental type safety improvements</li>
-</ul>
-<h2 id="acknowledgments">Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permanent link">&para;</a></h2>
-<p>This release represents a major milestone in PartsHub development with:
-- 100% test coverage achievement
-- Zero linting errors across the codebase
-- Comprehensive security vulnerability resolution
-- Significant infrastructure improvements
-- Production-ready database optimizations</p>
-<p>The systematic approach to test-driven development and CI/CD optimization sets a strong foundation for future feature development.</p>
+<p>None at this time.</p>
 <h2 id="support-feedback">Support &amp; Feedback<a class="headerlink" href="#support-feedback" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Issues</strong>: <a href="https://github.com/madeinoz67/partshub/issues">GitHub Issues</a></li>
