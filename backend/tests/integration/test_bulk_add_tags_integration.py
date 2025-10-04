@@ -120,7 +120,7 @@ class TestBulkAddTagsIntegration:
         self, client: TestClient, db_session: Session, auth_headers: dict
     ):
         """
-        Test bulk add tags with empty component list returns appropriate response
+        Test bulk add tags with empty component list returns validation error
         """
         # Act: Call with empty component list
         response = client.post(
@@ -129,11 +129,8 @@ class TestBulkAddTagsIntegration:
             json={"component_ids": [], "tags": ["test-tag"]},
         )
 
-        # Assert: Should return success with 0 affected
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert data["affected_count"] == 0
+        # Assert: Should return 422 validation error (min_length=1)
+        assert response.status_code == 422
 
     def test_bulk_add_tags_nonexistent_component(
         self, client: TestClient, db_session: Session, auth_headers: dict

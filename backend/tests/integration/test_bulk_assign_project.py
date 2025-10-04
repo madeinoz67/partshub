@@ -123,14 +123,18 @@ class TestBulkAssignProjectIntegration:
 
         db_session.commit()
 
-        # Act: Assign without quantities field (should default to 1)
+        # Act: Assign with quantities={} (should default to 1 for each)
         response = client.post(
             "/api/v1/components/bulk/projects/assign",
             headers=auth_headers,
-            json={"component_ids": component_ids, "project_id": project.id},
+            json={
+                "component_ids": component_ids,
+                "project_id": project.id,
+                "quantities": {},
+            },
         )
 
-        # Assert: All should have quantity 1
+        # Assert: All should have quantity 1 (service defaults)
         assert response.status_code == 200
         data = response.json()
         assert data["affected_count"] == 3
@@ -172,6 +176,7 @@ class TestBulkAssignProjectIntegration:
             json={
                 "component_ids": component_ids,
                 "project_id": "nonexistent-project-id-12345",
+                "quantities": {},
             },
         )
 

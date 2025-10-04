@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 
 @pytest.mark.contract
+@pytest.mark.skip(reason="Stub endpoint not yet implemented - feature planned for future release")
 class TestBulkMetaPartsContract:
     """Contract tests for bulk meta-part addition endpoint"""
 

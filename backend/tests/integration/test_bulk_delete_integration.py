@@ -192,7 +192,7 @@ class TestBulkDeleteIntegration:
         self, client: TestClient, db_session: Session, auth_headers: dict
     ):
         """
-        Test bulk delete with empty component list
+        Test bulk delete with empty component list returns validation error
         """
         # Act: Call with empty list
         response = client.post(
@@ -201,11 +201,8 @@ class TestBulkDeleteIntegration:
             json={"component_ids": []},
         )
 
-        # Assert: Should return success with 0 affected
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert data["affected_count"] == 0
+        # Assert: Should return 422 validation error (min_length=1)
+        assert response.status_code == 422
 
     def test_bulk_delete_nonexistent_component(
         self, client: TestClient, db_session: Session, auth_headers: dict
