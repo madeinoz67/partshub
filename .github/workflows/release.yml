@@ -3,7 +3,11 @@ name: "Release Automation"
 "on":
   push:
     tags:
-      - 'v*.*.*'  # Semantic versioning tags
+      - 'v*.*.*'  # Semantic versioning tags (fallback, if tag is pushed directly)
+  workflow_call:     # Allow this workflow to be called by other workflows
+    secrets:
+      GITHUB_TOKEN:
+        required: false
 
 env:
   DOCKER_REGISTRY: ghcr.io

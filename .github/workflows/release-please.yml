@@ -7,6 +7,9 @@ name: "Release Please"
 permissions:
   contents: write
   pull-requests: write
+  packages: write      # For release workflow to push Docker images
+  issues: write        # For release workflow notifications
+  actions: write       # For release workflow cache
 
 jobs:
   release-please:
@@ -22,3 +25,15 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
+
+  trigger-release:
+    name: "Trigger Release Workflow"
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    uses: ./.github/workflows/release.yml
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      actions: write
+    secrets: inherit
