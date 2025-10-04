@@ -52,7 +52,7 @@ class TestBulkDeleteIntegration:
 
         # Act: Call bulk delete API
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=auth_headers,
             json={"component_ids": component_ids},
         )
@@ -111,7 +111,7 @@ class TestBulkDeleteIntegration:
 
         # Act: Delete components
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=auth_headers,
             json={"component_ids": component_ids},
         )
@@ -165,7 +165,7 @@ class TestBulkDeleteIntegration:
 
         # Act: Delete components
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=auth_headers,
             json={"component_ids": component_ids},
         )
@@ -196,7 +196,7 @@ class TestBulkDeleteIntegration:
         """
         # Act: Call with empty list
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=auth_headers,
             json={"component_ids": []},
         )
@@ -225,7 +225,7 @@ class TestBulkDeleteIntegration:
 
         # Act: Try to delete valid + nonexistent
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=auth_headers,
             json={"component_ids": [component.id, "nonexistent-id-12345"]},
         )
@@ -266,7 +266,7 @@ class TestBulkDeleteIntegration:
 
         # Act: Try to delete as non-admin user
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=user_auth_headers,  # Non-admin user
             json={"component_ids": [component.id]},
         )

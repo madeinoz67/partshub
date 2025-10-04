@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/delete
+Contract test for POST /api/v1/components/bulk/delete
 Tests bulk component deletion endpoint according to OpenAPI specification
 """
 
@@ -34,7 +34,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -71,7 +71,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=request_data,
             headers=auth_headers,
         )
@@ -93,7 +93,7 @@ class TestBulkDeleteContract:
         invalid_data = {}
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -107,7 +107,7 @@ class TestBulkDeleteContract:
         invalid_data = {"component_ids": []}
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -122,7 +122,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -138,7 +138,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=request_data,
             headers=auth_headers,
         )
@@ -176,7 +176,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=request_data,
             headers=auth_headers,
         )
@@ -219,7 +219,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=request_data,
             headers=auth_headers,
         )
@@ -268,7 +268,7 @@ class TestBulkDeleteContract:
         }
 
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             json=request_data,
             headers=auth_headers,
         )

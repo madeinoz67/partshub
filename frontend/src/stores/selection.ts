@@ -9,7 +9,7 @@ import { ref, computed } from 'vue'
 const STORAGE_KEY = 'partshub_selection'
 
 // Helper to load from localStorage
-function loadFromStorage(): Set<number> {
+function loadFromStorage(): Set<string> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
@@ -23,7 +23,7 @@ function loadFromStorage(): Set<number> {
 }
 
 // Helper to save to localStorage
-function saveToStorage(selectedIds: Set<number>): void {
+function saveToStorage(selectedIds: Set<string>): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedIds)))
   } catch (error) {
@@ -33,25 +33,25 @@ function saveToStorage(selectedIds: Set<number>): void {
 
 export const useSelectionStore = defineStore('selection', () => {
   // State
-  const selectedIds = ref<Set<number>>(loadFromStorage())
+  const selectedIds = ref<Set<string>>(loadFromStorage())
 
   // Getters
   const hasSelection = computed(() => selectedIds.value.size > 0)
   const selectedCount = computed(() => selectedIds.value.size)
-  const isSelected = computed(() => (id: number) => selectedIds.value.has(id))
+  const isSelected = computed(() => (id: string) => selectedIds.value.has(id))
 
   // Actions
-  function addSelection(ids: number[]): void {
+  function addSelection(ids: string[]): void {
     ids.forEach(id => selectedIds.value.add(id))
     saveToStorage(selectedIds.value)
   }
 
-  function removeSelection(ids: number[]): void {
+  function removeSelection(ids: string[]): void {
     ids.forEach(id => selectedIds.value.delete(id))
     saveToStorage(selectedIds.value)
   }
 
-  function toggleSelection(id: number): void {
+  function toggleSelection(id: string): void {
     if (selectedIds.value.has(id)) {
       selectedIds.value.delete(id)
     } else {
@@ -60,7 +60,7 @@ export const useSelectionStore = defineStore('selection', () => {
     saveToStorage(selectedIds.value)
   }
 
-  function selectAll(ids: number[]): void {
+  function selectAll(ids: string[]): void {
     selectedIds.value.clear()
     ids.forEach(id => selectedIds.value.add(id))
     saveToStorage(selectedIds.value)
@@ -71,7 +71,7 @@ export const useSelectionStore = defineStore('selection', () => {
     saveToStorage(selectedIds.value)
   }
 
-  function getSelectedArray(): number[] {
+  function getSelectedArray(): string[] {
     return Array.from(selectedIds.value)
   }
 

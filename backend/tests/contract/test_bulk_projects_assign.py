@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/projects/assign
+Contract test for POST /api/v1/components/bulk/projects/assign
 Tests bulk project assignment endpoint according to OpenAPI specification
 """
 
@@ -44,7 +44,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -93,7 +93,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=request_data,
             headers=auth_headers,
         )
@@ -118,7 +118,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -133,7 +133,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -152,7 +152,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -174,7 +174,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -206,7 +206,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=request_data,
             headers=auth_headers,
         )
@@ -248,7 +248,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=request_data,
             headers=auth_headers,
         )
@@ -301,7 +301,7 @@ class TestBulkProjectsAssignContract:
         }
 
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             json=request_data,
             headers=auth_headers,
         )

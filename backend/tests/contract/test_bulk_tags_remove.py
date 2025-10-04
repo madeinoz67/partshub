@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/tags/remove
+Contract test for POST /api/v1/components/bulk/tags/remove
 Tests bulk tag removal endpoint according to OpenAPI specification
 """
 
@@ -35,7 +35,7 @@ class TestBulkTagsRemoveContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -75,7 +75,7 @@ class TestBulkTagsRemoveContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=request_data,
             headers=auth_headers,
         )
@@ -97,7 +97,7 @@ class TestBulkTagsRemoveContract:
         invalid_data = {"component_ids": [1, 2]}
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -113,7 +113,7 @@ class TestBulkTagsRemoveContract:
         invalid_data = {"component_ids": [], "tags": ["test-tag"]}
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -124,7 +124,7 @@ class TestBulkTagsRemoveContract:
         invalid_data = {"component_ids": [1, 2], "tags": []}
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -142,7 +142,7 @@ class TestBulkTagsRemoveContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -173,7 +173,7 @@ class TestBulkTagsRemoveContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=request_data,
             headers=auth_headers,
         )
@@ -217,7 +217,7 @@ class TestBulkTagsRemoveContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             json=request_data,
             headers=auth_headers,
         )

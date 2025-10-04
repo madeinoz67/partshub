@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/meta-parts/add
+Contract test for POST /api/v1/components/bulk/meta-parts/add
 Tests bulk meta-part addition endpoint according to OpenAPI specification
 """
 
@@ -35,7 +35,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -75,7 +75,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -97,7 +97,7 @@ class TestBulkMetaPartsContract:
         invalid_data = {"component_ids": [1, 2]}
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -109,7 +109,7 @@ class TestBulkMetaPartsContract:
         invalid_data = {"meta_part_name": "Test Meta Part"}
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -127,7 +127,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -145,7 +145,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -176,7 +176,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -206,7 +206,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -245,7 +245,7 @@ class TestBulkMetaPartsContract:
         }
 
         response = client.post(
-            "/api/components/bulk/meta-parts/add",
+            "/api/v1/components/bulk/meta-parts/add",
             json=request_data,
             headers=auth_headers,
         )

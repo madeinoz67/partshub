@@ -90,7 +90,7 @@ import { bulkOperationsApi } from '../services/bulkOperationsApi'
 // Props
 interface Props {
   modelValue: boolean
-  componentIds: number[]
+  componentIds: string[]
 }
 
 const props = defineProps<Props>()
@@ -104,8 +104,8 @@ const emit = defineEmits<{
 // State
 const $q = useQuasar()
 const components = ref<Component[]>([])
-const quantities = ref<Record<number, number>>({})
-const selectedProject = ref<{ label: string; value: number } | null>(null)
+const quantities = ref<Record<string, number>>({})
+const selectedProject = ref<{ label: string; value: string } | null>(null)
 const projects = ref<Project[]>([])
 const loadingProjects = ref(false)
 const loadingAdd = ref(false)
@@ -140,16 +140,16 @@ const componentColumns = [
 const projectOptions = computed(() => {
   return projects.value.map(project => ({
     label: project.name,
-    value: parseInt(project.id),
+    value: project.id,
   }))
 })
 
 // Methods
-function incrementQuantity(componentId: number) {
+function incrementQuantity(componentId: string) {
   quantities.value[componentId] = (quantities.value[componentId] || 1) + 1
 }
 
-function decrementQuantity(componentId: number) {
+function decrementQuantity(componentId: string) {
   if ((quantities.value[componentId] || 1) > 1) {
     quantities.value[componentId] = (quantities.value[componentId] || 1) - 1
   }
@@ -176,7 +176,7 @@ async function loadComponents() {
     const loadedComponents: Component[] = []
     for (const id of props.componentIds) {
       try {
-        const component = await APIService.getComponent(String(id))
+        const component = await APIService.getComponent(id)
         loadedComponents.push(component)
         // Initialize quantity to 1
         quantities.value[id] = 1
@@ -204,11 +204,6 @@ async function handleAdd() {
       selectedProject.value.value,
       quantities.value
     )
-
-    $q.notify({
-      type: 'positive',
-      message: 'Components added to project successfully',
-    })
 
     emit('added')
     handleCancel()

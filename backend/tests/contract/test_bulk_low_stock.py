@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/low-stock/set
+Contract test for POST /api/v1/components/bulk/low-stock/set
 Tests bulk low-stock threshold setting endpoint according to OpenAPI specification
 """
 
@@ -35,7 +35,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -75,7 +75,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -97,7 +97,7 @@ class TestBulkLowStockContract:
         invalid_data = {"component_ids": [1, 2]}
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -109,7 +109,7 @@ class TestBulkLowStockContract:
         invalid_data = {"threshold": 10}
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -127,7 +127,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -145,7 +145,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -177,7 +177,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -209,7 +209,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -242,7 +242,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -272,7 +272,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -311,7 +311,7 @@ class TestBulkLowStockContract:
         }
 
         response = client.post(
-            "/api/components/bulk/low-stock/set",
+            "/api/v1/components/bulk/low-stock/set",
             json=request_data,
             headers=auth_headers,
         )

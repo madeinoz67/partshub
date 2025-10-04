@@ -1,5 +1,5 @@
 """
-Contract test for GET /api/components/bulk/tags/preview
+Contract test for GET /api/v1/components/bulk/tags/preview
 Tests tag preview endpoint according to OpenAPI specification
 """
 
@@ -30,7 +30,7 @@ class TestBulkTagsPreviewContract:
         db_session.commit()
 
         response = client.get(
-            f"/api/components/bulk/tags/preview?component_ids={component.id}&add_tags=test-tag",
+            f"/api/v1/components/bulk/tags/preview?component_ids={component.id}&add_tags=test-tag",
             headers=user_auth_headers,
         )
 
@@ -64,7 +64,7 @@ class TestBulkTagsPreviewContract:
         db_session.commit()
 
         response = client.get(
-            f"/api/components/bulk/tags/preview?component_ids={component1.id},{component2.id}&add_tags=tag1,tag2",
+            f"/api/v1/components/bulk/tags/preview?component_ids={component1.id},{component2.id}&add_tags=tag1,tag2",
             headers=auth_headers,
         )
 
@@ -82,7 +82,7 @@ class TestBulkTagsPreviewContract:
         """Test that component_ids parameter is required"""
         # Missing component_ids parameter
         response = client.get(
-            "/api/components/bulk/tags/preview?add_tags=test-tag",
+            "/api/v1/components/bulk/tags/preview?add_tags=test-tag",
             headers=auth_headers,
         )
 
@@ -108,7 +108,7 @@ class TestBulkTagsPreviewContract:
         db_session.commit()
 
         response = client.get(
-            f"/api/components/bulk/tags/preview?component_ids={component.id}&add_tags=test-tag",
+            f"/api/v1/components/bulk/tags/preview?component_ids={component.id}&add_tags=test-tag",
             headers=auth_headers,
         )
 
@@ -162,7 +162,7 @@ class TestBulkTagsPreviewContract:
         db_session.commit()
 
         response = client.get(
-            f"/api/components/bulk/tags/preview?component_ids={component.id}&add_tags=new-tag&remove_tags=old-tag",
+            f"/api/v1/components/bulk/tags/preview?component_ids={component.id}&add_tags=new-tag&remove_tags=old-tag",
             headers=auth_headers,
         )
 
@@ -192,7 +192,7 @@ class TestBulkTagsPreviewContract:
         db_session.commit()
 
         response = client.get(
-            f"/api/components/bulk/tags/preview?component_ids={component.id}&remove_tags=old-tag",
+            f"/api/v1/components/bulk/tags/preview?component_ids={component.id}&remove_tags=old-tag",
             headers=auth_headers,
         )
 
@@ -227,7 +227,7 @@ class TestBulkTagsPreviewContract:
         component_ids = ",".join(str(c.id) for c in components)
 
         response = client.get(
-            f"/api/components/bulk/tags/preview?component_ids={component_ids}&add_tags=test-tag",
+            f"/api/v1/components/bulk/tags/preview?component_ids={component_ids}&add_tags=test-tag",
             headers=auth_headers,
         )
 

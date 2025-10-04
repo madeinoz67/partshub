@@ -522,6 +522,7 @@ class ComponentService:
                 ComponentLocation.storage_location
             ),
             selectinload(Component.tags),
+            selectinload(Component.attachments),
         )
 
         # Apply filters

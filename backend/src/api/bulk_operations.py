@@ -31,7 +31,7 @@ from ..schemas.bulk_operations import (
 )
 from ..services.bulk_operation_service import BulkOperationService
 
-router = APIRouter(prefix="/api/components/bulk", tags=["Bulk Operations"])
+router = APIRouter(prefix="/api/v1/components/bulk", tags=["Bulk Operations"])
 
 
 @router.post(

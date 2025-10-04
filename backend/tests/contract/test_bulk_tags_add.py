@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/tags/add
+Contract test for POST /api/v1/components/bulk/tags/add
 Tests bulk tag addition endpoint according to OpenAPI specification
 """
 
@@ -43,7 +43,7 @@ class TestBulkTagsAddContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -81,7 +81,7 @@ class TestBulkTagsAddContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -103,7 +103,7 @@ class TestBulkTagsAddContract:
         invalid_data = {"component_ids": [1, 2]}
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -119,7 +119,7 @@ class TestBulkTagsAddContract:
         invalid_data = {"component_ids": [], "tags": ["test-tag"]}
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -130,7 +130,7 @@ class TestBulkTagsAddContract:
         invalid_data = {"component_ids": [1, 2], "tags": []}
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -146,7 +146,7 @@ class TestBulkTagsAddContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -177,7 +177,7 @@ class TestBulkTagsAddContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -207,7 +207,7 @@ class TestBulkTagsAddContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -232,7 +232,7 @@ class TestBulkTagsAddContract:
         }
 
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=request_data,
             headers=auth_headers,
         )
@@ -283,7 +283,7 @@ class TestBulkTagsAddContract:
 
         # First request should succeed
         response1 = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             json=request_data,
             headers=auth_headers,
         )

@@ -52,10 +52,34 @@ class TestComponentsCreateContract:
 
         assert response.status_code == 201
 
+    def test_create_minimal_component(self, client: TestClient, auth_headers):
+        """Test that component can be created with only name and quantities"""
+        minimal_data = {
+            "name": "Minimal Test Component",
+            "quantity_on_hand": 0,
+            "quantity_ordered": 0,
+            "minimum_stock": 0,
+        }
+        response = client.post(
+            "/api/v1/components", json=minimal_data, headers=auth_headers
+        )
+
+        # Debug output
+        if response.status_code != 201:
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.text}")
+
+        assert response.status_code == 201
+
+        data = response.json()
+        assert data["name"] == minimal_data["name"]
+        assert data["quantity_on_hand"] == 0
+        assert "id" in data
+
     def test_create_component_validation_errors(self, client: TestClient, auth_headers):
         """Test validation errors for invalid component data"""
-        # Missing required fields
-        invalid_data = {"name": "Test Component"}
+        # Missing name field (required)
+        invalid_data = {"quantity_on_hand": 10}
         response = client.post(
             "/api/v1/components", json=invalid_data, headers=auth_headers
         )

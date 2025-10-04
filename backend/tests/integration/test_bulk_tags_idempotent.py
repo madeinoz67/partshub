@@ -74,7 +74,7 @@ class TestBulkTagsIdempotent:
 
         # Act: Add "resistor" tag to all 3 components
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": component_ids,
@@ -179,7 +179,7 @@ class TestBulkTagsIdempotent:
 
         # Act: Add both tags to all components (idempotent)
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": component_ids,
@@ -251,7 +251,7 @@ class TestBulkTagsIdempotent:
 
         # Act: Remove tag from both components (idempotent - should not fail on comp2)
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             headers=auth_headers,
             json={
                 "component_ids": component_ids,
@@ -291,7 +291,7 @@ class TestBulkTagsIdempotent:
 
         # Act: Add tag first time
         response1 = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": [component.id],
@@ -301,7 +301,7 @@ class TestBulkTagsIdempotent:
 
         # Act: Add same tag second time
         response2 = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": [component.id],

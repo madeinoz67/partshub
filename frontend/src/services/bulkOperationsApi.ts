@@ -32,13 +32,14 @@ bulkApi.interceptors.request.use(
 
 // Type definitions for bulk operation responses
 export interface BulkOperationResponse {
-  updated_count?: number
-  deleted_count?: number
-  failed_count: number
-  updated_ids?: number[]
-  deleted_ids?: number[]
-  failed_ids: number[]
-  errors?: Record<number, string>
+  success: boolean
+  affected_count: number
+  errors?: Array<{
+    component_id: string
+    component_name: string
+    error_message: string
+    error_type: string
+  }>
 }
 
 export interface TagPreview {
@@ -65,7 +66,7 @@ export const bulkOperationsApi = {
    * Add tags to multiple components
    */
   async bulkAddTags(
-    componentIds: number[],
+    componentIds: string[],
     tags: string[]
   ): Promise<BulkOperationResponse> {
     const response = await bulkApi.post('/api/v1/components/bulk/tags/add', {
@@ -79,7 +80,7 @@ export const bulkOperationsApi = {
    * Remove tags from multiple components
    */
   async bulkRemoveTags(
-    componentIds: number[],
+    componentIds: string[],
     tags: string[]
   ): Promise<BulkOperationResponse> {
     const response = await bulkApi.post('/api/v1/components/bulk/tags/remove', {
@@ -93,7 +94,7 @@ export const bulkOperationsApi = {
    * Preview tag changes before applying
    */
   async previewTagChanges(
-    componentIds: number[],
+    componentIds: string[],
     addTags: string[],
     removeTags: string[]
   ): Promise<TagPreviewResponse> {
@@ -108,7 +109,7 @@ export const bulkOperationsApi = {
   /**
    * Get common tags across selected components
    */
-  async getCommonTags(componentIds: number[]): Promise<CommonTag[]> {
+  async getCommonTags(componentIds: string[]): Promise<CommonTag[]> {
     const response = await bulkApi.post('/api/v1/components/bulk/tags/common', {
       component_ids: componentIds,
     })
@@ -119,9 +120,9 @@ export const bulkOperationsApi = {
    * Assign multiple components to a project
    */
   async bulkAssignToProject(
-    componentIds: number[],
-    projectId: number,
-    quantities: Record<number, number>
+    componentIds: string[],
+    projectId: string,
+    quantities: Record<string, number>
   ): Promise<BulkOperationResponse> {
     const response = await bulkApi.post('/api/v1/components/bulk/projects/assign', {
       component_ids: componentIds,
@@ -134,11 +135,9 @@ export const bulkOperationsApi = {
   /**
    * Delete multiple components
    */
-  async bulkDelete(componentIds: number[]): Promise<BulkOperationResponse> {
-    const response = await bulkApi.delete('/api/v1/components/bulk/delete', {
-      data: {
-        component_ids: componentIds,
-      },
+  async bulkDelete(componentIds: string[]): Promise<BulkOperationResponse> {
+    const response = await bulkApi.post('/api/v1/components/bulk/delete', {
+      component_ids: componentIds,
     })
     return response.data
   },

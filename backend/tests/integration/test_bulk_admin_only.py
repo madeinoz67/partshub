@@ -41,7 +41,7 @@ class TestBulkAdminOnly:
 
         # Act: Try to bulk add tags as non-admin user
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=user_auth_headers,  # Non-admin user
             json={
                 "component_ids": [component.id],
@@ -89,7 +89,7 @@ class TestBulkAdminOnly:
 
         # Act: Try to bulk assign as non-admin
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             headers=user_auth_headers,
             json={
                 "component_ids": [component.id],
@@ -125,7 +125,7 @@ class TestBulkAdminOnly:
 
         # Act: Try to bulk delete as non-admin
         response = client.post(
-            "/api/components/bulk/delete",
+            "/api/v1/components/bulk/delete",
             headers=user_auth_headers,
             json={
                 "component_ids": [component.id],
@@ -162,7 +162,7 @@ class TestBulkAdminOnly:
 
         # Act: Try to remove tag as non-admin
         response = client.post(
-            "/api/components/bulk/tags/remove",
+            "/api/v1/components/bulk/tags/remove",
             headers=user_auth_headers,
             json={
                 "component_ids": [component.id],
@@ -197,7 +197,7 @@ class TestBulkAdminOnly:
 
         # Act: Add tag as admin user
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,  # Admin user
             json={
                 "component_ids": [component.id],
@@ -238,7 +238,7 @@ class TestBulkAdminOnly:
 
         # Act: Try bulk operation without auth headers
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             # No headers = no authentication
             json={
                 "component_ids": [component.id],
@@ -267,7 +267,7 @@ class TestBulkAdminOnly:
 
         # Act: Use invalid token
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers={"Authorization": "Bearer invalid-expired-token-12345"},
             json={
                 "component_ids": [component.id],
@@ -301,18 +301,18 @@ class TestBulkAdminOnly:
         # Test all bulk endpoints
         endpoints = [
             (
-                "/api/components/bulk/tags/add",
+                "/api/v1/components/bulk/tags/add",
                 {"component_ids": [component.id], "tags": ["test"]},
             ),
             (
-                "/api/components/bulk/tags/remove",
+                "/api/v1/components/bulk/tags/remove",
                 {"component_ids": [component.id], "tags": ["test"]},
             ),
             (
-                "/api/components/bulk/projects/assign",
+                "/api/v1/components/bulk/projects/assign",
                 {"component_ids": [component.id], "project_id": project.id},
             ),
-            ("/api/components/bulk/delete", {"component_ids": [component.id]}),
+            ("/api/v1/components/bulk/delete", {"component_ids": [component.id]}),
         ]
 
         for endpoint, payload in endpoints:

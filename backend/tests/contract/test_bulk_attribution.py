@@ -1,5 +1,5 @@
 """
-Contract test for POST /api/components/bulk/attribution/set
+Contract test for POST /api/v1/components/bulk/attribution/set
 Tests bulk attribution setting endpoint according to OpenAPI specification
 """
 
@@ -35,7 +35,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=request_data,
             headers=user_auth_headers,
         )
@@ -79,7 +79,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -101,7 +101,7 @@ class TestBulkAttributionContract:
         invalid_data = {"component_ids": [1, 2]}
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -113,7 +113,7 @@ class TestBulkAttributionContract:
         invalid_data = {"attribution_data": {"source": "DigiKey"}}
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -131,7 +131,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -149,7 +149,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=invalid_data,
             headers=auth_headers,
         )
@@ -180,7 +180,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -217,7 +217,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -250,7 +250,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -280,7 +280,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=request_data,
             headers=auth_headers,
         )
@@ -323,7 +323,7 @@ class TestBulkAttributionContract:
         }
 
         response = client.post(
-            "/api/components/bulk/attribution/set",
+            "/api/v1/components/bulk/attribution/set",
             json=invalid_data,
             headers=auth_headers,
         )

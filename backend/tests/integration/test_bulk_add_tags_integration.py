@@ -46,7 +46,7 @@ class TestBulkAddTagsIntegration:
 
         # Act: Call bulk add tags API
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={"component_ids": component_ids, "tags": ["resistor", "SMD"]},
         )
@@ -100,7 +100,7 @@ class TestBulkAddTagsIntegration:
 
         # Act: Add new tags via bulk operation
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={"component_ids": component_ids, "tags": ["new-tag-1", "new-tag-2"]},
         )
@@ -124,7 +124,7 @@ class TestBulkAddTagsIntegration:
         """
         # Act: Call with empty component list
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={"component_ids": [], "tags": ["test-tag"]},
         )
@@ -153,7 +153,7 @@ class TestBulkAddTagsIntegration:
 
         # Act: Include nonexistent component ID
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": [component.id, "nonexistent-id-12345"],

@@ -56,7 +56,7 @@ class TestBulkOperationRollback:
         # Act: Attempt bulk add tags operation
         # This should detect the concurrent modification and rollback
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": component_ids,
@@ -131,7 +131,7 @@ class TestBulkOperationRollback:
         # Act: Attempt operation with invalid data that should trigger rollback
         # For example, try to add an invalid tag name or use invalid component ID
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": component_ids + ["invalid-component-id"],
@@ -183,7 +183,7 @@ class TestBulkOperationRollback:
 
         # Act: Attempt operation
         response = client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": mixed_ids,
@@ -241,7 +241,7 @@ class TestBulkOperationRollback:
 
         # Act: Force a failure by including invalid component ID
         client.post(
-            "/api/components/bulk/tags/add",
+            "/api/v1/components/bulk/tags/add",
             headers=auth_headers,
             json={
                 "component_ids": component_ids + ["invalid-id-causes-failure"],

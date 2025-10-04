@@ -58,7 +58,7 @@ class TestBulkAssignProjectIntegration:
 
         # Act: Call bulk assign API
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             headers=auth_headers,
             json={
                 "component_ids": component_ids,
@@ -125,7 +125,7 @@ class TestBulkAssignProjectIntegration:
 
         # Act: Assign without quantities field (should default to 1)
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             headers=auth_headers,
             json={"component_ids": component_ids, "project_id": project.id},
         )
@@ -167,7 +167,7 @@ class TestBulkAssignProjectIntegration:
 
         # Act: Try to assign to nonexistent project
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             headers=auth_headers,
             json={
                 "component_ids": component_ids,
@@ -212,7 +212,7 @@ class TestBulkAssignProjectIntegration:
 
         # Act: Reassign with quantity 10
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             headers=auth_headers,
             json={
                 "component_ids": [component.id],
@@ -253,7 +253,7 @@ class TestBulkAssignProjectIntegration:
 
         # Act: Try to assign with invalid quantity
         response = client.post(
-            "/api/components/bulk/projects/assign",
+            "/api/v1/components/bulk/projects/assign",
             headers=auth_headers,
             json={
                 "component_ids": [component.id],
