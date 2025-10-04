@@ -1,0 +1,509 @@
+openapi: 3.0.3
+info:
+  title: PartsHub Bulk Operations API
+  version: 1.0.0
+  description: API endpoints for performing bulk operations on electronic components
+
+servers:
+  - url: http://localhost:8000/api
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /components/bulk/tags/add:
+    post:
+      summary: Add tags to multiple components
+      operationId: bulkAddTags
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkAddTagsRequest'
+      responses:
+        '200':
+          description: Tags added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Admin privileges required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Concurrent modification detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+
+  /components/bulk/tags/remove:
+    post:
+      summary: Remove tags from multiple components
+      operationId: bulkRemoveTags
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkRemoveTagsRequest'
+      responses:
+        '200':
+          description: Tags removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '403':
+          description: Admin privileges required
+        '409':
+          description: Concurrent modification detected
+
+  /components/bulk/tags/preview:
+    get:
+      summary: Preview tag changes before applying
+      operationId: previewTagChanges
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: component_ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+          description: Comma-separated list of component IDs
+        - name: add_tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Tags to add
+        - name: remove_tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Tags to remove
+      responses:
+        '200':
+          description: Preview generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagPreviewResponse'
+        '403':
+          description: Admin privileges required
+
+  /components/bulk/projects/assign:
+    post:
+      summary: Assign multiple components to a project
+      operationId: bulkAssignToProject
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkAssignProjectRequest'
+      responses:
+        '200':
+          description: Components assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '400':
+          description: Invalid request
+        '403':
+          description: Admin privileges required
+        '404':
+          description: Project not found
+        '409':
+          description: Concurrent modification detected
+
+  /components/bulk/delete:
+    post:
+      summary: Delete multiple components
+      operationId: bulkDeleteComponents
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteRequest'
+      responses:
+        '200':
+          description: Components deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '403':
+          description: Admin privileges required
+        '409':
+          description: Concurrent modification detected
+
+  /components/bulk/meta-parts/add:
+    post:
+      summary: Add components to a meta-part
+      operationId: bulkAddToMetaPart
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkMetaPartRequest'
+      responses:
+        '200':
+          description: Components added to meta-part
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '403':
+          description: Admin privileges required
+
+  /components/bulk/purchase-lists/add:
+    post:
+      summary: Add components to purchase list
+      operationId: bulkAddToPurchaseList
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkPurchaseListRequest'
+      responses:
+        '200':
+          description: Components added to purchase list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '403':
+          description: Admin privileges required
+
+  /components/bulk/low-stock/set:
+    post:
+      summary: Set low-stock thresholds for multiple components
+      operationId: bulkSetLowStock
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkLowStockRequest'
+      responses:
+        '200':
+          description: Low-stock thresholds set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '403':
+          description: Admin privileges required
+
+  /components/bulk/attribution/set:
+    post:
+      summary: Set attribution data for multiple components
+      operationId: bulkSetAttribution
+      tags:
+        - Bulk Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkAttributionRequest'
+      responses:
+        '200':
+          description: Attribution data set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '403':
+          description: Admin privileges required
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    BulkAddTagsRequest:
+      type: object
+      required:
+        - component_ids
+        - tags
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+          description: IDs of components to add tags to
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Tag names to add
+
+    BulkRemoveTagsRequest:
+      type: object
+      required:
+        - component_ids
+        - tags
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Tag names to remove
+
+    BulkAssignProjectRequest:
+      type: object
+      required:
+        - component_ids
+        - project_id
+        - quantities
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+        project_id:
+          type: integer
+          description: ID of project to assign components to
+        quantities:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Map of component_id to quantity
+
+    BulkDeleteRequest:
+      type: object
+      required:
+        - component_ids
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+          description: IDs of components to delete
+
+    BulkMetaPartRequest:
+      type: object
+      required:
+        - component_ids
+        - meta_part_name
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+        meta_part_name:
+          type: string
+          description: Name of the meta-part
+
+    BulkPurchaseListRequest:
+      type: object
+      required:
+        - component_ids
+        - purchase_list_id
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+        purchase_list_id:
+          type: integer
+
+    BulkLowStockRequest:
+      type: object
+      required:
+        - component_ids
+        - threshold
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+        threshold:
+          type: integer
+          minimum: 0
+          description: Low-stock alert threshold
+
+    BulkAttributionRequest:
+      type: object
+      required:
+        - component_ids
+        - attribution_data
+      properties:
+        component_ids:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 1000
+        attribution_data:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value pairs of attribution data
+
+    BulkOperationResponse:
+      type: object
+      required:
+        - success
+        - affected_count
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded (all-or-nothing)
+        affected_count:
+          type: integer
+          description: Number of components affected (0 if failed)
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkOperationError'
+          description: List of errors if operation failed
+
+    BulkOperationError:
+      type: object
+      required:
+        - component_id
+        - component_name
+        - error_message
+        - error_type
+      properties:
+        component_id:
+          type: integer
+        component_name:
+          type: string
+        error_message:
+          type: string
+        error_type:
+          type: string
+          enum:
+            - not_found
+            - concurrent_modification
+            - validation_error
+            - permission_denied
+
+    TagPreviewResponse:
+      type: object
+      required:
+        - previews
+      properties:
+        previews:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTagPreview'
+
+    ComponentTagPreview:
+      type: object
+      required:
+        - component_id
+        - part_number
+        - current_user_tags
+        - current_auto_tags
+        - resulting_user_tags
+        - resulting_auto_tags
+      properties:
+        component_id:
+          type: integer
+        part_number:
+          type: string
+        current_user_tags:
+          type: array
+          items:
+            type: string
+        current_auto_tags:
+          type: array
+          items:
+            type: string
+        resulting_user_tags:
+          type: array
+          items:
+            type: string
+        resulting_auto_tags:
+          type: array
+          items:
+            type: string
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
