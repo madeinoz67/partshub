@@ -141,6 +141,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Fetch gh-pages branch
+        run: |
+          # Fetch the gh-pages branch to ensure we have the latest remote changes
+          # This prevents push conflicts when multiple deployments occur
+          git fetch origin gh-pages:gh-pages || echo "gh-pages branch does not exist yet"
+
       - name: Deploy development docs with Mike
         run: |
           # Deploy development docs as 'dev' version without setting as default

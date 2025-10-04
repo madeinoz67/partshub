@@ -83,7 +83,7 @@ PartsHub is open source and welcomes contributions:
 
 ## 📝 Recent Updates
 
-Check out our [Developer Notes](developer-notes.md) for the latest development progress and technical insights.
+Check out our [Developer Guide](developer/index.md) for the latest development progress and technical insights.
 
 ---
 

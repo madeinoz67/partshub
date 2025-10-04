@@ -372,4 +372,4 @@ curl -X POST http://localhost:8000/api/v1/kicad/libraries/rebuild \
 
 ---
 
-For more detailed examples and troubleshooting, see the main [KiCad Integration Guide](kicad-integration.md).
+For more detailed examples and troubleshooting, see the main [KiCad Integration Guide](../architecture/kicad-integration.md).

@@ -50,6 +50,11 @@ plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
 
+# Exclude README.md files to prevent conflicts with index.md
+exclude_docs: |
+  README.md
+  */README.md
+
 # Customization
 extra:
   social:
@@ -111,6 +116,7 @@ nav:
       - Getting Started: user/getting-started.md
       - Docker Quickstart: user/docker-quickstart.md
       - Features: user/features.md
+      - Bulk Operations: user/bulk-operations.md
       - KiCad Workflows: user/kicad-workflows.md
   - Deployment:
       - Docker: deployment/docker.md
@@ -119,6 +125,9 @@ nav:
       - Data Volumes: deployment/volumes.md
       - Backup & Recovery: deployment/backup.md
       - Production Deployment: deployment/production.md
+  - API Reference:
+      - api.md
+      - Bulk Operations: api/bulk-operations.md
   - Architecture:
       - architecture/index.md
       - Barcode Scanning: architecture/barcode-scanning.md

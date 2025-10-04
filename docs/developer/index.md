@@ -21,7 +21,6 @@ Detailed session notes from the KiCad integration fixes and frontend implementat
 
 ## Quick Links
 
-- **[CLAUDE.md](../../CLAUDE.md)** - Project development guidelines and commands
 - **[Backend Testing](../backend/testing.md)** - Backend testing guide
 - **[Architecture Docs](../architecture/index.md)** - System architecture documentation
 - **[Repository Setup](../repository-setup.md)** - Initial repository configuration

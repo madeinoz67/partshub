@@ -394,8 +394,8 @@ env:
    ```
 
 3. **Escalation Path**
-   - Consult [Troubleshooting Guide](troubleshooting.md)
-   - Review [Branch Protection Configuration](branch-protection.md)
+   - Consult [Troubleshooting Guide](../workflows/troubleshooting.md)
+   - Review [Branch Protection Configuration](../workflows/branch-protection.md)
    - Ask team members for assistance
    - Create GitHub issue for persistent problems
 
