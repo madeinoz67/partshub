@@ -548,7 +548,7 @@ const onSubmit = async () => {
     }, {} as Record<string, string>)
 
     // Build component data, omitting empty/null optional fields
-    const componentData: any = {
+    const componentData: Record<string, unknown> = {
       name: form.value.name,
       quantity_on_hand: form.value.quantity_on_hand,
       quantity_ordered: form.value.quantity_ordered,
@@ -593,16 +593,19 @@ const onSubmit = async () => {
 
     emit('saved', result)
     emit('update:model-value', false)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to save component:', error)
 
     // Extract detailed error message from API response
     let errorMessage = 'Failed to save component. Please try again.'
-    if (error.response?.data?.detail) {
-      errorMessage = typeof error.response.data.detail === 'string'
-        ? error.response.data.detail
-        : JSON.stringify(error.response.data.detail)
-    } else if (error.message) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { detail?: unknown } } }
+      if (axiosError.response?.data?.detail) {
+        errorMessage = typeof axiosError.response.data.detail === 'string'
+          ? axiosError.response.data.detail
+          : JSON.stringify(axiosError.response.data.detail)
+      }
+    } else if (error instanceof Error) {
       errorMessage = error.message
     }
 
