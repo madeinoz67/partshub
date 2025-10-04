@@ -4,47 +4,96 @@ Learn how to use PartsHub effectively for managing your electronic parts invento
 
 ## Getting Started
 
-New to PartsHub? Start with our comprehensive setup guide:
+New to PartsHub? We offer multiple ways to get started:
 
-[Getting Started Guide](getting-started.md){ .md-button .md-button--primary }
+[Local Development Guide](getting-started.md){ .md-button .md-button--primary }
+[Docker Quickstart](docker-quickstart.md){ .md-button .md-button--secondary }
 
-## Feature Guides
+## Feature Overview
+
+[View Complete Feature List](features.md){ .md-button .md-button--primary }
 
 ### Core Features
-- **Component Management** - Add, edit, and organize your electronic components
-- **Storage Locations** - Create hierarchical storage organization
-- **Barcode Scanning** - Quick component identification and updates
-- **Search & Filtering** - Find components quickly with advanced search
+- **Comprehensive Component Management**
+  - Add, edit, and meticulously organize electronic components
+  - Detailed metadata tracking including part numbers, manufacturers, and specifications
+  - Version history and change tracking for components
 
-### Integrations
-- **[KiCad Workflows](kicad-workflows.md)** - Generate libraries and symbols for PCB design
-- **Project Management** - Track components used in projects
-- **BOM Generation** - Create bills of materials for your designs
+- **Advanced Storage Location Management**
+  - Create hierarchical, nested storage organization
+  - Multi-level location tracking (warehouse, shelf, bin)
+  - Visual storage mapping and allocation
+
+- **Intelligent Search & Discovery**
+  - Powerful search with multi-criteria filtering
+  - Smart suggestion and related component recommendations
+  - Real-time inventory insights and analytics
+
+- **Precision Tracking Technologies**
+  - Barcode and QR code scanning for instant component updates
+  - RFID and inventory tag support
+  - Automated stock level monitoring
+
+### Integrations & Workflows
+- **[KiCad Workflow Integration](kicad-workflows.md)**
+  - Seamless library and symbol generation for PCB design
+  - Automatic BOM (Bill of Materials) creation
+  - Direct component export to design tools
+
+- **Advanced Project Management**
+  - Track components across multiple projects
+  - Project-based inventory allocation
+  - Consumption and usage reporting
+
+- **Collaboration & Sharing**
+  - Multi-user access control
+  - Team inventory sharing
+  - Export and reporting capabilities
 
 ## Quick Reference
 
 ### Common Tasks
-1. **Adding Components** - Use the "+" button or barcode scanner
-2. **Organizing Storage** - Create nested storage locations
-3. **Finding Parts** - Use search bar with filters
-4. **Generating KiCad Libraries** - Export to KiCad format
+1. **Adding Components**
+   - Use web interface "+" button
+   - Scan barcodes for instant entry
+   - Bulk import via CSV/spreadsheet
+
+2. **Organizing Inventory**
+   - Create nested storage hierarchies
+   - Assign components to specific locations
+   - Track real-time inventory movements
+
+3. **Advanced Search & Retrieval**
+   - Multi-parameter search
+   - Filters by manufacturer, type, stock level
+   - Saved search and smart collections
+
+4. **Workflow Integrations**
+   - Generate KiCad libraries
+   - Export BOMs
+   - Sync with design tools
 
 ### Tips & Best Practices
-- Use consistent naming conventions for components
-- Organize storage locations hierarchically
-- Take advantage of barcode scanning for quick updates
-- Regular backup of your inventory data
+- Maintain consistent component naming conventions
+- Leverage hierarchical storage organization
+- Utilize barcode scanning for accuracy
+- Regularly backup inventory data
+- Use project tracking for comprehensive management
 
 ## Need Help?
 
-- **Setup Issues**: See [Getting Started](getting-started.md)
-- **KiCad Integration**: Check [KiCad Workflows](kicad-workflows.md)
-- **Technical Issues**: Review [Backend Testing](../backend/testing.md)
-- **Architecture**: Explore [System Architecture](../architecture/)
+- **Setup Guides**:
+  - [Local Development](getting-started.md)
+  - [Docker Quickstart](docker-quickstart.md)
+- **Feature Details**: [Complete Feature List](features.md)
+- **KiCad Integration**: [KiCad Workflows](kicad-workflows.md)
+- **Technical Documentation**:
+  - [Backend Testing](../backend/testing.md)
+  - [System Architecture](../architecture/)
 
 ---
 
-!!! info "Feedback Welcome"
+!!! info "Feedback & Contribution"
 
-    Have suggestions for improving PartsHub? We'd love to hear from you!
-    Check our [GitHub repository](https://github.com/your-org/partshub) for ways to contribute.
+    Help us improve PartsHub! We welcome feature suggestions, bug reports, and community contributions.
+    Visit our [GitHub repository](https://github.com/your-org/partshub) to get involved.
