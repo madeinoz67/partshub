@@ -46,7 +46,8 @@
       "Bash(.specify/scripts/bash/setup-plan.sh:*)",
       "Bash(mkdir:*)",
       "Bash(npm run type-check:*)",
-      "Bash(timeout 20 npm run dev)"
+      "Bash(timeout 20 npm run dev)",
+      "Bash(do echo \"=== $file ===\")"
     ],
     "deny": [],
     "ask": []

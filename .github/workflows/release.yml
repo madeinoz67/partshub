@@ -320,12 +320,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Synchronize versions
+        run: |
+          # Ensure all versions are synchronized from pyproject.toml
+          chmod +x scripts/sync-versions.sh
+          ./scripts/sync-versions.sh sync
+
       - name: Configure versioned docs
         run: |
           VERSION="${{ needs.validate_release.outputs.version }}"
 
           # Update mkdocs.yml with version information
           sed -i "s/site_name: .*/site_name: PartsHub Documentation/" mkdocs.yml
+
+          # Copy CHANGELOG.md to docs directory for MkDocs
+          cp CHANGELOG.md docs/CHANGELOG.md
 
           # Add version info to docs
           mkdir -p docs/releases
