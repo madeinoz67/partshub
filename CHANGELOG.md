@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/madeinoz67/partshub/compare/v0.1.2...v0.2.0) (2025-10-04)
+
+
+### Features
+
+* add bulk operations for component management ([#12](https://github.com/madeinoz67/partshub/issues/12)) ([fe6af3e](https://github.com/madeinoz67/partshub/commit/fe6af3e75ee63a289290ade0947d93d66fd34b16))
+
+
+### Bug Fixes
+
+* configure release workflow to trigger from release-please ([b5ba0ce](https://github.com/madeinoz67/partshub/commit/b5ba0ce6bba64978c7aa3dc437ab839f89bf5040))
+
 ## [0.1.2](https://github.com/madeinoz67/partshub/compare/v0.1.1...v0.1.2) (2025-10-04)
 
 
