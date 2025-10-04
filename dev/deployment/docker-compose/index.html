@@ -12,13 +12,13 @@
         <meta name="author" content="Stephen Eaton">
       
       
-        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.1.0/">
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/deployment/docker-compose/">
       
       
-        <link rel="prev" href="../v0.1.1/">
+        <link rel="prev" href="../docker/">
       
       
-        <link rel="next" href="../../CHANGELOG/">
+        <link rel="next" href="../environment/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Release Notes for PartsHub v0.1.0 - PartsHub Documentation</title>
+        <title>Docker Compose - PartsHub Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-for-partshub-v010" class="md-skip">
+        <a href="#docker-compose-usage-guide-for-partshub" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release Notes for PartsHub v0.1.0
+              Docker Compose
             
           </span>
         </div>
@@ -267,11 +267,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../deployment/docker/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../docker/" class="md-tabs__link">
           
   
   
@@ -399,13 +401,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../v0.1.1/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../releases/v0.1.1/" class="md-tabs__link">
           
   
   
@@ -663,8 +663,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -684,21 +686,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -711,7 +714,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Deployment
@@ -725,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/docker/" class="md-nav__link">
+      <a href="../docker/" class="md-nav__link">
         
   
   
@@ -745,10 +748,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../deployment/docker-compose/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Docker Compose
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -759,6 +784,302 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction-to-docker-compose-for-partshub" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Introduction to Docker Compose for PartsHub
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Introduction to Docker Compose for PartsHub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-use-docker-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Use Docker Compose?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-development-compose-file-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Development Compose File Walkthrough
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Development Compose File Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-components-explained" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Components Explained
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-starting-and-stopping-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Starting and Stopping Services
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Starting and Stopping Services">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stop-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stop Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rebuild-and-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rebuild and Start
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-viewing-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Viewing Logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Viewing Logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#view-all-service-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      View All Service Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#follow-live-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Follow Live Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-logs-for-specific-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Logs for Specific Service
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-common-docker-compose-commands-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Common Docker Compose Commands Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Common Docker Compose Commands Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-running-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      List Running Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stop-specific-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stop Specific Service
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-specific-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start Specific Service
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute-command-in-running-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute Command in Running Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restart-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restart Service
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-customizing-compose-for-local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Customizing Compose for Local Development
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Customizing Compose for Local Development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#override-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Override Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-specific-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment-Specific Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -771,7 +1092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/environment/" class="md-nav__link">
+      <a href="../environment/" class="md-nav__link">
         
   
   
@@ -794,7 +1115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/volumes/" class="md-nav__link">
+      <a href="../volumes/" class="md-nav__link">
         
   
   
@@ -817,7 +1138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/backup/" class="md-nav__link">
+      <a href="../backup/" class="md-nav__link">
         
   
   
@@ -840,7 +1161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/production/" class="md-nav__link">
+      <a href="../production/" class="md-nav__link">
         
   
   
@@ -1359,10 +1680,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -1376,22 +1695,21 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -1404,7 +1722,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             Releases
@@ -1418,7 +1736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../v0.1.1/" class="md-nav__link">
+      <a href="../../releases/v0.1.1/" class="md-nav__link">
         
   
   
@@ -1438,32 +1756,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Release Notes for PartsHub v0.1.0
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
   
@@ -1474,140 +1770,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Features
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#electronic-parts-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      Electronic Parts Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#user-interface-and-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      User Interface and Experience
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#authentication-and-access-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication and Access Control
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-and-optimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance and Optimization
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-and-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure and Development
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bug-fixes-and-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bug Fixes and Improvements
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrade Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-thanks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Thanks
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1670,64 +1832,19 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#1-introduction-to-docker-compose-for-partshub" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      1. Introduction to Docker Compose for PartsHub
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Features
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Features">
+    <nav class="md-nav" aria-label="1. Introduction to Docker Compose for PartsHub">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#electronic-parts-management" class="md-nav__link">
+  <a href="#why-use-docker-compose" class="md-nav__link">
     <span class="md-ellipsis">
-      Electronic Parts Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#user-interface-and-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      User Interface and Experience
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#authentication-and-access-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication and Access Control
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-and-optimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance and Optimization
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-and-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure and Development
+      Why Use Docker Compose?
     </span>
   </a>
   
@@ -1739,45 +1856,252 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bug-fixes-and-improvements" class="md-nav__link">
+  <a href="#2-development-compose-file-walkthrough" class="md-nav__link">
     <span class="md-ellipsis">
-      Bug Fixes and Improvements
+      2. Development Compose File Walkthrough
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Development Compose File Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-components-explained" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Components Explained
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-starting-and-stopping-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Starting and Stopping Services
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Starting and Stopping Services">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stop-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stop Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rebuild-and-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rebuild and Start
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-viewing-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Viewing Logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Viewing Logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#view-all-service-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      View All Service Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#follow-live-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Follow Live Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-logs-for-specific-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Logs for Specific Service
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-common-docker-compose-commands-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Common Docker Compose Commands Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Common Docker Compose Commands Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-running-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      List Running Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stop-specific-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stop Specific Service
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-specific-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start Specific Service
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute-command-in-running-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute Command in Running Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restart-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restart Service
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-customizing-compose-for-local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Customizing Compose for Local Development
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Customizing Compose for Local Development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#override-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Override Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-specific-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment-Specific Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrade Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-thanks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Thanks
+      Next Steps
     </span>
   </a>
   
@@ -1799,7 +2123,7 @@
 
 
   
-    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.1.0.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/deployment/docker-compose.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1808,74 +2132,148 @@
     
       
     
-    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.1.0.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/deployment/docker-compose.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="release-notes-for-partshub-v010">Release Notes for PartsHub v0.1.0<a class="headerlink" href="#release-notes-for-partshub-v010" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Version 0.1.0 marks the first milestone release of PartsHub, an Electronic Parts Inventory Management System. This release introduces a comprehensive set of features and improvements across the application's backend, frontend, and infrastructure.</p>
-<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
-<h3 id="electronic-parts-management">Electronic Parts Management<a class="headerlink" href="#electronic-parts-management" title="Permanent link">&para;</a></h3>
+<h1 id="docker-compose-usage-guide-for-partshub">Docker Compose Usage Guide for PartsHub<a class="headerlink" href="#docker-compose-usage-guide-for-partshub" title="Permanent link">&para;</a></h1>
+<h2 id="1-introduction-to-docker-compose-for-partshub">1. Introduction to Docker Compose for PartsHub<a class="headerlink" href="#1-introduction-to-docker-compose-for-partshub" title="Permanent link">&para;</a></h2>
+<p>Docker Compose is a powerful tool for defining and managing multi-container Docker applications. For PartsHub, Docker Compose simplifies the process of:
+- Defining your application's services
+- Configuring their interconnections
+- Managing volumes and environment variables
+- Easily starting, stopping, and rebuilding your development environment</p>
+<h3 id="why-use-docker-compose">Why Use Docker Compose?<a class="headerlink" href="#why-use-docker-compose" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added attachment gallery component and file upload functionality</li>
-<li>Implemented KiCad visualization features and custom symbol management</li>
-<li>Enhanced component search with tag name matching</li>
-<li>Added KiCadSymbolViewer for visualizing KiCad symbols</li>
-<li>Implemented KiCad integration API endpoints for component search and library synchronization</li>
+<li><strong>Consistency</strong>: Ensure the same environment across different development machines</li>
+<li><strong>Simplicity</strong>: Manage multiple services with a single command</li>
+<li><strong>Reproducibility</strong>: Version control your deployment configuration</li>
+<li><strong>Isolation</strong>: Keep your development environment separate from your host system</li>
 </ul>
-<h3 id="user-interface-and-experience">User Interface and Experience<a class="headerlink" href="#user-interface-and-experience" title="Permanent link">&para;</a></h3>
+<h2 id="2-development-compose-file-walkthrough">2. Development Compose File Walkthrough<a class="headerlink" href="#2-development-compose-file-walkthrough" title="Permanent link">&para;</a></h2>
+<p>The <code>docker-compose.yml</code> for PartsHub defines a single service with several key configurations:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w">  </span><span class="c1"># Docker Compose file version</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">partshub</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span><span class="w">             </span><span class="c1"># Use the current directory as build context</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile</span><span class="w"> </span><span class="c1"># Use the project&#39;s Dockerfile</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;3000:3000&quot;</span><span class="w">  </span><span class="c1"># Map frontend Vue.js dev server port</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8000:8000&quot;</span><span class="w">  </span><span class="c1"># Map backend FastAPI port</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">partshub_data:/app/data</span><span class="w">  </span><span class="c1"># Persistent data volume</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DATABASE_URL=sqlite:///./data/partshub.db</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENVIRONMENT=development</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEED_DB=true</span><span class="w">  </span><span class="c1"># Demo data only - DO NOT use in production!</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span><span class="w">  </span><span class="c1"># Automatically restart unless manually stopped</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="nt">volumes</span><span class="p">:</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">partshub_data</span><span class="p">:</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span><span class="w">  </span><span class="c1"># Use the local volume driver</span>
+</span></code></pre></div>
+<h3 id="key-components-explained">Key Components Explained<a class="headerlink" href="#key-components-explained" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added mobile navigation and user menu drawers</li>
-<li>Implemented expandable rows in component list for detailed previews</li>
-<li>Enhanced component detail view with tabbed navigation</li>
-<li>Improved responsive design for Project and Component pages</li>
-<li>Added ProjectsPage for project management and tracking</li>
+<li><strong>Services</strong>: Defines the <code>partshub</code> container configuration</li>
+<li><strong>Build</strong>: Builds the container using the project's Dockerfile</li>
+<li><strong>Ports</strong>: Maps container ports to host ports</li>
+<li><strong>Volumes</strong>: Provides persistent storage for application data</li>
+<li><strong>Environment Variables</strong>: Configures application runtime settings</li>
+<li><strong>Restart Policy</strong>: Ensures container stays running</li>
 </ul>
-<h3 id="authentication-and-access-control">Authentication and Access Control<a class="headerlink" href="#authentication-and-access-control" title="Permanent link">&para;</a></h3>
+<h2 id="3-starting-and-stopping-services">3. Starting and Stopping Services<a class="headerlink" href="#3-starting-and-stopping-services" title="Permanent link">&para;</a></h2>
+<h3 id="start-services">Start Services<a class="headerlink" href="#start-services" title="Permanent link">&para;</a></h3>
+<p>To start services in the background:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre></div>
+- <code>-d</code> runs containers in detached mode (background)
+- First run will build the image if not already built</p>
+<h3 id="stop-services">Stop Services<a class="headerlink" href="#stop-services" title="Permanent link">&para;</a></h3>
+<p>Stop and remove containers:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+</span></code></pre></div></p>
+<h3 id="rebuild-and-start">Rebuild and Start<a class="headerlink" href="#rebuild-and-start" title="Permanent link">&para;</a></h3>
+<p>Force a rebuild before starting:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
+</span></code></pre></div>
+- <code>--build</code> rebuilds images before starting containers</p>
+<h2 id="4-viewing-logs">4. Viewing Logs<a class="headerlink" href="#4-viewing-logs" title="Permanent link">&para;</a></h2>
+<h3 id="view-all-service-logs">View All Service Logs<a class="headerlink" href="#view-all-service-logs" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs
+</span></code></pre></div>
+<h3 id="follow-live-logs">Follow Live Logs<a class="headerlink" href="#follow-live-logs" title="Permanent link">&para;</a></h3>
+<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+</span></code></pre></div>
+- <code>-f</code> follows (streams) the logs in real-time</p>
+<h3 id="filter-logs-for-specific-service">Filter Logs for Specific Service<a class="headerlink" href="#filter-logs-for-specific-service" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>partshub
+</span></code></pre></div>
+<h2 id="5-common-docker-compose-commands-reference">5. Common Docker Compose Commands Reference<a class="headerlink" href="#5-common-docker-compose-commands-reference" title="Permanent link">&para;</a></h2>
+<h3 id="list-running-services">List Running Services<a class="headerlink" href="#list-running-services" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
+</span></code></pre></div>
+<h3 id="stop-specific-service">Stop Specific Service<a class="headerlink" href="#stop-specific-service" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>partshub
+</span></code></pre></div>
+<h3 id="start-specific-service">Start Specific Service<a class="headerlink" href="#start-specific-service" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>start<span class="w"> </span>partshub
+</span></code></pre></div>
+<h3 id="execute-command-in-running-container">Execute Command in Running Container<a class="headerlink" href="#execute-command-in-running-container" title="Permanent link">&para;</a></h3>
+<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>partshub<span class="w"> </span>bash
+</span></code></pre></div>
+- Gives you an interactive shell inside the container</p>
+<h3 id="restart-service">Restart Service<a class="headerlink" href="#restart-service" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span>partshub
+</span></code></pre></div>
+<h2 id="6-customizing-compose-for-local-development">6. Customizing Compose for Local Development<a class="headerlink" href="#6-customizing-compose-for-local-development" title="Permanent link">&para;</a></h2>
+<h3 id="override-configuration">Override Configuration<a class="headerlink" href="#override-configuration" title="Permanent link">&para;</a></h3>
+<p>Create a <code>docker-compose.override.yml</code> for local customizations:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">partshub</span><span class="p">:</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENVIRONMENT=development</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">      </span><span class="c1"># Add more development-specific settings</span>
+</span></code></pre></div>
+<h3 id="environment-specific-configurations">Environment-Specific Configurations<a class="headerlink" href="#environment-specific-configurations" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented authentication system with login page and tiered access control</li>
-<li>Enhanced user management with UserForm component</li>
-<li>Improved token management and user profile features</li>
+<li><code>docker-compose.yml</code>: Base configuration</li>
+<li><code>docker-compose.override.yml</code>: Local overrides</li>
+<li><code>docker-compose.prod.yml</code>: Production-specific settings</li>
 </ul>
-<h3 id="performance-and-optimization">Performance and Optimization<a class="headerlink" href="#performance-and-optimization" title="Permanent link">&para;</a></h3>
+<p>Docker Compose automatically merges these files, with overrides taking precedence.</p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented comprehensive database performance optimizations</li>
-<li>Added rate limiting and concurrent download limits for provider API requests</li>
-<li>Optimized inventory breakdown and financial analytics queries</li>
+<li><strong>Port Conflicts</strong>: Ensure ports 3000 and 8000 are not in use</li>
+<li><strong>Build Failures</strong>: Check Dockerfile and build context</li>
+<li><strong>Permission Issues</strong>: Run with <code>sudo</code> if needed on Linux</li>
 </ul>
-<h3 id="infrastructure-and-development">Infrastructure and Development<a class="headerlink" href="#infrastructure-and-development" title="Permanent link">&para;</a></h3>
+<h3 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added GitHub Actions workflows for CI/CD automation</li>
-<li>Implemented comprehensive test infrastructure</li>
-<li>Added issue templates for bug reports, feature requests, and support questions</li>
-<li>Enhanced developer documentation and workflows</li>
+<li>Check logs: <code>docker compose logs</code></li>
+<li>Verify service status: <code>docker compose ps</code></li>
+<li>Rebuild from scratch: <code>docker compose down --rmi all &amp;&amp; docker compose up -d</code></li>
 </ul>
-<h2 id="bug-fixes-and-improvements">Bug Fixes and Improvements<a class="headerlink" href="#bug-fixes-and-improvements" title="Permanent link">&para;</a></h2>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Fixed critical security vulnerabilities</li>
-<li>Improved Docker container configurations</li>
-<li>Resolved backend and frontend test infrastructure issues</li>
-<li>Addressed various import and naming issues</li>
+<li>Always commit <code>docker-compose.yml</code> to version control</li>
+<li>Use environment variables for configuration</li>
+<li>Keep containers stateless where possible</li>
+<li>Regularly update Docker and Docker Compose</li>
 </ul>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Created troubleshooting guides for GitHub workflows</li>
-<li>Enhanced developer documentation</li>
-<li>Added branch protection and workflow guides</li>
+<li>Review production deployment documentation</li>
+<li>Explore advanced Docker Compose features</li>
+<li>Set up continuous integration with Docker</li>
 </ul>
-<h2 id="whats-next">What's Next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
-<p>Stay tuned for upcoming features and improvements in future releases!</p>
-<h2 id="upgrade-notes">Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Recommended to review the <a href="/user/getting-started.md">Getting Started Guide</a> for the latest setup instructions</li>
-<li>Please report any issues or suggestions on our <a href="https://github.com/madeinoz67/partshub/issues">GitHub Issues page</a></li>
-</ul>
-<h2 id="special-thanks">Special Thanks<a class="headerlink" href="#special-thanks" title="Permanent link">&para;</a></h2>
-<p>To all contributors and early adopters who have helped shape this initial release.</p>
+<p>Happy Dockerizing! 🐳</p>
 
 
 

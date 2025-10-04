@@ -12,13 +12,13 @@
         <meta name="author" content="Stephen Eaton">
       
       
-        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.1.0/">
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/deployment/environment/">
       
       
-        <link rel="prev" href="../v0.1.1/">
+        <link rel="prev" href="../docker-compose/">
       
       
-        <link rel="next" href="../../CHANGELOG/">
+        <link rel="next" href="../volumes/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Release Notes for PartsHub v0.1.0 - PartsHub Documentation</title>
+        <title>Environment Variables - PartsHub Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-for-partshub-v010" class="md-skip">
+        <a href="#partshub-environment-variables-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release Notes for PartsHub v0.1.0
+              Environment Variables
             
           </span>
         </div>
@@ -267,11 +267,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../deployment/docker/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../docker/" class="md-tabs__link">
           
   
   
@@ -399,13 +401,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../v0.1.1/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../releases/v0.1.1/" class="md-tabs__link">
           
   
   
@@ -663,8 +663,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -684,21 +686,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -711,7 +714,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Deployment
@@ -725,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/docker/" class="md-nav__link">
+      <a href="../docker/" class="md-nav__link">
         
   
   
@@ -748,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/docker-compose/" class="md-nav__link">
+      <a href="../docker-compose/" class="md-nav__link">
         
   
   
@@ -768,10 +771,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../deployment/environment/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Environment Variables
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -782,6 +807,164 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Variables Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-database_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. DATABASE_URL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. PORT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-frontend_port" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. FRONTEND_PORT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ENVIRONMENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-seed_db" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. SEED_DB
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-pythonunbuffered" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. PYTHONUNBUFFERED
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-pythondontwritebytecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. PYTHONDONTWRITEBYTECODE
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Scenarios
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Environment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production Environment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -794,7 +977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/volumes/" class="md-nav__link">
+      <a href="../volumes/" class="md-nav__link">
         
   
   
@@ -817,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/backup/" class="md-nav__link">
+      <a href="../backup/" class="md-nav__link">
         
   
   
@@ -840,7 +1023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/production/" class="md-nav__link">
+      <a href="../production/" class="md-nav__link">
         
   
   
@@ -1359,10 +1542,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -1376,22 +1557,21 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -1404,7 +1584,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             Releases
@@ -1418,7 +1598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../v0.1.1/" class="md-nav__link">
+      <a href="../../releases/v0.1.1/" class="md-nav__link">
         
   
   
@@ -1438,32 +1618,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Release Notes for PartsHub v0.1.0
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
   
@@ -1474,140 +1632,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Features
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#electronic-parts-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      Electronic Parts Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#user-interface-and-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      User Interface and Experience
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#authentication-and-access-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication and Access Control
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-and-optimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance and Optimization
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-and-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure and Development
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bug-fixes-and-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bug Fixes and Improvements
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrade Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-thanks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Thanks
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1679,55 +1703,73 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
+  <a href="#environment-variables-reference" class="md-nav__link">
     <span class="md-ellipsis">
-      Key Features
+      Environment Variables Reference
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Features">
+    <nav class="md-nav" aria-label="Environment Variables Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#electronic-parts-management" class="md-nav__link">
+  <a href="#1-database_url" class="md-nav__link">
     <span class="md-ellipsis">
-      Electronic Parts Management
+      1. DATABASE_URL
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#user-interface-and-experience" class="md-nav__link">
+  <a href="#2-port" class="md-nav__link">
     <span class="md-ellipsis">
-      User Interface and Experience
+      2. PORT
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#authentication-and-access-control" class="md-nav__link">
+  <a href="#3-frontend_port" class="md-nav__link">
     <span class="md-ellipsis">
-      Authentication and Access Control
+      3. FRONTEND_PORT
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#performance-and-optimization" class="md-nav__link">
+  <a href="#4-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      Performance and Optimization
+      4. ENVIRONMENT
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#infrastructure-and-development" class="md-nav__link">
+  <a href="#5-seed_db" class="md-nav__link">
     <span class="md-ellipsis">
-      Infrastructure and Development
+      5. SEED_DB
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-pythonunbuffered" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. PYTHONUNBUFFERED
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-pythondontwritebytecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. PYTHONDONTWRITEBYTECODE
     </span>
   </a>
   
@@ -1739,45 +1781,51 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bug-fixes-and-improvements" class="md-nav__link">
+  <a href="#deployment-scenarios" class="md-nav__link">
     <span class="md-ellipsis">
-      Bug Fixes and Improvements
+      Deployment Scenarios
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Environment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production Environment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrade Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-thanks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Thanks
+      Troubleshooting
     </span>
   </a>
   
@@ -1799,7 +1847,7 @@
 
 
   
-    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.1.0.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/deployment/environment.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1808,74 +1856,213 @@
     
       
     
-    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.1.0.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/deployment/environment.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="release-notes-for-partshub-v010">Release Notes for PartsHub v0.1.0<a class="headerlink" href="#release-notes-for-partshub-v010" title="Permanent link">&para;</a></h1>
+<h1 id="partshub-environment-variables-reference">PartsHub Environment Variables Reference<a class="headerlink" href="#partshub-environment-variables-reference" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Version 0.1.0 marks the first milestone release of PartsHub, an Electronic Parts Inventory Management System. This release introduces a comprehensive set of features and improvements across the application's backend, frontend, and infrastructure.</p>
-<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
-<h3 id="electronic-parts-management">Electronic Parts Management<a class="headerlink" href="#electronic-parts-management" title="Permanent link">&para;</a></h3>
+<p>This document provides a comprehensive reference for environment variables used in PartsHub deployments. These variables control various aspects of the application's configuration, from database settings to runtime behavior.</p>
+<h2 id="environment-variables-reference">Environment Variables Reference<a class="headerlink" href="#environment-variables-reference" title="Permanent link">&para;</a></h2>
+<h3 id="1-database_url">1. DATABASE_URL<a class="headerlink" href="#1-database_url" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added attachment gallery component and file upload functionality</li>
-<li>Implemented KiCad visualization features and custom symbol management</li>
-<li>Enhanced component search with tag name matching</li>
-<li>Added KiCadSymbolViewer for visualizing KiCad symbols</li>
-<li>Implemented KiCad integration API endpoints for component search and library synchronization</li>
+<li><strong>Description</strong>: Specifies the path and connection string for the SQLite database</li>
+<li><strong>Default Value</strong>: <code>sqlite:///./data/partshub.db</code></li>
+<li><strong>Possible Values</strong>:</li>
+<li>SQLite file path (recommended)</li>
+<li>Full SQLite connection string</li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Default local file storage</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">DATABASE_URL</span><span class="o">=</span>sqlite:///./data/partshub.db
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Explicit file path</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nv">DATABASE_URL</span><span class="o">=</span>sqlite:////app/data/custom_location.db
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># In-memory database (for testing)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nv">DATABASE_URL</span><span class="o">=</span>sqlite:///:memory:
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Change database location for persistent storage</li>
+<li>Use different storage strategies</li>
+<li>Configure for specific deployment environments</li>
 </ul>
-<h3 id="user-interface-and-experience">User Interface and Experience<a class="headerlink" href="#user-interface-and-experience" title="Permanent link">&para;</a></h3>
+<h3 id="2-port">2. PORT<a class="headerlink" href="#2-port" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added mobile navigation and user menu drawers</li>
-<li>Implemented expandable rows in component list for detailed previews</li>
-<li>Enhanced component detail view with tabbed navigation</li>
-<li>Improved responsive design for Project and Component pages</li>
-<li>Added ProjectsPage for project management and tracking</li>
+<li><strong>Description</strong>: Defines the port for the backend service</li>
+<li><strong>Default Value</strong>: <code>8000</code></li>
+<li><strong>Possible Values</strong>: Any valid port number (1-65535)</li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT=8080</span><span class="w">  </span><span class="c1"># Custom port</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># docker run</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="l l-Scalar l-Scalar-Plain">docker run -e PORT=9000 partshub-backend</span>
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Avoid port conflicts</li>
+<li>Align with existing infrastructure</li>
+<li>Meet specific network configuration requirements</li>
 </ul>
-<h3 id="authentication-and-access-control">Authentication and Access Control<a class="headerlink" href="#authentication-and-access-control" title="Permanent link">&para;</a></h3>
+<h3 id="3-frontend_port">3. FRONTEND_PORT<a class="headerlink" href="#3-frontend_port" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented authentication system with login page and tiered access control</li>
-<li>Enhanced user management with UserForm component</li>
-<li>Improved token management and user profile features</li>
+<li><strong>Description</strong>: Specifies the port for the frontend service</li>
+<li><strong>Default Value</strong>: <code>3000</code></li>
+<li><strong>Possible Values</strong>: Any valid port number (1-65535)</li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">frontend</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FRONTEND_PORT=3030</span><span class="w">  </span><span class="c1"># Custom port</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># docker run</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="l l-Scalar l-Scalar-Plain">docker run -e FRONTEND_PORT=4000 partshub-frontend</span>
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Prevent port conflicts</li>
+<li>Match existing network configurations</li>
+<li>Support multiple frontend instances</li>
 </ul>
-<h3 id="performance-and-optimization">Performance and Optimization<a class="headerlink" href="#performance-and-optimization" title="Permanent link">&para;</a></h3>
+<h3 id="4-environment">4. ENVIRONMENT<a class="headerlink" href="#4-environment" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented comprehensive database performance optimizations</li>
-<li>Added rate limiting and concurrent download limits for provider API requests</li>
-<li>Optimized inventory breakdown and financial analytics queries</li>
+<li><strong>Description</strong>: Sets the deployment environment mode</li>
+<li><strong>Allowed Values</strong>:</li>
+<li><code>development</code></li>
+<li><code>production</code></li>
+<li><strong>Default Value</strong>: <code>development</code></li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENVIRONMENT=production</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># docker run</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="l l-Scalar l-Scalar-Plain">docker run -e ENVIRONMENT=production partshub-backend</span>
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Enable environment-specific configurations</li>
+<li>Adjust logging and error handling</li>
+<li>Control feature flags and debugging options</li>
 </ul>
-<h3 id="infrastructure-and-development">Infrastructure and Development<a class="headerlink" href="#infrastructure-and-development" title="Permanent link">&para;</a></h3>
+<h3 id="5-seed_db">5. SEED_DB<a class="headerlink" href="#5-seed_db" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added GitHub Actions workflows for CI/CD automation</li>
-<li>Implemented comprehensive test infrastructure</li>
-<li>Added issue templates for bug reports, feature requests, and support questions</li>
-<li>Enhanced developer documentation and workflows</li>
+<li><strong>Description</strong>: Controls automatic database seeding with demo/test data</li>
+<li><strong>Allowed Values</strong>:</li>
+<li><code>true</code></li>
+<li><code>false</code></li>
+<li>Empty (defaults to <code>false</code>)</li>
+<li><strong>Default Value</strong>: <code>false</code></li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># docker-compose.yml (DEVELOPMENT ONLY)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEED_DB=true</span><span class="w">  </span><span class="c1"># Populate with demo data</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># docker run (DEVELOPMENT ONLY)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="l l-Scalar l-Scalar-Plain">docker run -e SEED_DB=true partshub-backend</span>
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Initial setup of development environments</li>
+<li>Automated testing scenarios</li>
+<li>Demonstration or training purposes</li>
 </ul>
-<h2 id="bug-fixes-and-improvements">Bug Fixes and Improvements<a class="headerlink" href="#bug-fixes-and-improvements" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Production Usage</p>
+<p><strong>DO NOT use SEED_DB=true in production environments!</strong> This variable is intended for demo and testing purposes only. Production deployments should always use <code>SEED_DB=false</code> (or omit the variable entirely) to ensure data integrity.</p>
+</div>
+<h3 id="6-pythonunbuffered">6. PYTHONUNBUFFERED<a class="headerlink" href="#6-pythonunbuffered" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Fixed critical security vulnerabilities</li>
-<li>Improved Docker container configurations</li>
-<li>Resolved backend and frontend test infrastructure issues</li>
-<li>Addressed various import and naming issues</li>
+<li><strong>Description</strong>: Prevents Python from buffering standard output and standard error streams</li>
+<li><strong>Default Value</strong>: <code>1</code></li>
+<li><strong>Possible Values</strong>:</li>
+<li><code>1</code> (unbuffered)</li>
+<li><code>0</code> (buffered)</li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYTHONUNBUFFERED=1</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># docker run</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="l l-Scalar l-Scalar-Plain">docker run -e PYTHONUNBUFFERED=1 partshub-backend</span>
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Real-time logging</li>
+<li>Debugging</li>
+<li>Container logging scenarios</li>
 </ul>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h3 id="7-pythondontwritebytecode">7. PYTHONDONTWRITEBYTECODE<a class="headerlink" href="#7-pythondontwritebytecode" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Created troubleshooting guides for GitHub workflows</li>
-<li>Enhanced developer documentation</li>
-<li>Added branch protection and workflow guides</li>
+<li><strong>Description</strong>: Prevents generation of <code>.pyc</code> bytecode files</li>
+<li><strong>Default Value</strong>: <code>1</code></li>
+<li><strong>Possible Values</strong>:</li>
+<li><code>1</code> (no <code>.pyc</code> files)</li>
+<li><code>0</code> (generate <code>.pyc</code> files)</li>
+<li><strong>Usage Examples</strong>:
+  <div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYTHONDONTWRITEBYTECODE=1</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># docker run</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="l l-Scalar l-Scalar-Plain">docker run -e PYTHONDONTWRITEBYTECODE=1 partshub-backend</span>
+</span></code></pre></div></li>
+<li><strong>When to Customize</strong>:</li>
+<li>Performance tuning</li>
+<li>Reducing container image size</li>
+<li>Specific caching requirements</li>
 </ul>
-<h2 id="whats-next">What's Next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
-<p>Stay tuned for upcoming features and improvements in future releases!</p>
-<h2 id="upgrade-notes">Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permanent link">&para;</a></h2>
+<h2 id="deployment-scenarios">Deployment Scenarios<a class="headerlink" href="#deployment-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="development-environment">Development Environment<a class="headerlink" href="#development-environment" title="Permanent link">&para;</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DATABASE_URL=sqlite:///./data/dev.db</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT=8000</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FRONTEND_PORT=3000</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENVIRONMENT=development</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEED_DB=true</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYTHONUNBUFFERED=1</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYTHONDONTWRITEBYTECODE=1</span>
+</span></code></pre></div>
+<h3 id="production-environment">Production Environment<a class="headerlink" href="#production-environment" title="Permanent link">&para;</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># docker-compose.yml</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DATABASE_URL=sqlite:///./data/partshub.db</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT=8000</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FRONTEND_PORT=3000</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENVIRONMENT=production</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEED_DB=false</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYTHONUNBUFFERED=1</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYTHONDONTWRITEBYTECODE=1</span>
+</span></code></pre></div>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Always use absolute paths for <code>DATABASE_URL</code></li>
+<li>Keep sensitive configurations out of version control</li>
+<li>Use environment-specific settings</li>
+<li>Monitor and log environment variable usage</li>
+<li>Validate environment configurations during startup</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Recommended to review the <a href="/user/getting-started.md">Getting Started Guide</a> for the latest setup instructions</li>
-<li>Please report any issues or suggestions on our <a href="https://github.com/madeinoz67/partshub/issues">GitHub Issues page</a></li>
+<li>Check Docker logs for environment-related issues</li>
+<li>Verify port availability before deployment</li>
+<li>Ensure proper volume mappings for persistent data</li>
 </ul>
-<h2 id="special-thanks">Special Thanks<a class="headerlink" href="#special-thanks" title="Permanent link">&para;</a></h2>
-<p>To all contributors and early adopters who have helped shape this initial release.</p>
 
 
 

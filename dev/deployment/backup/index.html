@@ -12,13 +12,13 @@
         <meta name="author" content="Stephen Eaton">
       
       
-        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.1.0/">
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/deployment/backup/">
       
       
-        <link rel="prev" href="../v0.1.1/">
+        <link rel="prev" href="../volumes/">
       
       
-        <link rel="next" href="../../CHANGELOG/">
+        <link rel="next" href="../production/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Release Notes for PartsHub v0.1.0 - PartsHub Documentation</title>
+        <title>Backup & Recovery - PartsHub Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-for-partshub-v010" class="md-skip">
+        <a href="#partshub-backup-and-recovery-procedures" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release Notes for PartsHub v0.1.0
+              Backup & Recovery
             
           </span>
         </div>
@@ -267,11 +267,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../deployment/docker/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../docker/" class="md-tabs__link">
           
   
   
@@ -399,13 +401,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../v0.1.1/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../releases/v0.1.1/" class="md-tabs__link">
           
   
   
@@ -663,8 +663,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -684,21 +686,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -711,7 +714,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Deployment
@@ -725,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/docker/" class="md-nav__link">
+      <a href="../docker/" class="md-nav__link">
         
   
   
@@ -748,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/docker-compose/" class="md-nav__link">
+      <a href="../docker-compose/" class="md-nav__link">
         
   
   
@@ -771,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/environment/" class="md-nav__link">
+      <a href="../environment/" class="md-nav__link">
         
   
   
@@ -794,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/volumes/" class="md-nav__link">
+      <a href="../volumes/" class="md-nav__link">
         
   
   
@@ -814,10 +817,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../deployment/backup/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Backup & Recovery
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -828,6 +853,266 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-to-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. What to Backup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. What to Backup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#backup-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup Locations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-backup-frequency-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Backup Frequency Recommendations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Backup Frequency Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#critical-data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Critical Data Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-backup-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Backup Strategy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-backup-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Backup Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Backup Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-docker-volume-backup-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Docker Volume Backup Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Docker Volume Backup Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-docker-cp-method-complete-data-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Docker CP Method (Complete Data Backup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-volume-backup-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. Volume Backup Method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-filesystem-copy-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. Filesystem Copy Method
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-automated-backup-script-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Automated Backup Script (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-recovery-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Recovery Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Recovery Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-database-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Database Recovery
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-attachments-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Attachments Recovery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-version-compatibility-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Version Compatibility Notes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Version Compatibility Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-migration-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Migration Considerations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-migration-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Migration Checks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-container-upgrade-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Container Upgrade Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Container Upgrade Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#safe-upgrade-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Safe Upgrade Procedure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -840,7 +1125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deployment/production/" class="md-nav__link">
+      <a href="../production/" class="md-nav__link">
         
   
   
@@ -1359,10 +1644,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -1376,22 +1659,21 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -1404,7 +1686,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             Releases
@@ -1418,7 +1700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../v0.1.1/" class="md-nav__link">
+      <a href="../../releases/v0.1.1/" class="md-nav__link">
         
   
   
@@ -1438,32 +1720,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Release Notes for PartsHub v0.1.0
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
   
@@ -1474,140 +1734,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Features
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#electronic-parts-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      Electronic Parts Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#user-interface-and-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      User Interface and Experience
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#authentication-and-access-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication and Access Control
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-and-optimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance and Optimization
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-and-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure and Development
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bug-fixes-and-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bug Fixes and Improvements
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrade Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-thanks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Thanks
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1679,55 +1805,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
+  <a href="#1-what-to-backup" class="md-nav__link">
     <span class="md-ellipsis">
-      Key Features
+      1. What to Backup
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Features">
+    <nav class="md-nav" aria-label="1. What to Backup">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#electronic-parts-management" class="md-nav__link">
+  <a href="#backup-locations" class="md-nav__link">
     <span class="md-ellipsis">
-      Electronic Parts Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#user-interface-and-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      User Interface and Experience
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#authentication-and-access-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication and Access Control
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-and-optimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance and Optimization
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-and-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure and Development
+      Backup Locations
     </span>
   </a>
   
@@ -1739,45 +1829,207 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bug-fixes-and-improvements" class="md-nav__link">
+  <a href="#2-backup-frequency-recommendations" class="md-nav__link">
     <span class="md-ellipsis">
-      Bug Fixes and Improvements
+      2. Backup Frequency Recommendations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Backup Frequency Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#critical-data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Critical Data Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-backup-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Backup Strategy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-backup-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Backup Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Backup Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-docker-volume-backup-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Docker Volume Backup Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Docker Volume Backup Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-docker-cp-method-complete-data-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Docker CP Method (Complete Data Backup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-volume-backup-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. Volume Backup Method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-filesystem-copy-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. Filesystem Copy Method
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-automated-backup-script-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Automated Backup Script (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-recovery-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Recovery Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Recovery Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-database-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Database Recovery
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-attachments-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Attachments Recovery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-version-compatibility-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Version Compatibility Notes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Version Compatibility Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-migration-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Migration Considerations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-migration-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Migration Checks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-container-upgrade-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Container Upgrade Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Container Upgrade Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#safe-upgrade-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Safe Upgrade Procedure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrade Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-thanks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Thanks
+      Troubleshooting
     </span>
   </a>
   
@@ -1799,7 +2051,7 @@
 
 
   
-    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.1.0.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/deployment/backup.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1808,74 +2060,180 @@
     
       
     
-    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.1.0.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/deployment/backup.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="release-notes-for-partshub-v010">Release Notes for PartsHub v0.1.0<a class="headerlink" href="#release-notes-for-partshub-v010" title="Permanent link">&para;</a></h1>
+<h1 id="partshub-backup-and-recovery-procedures">PartsHub Backup and Recovery Procedures<a class="headerlink" href="#partshub-backup-and-recovery-procedures" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Version 0.1.0 marks the first milestone release of PartsHub, an Electronic Parts Inventory Management System. This release introduces a comprehensive set of features and improvements across the application's backend, frontend, and infrastructure.</p>
-<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
-<h3 id="electronic-parts-management">Electronic Parts Management<a class="headerlink" href="#electronic-parts-management" title="Permanent link">&para;</a></h3>
+<p>This document provides comprehensive backup and recovery procedures for the PartsHub application, focusing on data preservation and system resilience.</p>
+<h2 id="1-what-to-backup">1. What to Backup<a class="headerlink" href="#1-what-to-backup" title="Permanent link">&para;</a></h2>
+<p>The critical data for PartsHub is located in the <code>/app/data</code> directory, which contains:</p>
 <ul>
-<li>Added attachment gallery component and file upload functionality</li>
-<li>Implemented KiCad visualization features and custom symbol management</li>
-<li>Enhanced component search with tag name matching</li>
-<li>Added KiCadSymbolViewer for visualizing KiCad symbols</li>
-<li>Implemented KiCad integration API endpoints for component search and library synchronization</li>
+<li><code>partshub.db</code>: SQLite database file containing all application data</li>
+<li><code>attachments/</code>: Directory storing user-uploaded file attachments</li>
 </ul>
-<h3 id="user-interface-and-experience">User Interface and Experience<a class="headerlink" href="#user-interface-and-experience" title="Permanent link">&para;</a></h3>
+<h3 id="backup-locations">Backup Locations<a class="headerlink" href="#backup-locations" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added mobile navigation and user menu drawers</li>
-<li>Implemented expandable rows in component list for detailed previews</li>
-<li>Enhanced component detail view with tabbed navigation</li>
-<li>Improved responsive design for Project and Component pages</li>
-<li>Added ProjectsPage for project management and tracking</li>
+<li>Container mount point: <code>/app/data</code></li>
+<li>Typical local volume: <code>partshub_data</code></li>
 </ul>
-<h3 id="authentication-and-access-control">Authentication and Access Control<a class="headerlink" href="#authentication-and-access-control" title="Permanent link">&para;</a></h3>
+<h2 id="2-backup-frequency-recommendations">2. Backup Frequency Recommendations<a class="headerlink" href="#2-backup-frequency-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="critical-data-components">Critical Data Components<a class="headerlink" href="#critical-data-components" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented authentication system with login page and tiered access control</li>
-<li>Enhanced user management with UserForm component</li>
-<li>Improved token management and user profile features</li>
+<li><strong>Database (<code>partshub.db</code>)</strong>: Contains all parts inventory, relationships, and metadata</li>
+<li><strong>Attachments directory</strong>: User-uploaded files, datasheets, images, and supporting documents</li>
 </ul>
-<h3 id="performance-and-optimization">Performance and Optimization<a class="headerlink" href="#performance-and-optimization" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Backup Both Database AND Attachments</p>
+<p>Always backup the <strong>entire <code>/app/data</code> directory</strong> to ensure both the database and all attachments are preserved together. Backing up only the database will result in broken file references and missing attachments.</p>
+</div>
+<h3 id="recommended-backup-strategy">Recommended Backup Strategy<a class="headerlink" href="#recommended-backup-strategy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Full Backup Frequency</strong>: Daily</li>
+<li>Backup the entire <code>/app/data</code> directory (database + attachments)</li>
+<li>
+<p>Both components are critical and should be backed up together</p>
+</li>
+<li>
+<p><strong>Retention Policy</strong></p>
+</li>
+<li>Keep last 7 daily backups</li>
+<li>Keep last 4 weekly backups (every Sunday)</li>
+<li>Maintain monthly archive for long-term retention</li>
+</ol>
+<h2 id="3-backup-procedures">3. Backup Procedures<a class="headerlink" href="#3-backup-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="31-docker-volume-backup-methods">3.1 Docker Volume Backup Methods<a class="headerlink" href="#31-docker-volume-backup-methods" title="Permanent link">&para;</a></h3>
+<h4 id="a-docker-cp-method-complete-data-backup">A. Docker CP Method (Complete Data Backup)<a class="headerlink" href="#a-docker-cp-method-complete-data-backup" title="Permanent link">&para;</a></h4>
+<p>Backup entire <code>/app/data</code> directory using <code>docker cp</code>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Backup entire data directory (database + attachments together)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>cp<span class="w"> </span>partshub:/app/data<span class="w"> </span>./backups/partshub_data_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Compress for efficient storage</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>tar<span class="w"> </span>czvf<span class="w"> </span>./backups/partshub_backup_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.tar.gz<span class="w"> </span>-C<span class="w"> </span>./backups<span class="w"> </span>partshub_data_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+</span></code></pre></div></p>
+<div class="admonition tip">
+<p class="admonition-title">Why backup the entire directory?</p>
+<p>Backing up <code>/app/data</code> as a complete unit ensures database and attachment references remain consistent. Individual file backups may lead to sync issues.</p>
+</div>
+<h4 id="b-volume-backup-method">B. Volume Backup Method<a class="headerlink" href="#b-volume-backup-method" title="Permanent link">&para;</a></h4>
+<p>Create a backup of the named Docker volume:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Create a backup container to copy volume contents</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-v<span class="w"> </span>partshub_data:/source<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/backups:/backup<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>alpine<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>tar<span class="w"> </span>czvf<span class="w"> </span>/backup/partshub_backup_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.tar.gz<span class="w"> </span>-C<span class="w"> </span>/source<span class="w"> </span>.
+</span></code></pre></div></p>
+<h4 id="c-filesystem-copy-method">C. Filesystem Copy Method<a class="headerlink" href="#c-filesystem-copy-method" title="Permanent link">&para;</a></h4>
+<p>For hosts with direct volume access:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Backup using filesystem copy</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cp<span class="w"> </span>-R<span class="w"> </span>/var/lib/docker/volumes/partshub_data/_data<span class="w"> </span>./backups/<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+</span></code></pre></div></p>
+<h3 id="32-automated-backup-script-recommended">3.2 Automated Backup Script (Recommended)<a class="headerlink" href="#32-automated-backup-script-recommended" title="Permanent link">&para;</a></h3>
+<p>Create a shell script for consistent backups of the entire data directory:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&quot;/path/to/backups&quot;</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">CONTAINER_NAME</span><span class="o">=</span><span class="s2">&quot;partshub&quot;</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Create backup directory</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/</span><span class="nv">$DATE</span><span class="s2">&quot;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Backup entire /app/data directory (database + attachments)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>docker<span class="w"> </span>cp<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CONTAINER_NAME</span><span class="s2">&quot;</span>:/app/data<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/</span><span class="nv">$DATE</span><span class="s2">/&quot;</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Compress backup for efficient storage</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>tar<span class="w"> </span>czvf<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/partshub_backup_</span><span class="nv">$DATE</span><span class="s2">.tar.gz&quot;</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/</span><span class="nv">$DATE</span><span class="s2">&quot;</span><span class="w"> </span>data
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="c1"># Clean up uncompressed backup</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/</span><span class="nv">$DATE</span><span class="s2">&quot;</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="c1"># Optional: Remove backups older than 7 days</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>find<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BACKUP_DIR</span><span class="s2">&quot;</span><span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;partshub_backup_*.tar.gz&quot;</span><span class="w"> </span>-mtime<span class="w"> </span>+7<span class="w"> </span>-delete
+</span></code></pre></div></p>
+<h2 id="4-recovery-procedures">4. Recovery Procedures<a class="headerlink" href="#4-recovery-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="41-database-recovery">4.1 Database Recovery<a class="headerlink" href="#41-database-recovery" title="Permanent link">&para;</a></h3>
+<p>To restore a database backup:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Stop the running PartsHub container</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span>stop<span class="w"> </span>partshub
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Copy backup to container&#39;s data directory</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>docker<span class="w"> </span>cp<span class="w"> </span>./backups/partshub_20250101.db<span class="w"> </span>partshub:/app/data/partshub.db
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Restart container (migrations will run automatically)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>docker<span class="w"> </span>start<span class="w"> </span>partshub
+</span></code></pre></div></p>
+<h3 id="42-attachments-recovery">4.2 Attachments Recovery<a class="headerlink" href="#42-attachments-recovery" title="Permanent link">&para;</a></h3>
+<p>Restore attachments directory:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Stop container</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>docker<span class="w"> </span>stop<span class="w"> </span>partshub
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Remove existing attachments</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>partshub<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/app/data/attachments
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Copy backup</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>docker<span class="w"> </span>cp<span class="w"> </span>./backups/attachments_20250101<span class="w"> </span>partshub:/app/data/attachments
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Restart container</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>docker<span class="w"> </span>start<span class="w"> </span>partshub
+</span></code></pre></div></p>
+<h2 id="5-version-compatibility-notes">5. Version Compatibility Notes<a class="headerlink" href="#5-version-compatibility-notes" title="Permanent link">&para;</a></h2>
+<h3 id="database-migration-considerations">Database Migration Considerations<a class="headerlink" href="#database-migration-considerations" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented comprehensive database performance optimizations</li>
-<li>Added rate limiting and concurrent download limits for provider API requests</li>
-<li>Optimized inventory breakdown and financial analytics queries</li>
+<li>Always backup database before version upgrades</li>
+<li>Use Alembic for managing database schema migrations</li>
+<li>Recommended upgrade workflow:</li>
+<li>Create full backup</li>
+<li>Test migration in staging environment</li>
+<li>Perform production migration</li>
+<li>Verify data integrity</li>
 </ul>
-<h3 id="infrastructure-and-development">Infrastructure and Development<a class="headerlink" href="#infrastructure-and-development" title="Permanent link">&para;</a></h3>
+<h3 id="recommended-migration-checks">Recommended Migration Checks<a class="headerlink" href="#recommended-migration-checks" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Run Alembic migrations (part of entrypoint)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>partshub<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Verify database integrity</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>partshub<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import database_checks; database_checks.verify_database()&quot;</span>
+</span></code></pre></div>
+<h2 id="6-container-upgrade-strategies">6. Container Upgrade Strategies<a class="headerlink" href="#6-container-upgrade-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="safe-upgrade-procedure">Safe Upgrade Procedure<a class="headerlink" href="#safe-upgrade-procedure" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Backup current data</li>
+<li>Pull new image</li>
+<li>Stop current container</li>
+<li>Create new container with same volume mounts</li>
+<li>Verify functionality</li>
+<li>Retire old container</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Upgrade example</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/madeinoz67/partshub:latest
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>docker<span class="w"> </span>stop<span class="w"> </span>partshub
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>docker<span class="w"> </span>rename<span class="w"> </span>partshub<span class="w"> </span>partshub_old
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span>--name<span class="w"> </span>partshub<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span>-v<span class="w"> </span>partshub_data:/app/data<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span>ghcr.io/madeinoz67/partshub:latest
+</span></code></pre></div>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Added GitHub Actions workflows for CI/CD automation</li>
-<li>Implemented comprehensive test infrastructure</li>
-<li>Added issue templates for bug reports, feature requests, and support questions</li>
-<li>Enhanced developer documentation and workflows</li>
+<li>Test backups regularly</li>
+<li>Store backups in multiple locations</li>
+<li>Use offsite/cloud storage for critical backups</li>
+<li>Implement backup rotation and retention policies</li>
+<li>Document and practice recovery scenarios</li>
 </ul>
-<h2 id="bug-fixes-and-improvements">Bug Fixes and Improvements<a class="headerlink" href="#bug-fixes-and-improvements" title="Permanent link">&para;</a></h2>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Fixed critical security vulnerabilities</li>
-<li>Improved Docker container configurations</li>
-<li>Resolved backend and frontend test infrastructure issues</li>
-<li>Addressed various import and naming issues</li>
+<li>If migrations fail, restore from the last known good backup</li>
+<li>Use database integrity checks after recovery</li>
+<li>Consult application logs for detailed error information</li>
 </ul>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Created troubleshooting guides for GitHub workflows</li>
-<li>Enhanced developer documentation</li>
-<li>Added branch protection and workflow guides</li>
-</ul>
-<h2 id="whats-next">What's Next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
-<p>Stay tuned for upcoming features and improvements in future releases!</p>
-<h2 id="upgrade-notes">Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Recommended to review the <a href="/user/getting-started.md">Getting Started Guide</a> for the latest setup instructions</li>
-<li>Please report any issues or suggestions on our <a href="https://github.com/madeinoz67/partshub/issues">GitHub Issues page</a></li>
-</ul>
-<h2 id="special-thanks">Special Thanks<a class="headerlink" href="#special-thanks" title="Permanent link">&para;</a></h2>
-<p>To all contributors and early adopters who have helped shape this initial release.</p>
+<hr />
+<p><strong>Note</strong>: Always validate backups in a staging environment before critical restorations.</p>
 
 
 
