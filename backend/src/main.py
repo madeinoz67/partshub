@@ -26,6 +26,7 @@ from .api.kicad import router as kicad_router
 from .api.location_layout import router as location_layout_router
 from .api.projects import router as projects_router
 from .api.reports import router as reports_router
+from .api.stock_operations import router as stock_operations_router
 from .api.storage import router as storage_router
 from .api.tags import router as tags_router
 from .auth.admin import ensure_admin_exists
@@ -188,6 +189,7 @@ app.include_router(reports_router)
 app.include_router(bom_router)
 app.include_router(categories_router)
 app.include_router(bulk_operations_router)
+app.include_router(stock_operations_router)
 
 
 @app.get("/")

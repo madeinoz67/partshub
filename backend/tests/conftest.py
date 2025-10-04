@@ -157,8 +157,7 @@ def sample_storage_location_data():
     return {
         "name": "drawer-1",
         "description": "Main workbench drawer 1",
-        "location_type": "drawer",
-        "is_single_part_only": False,
+        "type": "drawer",
     }
 
 

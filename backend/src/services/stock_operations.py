@@ -354,6 +354,11 @@ class StockOperationsService:
                 detail="Source and destination locations must be different",
             )
 
+        # Step 2b: Validate destination location exists
+        destination_location = self.session.get(StorageLocation, destination_location_id)
+        if not destination_location:
+            raise HTTPException(status_code=404, detail="Destination storage location not found")
+
         # Step 3: Acquire locks on BOTH locations in consistent order (deadlock prevention)
         # Sort IDs to ensure consistent locking order
         location_ids_sorted = sorted([source_location_id, destination_location_id])

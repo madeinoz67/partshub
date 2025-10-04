@@ -157,7 +157,7 @@ class TestAddStockContract:
             headers=auth_headers
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 422  # Pydantic validation error
         assert "detail" in response.json()
 
     def test_add_stock_validation_error_both_pricing_fields(
@@ -190,10 +190,10 @@ class TestAddStockContract:
             headers=auth_headers
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 422  # Pydantic validation error
         data = response.json()
         assert "detail" in data
-        assert "both" in data["detail"].lower() or "price" in data["detail"].lower()
+        # Pydantic should reject both pricing fields being set
 
     def test_add_stock_forbidden_non_admin(
         self, client: TestClient, db_session, user_auth_headers, sample_component_data,

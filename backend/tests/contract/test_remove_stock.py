@@ -193,7 +193,7 @@ class TestRemoveStockContract:
             headers=auth_headers
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 422  # Pydantic validation error
         assert "detail" in response.json()
 
     def test_remove_stock_validation_error_no_stock(
@@ -224,10 +224,10 @@ class TestRemoveStockContract:
             headers=auth_headers
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 404  # ComponentLocation not found
         data = response.json()
         assert "detail" in data
-        assert "no stock" in data["detail"].lower() or "not found" in data["detail"].lower()
+        assert "not found" in data["detail"].lower()
 
     def test_remove_stock_forbidden_non_admin(
         self, client: TestClient, user_auth_headers
