@@ -12,10 +12,9 @@ A modern, web-based inventory management system designed specifically for electr
 
 ### 📦 Component Management
 - **Comprehensive tracking** of electronic components with detailed specifications
-- **Stock level monitoring** with automatic low-stock alerts
+- **Stock level monitoring** with low-stock tracking capabilities
 - **Storage location management** with hierarchical organization
 - **Category and tagging system** for easy organization and searching
-- **Stock history tracking** with transaction logs
 - **Bulk operations** for efficient management of multiple components (v0.2.0+)
 
 ### 🔐 Tiered Access Control
@@ -216,7 +215,7 @@ partshub/
 ### Anonymous Users (No Login Required)
 - Browse all components and inventory data
 - Search and filter components
-- View detailed specifications and stock history
+- View detailed specifications and stock levels
 - Access storage location information
 
 ### Authenticated Users (Login Required)
