@@ -1,53 +1,55 @@
+
 # Implementation Plan: Stock Management Operations
 
-**Branch**: `006-add-remove-stock` | **Date**: 2025-10-04 | **Spec**: [spec.md](spec.md)
+**Branch**: `006-add-remove-stock` | **Date**: 2025-10-05 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/006-add-remove-stock/spec.md`
 
 ## Execution Flow (/plan command scope)
 ```
 1. Load feature spec from Input path
-   → ✓ Loaded from /Users/seaton/Documents/src/partshub/specs/006-add-remove-stock/spec.md
+   → If not found: ERROR "No feature spec at {path}"
 2. Fill Technical Context (scan for NEEDS CLARIFICATION)
-   → ✓ All clarifications resolved in Session 2025-10-04
-   → ✓ Project Type: Web application (frontend + backend)
+   → Detect Project Type from file system structure or context (web=frontend+backend, mobile=app+api)
+   → Set Structure Decision based on project type
 3. Fill the Constitution Check section based on the content of the constitution document.
-   → ✓ Constitution v1.2.0 requirements mapped
 4. Evaluate Constitution Check section below
-   → ✓ No violations detected
-   → ✓ Progress Tracking: Initial Constitution Check PASS
+   → If violations exist: Document in Complexity Tracking
+   → If no justification possible: ERROR "Simplify approach first"
+   → Update Progress Tracking: Initial Constitution Check
 5. Execute Phase 0 → research.md
-   → ✓ Research complete: 6 technical decisions documented
-6. Execute Phase 1 → contracts, data-model.md, quickstart.md, CLAUDE.md
-   → ✓ Design artifacts generated
+   → If NEEDS CLARIFICATION remain: ERROR "Resolve unknowns"
+6. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific template file (e.g., `CLAUDE.md` for Claude Code, `.github/copilot-instructions.md` for GitHub Copilot, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code or `AGENTS.md` for opencode).
 7. Re-evaluate Constitution Check section
-   → ✓ No new violations introduced
-   → ✓ Progress Tracking: Post-Design Constitution Check PASS
+   → If new violations: Refactor design, return to Phase 1
+   → Update Progress Tracking: Post-Design Constitution Check
 8. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
-   → ✓ Task generation strategy documented below
 9. STOP - Ready for /tasks command
-   → ✓ Execution complete
 ```
 
-**IMPORTANT**: The /plan command STOPS at step 9. Phases 2-4 are executed by other commands:
+**IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
-
-Implement comprehensive stock management operations (add, remove, move) for PartsHub components with inline row-expansion forms, pessimistic locking for concurrent safety, and immutable audit history tracking. Admin-only operations support multi-step workflows for adding stock (with pricing/lot tracking), simplified removal with auto-capping validation, and atomic stock transfers between locations with pricing inheritance.
-
-**Technical Approach**: Extend existing StockTransaction and ComponentLocation models with pessimistic row-level locking using SQLAlchemy's `with_for_update()`. Implement inline multi-step forms in Vue 3/Quasar within expanded component rows (not modal dialogs). Use database transactions with consistent lock ordering to ensure atomic operations and prevent deadlocks. Client-side auto-capping with server-side validation for quantity constraints.
+Admin users need inline stock management operations (add, remove, move) accessible from component row expansion menus. Operations include multi-step add stock forms with pricing/lot tracking, simplified remove stock with auto-capping, and atomic move operations with weighted average price calculation. All operations log to persistent history with pagination (10 entries/page), support multi-format export (CSV/Excel/JSON), use pessimistic locking (30s timeout), and display real-time validation feedback (highlight errors, disable submit).
 
 ## Technical Context
-**Language/Version**: Python 3.11+ (backend), TypeScript (frontend Vue 3)
-**Primary Dependencies**: FastAPI, SQLAlchemy, Pydantic (backend); Vue 3, Quasar Framework, Pinia (frontend)
-**Storage**: SQLite database with SQLAlchemy ORM (existing StockTransaction and ComponentLocation tables)
-**Testing**: pytest with in-memory SQLite (backend), Vitest (frontend)
-**Target Platform**: Web application (Linux/macOS server, modern browsers)
+**Language/Version**: Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend)
+**Primary Dependencies**: FastAPI, SQLAlchemy, Pydantic (backend); Quasar Framework, Pinia (frontend)
+**Storage**: SQLite with SQLAlchemy ORM (existing stock_transactions table extended with lot_id, price_per_unit, total_price fields)
+**Testing**: pytest with pytest-asyncio (backend), Vitest (frontend), in-memory SQLite for test isolation
+**Target Platform**: Web application (Linux server backend, modern browsers frontend)
 **Project Type**: web (frontend + backend)
-**Performance Goals**: <200ms API response time, pessimistic locks held <1s
-**Constraints**: Admin-only operations, atomic stock transfers (ACID compliance), concurrent-safe with pessimistic locking
-**Scale/Scope**: 3 new API endpoints, 3 inline form components, extend 2 existing models, ~25-30 implementation tasks
+**Performance Goals**: <200ms API response time for stock operations (<100 components), <50ms for history pagination
+**Constraints**: 30-second pessimistic lock timeout, atomic transaction requirement for move operations, weighted average price calculation on merges
+**Scale/Scope**: Admin-only feature (tiered access), 3 operations (add/remove/move), 10 entries per history page, 3 export formats (CSV/Excel/JSON)
+
+**Recent Clarifications** (fore recent changes and additions to spec):
+- Weighted average pricing on stock merges (FR-039)
+- Paginated history (10 per page) with navigation controls (FR-045-048)
+- 30-second lock timeout for pessimistic locking (FR-053)
+- Multi-format export support: CSV, Excel (XLSX), JSON (FR-059)
+- Validation UX: highlight invalid fields in red, disable submit until fixed (FR-014-015)
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -55,62 +57,58 @@ Implement comprehensive stock management operations (add, remove, move) for Part
 Based on PartsHub Constitution v1.2.0:
 
 ### Principle I: API-First Design
-- [x] Backend API endpoints defined before frontend work (contracts/ created in Phase 1)
-- [x] OpenAPI/Swagger documentation planned (add-stock.yaml, remove-stock.yaml, move-stock.yaml)
-- [x] API responses follow consistent JSON schema (using Pydantic models, standard error format)
-- [x] Breaking changes properly versioned (new endpoints, no breaking changes to existing API)
+- [x] Backend API endpoints defined before frontend work
+- [x] OpenAPI/Swagger documentation planned (contracts/ directory in Phase 1)
+- [x] API responses follow consistent JSON schema (Pydantic models)
+- [x] Breaking changes properly versioned (MAJOR bump) - new feature, no breaking changes
 
 ### Principle II: Test-Driven Development (TDD) - NON-NEGOTIABLE
-- [x] Contract tests planned for all API endpoints (3 contract test files from OpenAPI specs)
-- [x] Integration tests planned for all user stories (6 add stock scenarios, 5 remove, 7 move scenarios)
-- [x] Tests will be written BEFORE implementation (TDD workflow in task ordering)
-- [x] 80% minimum coverage target established (contract + integration + unit tests)
+- [x] Contract tests planned for all API endpoints (add/remove/move stock endpoints, history pagination, export)
+- [x] Integration tests planned for all user stories (acceptance scenarios from spec.md)
+- [x] Tests will be written BEFORE implementation (Phase 1 generates failing tests)
+- [x] 80% minimum coverage target established
 
 ### Principle III: Tiered Access Control
-- [x] Access levels defined (Admin-only for all stock operations per FR-051, FR-052, FR-053)
-- [x] Authentication requirements specified (JWT bearer token required, 403 Forbidden for non-admin)
-- [x] JWT token validation planned where needed (all three endpoints require admin role)
-- [x] Security implemented by default, not retrofitted (admin-only enforced at API layer)
+- [x] Access levels defined (Anonymous/Authenticated/Admin) - Admin-only per FR-060-062
+- [x] Authentication requirements specified (JWT token validation for all stock operations)
+- [x] JWT token validation planned where needed (all 3 operations + history/export endpoints)
+- [x] Security implemented by default, not retrofitted (admin-only from design)
 
 ### Principle IV: Quality Gates & Standards
-- [x] Ruff linting and formatting will be applied (backend code follows project standards)
-- [x] CI checks identified (backend tests, frontend tests, type checks, security scans)
-- [x] No direct main branch commits (feature branch 006-add-remove-stock)
-- [x] Pull request review process followed (standard PartsHub workflow)
+- [x] Ruff linting and formatting will be applied (backend code)
+- [x] CI checks identified (backend tests, frontend tests, security scans, Docker builds)
+- [x] No direct main branch commits (branch: 006-add-remove-stock)
+- [x] Pull request review process followed
 
 ### Principle V: Anonymous Contribution - NON-NEGOTIABLE
-- [x] Commit messages will focus on changes, not tools (conventional commit format)
-- [x] No AI assistant attribution in commits (clean git history)
-- [x] Standard conventional commit format used (feat/fix/docs/test prefixes)
+- [x] Commit messages will focus on changes, not tools
+- [x] No AI assistant attribution in commits
+- [x] Standard conventional commit format used (feat/fix/test/docs)
 
 ### Principle VI: Test Isolation - NON-NEGOTIABLE
-- [x] Tests use isolated database (in-memory SQLite via conftest.py fixtures)
-- [x] No test dependencies on execution order (each test creates own fixtures)
-- [x] External services mocked or use test doubles (no external dependencies in this feature)
-- [x] Database state reset between tests (automatic via in-memory DB and session fixtures)
-- [x] Tests runnable in parallel (pytest-xdist compatible, no shared mutable state)
+- [x] Tests use isolated database (in-memory SQLite per test)
+- [x] No test dependencies on execution order (parallelizable)
+- [x] External services mocked or use test doubles (no external deps)
+- [x] Database state reset between tests (fixtures create/destroy tables)
+- [x] Tests runnable in parallel (pytest -n auto support)
 
 ### Principle VII: Documentation Review - NON-NEGOTIABLE
-- [x] Documentation updates planned for all code changes (quickstart.md, API docs, user guide)
-- [x] OpenAPI specs will be updated for API changes (contracts/ created with full schemas)
-- [x] README/setup guides will reflect configuration changes (if needed for locking configuration)
-- [x] Usage documentation will be included for new features (quickstart.md for testing/validation)
-- [x] Migration paths documented for breaking changes (database migration for StockTransaction extensions)
+- [x] Documentation updates planned for all code changes (docs/user/, docs/api/)
+- [x] OpenAPI specs will be updated for API changes (contracts/ generated in Phase 1)
+- [x] README/setup guides will reflect configuration changes (N/A - no config changes)
+- [x] Usage documentation will be included for new features (stock operations guide)
+- [x] Migration paths documented for breaking changes (N/A - new feature, backward compatible)
 
 ## Project Structure
 
 ### Documentation (this feature)
 ```
-specs/006-add-remove-stock/
-├── spec.md              # Feature specification (✓ complete)
-├── plan.md              # This file (/plan command output - ✓ complete)
-├── research.md          # Phase 0 output (/plan command - ✓ complete)
-├── data-model.md        # Phase 1 output (/plan command - ✓ complete)
-├── quickstart.md        # Phase 1 output (/plan command - ✓ complete)
-├── contracts/           # Phase 1 output (/plan command - ✓ complete)
-│   ├── add-stock.yaml
-│   ├── remove-stock.yaml
-│   └── move-stock.yaml
+specs/[###-feature]/
+├── plan.md              # This file (/plan command output)
+├── research.md          # Phase 0 output (/plan command)
+├── data-model.md        # Phase 1 output (/plan command)
+├── quickstart.md        # Phase 1 output (/plan command)
+├── contracts/           # Phase 1 output (/plan command)
 └── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
 ```
 
@@ -119,222 +117,235 @@ specs/006-add-remove-stock/
 backend/
 ├── src/
 │   ├── models/
-│   │   ├── stock_transaction.py      # Extend with lot_id, price_per_unit
-│   │   └── component_location.py     # Add pessimistic locking logic
+│   │   └── stock_transaction.py (extend with lot_id, price_per_unit, total_price)
+│   ├── schemas/
+│   │   └── stock_operations.py (add/remove/move request/response models)
 │   ├── services/
-│   │   └── stock_operations.py       # New: add/remove/move business logic
-│   ├── api/
-│   │   └── stock_operations.py       # New: three endpoints with admin guards
-│   └── schemas/
-│       └── stock_operations.py       # New: Pydantic request/response models
+│   │   ├── stock_operations_service.py (business logic, locking, weighted avg)
+│   │   └── stock_history_service.py (pagination, export CSV/Excel/JSON)
+│   └── api/
+│       └── v1/
+│           ├── stock.py (POST /components/{id}/stock/add|remove|move)
+│           └── stock_history.py (GET /components/{id}/stock/history, /export)
+├── migrations/
+│   └── versions/
+│       └── YYYYMMDD_HHMM_add_lot_pricing_to_stock_transactions.py
 └── tests/
     ├── contract/
-    │   ├── test_add_stock.py          # New: contract tests from add-stock.yaml
-    │   ├── test_remove_stock.py       # New: contract tests from remove-stock.yaml
-    │   └── test_move_stock.py         # New: contract tests from move-stock.yaml
+    │   ├── test_add_stock.py
+    │   ├── test_remove_stock.py
+    │   ├── test_move_stock.py
+    │   └── test_stock_history.py
     ├── integration/
-    │   ├── test_add_stock_scenarios.py    # New: 6 user story scenarios
-    │   ├── test_remove_stock_scenarios.py # New: 5 user story scenarios
-    │   └── test_move_stock_scenarios.py   # New: 7 user story scenarios
+    │   ├── test_add_stock_scenarios.py
+    │   ├── test_remove_stock_scenarios.py
+    │   ├── test_move_stock_scenarios.py
+    │   └── test_stock_history_scenarios.py
     └── unit/
-        ├── test_stock_operations_service.py  # New: business logic tests
-        └── test_locking.py                    # New: pessimistic locking tests
+        ├── test_stock_operations_service.py (weighted avg, locking, validation)
+        └── test_stock_history_service.py (pagination, export formats)
 
 frontend/
 ├── src/
 │   ├── components/
 │   │   ├── stock/
-│   │   │   ├── AddStockForm.vue       # New: inline multi-step form
-│   │   │   ├── RemoveStockForm.vue    # New: inline simple form
-│   │   │   └── MoveStockForm.vue      # New: inline location selector form
-│   │   └── ComponentList.vue          # Modify: add stock operation tabs
+│   │   │   ├── AddStockForm.vue (multi-step inline form)
+│   │   │   ├── RemoveStockForm.vue (simplified inline form)
+│   │   │   ├── MoveStockForm.vue (source/dest selector inline form)
+│   │   │   └── StockHistoryTable.vue (paginated, sortable, export buttons)
+│   │   └── components/
+│   │       └── ComponentRowExpansion.vue (updated with stock operation menu)
 │   ├── services/
-│   │   └── stockOperations.ts         # New: API client for stock operations
+│   │   ├── stockOperations.ts (API client for add/remove/move)
+│   │   └── stockHistory.ts (API client for history/export)
 │   └── stores/
-│       └── stockHistory.ts            # New: Pinia store for history tracking
+│       └── stockOperations.ts (Pinia store for operation state)
 └── tests/
     └── components/
-        ├── AddStockForm.spec.ts       # New: component tests
-        ├── RemoveStockForm.spec.ts    # New: component tests
-        └── MoveStockForm.spec.ts      # New: component tests
+        ├── AddStockForm.spec.ts
+        ├── RemoveStockForm.spec.ts
+        ├── MoveStockForm.spec.ts
+        └── StockHistoryTable.spec.ts
+
+docs/
+├── api/
+│   └── stock-operations.md (API endpoint documentation)
+└── user/
+    └── stock-operations.md (user guide for stock management)
 ```
 
-**Structure Decision**: Web application structure with separate backend/ and frontend/ directories. Backend uses layered architecture (models → services → API). Frontend uses component-based architecture with Pinia for state management. Stock operation forms implemented as inline components within ComponentList.vue expanded rows, not as separate modal dialogs or pages.
+**Structure Decision**: Web application with separate backend (FastAPI) and frontend (Vue.js/Quasar). Backend uses existing repository structure with SQLAlchemy models, Pydantic schemas, service layer, and API routes. Frontend follows existing component/service/store pattern. Tests organized by tier (contract/integration/unit).
 
 ## Phase 0: Outline & Research
-✓ **Complete** - See [research.md](research.md)
+1. **Extract unknowns from Technical Context** above:
+   - For each NEEDS CLARIFICATION → research task
+   - For each dependency → best practices task
+   - For each integration → patterns task
 
-**Research Areas Completed**:
-1. **Inline Form Rendering in Vue 3 + Quasar**
-   - Decision: Tab-based inline forms within expanded rows (existing ComponentList.vue pattern)
-   - Rationale: Spec requires inline forms; existing infrastructure supports this
+2. **Generate and dispatch research agents**:
+   ```
+   For each unknown in Technical Context:
+     Task: "Research {unknown} for {feature context}"
+   For each technology choice:
+     Task: "Find best practices for {tech} in {domain}"
+   ```
 
-2. **SQLAlchemy Pessimistic Locking**
-   - Decision: `with_for_update(nowait=False)` for blocking row-level locks
-   - Rationale: Prevents concurrent modifications; spec explicitly requires pessimistic locking
+3. **Consolidate findings** in `research.md` using format:
+   - Decision: [what was chosen]
+   - Rationale: [why chosen]
+   - Alternatives considered: [what else evaluated]
 
-3. **Stock History Tracking**
-   - Decision: Extend existing StockTransaction model with lot_id and price fields
-   - Rationale: Model already exists with immutable audit trail
-
-4. **Multi-Step Form State Management**
-   - Decision: Local ref-based state; Pinia only for server communication
-   - Rationale: Simpler than global state for ephemeral UI data
-
-5. **Atomic Stock Transfers**
-   - Decision: Database transactions with pessimistic locks on both locations
-   - Rationale: ACID compliance ensures both operations succeed or both fail
-
-6. **Auto-Capping Validation**
-   - Decision: Client-side auto-capping with visual feedback + server-side validation
-   - Rationale: Spec requires automatic capping; defense in depth approach
-
-**Key Findings**:
-- ComponentList.vue already has inline expansion with tab navigation (lines 370-945)
-- StockTransaction model exists with core fields; needs minor extensions
-- Testing framework established (in-memory SQLite via conftest.py)
-- Pessimistic locking will be new pattern (current code uses optimistic locking)
+**Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
-✓ **Complete** - See design artifacts below
+*Prerequisites: research.md complete*
 
-### 1. Data Model (data-model.md)
-**Entities**:
-- **StockTransaction** (extend existing): Add `lot_id`, `price_per_unit`, `total_price`
-- **ComponentLocation** (existing): Document pessimistic locking strategy
+1. **Extract entities from feature spec** → `data-model.md`:
+   - Entity name, fields, relationships
+   - Validation rules from requirements
+   - State transitions if applicable
 
-**State Transitions**:
-- Add Stock: Create StockTransaction → Update/Create ComponentLocation → Update Component.total_quantity
-- Remove Stock: Create StockTransaction (negative qty) → Update ComponentLocation → Delete if zero → Update total
-- Move Stock: Create 2 StockTransactions → Update/Delete source → Update/Create destination → Validate total unchanged
+2. **Generate API contracts** from functional requirements:
+   - For each user action → endpoint
+   - Use standard REST/GraphQL patterns
+   - Output OpenAPI/GraphQL schema to `/contracts/`
 
-**Validation Rules**:
-- Auto-cap removal/move quantities at available stock (FR-017, FR-029)
-- Prevent same source/destination for moves (FR-031)
-- Atomic operations with pessimistic locking (FR-033, FR-041-042)
-- Zero-quantity cleanup (FR-021, FR-035)
+3. **Generate contract tests** from contracts:
+   - One test file per endpoint
+   - Assert request/response schemas
+   - Tests must fail (no implementation yet)
 
-### 2. API Contracts (contracts/)
-**Three OpenAPI 3.0 Specifications**:
-1. **POST /api/v1/components/{component_id}/stock/add** (add-stock.yaml)
-   - Request: quantity, location_id, pricing (optional), lot_id (optional), comments
-   - Response: updated stock, history entry, 200/400/403/404/409
+4. **Extract test scenarios** from user stories:
+   - Each story → integration test scenario
+   - Quickstart test = story validation steps
 
-2. **POST /api/v1/components/{component_id}/stock/remove** (remove-stock.yaml)
-   - Request: location_id, quantity, comments, reason
-   - Response: updated stock, capped flag, location_deleted flag, 200/400/403/404/409
+5. **Update agent file incrementally** (O(1) operation):
+   - Run `.specify/scripts/bash/update-agent-context.sh claude`
+     **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
+   - If exists: Add only NEW tech from current plan
+   - Preserve manual additions between markers
+   - Update recent changes (keep last 3)
+   - Keep under 150 lines for token efficiency
+   - Output to repository root
 
-3. **POST /api/v1/components/{component_id}/stock/move** (move-stock.yaml)
-   - Request: source_location_id, destination_location_id, quantity, comments
-   - Response: source/destination state, pricing inheritance, 200/400/403/404/409
-
-**All contracts include**:
-- Admin JWT bearer token security
-- Comprehensive error responses
-- Multiple examples (success, auto-capping, errors)
-- Detailed operation descriptions
-
-### 3. Quickstart Guide (quickstart.md)
-**Test Scenarios**:
-1. Add stock manually with pricing (UI + API testing)
-2. Remove stock with auto-capping validation
-3. Move stock atomically between locations
-4. Test concurrent operations (pessimistic locking)
-
-**Validation Checks**:
-- Total quantity consistency across locations
-- Stock history recorded correctly
-- No negative quantities
-- Locks prevent concurrent modifications
-
-### 4. Agent Context (CLAUDE.md)
-✓ Updated with new feature context (stock operations, pessimistic locking)
+**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
 
 ## Phase 2: Task Planning Approach
 *This section describes what the /tasks command will do - DO NOT execute during /plan*
 
 **Task Generation Strategy**:
-1. Load `.specify/templates/tasks-template.md` as base template
-2. Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-3. Task categories:
-   - **Database Migration**: Alembic migration for StockTransaction extensions
-   - **Contract Tests** (3 tasks): One per endpoint from OpenAPI specs
-   - **Backend Models** (2 tasks): Extend StockTransaction, add locking to ComponentLocation
-   - **Backend Services** (3 tasks): Add/remove/move business logic with locking
-   - **Backend API** (3 tasks): Three endpoints with admin guards
-   - **Integration Tests** (3 tasks): User story scenarios for each operation
-   - **Frontend Services** (1 task): API client for stock operations
-   - **Frontend Components** (3 tasks): AddStockForm, RemoveStockForm, MoveStockForm
-   - **Frontend Integration** (1 task): Wire forms into ComponentList.vue tabs
-   - **Component Tests** (3 tasks): Vitest tests for each form component
-   - **Documentation** (2 tasks): API docs update, user guide additions
-   - **Manual Testing** (1 task): Execute quickstart.md validation
+1. **Database Layer** (T001-T002):
+   - T001: Create Alembic migration for StockTransaction extensions (lot_id, price_per_unit, total_price) [P]
+   - T002: Create Pydantic schemas for stock operations (AddStockRequest, RemoveStockRequest, MoveStockRequest, StockHistoryResponse) [P]
 
-**Ordering Strategy (TDD + Dependency)**:
-1. Database migration (prerequisite for all)
-2. Contract tests (define API contracts) [P]
-3. Backend models (StockTransaction, ComponentLocation) [P]
-4. Backend services (business logic with locking)
-5. Backend API endpoints (wire services to routes) [P]
-6. Integration tests (validate user stories)
-7. Frontend API client (connect to backend)
-8. Frontend form components [P]
-9. Frontend integration (wire into ComponentList)
-10. Component tests [P]
-11. Documentation updates [P]
-12. Manual testing (quickstart validation)
+2. **Contract Tests** (T003-T006) - TDD Red Phase:
+   - T003: test_add_stock.py - POST /api/v1/components/{id}/stock/add [P]
+   - T004: test_remove_stock.py - POST /api/v1/components/{id}/stock/remove [P]
+   - T005: test_move_stock.py - POST /api/v1/components/{id}/stock/move [P]
+   - T006: test_stock_history.py - GET /api/v1/components/{id}/stock/history with pagination [P]
+   - T007: test_stock_history_export.py - GET /api/v1/components/{id}/stock/history/export (CSV/Excel/JSON) [P]
 
-**Parallelization**: Tasks marked [P] are independent and can run in parallel
+3. **Integration Tests** (T008-T011) - User Story Validation:
+   - T008: test_add_stock_scenarios.py - Add stock acceptance scenarios from spec [P]
+   - T009: test_remove_stock_scenarios.py - Remove stock acceptance scenarios with auto-capping [P]
+   - T010: test_move_stock_scenarios.py - Move stock scenarios with weighted avg pricing [P]
+   - T011: test_stock_history_scenarios.py - History pagination and export scenarios [P]
 
-**Estimated Output**: 28-32 numbered, dependency-ordered tasks in tasks.md
+4. **Unit Tests** (T012-T013) - Business Logic:
+   - T012: test_stock_operations_service.py - Locking, validation, weighted avg calculation [P]
+   - T013: test_stock_history_service.py - Pagination logic, export format generation [P]
+
+5. **Backend Implementation** (T014-T018) - TDD Green Phase:
+   - T014: Implement StockOperationsService (add/remove/move with pessimistic locking, weighted avg)
+   - T015: Implement StockHistoryService (pagination, export CSV/Excel/JSON)
+   - T016: Implement POST /api/v1/components/{id}/stock/add endpoint
+   - T017: Implement POST /api/v1/components/{id}/stock/remove endpoint
+   - T018: Implement POST /api/v1/components/{id}/stock/move endpoint
+   - T019: Implement GET /api/v1/components/{id}/stock/history endpoint (paginated)
+   - T020: Implement GET /api/v1/components/{id}/stock/history/export endpoint (multi-format)
+
+6. **Security Review** (T021):
+   - T021: Review admin-only access control, JWT validation, pessimistic locking security
+
+7. **Frontend Components** (T022-T027) - Vue.js/Quasar UI:
+   - T022: Create AddStockForm.vue (multi-step inline form with validation highlighting) [P]
+   - T023: Create RemoveStockForm.vue (simplified inline form with auto-cap feedback) [P]
+   - T024: Create MoveStockForm.vue (source/dest selector with weighted avg display) [P]
+   - T025: Create StockHistoryTable.vue (paginated, sortable, export buttons) [P]
+   - T026: Update ComponentRowExpansion.vue (add stock operation menu items)
+   - T027: Create stockOperations.ts service (API client) and Pinia store [P]
+
+8. **Frontend Component Tests** (T028-T031):
+   - T028: AddStockForm.spec.ts [P]
+   - T029: RemoveStockForm.spec.ts [P]
+   - T030: MoveStockForm.spec.ts [P]
+   - T031: StockHistoryTable.spec.ts [P]
+
+9. **Documentation** (T032-T034):
+   - T032: Create docs/api/stock-operations.md (API endpoint documentation)
+   - T033: Create docs/user/stock-operations.md (user guide for stock management)
+   - T034: Update main docs/api.md with stock operations overview
+
+10. **Validation & Integration** (T035-T036):
+    - T035: End-to-end test: Complete stock workflow (add → move → remove → export)
+    - T036: Performance validation: <200ms for operations, <50ms for history pagination
+
+**Ordering Strategy**:
+- TDD order: Contract tests (T003-T007) → Integration tests (T008-T011) → Unit tests (T012-T013) → Implementation (T014-T020)
+- Dependency order: Database migration (T001) → Schemas (T002) → Tests (T003-T013) → Services (T014-T015) → API (T016-T020) → Frontend (T022-T027)
+- Parallelizable tasks marked [P] (independent files, no shared state)
+
+**Estimated Output**: ~36 numbered, ordered tasks in tasks.md
+
+**Key Constitutional Compliance**:
+- Principle II (TDD): All tests written BEFORE implementation (T003-T013 before T014-T020)
+- Principle VI (Test Isolation): All tests use in-memory SQLite, no shared state
+- Principle VII (Docs): Documentation tasks (T032-T034) included in same workflow
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
 *These phases are beyond the scope of the /plan command*
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)
+**Phase 3**: Task execution (/tasks command creates tasks.md)  
+**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking
 *Fill ONLY if Constitution Check has violations that must be justified*
 
-No constitutional violations detected. All requirements align with PartsHub principles:
-- API-first design with OpenAPI contracts
-- TDD workflow (tests before implementation)
-- Admin-only tiered access control
-- Pessimistic locking for concurrent safety (new pattern but constitutionally sound)
-- Isolated testing with in-memory SQLite
-- Documentation updates included in same PR
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+
 
 ## Progress Tracking
 *This checklist is updated during execution flow*
 
 **Phase Status**:
-- [x] Phase 0: Research complete (/plan command)
-- [x] Phase 1: Design complete (/plan command)
-- [x] Phase 2: Task planning complete (/plan command - describe approach only)
+- [x] Phase 0: Research complete (/plan command) - SKIPPED (no NEEDS CLARIFICATION in Technical Context)
+- [x] Phase 1: Design complete (/plan command) - data-model.md, contracts/, CLAUDE.md updated
+- [x] Phase 2: Task planning complete (/plan command - approach documented, ~36 tasks planned)
 - [ ] Phase 3: Tasks generated (/tasks command)
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
-- [x] Initial Constitution Check: PASS
-- [x] Post-Design Constitution Check: PASS
-- [x] All NEEDS CLARIFICATION resolved (Session 2025-10-04 with 6 clarifications)
-- [x] Complexity deviations documented (none - no violations)
+- [x] Initial Constitution Check: PASS (all 7 principles satisfied)
+- [x] Post-Design Constitution Check: PASS (all constitutional requirements addressed in design)
+- [x] All NEEDS CLARIFICATION resolved (no unknowns in Technical Context)
+- [x] Complexity deviations documented (none - standard patterns used)
 
 **Artifacts Generated**:
-- [x] research.md (6 technical decisions)
-- [x] data-model.md (StockTransaction + ComponentLocation)
-- [x] contracts/add-stock.yaml (OpenAPI 3.0)
-- [x] contracts/remove-stock.yaml (OpenAPI 3.0)
-- [x] contracts/move-stock.yaml (OpenAPI 3.0)
-- [x] quickstart.md (testing guide)
-- [x] CLAUDE.md (updated with feature context)
+- [x] plan.md (this file)
+- [x] data-model.md (existing, validated)
+- [x] contracts/add-stock.yaml (existing)
+- [x] contracts/remove-stock.yaml (existing)
+- [x] contracts/move-stock.yaml (existing)
+- [x] contracts/stock-history.yaml (NEW - pagination support)
+- [x] contracts/stock-history-export.yaml (NEW - CSV/Excel/JSON export)
+- [x] CLAUDE.md updated (incremental O(1) update with new feature context)
 
 ---
 *Based on Constitution v1.2.0 - See `.specify/memory/constitution.md`*
-
-**Next Command**: Run `/tasks` to generate dependency-ordered tasks.md from this plan.

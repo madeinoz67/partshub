@@ -24,15 +24,23 @@ class TestMoveStockContract:
         # Create two storage locations
         location_a_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location A", "description": "Source location", "type": "drawer"},
-            headers=auth_headers
+            json={
+                "name": "Location A",
+                "description": "Source location",
+                "type": "drawer",
+            },
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location B", "description": "Destination location", "type": "drawer"},
-            headers=auth_headers
+            json={
+                "name": "Location B",
+                "description": "Destination location",
+                "type": "drawer",
+            },
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -44,7 +52,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Add stock to location B (so it's an existing ComponentLocation)
@@ -55,7 +63,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request_b,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Move stock from A to B
@@ -63,13 +71,13 @@ class TestMoveStockContract:
             "source_location_id": location_a_id,
             "destination_location_id": location_b_id,
             "quantity": 25,
-            "comments": "Moving to primary storage"
+            "comments": "Moving to primary storage",
         }
 
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -108,14 +116,18 @@ class TestMoveStockContract:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "description": "Source", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_c_resp = client.post(
             "/api/v1/storage-locations",
-            json={"name": "Location C", "description": "New destination", "type": "drawer"},
-            headers=auth_headers
+            json={
+                "name": "Location C",
+                "description": "New destination",
+                "type": "drawer",
+            },
+            headers=auth_headers,
         )
         location_c_id = location_c_resp.json()["id"]
 
@@ -128,7 +140,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Move all stock to location C (creates new ComponentLocation)
@@ -136,13 +148,13 @@ class TestMoveStockContract:
             "source_location_id": location_a_id,
             "destination_location_id": location_c_id,
             "quantity": 30,
-            "comments": "Creating new stock entry at Lab B"
+            "comments": "Creating new stock entry at Lab B",
         }
 
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -170,14 +182,14 @@ class TestMoveStockContract:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location B", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -189,7 +201,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Add some stock to destination
@@ -200,7 +212,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request_b,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Try to move 50 (more than available)
@@ -213,7 +225,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -224,7 +236,10 @@ class TestMoveStockContract:
         assert data["requested_quantity"] == 50
         assert data["capped"] is True
         assert data["source_location_deleted"] is True
-        assert "auto-capped" in data["message"].lower() or "capped" in data["message"].lower()
+        assert (
+            "auto-capped" in data["message"].lower()
+            or "capped" in data["message"].lower()
+        )
 
     def test_move_stock_validation_error_same_location(
         self, client: TestClient, db_session, auth_headers, sample_component_data
@@ -239,7 +254,7 @@ class TestMoveStockContract:
         location_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -251,7 +266,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Try to move to same location
@@ -264,7 +279,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 422  # Pydantic validation error
@@ -285,14 +300,14 @@ class TestMoveStockContract:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location B", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -306,7 +321,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 422  # Pydantic validation error
@@ -325,14 +340,14 @@ class TestMoveStockContract:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location B", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -348,7 +363,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404  # ComponentLocation not found at source
@@ -373,7 +388,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=user_auth_headers
+            headers=user_auth_headers,
         )
 
         assert response.status_code in [403, 404]
@@ -395,7 +410,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{fake_component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404
@@ -415,7 +430,7 @@ class TestMoveStockContract:
         location_b_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location B", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -430,13 +445,15 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404
         data = response.json()
         assert "detail" in data
-        assert "source" in data["detail"].lower() or "not found" in data["detail"].lower()
+        assert (
+            "source" in data["detail"].lower() or "not found" in data["detail"].lower()
+        )
 
     def test_move_stock_not_found_destination_location_not_exist(
         self, client: TestClient, db_session, auth_headers, sample_component_data
@@ -452,7 +469,7 @@ class TestMoveStockContract:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
@@ -464,7 +481,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         fake_location_b_id = "00000000-0000-0000-0000-000000000000"
@@ -478,13 +495,16 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404
         data = response.json()
         assert "detail" in data
-        assert "destination" in data["detail"].lower() or "not found" in data["detail"].lower()
+        assert (
+            "destination" in data["detail"].lower()
+            or "not found" in data["detail"].lower()
+        )
 
     def test_move_stock_conflict_locked_locations(
         self, client: TestClient, db_session, auth_headers, sample_component_data
@@ -499,14 +519,14 @@ class TestMoveStockContract:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location B", "type": "drawer"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -518,7 +538,7 @@ class TestMoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         move_stock_request = {
@@ -530,7 +550,7 @@ class TestMoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/move",
             json=move_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Endpoint doesn't exist yet, will fail with 404
@@ -550,8 +570,7 @@ class TestMoveStockContract:
         }
 
         response = client.post(
-            f"/api/v1/components/{component_id}/stock/move",
-            json=move_stock_request
+            f"/api/v1/components/{component_id}/stock/move", json=move_stock_request
         )
 
         assert response.status_code in [401, 404]

@@ -1,6 +1,6 @@
 # partshub Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2025-09-27
+Auto-generated from all feature plans. Last updated: 2025-10-05
 
 ## Active Technologies
 - Python 3.11+ with FastAPI backend
@@ -18,6 +18,7 @@ Auto-generated from all feature plans. Last updated: 2025-09-27
 - N/A - Documentation files only (004-docker-and-user)
 - Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend); Quasar Framework, Pinia (frontend) (005-improve-component-functions)
 - SQLite with SQLAlchemy ORM (existing components, projects, tags tables) (005-improve-component-functions)
+- SQLite with SQLAlchemy ORM (existing stock_transactions table extended with lot_id, price_per_unit, total_price fields) (006-add-remove-stock)
 
 ## Project Structure
 ```
@@ -51,10 +52,12 @@ make docs         # Start documentation server
 - Run tests locally: `cd backend && uv run pytest`
 
 ## Recent Changes
-- 006-add-remove-stock: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+- 006-add-remove-stock: Implemented advanced stock management with atomic, admin-only operations
+- 006-add-remove-stock: Added pessimistic locking for concurrent stock modifications
+- 006-add-remove-stock: Implemented inline forms for stock operations in component row expansion
+- 006-add-remove-stock: Added comprehensive stock history tracking with export capabilities
+- 006-add-remove-stock: Implemented validation UX with real-time error highlighting
 - 005-improve-component-functions: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend); Quasar Framework, Pinia (frontend)
-- 004-docker-and-user: Added Markdown, MkDocs (Python 3.11 for docs server) + MkDocs, Docker, existing PartsHub infrastructure
-
 
 <!-- MANUAL ADDITIONS START -->
 

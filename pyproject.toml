@@ -33,6 +33,7 @@ dependencies = [
     "python-magic>=0.4.27",
     "easyeda2kicad>=0.8.0",
     "anyio>=4.4.0",  # Override fastapi constraint for PVE-2024-71199 fix
+    "openpyxl>=3.1.0",  # Excel export for stock history
 ]
 
 [project.optional-dependencies]

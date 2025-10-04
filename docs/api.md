@@ -44,7 +44,9 @@ PartsHub provides a RESTful API for electronic component inventory management. T
 | `/components/bulk/low-stock/set` | POST | Set low-stock thresholds | 🚧 Stub |
 | `/components/bulk/attribution/set` | POST | Set attribution metadata | 🚧 Stub |
 
-**📖 Complete Documentation**: See [Bulk Operations API Guide](api/bulk-operations.md) for detailed endpoint documentation, examples, and error handling.
+**📖 Complete Documentation**:
+- [Bulk Operations API Guide](api/bulk-operations.md)
+- [Stock Operations API Guide](api/stock-operations.md)
 
 **Quick Example**:
 ```bash

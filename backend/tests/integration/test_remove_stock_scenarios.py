@@ -5,6 +5,7 @@ Tests user scenarios (lines 66-70) with end-to-end workflows
 
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.src.models import ComponentLocation, StockTransaction, TransactionType
 
 
@@ -13,8 +14,12 @@ class TestRemoveStockScenarios:
     """Integration tests for Remove Stock acceptance scenarios"""
 
     def test_scenario_1_inline_form_with_location_quantity_display(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """
         Scenario 1: Given a component row is expanded and has stock in one or more locations,
@@ -29,7 +34,9 @@ class TestRemoveStockScenarios:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -41,13 +48,12 @@ class TestRemoveStockScenarios:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Verify backend provides data for form display (GET component with locations)
         response = client.get(
-            f"/api/v1/components/{component_id}",
-            headers=auth_headers
+            f"/api/v1/components/{component_id}", headers=auth_headers
         )
         assert response.status_code == 200
         component_data = response.json()
@@ -56,8 +62,12 @@ class TestRemoveStockScenarios:
         assert component_data["quantity_on_hand"] >= 100
 
     def test_scenario_2_quantity_validation_against_available_stock(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """
         Scenario 2: Given remove stock form is open in the expanded row,
@@ -71,7 +81,9 @@ class TestRemoveStockScenarios:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -83,19 +95,19 @@ class TestRemoveStockScenarios:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Test valid removal (within available stock)
         remove_valid = {
             "location_id": location_id,
             "quantity": 25,
-            "comments": "Valid removal within stock"
+            "comments": "Valid removal within stock",
         }
         response_valid = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_valid,
-            headers=auth_headers
+            headers=auth_headers,
         )
         assert response_valid.status_code == 200
         assert response_valid.json()["quantity_removed"] == 25
@@ -104,12 +116,12 @@ class TestRemoveStockScenarios:
         remove_exceed = {
             "location_id": location_id,
             "quantity": 100,  # More than remaining 25
-            "comments": "Exceeds available stock"
+            "comments": "Exceeds available stock",
         }
         response_exceed = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_exceed,
-            headers=auth_headers
+            headers=auth_headers,
         )
         assert response_exceed.status_code == 200
         data = response_exceed.json()
@@ -117,8 +129,12 @@ class TestRemoveStockScenarios:
         assert data["capped"] is True
 
     def test_scenario_3_stock_reduction_and_total_update(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """
         Scenario 3: Given user enters valid quantity and optional comments,
@@ -134,14 +150,14 @@ class TestRemoveStockScenarios:
         location_a_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location A"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_a_id = location_a_resp.json()["id"]
 
         location_b_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location B"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_b_id = location_b_resp.json()["id"]
 
@@ -149,24 +165,24 @@ class TestRemoveStockScenarios:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json={"location_id": location_a_id, "quantity": 100},
-            headers=auth_headers
+            headers=auth_headers,
         )
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json={"location_id": location_b_id, "quantity": 50},
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Remove stock from location A
         remove_request = {
             "location_id": location_a_id,
             "quantity": 30,
-            "comments": "Used in assembly"
+            "comments": "Used in assembly",
         }
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
         assert response.status_code == 200
         data = response.json()
@@ -180,15 +196,23 @@ class TestRemoveStockScenarios:
         assert data["total_stock"] == 120  # 70 + 50
 
         # Verify database state
-        comp_location = db_session.query(ComponentLocation).filter(
-            ComponentLocation.component_id == component_id,
-            ComponentLocation.storage_location_id == location_a_id
-        ).first()
+        comp_location = (
+            db_session.query(ComponentLocation)
+            .filter(
+                ComponentLocation.component_id == component_id,
+                ComponentLocation.storage_location_id == location_a_id,
+            )
+            .first()
+        )
         assert comp_location.quantity_on_hand == 70
 
     def test_scenario_4_zero_quantity_cleanup(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """
         Scenario 4: Given user removes all stock from a location,
@@ -202,7 +226,9 @@ class TestRemoveStockScenarios:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -210,14 +236,18 @@ class TestRemoveStockScenarios:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json={"location_id": location_id, "quantity": 50},
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Verify ComponentLocation exists
-        comp_location_before = db_session.query(ComponentLocation).filter(
-            ComponentLocation.component_id == component_id,
-            ComponentLocation.storage_location_id == location_id
-        ).first()
+        comp_location_before = (
+            db_session.query(ComponentLocation)
+            .filter(
+                ComponentLocation.component_id == component_id,
+                ComponentLocation.storage_location_id == location_id,
+            )
+            .first()
+        )
         assert comp_location_before is not None
         assert comp_location_before.quantity_on_hand == 50
 
@@ -225,12 +255,12 @@ class TestRemoveStockScenarios:
         remove_all_request = {
             "location_id": location_id,
             "quantity": 50,
-            "comments": "Clearing location"
+            "comments": "Clearing location",
         }
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_all_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
         assert response.status_code == 200
         data = response.json()
@@ -242,17 +272,25 @@ class TestRemoveStockScenarios:
 
         # Verify ComponentLocation record was deleted
         db_session.expire_all()  # Clear session cache
-        comp_location_after = db_session.query(ComponentLocation).filter(
-            ComponentLocation.component_id == component_id,
-            ComponentLocation.storage_location_id == location_id
-        ).first()
+        comp_location_after = (
+            db_session.query(ComponentLocation)
+            .filter(
+                ComponentLocation.component_id == component_id,
+                ComponentLocation.storage_location_id == location_id,
+            )
+            .first()
+        )
         assert comp_location_after is None
 
         # Verify transaction was still created (audit trail)
-        transaction = db_session.query(StockTransaction).filter(
-            StockTransaction.component_id == component_id,
-            StockTransaction.transaction_type == TransactionType.REMOVE
-        ).first()
+        transaction = (
+            db_session.query(StockTransaction)
+            .filter(
+                StockTransaction.component_id == component_id,
+                StockTransaction.transaction_type == TransactionType.REMOVE,
+            )
+            .first()
+        )
         assert transaction is not None
         assert transaction.quantity_change == -50
 
@@ -268,14 +306,14 @@ class TestRemoveStockScenarios:
         component_a_resp = client.post(
             "/api/v1/components",
             json={"name": "Component A", "quantity_on_hand": 0, "minimum_stock": 0},
-            headers=auth_headers
+            headers=auth_headers,
         )
         component_a_id = component_a_resp.json()["id"]
 
         component_b_resp = client.post(
             "/api/v1/components",
             json={"name": "Component B", "quantity_on_hand": 0, "minimum_stock": 0},
-            headers=auth_headers
+            headers=auth_headers,
         )
         component_b_id = component_b_resp.json()["id"]
 
@@ -283,14 +321,14 @@ class TestRemoveStockScenarios:
         location_1_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location 1"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_1_id = location_1_resp.json()["id"]
 
         location_2_resp = client.post(
             "/api/v1/storage-locations",
             json={"name": "Location 2"},
-            headers=auth_headers
+            headers=auth_headers,
         )
         location_2_id = location_2_resp.json()["id"]
 
@@ -298,19 +336,19 @@ class TestRemoveStockScenarios:
         client.post(
             f"/api/v1/components/{component_a_id}/stock/add",
             json={"location_id": location_1_id, "quantity": 100},
-            headers=auth_headers
+            headers=auth_headers,
         )
         client.post(
             f"/api/v1/components/{component_b_id}/stock/add",
             json={"location_id": location_2_id, "quantity": 200},
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Remove from Component A only
         response_a = client.post(
             f"/api/v1/components/{component_a_id}/stock/remove",
             json={"location_id": location_1_id, "quantity": 25},
-            headers=auth_headers
+            headers=auth_headers,
         )
         assert response_a.status_code == 200
         assert response_a.json()["component_id"] == component_a_id
@@ -320,19 +358,23 @@ class TestRemoveStockScenarios:
         response_b = client.post(
             f"/api/v1/components/{component_b_id}/stock/remove",
             json={"location_id": location_2_id, "quantity": 50},
-            headers=auth_headers
+            headers=auth_headers,
         )
         assert response_b.status_code == 200
         assert response_b.json()["component_id"] == component_b_id
         assert response_b.json()["quantity_removed"] == 50
 
         # Verify each component's stock was updated independently
-        comp_a_location = db_session.query(ComponentLocation).filter(
-            ComponentLocation.component_id == component_a_id
-        ).first()
+        comp_a_location = (
+            db_session.query(ComponentLocation)
+            .filter(ComponentLocation.component_id == component_a_id)
+            .first()
+        )
         assert comp_a_location.quantity_on_hand == 75  # 100 - 25
 
-        comp_b_location = db_session.query(ComponentLocation).filter(
-            ComponentLocation.component_id == component_b_id
-        ).first()
+        comp_b_location = (
+            db_session.query(ComponentLocation)
+            .filter(ComponentLocation.component_id == component_b_id)
+            .first()
+        )
         assert comp_b_location.quantity_on_hand == 150  # 200 - 50

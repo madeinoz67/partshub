@@ -11,27 +11,28 @@
    → ✓ Structure: Web application (backend/ + frontend/)
 2. Load optional design documents:
    → ✓ data-model.md: StockTransaction + ComponentLocation entities
-   → ✓ contracts/: 3 OpenAPI specs (add, remove, move stock)
+   → ✓ contracts/: 5 OpenAPI specs (add, remove, move stock + history pagination + export)
    → ✓ research.md: 6 technical decisions (locking, inline forms, etc.)
 3. Generate tasks by category:
    → Setup: Database migration, Pydantic schemas
-   → Tests: 3 contract tests, 3 integration test suites, unit tests
-   → Core: Backend services, API endpoints
-   → Frontend: 3 inline form components, API client, integration
+   → Tests: 5 contract tests (add/remove/move/history/export), 3 integration test suites, unit tests
+   → Core: Backend services (stock ops + history), 5 API endpoints
+   → Frontend: 4 components (3 forms + history table), API client, integration
    → Security: Admin-only access, SQL injection, locking vulnerabilities
-   → Polish: Component tests, documentation, manual validation
+   → Polish: Component tests (4 components), documentation, manual validation
 4. Apply task rules:
    → Different files = mark [P] for parallel
    → Same file = sequential (no [P])
    → Tests before implementation (TDD)
    → Security review before frontend implementation
-5. Number tasks sequentially (T001-T037)
+5. Number tasks sequentially (T001-T037 + T018A-T018F, T024A-T024C, T027A = 47 tasks total)
 6. Specialized agents: test, api, vue, db, security, docs, review
 7. Validate task completeness:
-   → ✓ All contracts have tests
+   → ✓ All contracts have tests (5 contracts: add/remove/move/history/export)
    → ✓ All entities have migrations
    → ✓ Security review included
-8. Return: SUCCESS (37 tasks ready for execution)
+   → ✓ Recent clarifications integrated (pagination, export, weighted avg)
+8. Return: SUCCESS (47 tasks ready for execution, 10 new tasks for Session 2025-10-05 clarifications)
 ```
 
 ## Format: `[ID] [P?] [Agent] Description`
@@ -228,6 +229,56 @@
   - **Validation**: T005 contract tests fully pass; same-location rejected; atomicity maintained
   - **Dependencies**: T015 (service implemented), T005 (tests failing)
 
+### Stock History & Export (Recent Clarifications - Session 2025-10-05)
+
+- [x] **T018A** [P] [test] Contract test for GET /api/v1/components/{id}/stock/history
+  - **Agent**: `test` (TDD testing expert)
+  - **File**: `backend/tests/contract/test_stock_history.py`
+  - **Task**: Write pytest contract tests from `contracts/stock-history.yaml` - test paginated response (10 entries/page per FR-045-048), sort functionality, pagination metadata (has_next, total_pages), admin/authenticated access
+  - **Reference**: `contracts/stock-history.yaml` OpenAPI spec
+  - **Validation**: Test fails (endpoint not implemented yet); covers pagination edge cases (empty, single page, multiple pages)
+  - **Dependencies**: T001 (migration)
+
+- [x] **T018B** [P] [test] Contract test for GET /api/v1/components/{id}/stock/history/export
+  - **Agent**: `test` (TDD testing expert)
+  - **File**: `backend/tests/contract/test_stock_history_export.py`
+  - **Task**: Write pytest contract tests from `contracts/stock-history-export.yaml` - test CSV/Excel/JSON export formats (per FR-059), verify content-type headers, validate complete data export (no pagination), admin-only access
+  - **Reference**: `contracts/stock-history-export.yaml` OpenAPI spec
+  - **Validation**: Test fails (endpoint not implemented yet); covers all 3 formats with proper headers
+  - **Dependencies**: T001 (migration)
+
+- [x] **T018C** [api] Implement stock history service with pagination
+  - **Agent**: `api` (FastAPI service layer expert)
+  - **File**: `backend/src/services/stock_history_service.py` (NEW)
+  - **Task**: Implement `get_paginated_history(component_id, page, page_size, sort_by, sort_order)` returning paginated StockTransaction entries (10/page default per FR-047), calculate pagination metadata, support sorting by created_at/quantity_change/transaction_type/user_name
+  - **Reference**: data-model.md "Stock History Pagination" section, FR-045-048
+  - **Validation**: T018A contract tests pass; pagination math correct; sorting works
+  - **Dependencies**: T011 (StockTransaction model), T018A (tests failing)
+
+- [x] **T018D** [api] Implement stock history export service (CSV/Excel/JSON)
+  - **Agent**: `api` (FastAPI service layer expert)
+  - **File**: `backend/src/services/stock_history_service.py`
+  - **Task**: Implement `export_history(component_id, format)` supporting CSV (text/csv), Excel/XLSX (openpyxl library), JSON formats per FR-059; include all history entries (no pagination); proper column headers matching FR-043
+  - **Reference**: contracts/stock-history-export.yaml, FR-059
+  - **Validation**: T018B contract tests pass; all 3 formats generate valid output; Excel opens in spreadsheet app
+  - **Dependencies**: T011 (StockTransaction model), T018B (tests failing)
+
+- [x] **T018E** [P] [api] Implement GET /api/v1/components/{id}/stock/history endpoint
+  - **Agent**: `api` (FastAPI routing expert)
+  - **File**: `backend/src/api/v1/stock_history.py` (NEW)
+  - **Task**: Create FastAPI endpoint calling `get_paginated_history` service; query params for page, page_size, sort_by, sort_order; return paginated response with metadata; authenticated access (not admin-only per FR-044)
+  - **Reference**: contracts/stock-history.yaml OpenAPI spec
+  - **Validation**: T018A contract tests fully pass; pagination works; default 10/page enforced
+  - **Dependencies**: T018C (service implemented), T018A (tests failing)
+
+- [x] **T018F** [P] [api] Implement GET /api/v1/components/{id}/stock/history/export endpoint
+  - **Agent**: `api` (FastAPI routing expert)
+  - **File**: `backend/src/api/v1/stock_history.py`
+  - **Task**: Create FastAPI endpoint calling `export_history` service; query param for format (csv/xlsx/json); return streaming response with proper content-type and filename headers; admin-only access per FR-059
+  - **Reference**: contracts/stock-history-export.yaml OpenAPI spec
+  - **Validation**: T018B contract tests fully pass; CSV downloads correctly; Excel opens; JSON parses
+  - **Dependencies**: T018D (service implemented), T018B (tests failing)
+
 ---
 
 ## Phase 3.4: Security Review
@@ -300,11 +351,37 @@
   - **Validation**: Forms display inline in expanded rows; multiple rows can have forms open simultaneously (FR-012, FR-023, FR-039); admin-only UI enforcement
   - **Dependencies**: T021, T022, T023 (form components ready)
 
+### Frontend Stock History Display (Recent Clarifications - Session 2025-10-05)
+
+- [x] **T024A** [vue] Create StockHistoryTable.vue paginated component
+  - **Agent**: `vue` (Vue/Quasar component expert)
+  - **File**: `frontend/src/components/stock/StockHistoryTable.vue`
+  - **Task**: Create paginated table component displaying stock history with columns: Date, Quantity (+/- indicator per FR-043), Location, Lot ID, Price, Comments, User; support sorting by any column per FR-044; pagination controls (10 entries/page per FR-047); export buttons (CSV/Excel/JSON per FR-059); update table on stock operation success per FR-045
+  - **Reference**: contracts/stock-history.yaml, FR-042-048, FR-059
+  - **Validation**: Table displays inline in component row expansion; pagination works; sorting works; export buttons trigger downloads
+  - **Dependencies**: T018E, T018F (API endpoints implemented), T020 (API client updated)
+
+- [x] **T024B** [vue] Update stockOperations.ts API client with history methods
+  - **Agent**: `vue` (Vue/TypeScript frontend expert)
+  - **File**: `frontend/src/services/stockOperations.ts`
+  - **Task**: Add methods: `getStockHistory(component_id, page, page_size, sort_by, sort_order)` and `exportStockHistory(component_id, format)` calling backend endpoints; proper TypeScript interfaces for pagination response; handle export file downloads with proper content-disposition
+  - **Reference**: contracts/stock-history.yaml, contracts/stock-history-export.yaml
+  - **Validation**: Type safety enforced; pagination metadata properly typed; export triggers browser download
+  - **Dependencies**: T018E, T018F (API endpoints implemented)
+
+- [x] **T024C** [vue] Integrate StockHistoryTable into ComponentList.vue expansion
+  - **Agent**: `vue` (Vue integration expert)
+  - **File**: `frontend/src/components/ComponentList.vue`
+  - **Task**: Add "Stock History" tab to component row expansion; import and render StockHistoryTable component; pass component_id prop; wire up refresh on stock operation success (T021-T023 success handlers should trigger history reload per FR-045)
+  - **Reference**: FR-042-044 (history display requirements)
+  - **Validation**: History table displays in expanded row alongside operation forms; table updates immediately after add/remove/move operations; accessible to all authenticated users (not admin-only per FR-044)
+  - **Dependencies**: T024A (StockHistoryTable component), T024B (API client updated)
+
 ---
 
 ## Phase 3.6: Frontend Tests
 
-- [ ] **T025** [P] [vue] Component tests for AddStockForm.vue
+- [x] **T025** [P] [vue] Component tests for AddStockForm.vue
   - **Agent**: `vue` (Vue testing expert)
   - **File**: `frontend/tests/components/AddStockForm.spec.ts`
   - **Task**: Write Vitest component tests: rendering, tab navigation, pricing calculation (per-unit * quantity = total), location selection, form submission, validation errors, cancel handling
@@ -312,7 +389,7 @@
   - **Validation**: All user interactions tested; pricing logic verified; form state isolated
   - **Dependencies**: T021 (component implemented)
 
-- [ ] **T026** [P] [vue] Component tests for RemoveStockForm.vue
+- [x] **T026** [P] [vue] Component tests for RemoveStockForm.vue
   - **Agent**: `vue` (Vue testing expert)
   - **File**: `frontend/tests/components/RemoveStockForm.spec.ts`
   - **Task**: Write Vitest component tests: rendering, auto-capping behavior (input > available → caps + shows notification), quantity validation, comments input, form submission, cancel
@@ -320,13 +397,21 @@
   - **Validation**: Auto-capping tested; visual feedback verified; edge cases covered
   - **Dependencies**: T022 (component implemented)
 
-- [ ] **T027** [P] [vue] Component tests for MoveStockForm.vue
+- [x] **T027** [P] [vue] Component tests for MoveStockForm.vue
   - **Agent**: `vue` (Vue testing expert)
   - **File**: `frontend/tests/components/MoveStockForm.spec.ts`
   - **Task**: Write Vitest component tests: rendering, destination options (existing + other), same-location prevention, auto-capping, quantity validation, form submission, cancel
   - **Reference**: spec.md Move Stock acceptance scenarios
   - **Validation**: Destination filtering tested; same-location rejected; edge cases covered
   - **Dependencies**: T023 (component implemented)
+
+- [x] **T027A** [P] [vue] Component tests for StockHistoryTable.vue
+  - **Agent**: `vue` (Vue testing expert)
+  - **File**: `frontend/tests/components/StockHistoryTable.spec.ts`
+  - **Task**: Write Vitest component tests: table rendering, pagination controls (10/page), sorting by columns, export button functionality (CSV/Excel/JSON), real-time updates on stock operations, empty state, loading state
+  - **Reference**: spec.md Stock History acceptance scenarios, FR-042-048
+  - **Validation**: Pagination tested; sorting tested; export buttons mocked; update behavior verified
+  - **Dependencies**: T024A (StockHistoryTable component implemented)
 
 ---
 
@@ -339,23 +424,23 @@
   - Usage documentation included for new features
   - Migration paths documented
 
-- [ ] **T028** [P] [docs] Update API documentation with stock operations endpoints
+- [x] **T028** [P] [docs] Update API documentation with stock operations endpoints
   - **Agent**: `docs` (technical documentation expert)
   - **File**: `docs/api/stock-operations.md` (new), `docs/api.md` (update index)
-  - **Task**: Create comprehensive API documentation for 3 stock operation endpoints using OpenAPI specs; include request/response examples, error codes, admin authentication requirement, atomic transaction behavior, auto-capping explanation
-  - **Reference**: contracts/ OpenAPI specs, quickstart.md
-  - **Validation**: All endpoints documented; examples match contracts; migration path from manual stock management explained
-  - **Dependencies**: T016-T018 (API implemented)
+  - **Task**: Create comprehensive API documentation for 5 stock operation endpoints using OpenAPI specs (add/remove/move operations + history pagination + export); include request/response examples, error codes, admin authentication requirements, atomic transaction behavior, auto-capping explanation, pagination details (10/page), export format examples (CSV/Excel/JSON)
+  - **Reference**: contracts/ OpenAPI specs (all 5), quickstart.md, FR-042-048, FR-059
+  - **Validation**: All 5 endpoints documented; examples match contracts; pagination and export features explained; migration path from manual stock management explained
+  - **Dependencies**: T016-T018, T018E-T018F (all API endpoints implemented)
 
-- [ ] **T029** [P] [docs] Create user guide for stock operations
+- [x] **T029** [P] [docs] Create user guide for stock operations
   - **Agent**: `docs` (user-facing documentation expert)
   - **File**: `docs/user/stock-operations.md` (new), `docs/user/features.md` (update)
-  - **Task**: Write user guide explaining: how to access stock operations (component row expansion), adding stock (manual vs order-based), removing stock (auto-cap behavior), moving stock (location selection), viewing stock history, troubleshooting common issues
+  - **Task**: Write user guide explaining: how to access stock operations (component row expansion), adding stock (manual vs order-based), removing stock (auto-cap behavior), moving stock (location selection), viewing stock history (paginated table, sorting, 10 entries/page), exporting history (CSV/Excel/JSON formats), troubleshooting common issues, validation UX (red highlights, disabled submit per FR-014-015)
   - **Reference**: spec.md user scenarios, quickstart.md test scenarios
   - **Validation**: Step-by-step instructions; screenshots/diagrams if applicable; admin-only access noted
   - **Dependencies**: T024 (frontend integration complete)
 
-- [ ] **T030** [P] [docs] Update CLAUDE.md with stock operations patterns
+- [x] **T030** [P] [docs] Update CLAUDE.md with stock operations patterns
   - **Agent**: `docs` (agent context documentation expert)
   - **File**: `CLAUDE.md`
   - **Task**: Add to "Recent Changes" section: stock operations feature with pessimistic locking pattern, inline forms in expanded rows, admin-only CRUD operations; keep under 150 lines (remove oldest entry if needed)

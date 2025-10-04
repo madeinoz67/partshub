@@ -3,12 +3,11 @@ Unit tests for pessimistic locking behavior based on research.md
 Tests SQLAlchemy's with_for_update() locking patterns for stock operations
 """
 
+
 import pytest
-import threading
-import time
 from sqlalchemy import select
-from sqlalchemy.exc import OperationalError
-from backend.src.models import ComponentLocation, Component, StorageLocation
+
+from backend.src.models import Component, ComponentLocation, StorageLocation
 
 
 @pytest.mark.unit
@@ -25,17 +24,14 @@ class TestPessimisticLocking:
             id="test-component-1",
             name="Test Component",
             quantity_on_hand=0,
-            minimum_stock=0
+            minimum_stock=0,
         )
-        storage_location = StorageLocation(
-            id="test-location-1",
-            name="Test Location"
-        )
+        storage_location = StorageLocation(id="test-location-1", name="Test Location")
         comp_location = ComponentLocation(
             id="test-comp-loc-1",
             component_id=component.id,
             storage_location_id=storage_location.id,
-            quantity_on_hand=100
+            quantity_on_hand=100,
         )
 
         db_session.add_all([component, storage_location, comp_location])
@@ -73,17 +69,14 @@ class TestPessimisticLocking:
             id="test-component-2",
             name="Test Component 2",
             quantity_on_hand=0,
-            minimum_stock=0
+            minimum_stock=0,
         )
-        storage_location = StorageLocation(
-            id="test-location-2",
-            name="Test Location 2"
-        )
+        storage_location = StorageLocation(id="test-location-2", name="Test Location 2")
         comp_location = ComponentLocation(
             id="test-comp-loc-2",
             component_id=component.id,
             storage_location_id=storage_location.id,
-            quantity_on_hand=50
+            quantity_on_hand=50,
         )
 
         db_session.add_all([component, storage_location, comp_location])
@@ -122,17 +115,14 @@ class TestPessimisticLocking:
             id="test-component-3",
             name="Test Component 3",
             quantity_on_hand=0,
-            minimum_stock=0
+            minimum_stock=0,
         )
-        storage_location = StorageLocation(
-            id="test-location-3",
-            name="Test Location 3"
-        )
+        storage_location = StorageLocation(id="test-location-3", name="Test Location 3")
         comp_location = ComponentLocation(
             id="test-comp-loc-3",
             component_id=component.id,
             storage_location_id=storage_location.id,
-            quantity_on_hand=75
+            quantity_on_hand=75,
         )
 
         db_session.add_all([component, storage_location, comp_location])
@@ -169,17 +159,14 @@ class TestPessimisticLocking:
             id="test-component-4",
             name="Test Component 4",
             quantity_on_hand=0,
-            minimum_stock=0
+            minimum_stock=0,
         )
-        storage_location = StorageLocation(
-            id="test-location-4",
-            name="Test Location 4"
-        )
+        storage_location = StorageLocation(id="test-location-4", name="Test Location 4")
         comp_location = ComponentLocation(
             id="test-comp-loc-4",
             component_id=component.id,
             storage_location_id=storage_location.id,
-            quantity_on_hand=100
+            quantity_on_hand=100,
         )
 
         db_session.add_all([component, storage_location, comp_location])
@@ -215,27 +202,21 @@ class TestPessimisticLocking:
             id="test-component-5",
             name="Test Component 5",
             quantity_on_hand=0,
-            minimum_stock=0
+            minimum_stock=0,
         )
-        location_a = StorageLocation(
-            id="location-a",
-            name="Location A"
-        )
-        location_b = StorageLocation(
-            id="location-b",
-            name="Location B"
-        )
+        location_a = StorageLocation(id="location-a", name="Location A")
+        location_b = StorageLocation(id="location-b", name="Location B")
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,
             storage_location_id=location_a.id,
-            quantity_on_hand=100
+            quantity_on_hand=100,
         )
         comp_loc_b = ComponentLocation(
             id="comp-loc-b",
             component_id=component.id,
             storage_location_id=location_b.id,
-            quantity_on_hand=50
+            quantity_on_hand=50,
         )
 
         db_session.add_all([component, location_a, location_b, comp_loc_a, comp_loc_b])
@@ -311,7 +292,7 @@ class TestPessimisticLocking:
             id="test-component-6",
             name="Test Component 6",
             quantity_on_hand=0,
-            minimum_stock=0
+            minimum_stock=0,
         )
         location_1 = StorageLocation(id="loc-1", name="Location 1")
         location_2 = StorageLocation(id="loc-2", name="Location 2")
@@ -321,25 +302,32 @@ class TestPessimisticLocking:
             id="comp-loc-1",
             component_id=component.id,
             storage_location_id=location_1.id,
-            quantity_on_hand=100
+            quantity_on_hand=100,
         )
         comp_loc_2 = ComponentLocation(
             id="comp-loc-2",
             component_id=component.id,
             storage_location_id=location_2.id,
-            quantity_on_hand=200
+            quantity_on_hand=200,
         )
         comp_loc_3 = ComponentLocation(
             id="comp-loc-3",
             component_id=component.id,
             storage_location_id=location_3.id,
-            quantity_on_hand=50
+            quantity_on_hand=50,
         )
 
-        db_session.add_all([
-            component, location_1, location_2, location_3,
-            comp_loc_1, comp_loc_2, comp_loc_3
-        ])
+        db_session.add_all(
+            [
+                component,
+                location_1,
+                location_2,
+                location_3,
+                comp_loc_1,
+                comp_loc_2,
+                comp_loc_3,
+            ]
+        )
         db_session.commit()
 
         # Lock two locations simultaneously (in consistent order)

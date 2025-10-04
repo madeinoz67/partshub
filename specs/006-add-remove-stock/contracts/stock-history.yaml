@@ -1,0 +1,213 @@
+openapi: 3.0.3
+info:
+  title: Stock History API
+  description: Get paginated stock transaction history for a component
+  version: 1.0.0
+
+paths:
+  /api/v1/components/{component_id}/stock/history:
+    get:
+      summary: Get paginated stock history
+      description: |
+        Retrieve stock transaction history for a component with pagination support.
+        Returns 10 entries per page by default. History is sorted by timestamp DESC (most recent first).
+      operationId: getStockHistory
+      tags:
+        - Stock Operations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: component_id
+          in: path
+          required: true
+          description: UUID of the component
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          required: false
+          description: Number of entries per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: sort_by
+          in: query
+          required: false
+          description: Field to sort by
+          schema:
+            type: string
+            enum: [created_at, quantity_change, transaction_type, user_name]
+            default: created_at
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Stock history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockHistoryResponse'
+        '401':
+          description: Unauthorized - missing or invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Component not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StockHistoryResponse:
+      type: object
+      required:
+        - entries
+        - pagination
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockHistoryEntry'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    StockHistoryEntry:
+      type: object
+      required:
+        - id
+        - created_at
+        - transaction_type
+        - quantity_change
+        - new_quantity
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Transaction ID
+        created_at:
+          type: string
+          format: date-time
+          description: Transaction timestamp
+        transaction_type:
+          type: string
+          enum: [ADD, REMOVE, MOVE, ADJUST]
+          description: Type of stock operation
+        quantity_change:
+          type: integer
+          description: Quantity change (+/- or 0 for moves)
+        previous_quantity:
+          type: integer
+          description: Total stock before transaction
+        new_quantity:
+          type: integer
+          description: Total stock after transaction
+        from_location_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Source location ID (for REMOVE/MOVE)
+        from_location_name:
+          type: string
+          nullable: true
+          description: Source location name
+        to_location_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Destination location ID (for ADD/MOVE)
+        to_location_name:
+          type: string
+          nullable: true
+          description: Destination location name
+        lot_id:
+          type: string
+          nullable: true
+          description: Lot/batch identifier
+        price_per_unit:
+          type: number
+          format: decimal
+          nullable: true
+          description: Unit price at time of transaction
+        total_price:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total price for transaction
+        user_id:
+          type: string
+          nullable: true
+          description: User ID who performed transaction
+        user_name:
+          type: string
+          nullable: true
+          description: Username who performed transaction
+        reason:
+          type: string
+          description: Human-readable reason for transaction
+        notes:
+          type: string
+          nullable: true
+          description: User comments
+
+    PaginationInfo:
+      type: object
+      required:
+        - page
+        - page_size
+        - total_entries
+        - total_pages
+      properties:
+        page:
+          type: integer
+          description: Current page number (1-indexed)
+        page_size:
+          type: integer
+          description: Entries per page
+        total_entries:
+          type: integer
+          description: Total number of history entries
+        total_pages:
+          type: integer
+          description: Total number of pages
+        has_next:
+          type: boolean
+          description: Whether there is a next page
+        has_previous:
+          type: boolean
+          description: Whether there is a previous page
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message

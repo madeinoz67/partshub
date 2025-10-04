@@ -86,7 +86,9 @@ class ComponentLocation(Base):
         return self.quantity_on_hand == 0
 
     @classmethod
-    def acquire_lock(cls, session: Session, location_ids: list[str]) -> list["ComponentLocation"]:
+    def acquire_lock(
+        cls, session: Session, location_ids: list[str]
+    ) -> list["ComponentLocation"]:
         """
         Acquire pessimistic locks on multiple component locations.
 

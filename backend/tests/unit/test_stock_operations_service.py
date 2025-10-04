@@ -6,9 +6,16 @@ Tests service methods: add_stock, remove_stock, and move_stock operations
 from decimal import Decimal
 
 import pytest
-from backend.src.models import Component, ComponentLocation, StorageLocation, StockTransaction, TransactionType
-from backend.src.services.stock_operations import StockOperationsService
 from fastapi import HTTPException
+
+from backend.src.models import (
+    Component,
+    ComponentLocation,
+    StockTransaction,
+    StorageLocation,
+    TransactionType,
+)
+from backend.src.services.stock_operations import StockOperationsService
 
 
 @pytest.mark.unit
@@ -22,7 +29,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-1", name="Test Component")
-        location = StorageLocation(id="test-location-1", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-1", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-1",
             component_id=component.id,
@@ -59,7 +68,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-2", name="Test Component")
-        location = StorageLocation(id="test-location-2", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-2", name="Test Location", type="drawer"
+        )
 
         db_session.add_all([component, location])
         db_session.commit()
@@ -104,7 +115,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-3", name="Test Component")
-        location = StorageLocation(id="test-location-3", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-3", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-3",
             component_id=component.id,
@@ -145,7 +158,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-4", name="Test Component")
-        location = StorageLocation(id="test-location-4", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-4", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-4",
             component_id=component.id,
@@ -185,7 +200,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-5", name="Test Component")
-        location = StorageLocation(id="test-location-5", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-5", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-5",
             component_id=component.id,
@@ -221,7 +238,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-6", name="Test Component")
-        location = StorageLocation(id="test-location-6", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-6", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="test-comp-loc-6",
             component_id=component.id,
@@ -257,8 +276,12 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-7", name="Test Component")
-        location_a = StorageLocation(id="test-loc-7a", name="Location A", type="drawer", qr_code_id="QR-7A")
-        location_b = StorageLocation(id="test-loc-7b", name="Location B", type="drawer", qr_code_id="QR-7B")
+        location_a = StorageLocation(
+            id="test-loc-7a", name="Location A", type="drawer", qr_code_id="QR-7A"
+        )
+        location_b = StorageLocation(
+            id="test-loc-7b", name="Location B", type="drawer", qr_code_id="QR-7B"
+        )
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,
@@ -303,8 +326,12 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-8", name="Test Component")
-        location_a = StorageLocation(id="test-loc-8a", name="Location A", type="drawer", qr_code_id="QR-8A")
-        location_b = StorageLocation(id="test-loc-8b", name="Location B", type="drawer", qr_code_id="QR-8B")
+        location_a = StorageLocation(
+            id="test-loc-8a", name="Location A", type="drawer", qr_code_id="QR-8A"
+        )
+        location_b = StorageLocation(
+            id="test-loc-8b", name="Location B", type="drawer", qr_code_id="QR-8B"
+        )
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,
@@ -350,8 +377,12 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-9", name="Test Component")
-        location_a = StorageLocation(id="test-loc-9a", name="Location A", type="drawer", qr_code_id="QR-9A")
-        location_b = StorageLocation(id="test-loc-9b", name="Location B", type="drawer", qr_code_id="QR-9B")
+        location_a = StorageLocation(
+            id="test-loc-9a", name="Location A", type="drawer", qr_code_id="QR-9A"
+        )
+        location_b = StorageLocation(
+            id="test-loc-9b", name="Location B", type="drawer", qr_code_id="QR-9B"
+        )
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,
@@ -392,9 +423,15 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-10", name="Test Component")
-        location_a = StorageLocation(id="test-loc10a", name="Location A", type="drawer", qr_code_id="QR-10A")
-        location_b = StorageLocation(id="test-loc10b", name="Location B", type="drawer", qr_code_id="QR-10B")
-        location_c = StorageLocation(id="test-loc10c", name="Location C", type="drawer", qr_code_id="QR-10C")
+        location_a = StorageLocation(
+            id="test-loc10a", name="Location A", type="drawer", qr_code_id="QR-10A"
+        )
+        location_b = StorageLocation(
+            id="test-loc10b", name="Location B", type="drawer", qr_code_id="QR-10B"
+        )
+        location_c = StorageLocation(
+            id="test-loc10c", name="Location C", type="drawer", qr_code_id="QR-10C"
+        )
 
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
@@ -415,10 +452,17 @@ class TestStockOperationsService:
             quantity_on_hand=25,
         )
 
-        db_session.add_all([
-            component, location_a, location_b, location_c,
-            comp_loc_a, comp_loc_b, comp_loc_c,
-        ])
+        db_session.add_all(
+            [
+                component,
+                location_a,
+                location_b,
+                location_c,
+                comp_loc_a,
+                comp_loc_b,
+                comp_loc_c,
+            ]
+        )
         db_session.commit()
 
         # Total before move: 100 + 50 + 25 = 175
@@ -449,7 +493,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-11", name="Test Component")
-        location = StorageLocation(id="test-location-11", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-11", name="Test Location", type="drawer"
+        )
 
         db_session.add_all([component, location])
         db_session.commit()
@@ -477,7 +523,9 @@ class TestStockOperationsService:
         Should raise appropriate error if component not found
         """
         # Setup - create location but no component
-        location = StorageLocation(id="test-location-12", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-12", name="Test Location", type="drawer"
+        )
         db_session.add(location)
         db_session.commit()
 
@@ -489,7 +537,11 @@ class TestStockOperationsService:
                 component_id="non-existent-component",
                 location_id=location.id,
                 quantity=10,
-                user={"user_id": "test-user", "user_name": "Test User", "is_admin": True},
+                user={
+                    "user_id": "test-user",
+                    "user_name": "Test User",
+                    "is_admin": True,
+                },
             )
 
         assert exc_info.value.status_code == 404
@@ -513,7 +565,11 @@ class TestStockOperationsService:
                 component_id=component.id,
                 location_id="non-existent-location",
                 quantity=10,
-                user={"user_id": "test-user", "user_name": "Test User", "is_admin": True},
+                user={
+                    "user_id": "test-user",
+                    "user_name": "Test User",
+                    "is_admin": True,
+                },
             )
 
         assert exc_info.value.status_code == 404
@@ -526,7 +582,9 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-14", name="Test Component")
-        location = StorageLocation(id="test-location-14", name="Test Location", type="drawer")
+        location = StorageLocation(
+            id="test-location-14", name="Test Location", type="drawer"
+        )
         comp_location = ComponentLocation(
             id="comp-loc-14",
             component_id=component.id,
@@ -546,7 +604,11 @@ class TestStockOperationsService:
                 source_location_id=location.id,
                 destination_location_id=location.id,  # Same as source
                 quantity=10,
-                user={"user_id": "test-user", "user_name": "Test User", "is_admin": True},
+                user={
+                    "user_id": "test-user",
+                    "user_name": "Test User",
+                    "is_admin": True,
+                },
             )
 
         assert exc_info.value.status_code == 400
@@ -559,8 +621,12 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-15", name="Test Component")
-        location_a = StorageLocation(id="test-loc15a", name="Location A", type="drawer", qr_code_id="QR-15A")
-        location_b = StorageLocation(id="test-loc15b", name="Location B", type="drawer", qr_code_id="QR-15B")
+        location_a = StorageLocation(
+            id="test-loc15a", name="Location A", type="drawer", qr_code_id="QR-15A"
+        )
+        location_b = StorageLocation(
+            id="test-loc15b", name="Location B", type="drawer", qr_code_id="QR-15B"
+        )
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,
@@ -597,8 +663,12 @@ class TestStockOperationsService:
         """
         # Setup
         component = Component(id="test-component-16", name="Test Component")
-        location_a = StorageLocation(id="test-loc16a", name="Location A", type="drawer", qr_code_id="QR-16A")
-        location_b = StorageLocation(id="test-loc16b", name="Location B", type="drawer", qr_code_id="QR-16B")
+        location_a = StorageLocation(
+            id="test-loc16a", name="Location A", type="drawer", qr_code_id="QR-16A"
+        )
+        location_b = StorageLocation(
+            id="test-loc16b", name="Location B", type="drawer", qr_code_id="QR-16B"
+        )
         comp_loc_a = ComponentLocation(
             id="comp-loc-a",
             component_id=component.id,

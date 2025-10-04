@@ -12,8 +12,12 @@ class TestRemoveStockContract:
     """Contract tests for remove stock endpoint based on remove-stock.yaml"""
 
     def test_remove_stock_success_normal_removal(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """Test successful stock removal with normal quantity (200 OK)"""
         # Create component and location
@@ -23,7 +27,9 @@ class TestRemoveStockContract:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -35,20 +41,20 @@ class TestRemoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Remove stock
         remove_stock_request = {
             "location_id": location_id,
             "quantity": 25,
-            "comments": "Used in Project Alpha assembly"
+            "comments": "Used in Project Alpha assembly",
         }
 
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -69,8 +75,12 @@ class TestRemoveStockContract:
         assert "total_stock" in data
 
     def test_remove_stock_auto_capped_removal(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """Test auto-capping when requested quantity exceeds available stock"""
         # Setup
@@ -80,7 +90,9 @@ class TestRemoveStockContract:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -92,20 +104,20 @@ class TestRemoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Try to remove 50 (more than available)
         remove_stock_request = {
             "location_id": location_id,
             "quantity": 50,
-            "comments": "Remove all stock"
+            "comments": "Remove all stock",
         }
 
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -118,11 +130,18 @@ class TestRemoveStockContract:
         assert data["capped"] is True
         assert data["new_quantity"] == 0
         assert data["location_deleted"] is True
-        assert "auto-capped" in data["message"].lower() or "capped" in data["message"].lower()
+        assert (
+            "auto-capped" in data["message"].lower()
+            or "capped" in data["message"].lower()
+        )
 
     def test_remove_stock_with_reason(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """Test removal with explicit reason field"""
         # Setup
@@ -132,7 +151,9 @@ class TestRemoveStockContract:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -144,7 +165,7 @@ class TestRemoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Remove stock with reason
@@ -152,13 +173,13 @@ class TestRemoveStockContract:
             "location_id": location_id,
             "quantity": 10,
             "reason": "damaged",
-            "comments": "Damaged during handling - discarded"
+            "comments": "Damaged during handling - discarded",
         }
 
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -166,8 +187,12 @@ class TestRemoveStockContract:
         assert data["quantity_removed"] == 10
 
     def test_remove_stock_validation_error_negative_quantity(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """Test 400 error for negative or zero quantity"""
         # Setup
@@ -177,7 +202,9 @@ class TestRemoveStockContract:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -190,15 +217,19 @@ class TestRemoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 422  # Pydantic validation error
         assert "detail" in response.json()
 
     def test_remove_stock_validation_error_no_stock(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """Test 400 error when location has no stock"""
         # Setup - create component and location but don't add any stock
@@ -208,7 +239,9 @@ class TestRemoveStockContract:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -221,7 +254,7 @@ class TestRemoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404  # ComponentLocation not found
@@ -244,7 +277,7 @@ class TestRemoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=user_auth_headers
+            headers=user_auth_headers,
         )
 
         assert response.status_code in [403, 404]
@@ -255,7 +288,9 @@ class TestRemoveStockContract:
         """Test 404 error when component does not exist"""
         # Create location
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -269,7 +304,7 @@ class TestRemoveStockContract:
         response = client.post(
             f"/api/v1/components/{fake_component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404
@@ -295,7 +330,7 @@ class TestRemoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 404
@@ -304,8 +339,12 @@ class TestRemoveStockContract:
         assert "not found" in data["detail"].lower()
 
     def test_remove_stock_conflict_locked_location(
-        self, client: TestClient, db_session, auth_headers, sample_component_data,
-        sample_storage_location_data
+        self,
+        client: TestClient,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
     ):
         """Test 409 error when location is locked by another operation"""
         # Setup
@@ -315,7 +354,9 @@ class TestRemoveStockContract:
         component_id = component_resp.json()["id"]
 
         location_resp = client.post(
-            "/api/v1/storage-locations", json=sample_storage_location_data, headers=auth_headers
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
         )
         location_id = location_resp.json()["id"]
 
@@ -327,7 +368,7 @@ class TestRemoveStockContract:
         client.post(
             f"/api/v1/components/{component_id}/stock/add",
             json=add_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         remove_stock_request = {
@@ -338,7 +379,7 @@ class TestRemoveStockContract:
         response = client.post(
             f"/api/v1/components/{component_id}/stock/remove",
             json=remove_stock_request,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         # Endpoint doesn't exist yet, will fail with 404
@@ -356,8 +397,7 @@ class TestRemoveStockContract:
         }
 
         response = client.post(
-            f"/api/v1/components/{component_id}/stock/remove",
-            json=remove_stock_request
+            f"/api/v1/components/{component_id}/stock/remove", json=remove_stock_request
         )
 
         assert response.status_code in [401, 404]

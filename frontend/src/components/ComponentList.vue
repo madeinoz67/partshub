@@ -966,6 +966,15 @@
                     />
                   </div>
 
+                  <!-- Stock History Tab -->
+                  <div v-else-if="getActiveTab(props.row.id) === 'history'">
+                    <StockHistoryTable
+                      :component-id="props.row.id"
+                      :auto-refresh="historyRefreshTrigger[props.row.id] || false"
+                      @refreshed="handleHistoryRefreshed(props.row.id)"
+                    />
+                  </div>
+
                   <!-- Other tabs placeholder -->
                   <div v-else>
                     <div class="text-h6 q-mb-md">{{ getActiveTab(props.row.id).replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}</div>
@@ -1161,6 +1170,7 @@ import BarcodeScanner from './BarcodeScanner.vue'
 import AddStockForm from './stock/AddStockForm.vue'
 import RemoveStockForm from './stock/RemoveStockForm.vue'
 import MoveStockForm from './stock/MoveStockForm.vue'
+import StockHistoryTable from './stock/StockHistoryTable.vue'
 import { api } from '../boot/axios'
 import type { Component } from '../services/api'
 import type { ComponentAttachment } from '../types/componentList'
@@ -1221,6 +1231,7 @@ const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
 const detailedAttachments = ref<Record<string, unknown[]>>({})
 const barcodeScannerRef = ref()
 const showBarcodeScanner = ref(false)
+const historyRefreshTrigger = ref<Record<string, boolean>>({}) // Track history refresh triggers per component
 
 // Sync selection with store
 watch(selected, (newSelected) => {
@@ -1645,8 +1656,16 @@ const handleStockOperationSuccess = async (componentId: string) => {
   await componentsStore.fetchComponents()
   await componentsStore.fetchMetrics()
 
-  // Switch back to stock tab to show updated information
-  setActiveTab(componentId, 'stock')
+  // Trigger history refresh for this component
+  historyRefreshTrigger.value[componentId] = true
+
+  // Switch to stock history tab to show the new transaction
+  setActiveTab(componentId, 'history')
+}
+
+const handleHistoryRefreshed = (componentId: string) => {
+  // Reset the refresh trigger after history has been refreshed
+  historyRefreshTrigger.value[componentId] = false
 }
 
 const confirmDeleteAttachment = (attachment: ComponentAttachment, componentId: string) => {

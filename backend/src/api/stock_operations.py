@@ -27,9 +27,7 @@ from ..schemas.stock_operations import (
 )
 from ..services.stock_operations import StockOperationsService
 
-router = APIRouter(
-    prefix="/api/v1/components", tags=["Stock Operations"]
-)
+router = APIRouter(prefix="/api/v1/components", tags=["Stock Operations"])
 
 
 @router.post(
