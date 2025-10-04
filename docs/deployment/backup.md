@@ -17,37 +17,39 @@ The critical data for PartsHub is located in the `/app/data` directory, which co
 
 ## 2. Backup Frequency Recommendations
 
-### Data Criticality Assessment
-- **Database (`partshub.db`)**: High criticality
-  - Contains all parts inventory, relationships, and metadata
-  - Recommended backup frequency: Daily
-- **Attachments**: Medium criticality
-  - User-uploaded files and supporting documents
-  - Recommended backup frequency: Weekly
+### Critical Data Components
+- **Database (`partshub.db`)**: Contains all parts inventory, relationships, and metadata
+- **Attachments directory**: User-uploaded files, datasheets, images, and supporting documents
 
-### Backup Strategies
-1. **Continuous Incremental Backups**
-   - Daily database snapshots
-   - Weekly full attachments backup
+!!! warning "Backup Both Database AND Attachments"
+    Always backup the **entire `/app/data` directory** to ensure both the database and all attachments are preserved together. Backing up only the database will result in broken file references and missing attachments.
+
+### Recommended Backup Strategy
+1. **Full Backup Frequency**: Daily
+   - Backup the entire `/app/data` directory (database + attachments)
+   - Both components are critical and should be backed up together
 
 2. **Retention Policy**
    - Keep last 7 daily backups
-   - Keep last 4 weekly backups
+   - Keep last 4 weekly backups (every Sunday)
    - Maintain monthly archive for long-term retention
 
 ## 3. Backup Procedures
 
 ### 3.1 Docker Volume Backup Methods
 
-#### A. Docker CP Method
-Backup entire data volume using `docker cp`:
+#### A. Docker CP Method (Complete Data Backup)
+Backup entire `/app/data` directory using `docker cp`:
 ```bash
-# Backup database
-docker cp partshub_container:/app/data/partshub.db ./backups/partshub_$(date +%Y%m%d).db
+# Backup entire data directory (database + attachments together)
+docker cp partshub:/app/data ./backups/partshub_data_$(date +%Y%m%d)
 
-# Backup attachments directory
-docker cp partshub_container:/app/data/attachments ./backups/attachments_$(date +%Y%m%d)
+# Compress for efficient storage
+tar czvf ./backups/partshub_backup_$(date +%Y%m%d).tar.gz -C ./backups partshub_data_$(date +%Y%m%d)
 ```
+
+!!! tip "Why backup the entire directory?"
+    Backing up `/app/data` as a complete unit ensures database and attachment references remain consistent. Individual file backups may lead to sync issues.
 
 #### B. Volume Backup Method
 Create a backup of the named Docker volume:
@@ -68,7 +70,7 @@ cp -R /var/lib/docker/volumes/partshub_data/_data ./backups/$(date +%Y%m%d)
 ```
 
 ### 3.2 Automated Backup Script (Recommended)
-Create a shell script for consistent backups:
+Create a shell script for consistent backups of the entire data directory:
 ```bash
 #!/bin/bash
 BACKUP_DIR="/path/to/backups"
@@ -78,14 +80,17 @@ DATE=$(date +%Y%m%d)
 # Create backup directory
 mkdir -p "$BACKUP_DIR/$DATE"
 
-# Backup database
-docker cp "$CONTAINER_NAME":/app/data/partshub.db "$BACKUP_DIR/$DATE/partshub.db"
+# Backup entire /app/data directory (database + attachments)
+docker cp "$CONTAINER_NAME":/app/data "$BACKUP_DIR/$DATE/"
 
-# Backup attachments
-docker cp "$CONTAINER_NAME":/app/data/attachments "$BACKUP_DIR/$DATE/attachments"
+# Compress backup for efficient storage
+tar czvf "$BACKUP_DIR/partshub_backup_$DATE.tar.gz" -C "$BACKUP_DIR/$DATE" data
 
-# Optional: Compress backup
-tar czvf "$BACKUP_DIR/partshub_backup_$DATE.tar.gz" "$BACKUP_DIR/$DATE"
+# Clean up uncompressed backup
+rm -rf "$BACKUP_DIR/$DATE"
+
+# Optional: Remove backups older than 7 days
+find "$BACKUP_DIR" -name "partshub_backup_*.tar.gz" -mtime +7 -delete
 ```
 
 ## 4. Recovery Procedures
