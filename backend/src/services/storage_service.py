@@ -8,14 +8,15 @@ from typing import Any
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 
-from ..models import Component, StorageLocation
+from ..constants import StorageLocationType
+from ..models import Component, ComponentLocation, StorageLocation
 
 
 class StorageLocationService:
     """Service layer for storage location operations."""
 
-    # Valid storage location types
-    VALID_TYPES = {"container", "room", "building", "cabinet", "drawer", "shelf", "bin"}
+    # Valid storage location types - derived from API enum to maintain DRY principle
+    VALID_TYPES = {t.value for t in StorageLocationType}
 
     def __init__(self, db: Session):
         self.db = db
@@ -183,8 +184,8 @@ class StorageLocationService:
 
         # Check if location has components
         component_count = (
-            self.db.query(Component)
-            .filter(Component.storage_location_id == location_id)
+            self.db.query(ComponentLocation)
+            .filter(ComponentLocation.storage_location_id == location_id)
             .count()
         )
         if component_count > 0:

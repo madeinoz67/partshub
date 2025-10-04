@@ -13,6 +13,7 @@ import pytest
 from PIL import Image
 
 
+@pytest.mark.unit
 class TestFileStorageService:
     """Test suite for FileStorageService following TDD principles."""
 

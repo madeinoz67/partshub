@@ -49,6 +49,21 @@
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
+
+**Constitutional Requirements**:
+- **Principle II (TDD - NON-NEGOTIABLE)**:
+  - Tests MUST be written before implementation
+  - Red-Green-Refactor cycle strictly enforced
+  - User approval required after tests written
+  - Minimum 80% coverage target
+
+- **Principle VI (Test Isolation - NON-NEGOTIABLE)**:
+  - Each test uses isolated database (in-memory SQLite or transaction rollback)
+  - Tests runnable in any order (no execution dependencies)
+  - External services mocked
+  - Database state reset after each test
+  - Tests must be parallelizable
+
 - [ ] T004 [P] Contract test POST /api/users in tests/contract/test_users_post.py
 - [ ] T005 [P] Contract test GET /api/users/{id} in tests/contract/test_users_get.py
 - [ ] T006 [P] Integration test user registration in tests/integration/test_registration.py
@@ -70,11 +85,21 @@
 - [ ] T018 CORS and security headers
 
 ## Phase 3.5: Polish
+**Constitutional Requirements**:
+- Quality Gates (Principle IV): Ruff formatting, zero linting errors, all CI checks pass
+- Anonymous Contribution (Principle V): No AI attribution in commits
+- Documentation Review (Principle VII): All docs updated with code changes
+
 - [ ] T019 [P] Unit tests for validation in tests/unit/test_validation.py
 - [ ] T020 Performance tests (<200ms)
-- [ ] T021 [P] Update docs/api.md
-- [ ] T022 Remove duplication
-- [ ] T023 Run manual-testing.md
+- [ ] T021 [P] Update docs/api.md with OpenAPI documentation
+- [ ] T022 [P] Update README.md with new feature usage
+- [ ] T023 [P] Update affected docs (setup guides, config references)
+- [ ] T024 Remove duplication
+- [ ] T025 Run `uv run ruff check backend/` and `uv run ruff format backend/`
+- [ ] T026 Verify 80% test coverage minimum
+- [ ] T027 Verify documentation completeness (API docs, usage docs, migration paths)
+- [ ] T028 Run manual-testing.md
 
 ## Dependencies
 - Tests (T004-T007) before implementation (T008-T014)
@@ -119,9 +144,18 @@ Task: "Integration test auth in tests/integration/test_auth.py"
 ## Validation Checklist
 *GATE: Checked by main() before returning*
 
+### Task Completeness
 - [ ] All contracts have corresponding tests
 - [ ] All entities have model tasks
 - [ ] All tests come before implementation
 - [ ] Parallel tasks truly independent
 - [ ] Each task specifies exact file path
 - [ ] No task modifies same file as another [P] task
+
+### Constitutional Compliance (PartsHub v1.1.0)
+- [ ] API-First Design: Backend tasks before frontend tasks
+- [ ] TDD: Contract and integration tests in Phase 3.2, implementation in Phase 3.3+
+- [ ] Tiered Access: Authentication/authorization tasks included where needed
+- [ ] Quality Gates: Ruff linting and coverage tasks in final phase
+- [ ] Anonymous Contribution: Commit strategy follows standard format (no AI attribution)
+- [ ] Test Isolation: Tests use isolated DB, no execution order dependencies, parallelizable

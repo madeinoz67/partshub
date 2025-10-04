@@ -64,7 +64,7 @@
             />
           </div>
 
-          <div v-if="canPerformCrud()" class="col-md-1 col-xs-6">
+          <div v-if="canPerformCrud()" class="col-md-1 col-xs-12">
             <q-btn
               class="add-button-primary"
               icon="add"
@@ -1075,10 +1075,13 @@
       </template>
 
       <!-- No data message -->
-      <template #no-data="{ message }">
-        <div class="full-width row flex-center q-gutter-sm">
-          <q-icon size="2em" name="inventory_2" />
-          <span>{{ message || 'No components found' }}</span>
+      <template #no-data>
+        <div class="full-width row flex-center text-center q-py-xl">
+          <div>
+            <q-icon name="inventory_2" size="80px" color="grey-4" />
+            <div class="text-h6 text-grey-6 q-mt-md">No components found</div>
+            <div class="text-body2 text-grey-5 q-mt-sm">Create your first component to get started</div>
+          </div>
         </div>
       </template>
     </q-table>

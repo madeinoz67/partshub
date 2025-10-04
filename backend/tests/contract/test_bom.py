@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestBOMContract:
     """Contract tests for BOM API endpoints."""
 

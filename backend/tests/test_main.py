@@ -2,6 +2,7 @@
 Basic tests for main application
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.src.main import app
@@ -9,6 +10,7 @@ from backend.src.main import app
 client = TestClient(app)
 
 
+@pytest.mark.contract
 def test_root_endpoint():
     """Test root endpoint returns API information"""
     response = client.get("/")
@@ -19,6 +21,7 @@ def test_root_endpoint():
     assert data["docs"] == "/docs"
 
 
+@pytest.mark.contract
 def test_health_check():
     """Test health check endpoint"""
     response = client.get("/health")
@@ -27,12 +30,14 @@ def test_health_check():
     assert data["status"] == "healthy"
 
 
+@pytest.mark.contract
 def test_openapi_docs():
     """Test OpenAPI documentation is available"""
     response = client.get("/docs")
     assert response.status_code == 200
 
 
+@pytest.mark.contract
 def test_redoc_docs():
     """Test ReDoc documentation is available"""
     response = client.get("/redoc")

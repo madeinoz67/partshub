@@ -5,9 +5,11 @@ Tests component update endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestComponentsUpdateContract:
     """Contract tests for component update endpoint"""
 

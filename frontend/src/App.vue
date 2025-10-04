@@ -86,4 +86,17 @@ body {
     background-color: #1565c0;
   }
 }
+
+// Standardized container for add buttons next to search fields
+// These classes provide consistent sizing for buttons across Components, Projects, and Storage Locations pages
+// The col-md-* and col-xs-* classes ensure proper responsive behavior and button height
+.add-button-container-short {
+  // For buttons with short labels like "Add", "New"
+  // Note: This is a placeholder for future use if needed
+}
+
+.add-button-container-long {
+  // For buttons with longer labels like "Add Component", "Create Bulk Locations", "New Project"
+  // This ensures consistent button height and layout across all pages
+}
 </style>

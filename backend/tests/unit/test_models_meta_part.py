@@ -5,9 +5,12 @@ Tests all methods, properties, and assembly management functionality.
 
 from unittest.mock import Mock
 
+import pytest
+
 from backend.src.models.meta_part import MetaPart, MetaPartComponent
 
 
+@pytest.mark.unit
 class TestMetaPart:
     """Test MetaPart model methods and properties."""
 
@@ -279,6 +282,7 @@ class TestMetaPart:
         assert "version='v1.0'" in repr_str
 
 
+@pytest.mark.unit
 class TestMetaPartComponent:
     """Test MetaPartComponent model methods and properties."""
 

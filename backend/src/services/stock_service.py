@@ -10,7 +10,7 @@ from typing import Any
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, selectinload
 
-from ..models import Component, StockTransaction, TransactionType
+from ..models import Component, ComponentLocation, StockTransaction, TransactionType
 
 logger = logging.getLogger(__name__)
 
@@ -170,20 +170,23 @@ class StockService:
         self, category_id: str | None = None, storage_location_id: str | None = None
     ) -> dict[str, Any]:
         """Calculate current inventory valuation."""
+        # Query ComponentLocation for quantities, join with Component for pricing
         query = self.db.query(
             func.sum(
-                Component.quantity_on_hand * Component.average_purchase_price
+                ComponentLocation.quantity_on_hand * Component.average_purchase_price
             ).label("total_value"),
-            func.sum(Component.quantity_on_hand).label("total_quantity"),
-            func.count(Component.id).label("total_components"),
-        )
+            func.sum(ComponentLocation.quantity_on_hand).label("total_quantity"),
+            func.count(func.distinct(Component.id)).label("total_components"),
+        ).join(Component, ComponentLocation.component_id == Component.id)
 
         # Apply filters
         if category_id:
             query = query.filter(Component.category_id == category_id)
 
         if storage_location_id:
-            query = query.filter(Component.storage_location_id == storage_location_id)
+            query = query.filter(
+                ComponentLocation.storage_location_id == storage_location_id
+            )
 
         result = query.first()
 

@@ -16,6 +16,7 @@ from backend.src.models.component_location import ComponentLocation
 from backend.src.models.storage_location import StorageLocation
 
 
+@pytest.mark.unit
 class TestStorageLocationModel:
     """Unit tests for StorageLocation model"""
 
@@ -516,3 +517,96 @@ class TestStorageLocationModel:
         # Verify location now has components
         db_session.refresh(location)
         assert len(location.component_locations) == 3
+
+    def test_storage_location_last_used_tracking(self, db_session):
+        """Test that last_used_at is only updated when components are moved, not on edits"""
+        from datetime import datetime
+
+        # Create a storage location
+        location = StorageLocation(
+            id=str(uuid.uuid4()),
+            name="Test Location",
+            type="bin",
+            description="Testing last_used_at behavior",
+        )
+
+        db_session.add(location)
+        db_session.commit()
+        db_session.refresh(location)
+
+        # Initially, last_used_at should be None
+        assert location.last_used_at is None
+        initial_updated_at = location.updated_at
+
+        # Edit the location (change name) - should NOT update last_used_at
+        location.name = "Updated Test Location"
+        db_session.commit()
+        db_session.refresh(location)
+
+        assert location.last_used_at is None  # Still None after edit
+        assert location.updated_at != initial_updated_at  # updated_at changed
+
+        # Simulate component movement by manually setting last_used_at
+        # In real usage, this would be set by component movement logic
+        component_movement_time = datetime.now()
+        location.last_used_at = component_movement_time
+        db_session.commit()
+        db_session.refresh(location)
+
+        assert location.last_used_at is not None
+        assert location.last_used_at == component_movement_time
+
+        # Edit location again - last_used_at should remain unchanged
+        old_last_used = location.last_used_at
+        location.description = "Updated description"
+        db_session.commit()
+        db_session.refresh(location)
+
+        assert location.last_used_at == old_last_used  # Unchanged by edit
+        assert location.updated_at != initial_updated_at  # updated_at still changes
+
+    def test_storage_location_qr_code_auto_generation(self, db_session):
+        """Test that QR code is automatically generated on creation"""
+        # Create a storage location without QR code
+        location = StorageLocation(
+            id=str(uuid.uuid4()),
+            name="QR Test Location",
+            type="bin",
+        )
+
+        db_session.add(location)
+        db_session.commit()
+        db_session.refresh(location)
+
+        # QR code should be auto-generated
+        assert location.qr_code_id is not None
+        assert location.qr_code_id.startswith("LOC-")
+        assert len(location.qr_code_id) == 12  # LOC- + 8 chars
+
+        # Verify it contains the first 8 chars of the UUID
+        expected_suffix = location.id[:8].upper()
+        assert location.qr_code_id == f"LOC-{expected_suffix}"
+
+    def test_storage_location_qr_code_edit_does_not_update_last_used(self, db_session):
+        """Test that editing QR code doesn't update last_used_at"""
+        location = StorageLocation(
+            id=str(uuid.uuid4()),
+            name="QR Edit Test",
+            type="bin",
+        )
+
+        db_session.add(location)
+        db_session.commit()
+        db_session.refresh(location)
+
+        # Initially last_used_at is None
+        assert location.last_used_at is None
+
+        # Manually change QR code (shouldn't happen normally but testing)
+        location.qr_code_id = "LOC-CUSTOM1"
+        db_session.commit()
+        db_session.refresh(location)
+
+        # last_used_at should still be None
+        assert location.last_used_at is None
+        assert location.qr_code_id == "LOC-CUSTOM1"

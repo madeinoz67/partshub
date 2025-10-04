@@ -5,9 +5,12 @@ Tests all methods, properties, and data source management functionality.
 
 from datetime import UTC, datetime
 
+import pytest
+
 from backend.src.models.kicad_data import KiCadDataSource, KiCadLibraryData
 
 
+@pytest.mark.unit
 class TestKiCadLibraryData:
     """Test KiCadLibraryData model methods and properties."""
 
@@ -360,6 +363,7 @@ class TestKiCadLibraryData:
         assert kicad_data.kicad_fields_json == additional_fields
 
 
+@pytest.mark.unit
 class TestKiCadDataSourceEnum:
     """Test KiCadDataSource enumeration."""
 

@@ -16,6 +16,7 @@ from backend.src.main import app
 from backend.src.models import Base
 
 
+@pytest.mark.integration
 class TestInventoryManagement:
     """Integration tests for inventory management scenarios"""
 

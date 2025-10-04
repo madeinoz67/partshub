@@ -3,11 +3,13 @@ Integration test for first-time setup and component addition.
 Tests the complete flow from initial setup to adding the first component.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.src.auth.admin import ensure_admin_exists
 
 
+@pytest.mark.integration
 class TestFirstTimeSetup:
     """Integration tests for first-time setup scenario"""
 

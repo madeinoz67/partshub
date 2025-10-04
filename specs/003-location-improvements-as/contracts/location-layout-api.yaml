@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Storage Location Layout Generator API
+  version: 1.0.0
+  description: API for bulk-generating organized storage locations with configurable layouts
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+
+paths:
+  /api/storage-locations/generate-preview:
+    post:
+      summary: Preview generated storage location names
+      description: |
+        Generate a preview of storage locations that would be created based on layout configuration.
+        Returns first 5 names, last name, total count, and validation errors. No locations are created.
+        This endpoint is idempotent and has no side effects.
+      operationId: generatePreview
+      tags:
+        - Storage Locations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayoutConfiguration'
+            examples:
+              rowLayout:
+                summary: Row layout example
+                value:
+                  layout_type: row
+                  prefix: "box1-"
+                  ranges:
+                    - range_type: letters
+                      start: "a"
+                      end: "f"
+                  separators: []
+                  location_type: bin
+                  single_part_only: false
+              gridLayout:
+                summary: Grid layout example
+                value:
+                  layout_type: grid
+                  prefix: "shelf-"
+                  ranges:
+                    - range_type: letters
+                      start: "a"
+                      end: "c"
+                    - range_type: numbers
+                      start: 1
+                      end: 5
+                  separators: ["-"]
+                  location_type: drawer
+                  single_part_only: false
+      responses:
+        '200':
+          description: Preview generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewResponse'
+              examples:
+                validPreview:
+                  summary: Valid preview with 6 locations
+                  value:
+                    sample_names: ["box1-a", "box1-b", "box1-c", "box1-d", "box1-e"]
+                    last_name: "box1-f"
+                    total_count: 6
+                    warnings: []
+                    errors: []
+                    is_valid: true
+                warningPreview:
+                  summary: Preview with warning (150 locations)
+                  value:
+                    sample_names: ["shelf-a-1", "shelf-a-2", "shelf-a-3", "shelf-a-4", "shelf-a-5"]
+                    last_name: "shelf-f-30"
+                    total_count: 150
+                    warnings: ["Creating 150 locations cannot be undone. Locations cannot be deleted."]
+                    errors: []
+                    is_valid: true
+                errorPreview:
+                  summary: Preview with validation errors
+                  value:
+                    sample_names: []
+                    last_name: ""
+                    total_count: 0
+                    warnings: []
+                    errors: ["Total location count (600) exceeds maximum limit of 500"]
+                    is_valid: false
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/storage-locations/bulk-create:
+    post:
+      summary: Bulk create storage locations from layout
+      description: |
+        Create multiple storage locations based on layout configuration.
+        All locations are created in a single transaction (all-or-nothing).
+        Requires authentication. Maximum 500 locations per request.
+      operationId: bulkCreateLocations
+      tags:
+        - Storage Locations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayoutConfiguration'
+            examples:
+              createRow:
+                summary: Create row layout
+                value:
+                  layout_type: row
+                  prefix: "box1-"
+                  ranges:
+                    - range_type: letters
+                      start: "a"
+                      end: "f"
+                  separators: []
+                  location_type: bin
+                  single_part_only: false
+              createGrid:
+                summary: Create grid with parent
+                value:
+                  layout_type: grid
+                  prefix: "bin-"
+                  ranges:
+                    - range_type: "letters"
+                      start: "a"
+                      end: "c"
+                    - range_type: numbers
+                      start: 1
+                      end: 5
+                  separators: ["-"]
+                  parent_id: "550e8400-e29b-41d4-a716-446655440000"
+                  location_type: bin
+                  single_part_only: true
+      responses:
+        '201':
+          description: Locations created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCreateResponse'
+              examples:
+                success:
+                  summary: 6 locations created
+                  value:
+                    created_ids:
+                      - "123e4567-e89b-12d3-a456-426614174000"
+                      - "123e4567-e89b-12d3-a456-426614174001"
+                      - "123e4567-e89b-12d3-a456-426614174002"
+                      - "123e4567-e89b-12d3-a456-426614174003"
+                      - "123e4567-e89b-12d3-a456-426614174004"
+                      - "123e4567-e89b-12d3-a456-426614174005"
+                    created_count: 6
+                    success: true
+                    errors: null
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate location names exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCreateResponse'
+              examples:
+                duplicates:
+                  summary: Duplicate names prevented creation
+                  value:
+                    created_ids: []
+                    created_count: 0
+                    success: false
+                    errors: ["Duplicate location names: box1-a, box1-b"]
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LayoutType:
+      type: string
+      enum: [single, row, grid, grid_3d]
+      description: Type of layout for location generation
+
+    RangeType:
+      type: string
+      enum: [letters, numbers]
+      description: Type of range specification
+
+    LocationType:
+      type: string
+      enum: [bin, drawer, shelf, box, cabinet, room]
+      description: Type of storage location
+
+    RangeSpecification:
+      type: object
+      required:
+        - range_type
+        - start
+        - end
+      properties:
+        range_type:
+          $ref: '#/components/schemas/RangeType'
+        start:
+          oneOf:
+            - type: string
+              pattern: '^[a-zA-Z]$'
+              description: Single letter (for letters range)
+            - type: integer
+              minimum: 0
+              maximum: 999
+              description: Number (for numbers range)
+        end:
+          oneOf:
+            - type: string
+              pattern: '^[a-zA-Z]$'
+              description: Single letter (for letters range)
+            - type: integer
+              minimum: 0
+              maximum: 999
+              description: Number (for numbers range)
+        capitalize:
+          type: boolean
+          description: Capitalize letters (letters range only)
+          default: false
+        zero_pad:
+          type: boolean
+          description: Zero-pad numbers to match end length (numbers range only)
+          default: false
+      example:
+        range_type: letters
+        start: "a"
+        end: "f"
+        capitalize: false
+
+    LayoutConfiguration:
+      type: object
+      required:
+        - layout_type
+        - prefix
+        - ranges
+        - separators
+        - location_type
+      properties:
+        layout_type:
+          $ref: '#/components/schemas/LayoutType'
+        prefix:
+          type: string
+          maxLength: 50
+          description: Prefix for all generated location names
+          example: "box1-"
+        ranges:
+          type: array
+          items:
+            $ref: '#/components/schemas/RangeSpecification'
+          minItems: 0
+          maxItems: 3
+          description: Range specifications (0 for single, 1 for row, 2 for grid, 3 for grid_3d)
+        separators:
+          type: array
+          items:
+            type: string
+            maxLength: 5
+          description: Separators between range components
+          example: ["-"]
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional parent location UUID
+        location_type:
+          $ref: '#/components/schemas/LocationType'
+        single_part_only:
+          type: boolean
+          default: false
+          description: Whether locations can hold only one part
+      example:
+        layout_type: grid
+        prefix: "shelf-"
+        ranges:
+          - range_type: letters
+            start: "a"
+            end: "c"
+          - range_type: numbers
+            start: 1
+            end: 5
+        separators: ["-"]
+        parent_id: null
+        location_type: drawer
+        single_part_only: false
+
+    PreviewResponse:
+      type: object
+      required:
+        - sample_names
+        - last_name
+        - total_count
+        - warnings
+        - errors
+        - is_valid
+      properties:
+        sample_names:
+          type: array
+          items:
+            type: string
+          maxItems: 5
+          description: First 5 generated location names
+          example: ["shelf-a-1", "shelf-a-2", "shelf-a-3", "shelf-a-4", "shelf-a-5"]
+        last_name:
+          type: string
+          description: Last generated location name
+          example: "shelf-c-5"
+        total_count:
+          type: integer
+          minimum: 0
+          description: Total number of locations that would be created
+          example: 15
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Warning messages (e.g., high location count)
+          example: []
+        errors:
+          type: array
+          items:
+            type: string
+          description: Validation errors preventing creation
+          example: []
+        is_valid:
+          type: boolean
+          description: Whether configuration is valid for creation
+          example: true
+
+    BulkCreateResponse:
+      type: object
+      required:
+        - created_ids
+        - created_count
+        - success
+      properties:
+        created_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: UUIDs of successfully created locations
+        created_count:
+          type: integer
+          minimum: 0
+          description: Number of locations created
+        success:
+          type: boolean
+          description: Whether operation succeeded
+        errors:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Errors if operation failed
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Invalid layout configuration"
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+                description: Location of error in request body
+              msg:
+                type: string
+                description: Error message
+              type:
+                type: string
+                description: Error type
+          example:
+            - loc: ["body", "ranges", 0, "start"]
+              msg: "start must be less than or equal to end"
+              type: "value_error"

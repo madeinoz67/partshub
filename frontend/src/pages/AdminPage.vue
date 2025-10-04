@@ -233,9 +233,15 @@
                         dense
                         :icon="props.row.is_active ? 'block' : 'check_circle'"
                         :color="props.row.is_active ? 'negative' : 'positive'"
+                        :disable="isLastActiveAdmin(props.row)"
                         @click="toggleUserStatus(props.row)"
                       >
-                        <q-tooltip>{{ props.row.is_active ? 'Deactivate' : 'Activate' }}</q-tooltip>
+                        <q-tooltip>
+                          {{ isLastActiveAdmin(props.row)
+                            ? 'Cannot deactivate the last active admin'
+                            : (props.row.is_active ? 'Deactivate' : 'Activate')
+                          }}
+                        </q-tooltip>
                       </q-btn>
                     </q-btn-group>
                   </q-td>
@@ -1323,23 +1329,17 @@
     </div>
 
     <!-- Create User Dialog -->
-    <q-dialog v-model="showCreateUserDialog" persistent max-width="500px">
-      <UserForm
-        mode="create"
-        @saved="handleUserSaved"
-        @cancelled="showCreateUserDialog = false"
-      />
-    </q-dialog>
+    <UserForm
+      v-model="showCreateUserDialog"
+      @user-saved="handleUserSaved"
+    />
 
     <!-- Edit User Dialog -->
-    <q-dialog v-model="showEditUserDialog" persistent max-width="500px">
-      <UserForm
-        mode="edit"
-        :user="selectedUser"
-        @saved="handleUserSaved"
-        @cancelled="showEditUserDialog = false"
-      />
-    </q-dialog>
+    <UserForm
+      v-model="showEditUserDialog"
+      :user="selectedUser"
+      @user-saved="handleUserSaved"
+    />
   </q-page>
 </template>
 
@@ -1643,6 +1643,12 @@ const loadUsers = async () => {
     })
   }
   loadingUsers.value = false
+}
+
+const isLastActiveAdmin = (user) => {
+  // Check if this is the last active admin user
+  const activeAdmins = users.value.filter(u => u.is_admin && u.is_active)
+  return user.is_admin && user.is_active && activeAdmins.length === 1
 }
 
 const refreshAllData = async () => {

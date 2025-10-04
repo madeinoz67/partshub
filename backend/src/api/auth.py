@@ -35,6 +35,14 @@ class UserCreate(BaseModel):
     is_admin: bool = False
 
 
+class UserUpdate(BaseModel):
+    """Schema for updating user properties (admin only)."""
+
+    is_active: bool | None = None
+    is_admin: bool | None = None
+    full_name: str | None = None
+
+
 class UserResponse(BaseModel):
     id: str
     username: str
@@ -149,6 +157,18 @@ async def get_current_user_info(
 
 
 # Admin-only endpoints
+@router.get("/users", response_model=list[UserResponse])
+async def list_users(
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """List all users (admin only)."""
+    from ..models.user import User
+
+    users = db.query(User).all()
+    return users
+
+
 @router.post("/users", response_model=UserResponse)
 async def create_new_user(
     user_data: UserCreate,
@@ -167,6 +187,87 @@ async def create_new_user(
         return user
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+async def update_user(
+    user_id: str,
+    user_data: UserUpdate,
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Update user properties (admin only)."""
+    from ..models.user import User
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Prevent deactivating or demoting the last admin
+    if user.is_admin and (
+        (user_data.is_active is False) or (user_data.is_admin is False)
+    ):
+        # Count active admins
+        active_admin_count = (
+            db.query(User)
+            .filter(User.is_admin.is_(True), User.is_active.is_(True))
+            .count()
+        )
+
+        if active_admin_count <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot deactivate or remove admin privileges from the last active admin user",
+            )
+
+    # Update fields if provided
+    if user_data.is_active is not None:
+        user.is_active = user_data.is_active
+    if user_data.is_admin is not None:
+        user.is_admin = user_data.is_admin
+    if user_data.full_name is not None:
+        user.full_name = user_data.full_name
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/users/{user_id}/reset-password")
+async def reset_user_password(
+    user_id: str,
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Reset user password to a random value (admin only)."""
+    import secrets
+    import string
+
+    from passlib.context import CryptContext
+
+    from ..models.user import User
+
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Generate random password
+    alphabet = string.ascii_letters + string.digits
+    new_password = "".join(secrets.choice(alphabet) for _ in range(12))
+
+    # Hash and update password
+    user.hashed_password = pwd_context.hash(new_password)
+    user.must_change_password = True
+
+    db.commit()
+
+    return {
+        "message": "Password reset successfully",
+        "temporary_password": new_password,
+        "username": user.username,
+    }
 
 
 # API Token Management
