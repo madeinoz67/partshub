@@ -5,9 +5,11 @@ Tests KiCad component symbol endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestKiCadSymbolContract:
     """Contract tests for KiCad component symbol endpoint"""
 

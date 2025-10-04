@@ -1,6 +1,6 @@
 ---
-name: code-reviewer
-description: Use this agent when you need to review code for quality, best practices, potential bugs, security issues, or adherence to project standards. Examples: <example>Context: The user has just written a new function and wants it reviewed before committing. user: 'I just wrote this authentication function, can you review it?' assistant: 'I'll use the code-reviewer agent to analyze your authentication function for security, best practices, and potential issues.'</example> <example>Context: After implementing a feature, the user wants a comprehensive code review. user: 'I've finished implementing the user registration flow. Here's the code...' assistant: 'Let me use the code-reviewer agent to thoroughly review your user registration implementation.'</example>
+name: review
+description: Use this agent when you need to review code for quality, best practices, potential bugs, security issues, or adherence to project standards. Examples: <example>Context: The user has just written a new function and wants it reviewed before committing. user: 'I just wrote this authentication function, can you review it?' assistant: 'I'll use the review agent to analyze your authentication function for security, best practices, and potential issues.'</example> <example>Context: After implementing a feature, the user wants a comprehensive code review. user: 'I've finished implementing the user registration flow. Here's the code...' assistant: 'Let me use the review agent to thoroughly review your user registration implementation.'</example>
 model: inherit
 color: purple
 ---

@@ -158,11 +158,11 @@ interface UserFormData {
 interface User {
   id?: string
   username: string
-  email: string
+  email?: string
   full_name?: string
-  role: string
+  is_admin: boolean
   is_active: boolean
-  require_password_change: boolean
+  must_change_password: boolean
 }
 
 interface Props {
@@ -215,13 +215,13 @@ watch(() => props.user, (newUser) => {
   if (newUser) {
     formData.value = {
       username: newUser.username,
-      email: newUser.email,
+      email: newUser.email || '',
       full_name: newUser.full_name || '',
-      role: newUser.role,
+      role: newUser.is_admin ? 'admin' : 'user', // Convert is_admin boolean to role string
       password: '',
       confirmPassword: '',
       is_active: newUser.is_active,
-      require_password_change: newUser.require_password_change
+      require_password_change: newUser.must_change_password || false
     }
   } else {
     formData.value = { ...defaultFormData }
@@ -240,13 +240,12 @@ async function handleSubmit() {
   saving.value = true
 
   try {
-    const userData: Partial<User> = {
+    const userData: Partial<User> & { password?: string } = {
       username: formData.value.username,
-      email: formData.value.email,
       full_name: formData.value.full_name,
-      role: formData.value.role,
+      is_admin: formData.value.role === 'admin', // Convert role string to is_admin boolean
       is_active: formData.value.is_active,
-      require_password_change: formData.value.require_password_change
+      must_change_password: formData.value.require_password_change
     }
 
     if (!isEditing.value) {
@@ -257,7 +256,7 @@ async function handleSubmit() {
       userData.id = props.user?.id
     }
 
-    emit('user-saved', userData as User)
+    emit('user-saved', userData)
     dialogVisible.value = false
   } catch (error) {
     console.error('Error saving user:', error)

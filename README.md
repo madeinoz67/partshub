@@ -98,6 +98,36 @@ make docs          # Start documentation server
 make clean         # Clean build artifacts
 ```
 
+### Storage Location Layout Generation
+
+PartsHub provides a powerful location layout generation feature to quickly create systematic storage locations.
+
+#### Example: Creating Bin Locations
+
+1. Navigate to Storage Locations page
+2. Click "Create Bulk Locations"
+3. Select layout type (Row, Grid, 3D Grid)
+4. Configure naming pattern:
+   - Row: Create bins `box1-a` through `box1-f`
+   - Grid: Create a grid of drawers `drawer-a-1` to `drawer-f-5`
+
+#### API Preview Example
+
+Preview storage locations without creating them:
+
+```bash
+# Preview a row of bins from a-f
+curl -X POST http://localhost:8000/api/v1/storage-locations/generate-preview \
+  -H "Content-Type: application/json" \
+  -d '{
+    "layout_type": "row",
+    "prefix": "box1-",
+    "ranges": [{"range_type": "letters", "start": "a", "end": "f"}],
+    "separators": [],
+    "location_type": "bin"
+  }'
+```
+
 ### First Login
 
 1. Check the backend console output for the admin credentials:

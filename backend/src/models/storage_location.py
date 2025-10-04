@@ -3,8 +3,10 @@ StorageLocation model with hierarchy support for organizing components.
 """
 
 import uuid
+from datetime import UTC
 
 from sqlalchemy import (
+    JSON,
     CheckConstraint,
     Column,
     DateTime,
@@ -47,11 +49,19 @@ class StorageLocation(Base):
         String(20), nullable=True, index=True
     )  # Short identifier like "A1", "B2-3"
 
+    # Layout generation metadata (for audit trail)
+    layout_config = Column(
+        JSON, nullable=True
+    )  # JSONB in PostgreSQL, JSON text in SQLite
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    last_used_at = Column(
+        DateTime(timezone=True), nullable=True
+    )  # Only updated when components are moved in/out
 
     # Relationships
     parent = relationship(
@@ -69,7 +79,7 @@ class StorageLocation(Base):
     # Table constraints
     __table_args__ = (
         CheckConstraint(
-            "type IN ('container', 'room', 'building', 'cabinet', 'drawer', 'shelf', 'bin')",
+            "type IN ('container', 'room', 'building', 'cabinet', 'drawer', 'shelf', 'bin', 'box', 'bag')",
             name="ck_storage_location_type_valid",
         ),
     )
@@ -208,3 +218,23 @@ def update_hierarchy_on_name_change(target, value, oldvalue, initiator):
             parent = session.get(StorageLocation, target.parent_id)
             if parent:
                 target.location_hierarchy = f"{parent.location_hierarchy}/{value}"
+
+
+@event.listens_for(StorageLocation, "before_insert")
+def generate_qr_code_id(mapper, connection, target):
+    """Auto-generate QR code ID if not already set."""
+    if not target.qr_code_id:
+        # Ensure ID is generated first if not already set
+        if not target.id:
+            target.id = str(uuid.uuid4())
+        # Generate a unique QR code ID using the location's UUID
+        # Format: LOC-<first 8 chars of UUID>
+        target.qr_code_id = f"LOC-{target.id[:8].upper()}"
+
+
+@event.listens_for(StorageLocation, "before_update")
+def update_updated_at(mapper, connection, target):
+    """Update updated_at timestamp on every update."""
+    from datetime import datetime
+
+    target.updated_at = datetime.now(UTC)

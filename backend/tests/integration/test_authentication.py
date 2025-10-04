@@ -3,11 +3,13 @@ Integration test for authentication functionality.
 Tests user authentication, authorization, token management, and access control.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.src.auth.admin import ensure_admin_exists
 
 
+@pytest.mark.integration
 class TestAuthenticationIntegration:
     """Integration tests for authentication and authorization"""
 

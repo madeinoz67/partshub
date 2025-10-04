@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestKiCadIntegration:
     """Integration tests for KiCad functionality"""
 

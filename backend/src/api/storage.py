@@ -11,21 +11,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..auth.dependencies import require_auth
+from ..constants import StorageLocationType
 from ..database import get_db
 from ..services.storage_service import StorageLocationService
-
-
-# Enums for validation and OpenAPI documentation
-class StorageLocationType(str, Enum):
-    """Valid storage location types matching database constraints."""
-
-    CONTAINER = "container"
-    ROOM = "room"
-    BUILDING = "building"
-    CABINET = "cabinet"
-    DRAWER = "drawer"
-    SHELF = "shelf"
-    BIN = "bin"
 
 
 # Pydantic schemas
@@ -140,6 +128,203 @@ class BulkCreateLocation(BaseModel):
 
 class BulkCreateRequest(BaseModel):
     locations: list[BulkCreateLocation]
+
+
+# Layout generation schemas for location layout generator feature
+class LayoutType(str, Enum):
+    """Type of layout for location generation."""
+
+    SINGLE = "single"  # One location with name = prefix
+    ROW = "row"  # 1D: prefix + range[0]
+    GRID = "grid"  # 2D: prefix + range[0] + sep[0] + range[1]
+    GRID_3D = "grid_3d"  # 3D: prefix + range[0] + sep[0] + range[1] + sep[1] + range[2]
+
+
+class RangeType(str, Enum):
+    """Type of range for dimension specification."""
+
+    LETTERS = "letters"  # a-z ranges
+    NUMBERS = "numbers"  # 0-999 ranges
+
+
+class RangeSpecification(BaseModel):
+    """Defines a single dimension in multi-dimensional layout."""
+
+    range_type: RangeType = Field(..., description="Type of range (letters or numbers)")
+    start: str | int = Field(
+        ..., description="Start value (single char for letters, int 0-999 for numbers)"
+    )
+    end: str | int = Field(
+        ..., description="End value (single char for letters, int 0-999 for numbers)"
+    )
+    capitalize: bool | None = Field(
+        None, description="Capitalize letters (letters only)"
+    )
+    zero_pad: bool | None = Field(None, description="Zero-pad numbers (numbers only)")
+
+    @field_validator("start", "end")
+    @classmethod
+    def validate_range_values(cls, v, info):  # noqa: N805
+        """Validate range values based on type."""
+        # Get range_type from model context
+        data = info.data
+        range_type = data.get("range_type")
+
+        if range_type == RangeType.LETTERS:
+            if not isinstance(v, str) or len(v) != 1 or not v.isalpha():
+                raise ValueError("Letters range must be single alphabetic character")
+        elif range_type == RangeType.NUMBERS:
+            if not isinstance(v, int) or v < 0 or v > 999:
+                raise ValueError("Numbers range must be integer between 0 and 999")
+
+        return v
+
+    @field_validator("capitalize")
+    @classmethod
+    def validate_capitalize(cls, v, info):  # noqa: N805
+        """Capitalize only valid for letters."""
+        data = info.data
+        range_type = data.get("range_type")
+
+        if v is not None and range_type != RangeType.LETTERS:
+            raise ValueError("capitalize option only valid for letters range_type")
+
+        return v
+
+    @field_validator("zero_pad")
+    @classmethod
+    def validate_zero_pad(cls, v, info):  # noqa: N805
+        """Zero-pad only valid for numbers."""
+        data = info.data
+        range_type = data.get("range_type")
+
+        if v is not None and range_type != RangeType.NUMBERS:
+            raise ValueError("zero_pad option only valid for numbers range_type")
+
+        return v
+
+
+class LayoutConfiguration(BaseModel):
+    """Configuration for generating storage locations with various layout types."""
+
+    layout_type: LayoutType = Field(
+        ..., description="Type of layout (single, row, grid, grid_3d)"
+    )
+    prefix: str = Field(
+        ..., max_length=50, description="Prefix for all generated location names"
+    )
+    ranges: list[RangeSpecification] = Field(
+        ..., description="Ordered list of ranges defining dimensions"
+    )
+    separators: list[str] = Field(
+        ..., description="Separators between range components"
+    )
+    parent_id: str | None = Field(None, description="UUID of parent location")
+    location_type: StorageLocationType = Field(
+        ..., description="Type for all generated locations"
+    )
+    single_part_only: bool = Field(
+        False, description="Whether locations can hold only one part"
+    )
+
+    @field_validator("ranges")
+    @classmethod
+    def validate_ranges_length(cls, v, info):  # noqa: N805
+        """Validate ranges length matches layout_type."""
+        data = info.data
+        layout_type = data.get("layout_type")
+
+        expected_length = {
+            LayoutType.SINGLE: 0,
+            LayoutType.ROW: 1,
+            LayoutType.GRID: 2,
+            LayoutType.GRID_3D: 3,
+        }.get(layout_type)
+
+        if expected_length is not None and len(v) != expected_length:
+            raise ValueError(
+                f"Layout type '{layout_type.value}' requires {expected_length} range(s), got {len(v)}"
+            )
+
+        # Validate start <= end for each range
+        for i, range_spec in enumerate(v):
+            if range_spec.range_type == RangeType.LETTERS:
+                if range_spec.start > range_spec.end:
+                    raise ValueError(
+                        f"Range {i}: start must be <= end ('{range_spec.start}' > '{range_spec.end}')"
+                    )
+            elif range_spec.range_type == RangeType.NUMBERS:
+                if range_spec.start > range_spec.end:
+                    raise ValueError(
+                        f"Range {i}: start must be <= end ({range_spec.start} > {range_spec.end})"
+                    )
+
+        return v
+
+    @field_validator("separators")
+    @classmethod
+    def validate_separators_length(cls, v, info):  # noqa: N805
+        """Validate separators length matches ranges length."""
+        data = info.data
+        ranges = data.get("ranges", [])
+
+        expected_length = max(0, len(ranges) - 1)
+        if len(v) != expected_length:
+            raise ValueError(
+                f"separators length must be {expected_length} (len(ranges) - 1), got {len(v)}"
+            )
+
+        return v
+
+    @field_validator("prefix")
+    @classmethod
+    def validate_prefix(cls, v, info):  # noqa: N805
+        """Validate prefix doesn't contain separator characters."""
+        data = info.data
+        separators = data.get("separators", [])
+
+        for sep in separators:
+            if sep in v:
+                raise ValueError(f"prefix must not contain separator character '{sep}'")
+
+        return v
+
+    @field_validator("parent_id")
+    @classmethod
+    def validate_parent_id(cls, v):  # noqa: N805
+        """Validate parent_id is a valid UUID if provided."""
+        if v is not None:
+            try:
+                uuid.UUID(v)
+            except ValueError:
+                raise ValueError("parent_id must be a valid UUID")
+        return v
+
+
+class PreviewResponse(BaseModel):
+    """Preview of locations to be generated without creating them."""
+
+    sample_names: list[str] = Field(..., description="First 5 generated names")
+    last_name: str = Field(..., description="Last generated name")
+    total_count: int = Field(
+        ..., description="Total number of locations that would be created"
+    )
+    warnings: list[str] = Field(default_factory=list, description="Warning messages")
+    errors: list[str] = Field(default_factory=list, description="Validation errors")
+    is_valid: bool = Field(
+        ..., description="Whether configuration is valid for creation"
+    )
+
+
+class BulkCreateResponse(BaseModel):
+    """Result of bulk location creation operation."""
+
+    created_ids: list[str] = Field(
+        ..., description="UUIDs of successfully created locations"
+    )
+    created_count: int = Field(..., description="Number of locations created")
+    success: bool = Field(..., description="Whether operation succeeded")
+    errors: list[str] | None = Field(None, description="Errors if operation failed")
 
 
 router = APIRouter(prefix="/api/v1/storage-locations", tags=["storage"])
@@ -528,3 +713,36 @@ def get_location_components(
         result.append(component_dict)
 
     return result
+
+
+# Layout generation endpoints
+@router.post("/generate-preview", response_model=PreviewResponse)
+def generate_preview(
+    config: LayoutConfiguration,
+    db: Session = Depends(get_db),
+):
+    """
+    Preview storage locations that would be generated from a layout configuration.
+
+    This endpoint does not require authentication as it's a read-only preview operation.
+    Returns the first 5 location names, last name, total count, and validation errors/warnings.
+    """
+    import logging
+
+    from ..services.preview_service import PreviewService
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Received config: {config}")
+
+    service = PreviewService(db)
+
+    try:
+        return service.generate_preview(config)
+
+    except ValueError as e:
+        # Pydantic validation errors
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Internal error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

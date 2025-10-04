@@ -41,6 +41,21 @@
 
         <q-space />
 
+        <!-- Documentation Link - Desktop -->
+        <div v-if="$q.screen.gt.sm" class="q-mr-md">
+          <q-btn
+            flat
+            round
+            dense
+            icon="menu_book"
+            href="https://madeinoz67.github.io/partshub/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <q-tooltip>Documentation</q-tooltip>
+          </q-btn>
+        </div>
+
         <!-- Desktop User menu for authenticated users -->
         <div v-if="authStore.isAuthenticated && $q.screen.gt.sm" class="q-mr-md">
           <q-btn-dropdown
@@ -131,7 +146,7 @@
         </div>
 
         <!-- Version - hide on mobile -->
-        <div v-if="$q.screen.gt.xs" class="text-caption">v1.0.0</div>
+        <div v-if="$q.screen.gt.xs" class="text-caption">v{{ packageInfo.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -163,6 +178,26 @@
           <q-item-section>
             <q-item-label>{{ link.title }}</q-item-label>
             <q-item-label caption>{{ link.caption }}</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator class="q-my-md" />
+
+        <q-item
+          v-ripple
+          clickable
+          tag="a"
+          href="https://madeinoz67.github.io/partshub/"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click="leftDrawerOpen = false"
+        >
+          <q-item-section avatar>
+            <q-icon name="menu_book" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Documentation</q-item-label>
+            <q-item-label caption>User guide and API docs</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -242,6 +277,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import PasswordChangeDialog from '../components/PasswordChangeDialog.vue'
+import packageInfo from '../../package.json'
 
 interface EssentialLink {
   title: string

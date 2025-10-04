@@ -5,9 +5,11 @@ Tests component stock update endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestComponentsStockContract:
     """Contract tests for component stock update endpoint"""
 

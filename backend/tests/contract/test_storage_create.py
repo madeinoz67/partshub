@@ -5,9 +5,11 @@ Tests storage location creation endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestStorageCreateContract:
     """Contract tests for storage location creation endpoint"""
 

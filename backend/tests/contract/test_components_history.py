@@ -5,9 +5,11 @@ Tests component stock history endpoint according to OpenAPI specification
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestComponentsHistoryContract:
     """Contract tests for component stock history endpoint"""
 

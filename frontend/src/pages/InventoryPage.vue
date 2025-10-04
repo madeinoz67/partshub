@@ -236,22 +236,6 @@
         <div class="text-body2 text-grey-5 q-mt-sm">
           {{ hasActiveFilters ? 'Try adjusting your search criteria' : 'Add your first component to get started' }}
         </div>
-        <q-btn
-          v-if="!hasActiveFilters"
-          color="primary"
-          icon="add"
-          label="Add Component"
-          class="q-mt-md"
-          @click="showAddDialog = true"
-        />
-        <q-btn
-          v-else
-          flat
-          color="primary"
-          label="Clear Filters"
-          class="q-mt-md"
-          @click="clearFilters"
-        />
       </div>
 
       <!-- Pagination -->
@@ -500,21 +484,6 @@ const searchComponents = () => {
 }
 
 const filterComponents = () => {
-  currentPage.value = 1
-  loadComponents()
-}
-
-const clearFilters = () => {
-  searchQuery.value = ''
-  selectedCategory.value = null
-  selectedLocation.value = null
-  selectedType.value = null
-  stockStatus.value = null
-  minQuantity.value = null
-  maxQuantity.value = null
-  manufacturer.value = ''
-  packageFilter.value = ''
-  showAdvancedFilters.value = false
   currentPage.value = 1
   loadComponents()
 }

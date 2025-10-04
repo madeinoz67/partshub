@@ -119,6 +119,8 @@ nav:
       - KiCad Field Mappings: backend/kicad-field-mappings.md
   - Frontend:
       - frontend/index.md
+  - Features:
+      - Storage Location Layout: features/storage-location-layout.md
   - Developer Guide:
       - developer/index.md
       - Workflows: developer/workflows.md

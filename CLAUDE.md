@@ -12,6 +12,8 @@ Auto-generated from all feature plans. Last updated: 2025-09-27
 - GitHub Container Registry, GitHub Artifacts, GitHub Pages (002-github-workflows)
 - GitHub Actions YAML workflows, Python 3.11+ (backend), Node.js 18+ (frontend) + GitHub Actions ecosystem, Mike (docs versioning), Release Please (release automation), Docker/GitHub Container Registry (002-github-workflows)
 - YAML workflow files in `.github/workflows/`, GitHub Container Registry for Docker images (002-github-workflows)
+- Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend), Quasar Framework, Pinia (frontend) (003-location-improvements-as)
+- SQLite database with SQLAlchemy ORM (existing storage_locations table) (003-location-improvements-as)
 
 ## Project Structure
 ```
@@ -45,12 +47,21 @@ make docs         # Start documentation server
 - Run tests locally: `cd backend && uv run pytest`
 
 ## Recent Changes
+- 003-location-improvements-as: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend), Quasar Framework, Pinia (frontend)
 
 - 002-github-workflows: Added GitHub Actions YAML workflows, Python 3.11+ (backend), Node.js 18+ (frontend) + GitHub Actions ecosystem, Mike (docs versioning), Release Please (release automation), Docker/GitHub Container Registry
 - 002-github-workflows: Added YAML (GitHub Actions), Shell scripting, Python 3.11+ (for tooling) + GitHub Actions, Docker, MkDocs, pytest, ruff, uv, Node.js/npm
-- 2025-09-27: Consolidated pyproject.toml structure for unified version management
 
 <!-- MANUAL ADDITIONS START -->
+
+## Specialized Agents (NON-NEGOTIABLE)
+ALWAYS use specialized agents for domain-specific tasks (testing, database, security, etc.). All agents MUST follow the project constitution, including isolated testing principles:
+
+- Use in-memory SQLite (`sqlite:///:memory:`) for all tests (see `backend/tests/conftest.py`)
+- Never modify production databases during testing
+- Ensure tests are self-contained and repeatable
+- Follow all testing guidelines in project constitution
+- Database fixtures automatically create/destroy tables per test
 
 ## Anonymous Contribution (NON-NEGOTIABLE)
 All commits, pull requests, and git history MUST NOT contain references to AI assistants, automated tools, or external contributors in commit messages, co-author tags, or acknowledgments. Contributions MUST appear as originating from human project members only. Generated code markers and tool acknowledgments are prohibited in version control.

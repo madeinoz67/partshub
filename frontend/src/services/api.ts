@@ -110,9 +110,22 @@ export interface StorageLocation {
   qr_code_id: string | null
   created_at: string
   updated_at: string
+  last_used_at: string | null
   children?: StorageLocation[]
   component_count?: number
   full_hierarchy_path?: Array<{ id: string; name: string }>
+  layout_config?: {
+    layout_type: string
+    prefix?: string
+    ranges?: Array<{
+      type: string
+      start: string
+      end: string
+      capitalize?: boolean
+      zero_pad?: boolean
+    }>
+    separators?: string[]
+  }
 }
 
 export interface Tag {

@@ -3,9 +3,11 @@ Contract test for GET /api/v1/storage-locations
 Tests storage locations listing endpoint according to OpenAPI specification
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.contract
 class TestStorageListContract:
     """Contract tests for storage locations listing endpoint"""
 

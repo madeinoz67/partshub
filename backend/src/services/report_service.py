@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from ..models import (
     Category,
     Component,
+    ComponentLocation,
     Project,
     ProjectComponent,
     Purchase,
@@ -783,11 +784,11 @@ class ReportService:
                 self.db.query(Component).filter(Component.category_id.is_(None)).count()
             )
 
-            components_without_location = (
-                self.db.query(Component)
-                .filter(Component.storage_location_id.is_(None))
-                .count()
-            )
+            # Components without any location assignment
+            components_with_locations = self.db.query(
+                func.distinct(ComponentLocation.component_id)
+            ).count()
+            components_without_location = total_components - components_with_locations
 
             components_without_specs = (
                 self.db.query(Component)
@@ -800,14 +801,18 @@ class ReportService:
                 .count()
             )
 
-            # Performance indicators
-            avg_components_per_location = self.db.query(
-                func.avg(
-                    self.db.query(func.count(Component.id))
-                    .filter(Component.storage_location_id == StorageLocation.id)
-                    .scalar_subquery()
-                )
-            ).scalar()
+            # Performance indicators - average unique components per location
+            location_component_counts = (
+                self.db.query(func.count(func.distinct(ComponentLocation.component_id)))
+                .group_by(ComponentLocation.storage_location_id)
+                .all()
+            )
+            avg_components_per_location = (
+                sum(count[0] for count in location_component_counts)
+                / len(location_component_counts)
+                if location_component_counts
+                else 0
+            )
 
             return {
                 "database_statistics": {

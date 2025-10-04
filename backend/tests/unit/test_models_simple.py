@@ -5,7 +5,10 @@ Focus on testing individual method logic for coverage improvement.
 
 from datetime import UTC, datetime, timedelta
 
+import pytest
 
+
+@pytest.mark.unit
 class TestKiCadDataMethods:
     """Test individual KiCad model methods without full ORM setup."""
 
@@ -47,6 +50,7 @@ class TestKiCadDataMethods:
         assert kicad.get_symbol_reference() == "MyLib:MySymbol"
 
 
+@pytest.mark.unit
 class TestMetaPartMethods:
     """Test individual MetaPart model methods."""
 
@@ -76,6 +80,7 @@ class TestMetaPartMethods:
         assert meta.total_component_count == 0
 
 
+@pytest.mark.unit
 class TestProviderDataMethods:
     """Test individual provider data model methods."""
 
@@ -118,6 +123,7 @@ class TestProviderDataMethods:
         assert provider_data.is_cached_recently(24) is False
 
 
+@pytest.mark.unit
 class TestComponentModelMethods:
     """Test Component model properties and methods."""
 
@@ -134,6 +140,7 @@ class TestComponentModelMethods:
         assert component.display_name == "Resistor"
 
 
+@pytest.mark.unit
 class TestProjectModelMethods:
     """Test Project model properties and methods."""
 
@@ -160,6 +167,7 @@ class TestProjectModelMethods:
         assert ProjectStatus.CANCELLED.value == "cancelled"
 
 
+@pytest.mark.unit
 class TestCategoryModelMethods:
     """Test Category model methods."""
 
@@ -184,6 +192,7 @@ class TestCategoryModelMethods:
         assert path[0].name == "Electronics"
 
 
+@pytest.mark.unit
 class TestStorageLocationMethods:
     """Test StorageLocation model methods."""
 
@@ -213,6 +222,7 @@ class TestStorageLocationMethods:
         assert path[0].name == "Lab"
 
 
+@pytest.mark.unit
 class TestCustomFieldMethods:
     """Test CustomField model methods."""
 
@@ -227,6 +237,7 @@ class TestCustomFieldMethods:
         assert FieldType.URL.value == "url"
 
 
+@pytest.mark.unit
 class TestStockTransactionMethods:
     """Test StockTransaction model methods."""
 
@@ -258,6 +269,7 @@ class TestStockTransactionMethods:
         assert "Test purchase" in result
 
 
+@pytest.mark.unit
 class TestAttachmentMethods:
     """Test Attachment model methods."""
 

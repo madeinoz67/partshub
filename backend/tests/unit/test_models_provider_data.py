@@ -6,9 +6,12 @@ Tests all methods, properties, and caching functionality.
 from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
 
+import pytest
+
 from backend.src.models.provider_data import ComponentProviderData
 
 
+@pytest.mark.unit
 class TestComponentProviderData:
     """Test ComponentProviderData model methods and properties."""
 

@@ -3,9 +3,11 @@ Integration test for project-based component management.
 Tests project creation, component allocation, and tracking workflows.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 class TestProjectManagement:
     """Integration tests for project-based component management"""
 
