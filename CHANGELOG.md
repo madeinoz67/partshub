@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/madeinoz67/partshub/compare/v0.2.0...v0.2.1) (2025-10-04)
+
+
+### Bug Fixes
+
+* correct release workflow tag extraction for workflow_call ([54840fb](https://github.com/madeinoz67/partshub/commit/54840fb4cdad0f9f1d040c67a57ed8cd239b480c))
+* resolve documentation build and deployment issues ([ec256c5](https://github.com/madeinoz67/partshub/commit/ec256c58b97ee5d015dc16f0ae0fda21a0ba94fb))
+
 ## [0.2.0](https://github.com/madeinoz67/partshub/compare/v0.1.2...v0.2.0) (2025-10-04)
 
 
