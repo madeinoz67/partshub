@@ -160,7 +160,7 @@
 
 ### Database Models
 
-- [ ] **T011** [P] [db] Extend StockTransaction model with pricing fields
+- [x] **T011** [P] [db] Extend StockTransaction model with pricing fields
   - **Agent**: `db` (SQLAlchemy/database expert)
   - **File**: `backend/src/models/stock_transaction.py`
   - **Task**: Add fields: `lot_id` (String 100 nullable), `price_per_unit` (Numeric 10,4 nullable), `total_price` (Numeric 10,4 nullable); update `__repr__` and validation
@@ -168,7 +168,7 @@
   - **Validation**: Fields added correctly; alembic revision matches; tests in T003-T010 start passing
   - **Dependencies**: T001 (migration), T003-T010 (tests written and failing)
 
-- [ ] **T012** [P] [db] Add pessimistic locking helper to ComponentLocation model
+- [x] **T012** [P] [db] Add pessimistic locking helper to ComponentLocation model
   - **Agent**: `db` (SQLAlchemy/database expert)
   - **File**: `backend/src/models/component_location.py`
   - **Task**: Add class method `acquire_lock(session, location_ids)` using `with_for_update(nowait=False)` with consistent ordering (by id); document deadlock prevention
@@ -178,7 +178,7 @@
 
 ### Backend Services
 
-- [ ] **T013** [api] Implement stock operations service - add_stock method
+- [x] **T013** [api] Implement stock operations service - add_stock method
   - **Agent**: `api` (FastAPI service layer expert)
   - **File**: `backend/src/services/stock_operations.py`
   - **Task**: Implement `add_stock(component_id, location_id, quantity, pricing, lot_id, comments, user)` with pessimistic locking, StockTransaction creation, ComponentLocation update/create, Component.total_quantity increment
@@ -186,7 +186,7 @@
   - **Validation**: T003 contract tests pass; T006 integration tests pass; T010 unit tests pass
   - **Dependencies**: T011, T012 (models ready), T003/T006/T010 (tests failing)
 
-- [ ] **T014** [api] Implement stock operations service - remove_stock method
+- [x] **T014** [api] Implement stock operations service - remove_stock method
   - **Agent**: `api` (FastAPI service layer expert)
   - **File**: `backend/src/services/stock_operations.py`
   - **Task**: Implement `remove_stock(component_id, location_id, quantity, comments, user)` with pessimistic locking, auto-capping to available stock, StockTransaction creation (negative qty), ComponentLocation update/delete if zero, Component.total_quantity decrement
@@ -194,7 +194,7 @@
   - **Validation**: T004 contract tests pass; T007 integration tests pass; auto-capping tested
   - **Dependencies**: T011, T012 (models ready), T004/T007/T010 (tests failing)
 
-- [ ] **T015** [api] Implement stock operations service - move_stock method
+- [x] **T015** [api] Implement stock operations service - move_stock method
   - **Agent**: `api` (FastAPI service layer expert)
   - **File**: `backend/src/services/stock_operations.py`
   - **Task**: Implement `move_stock(component_id, source_location_id, dest_location_id, quantity, comments, user)` with atomic transaction, locks on both locations (ordered), auto-capping, pricing inheritance, 2 StockTransactions, source update/delete, dest create/update, total quantity validation

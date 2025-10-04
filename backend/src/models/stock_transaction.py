@@ -5,7 +5,7 @@ StockTransaction audit model for tracking all inventory changes.
 import enum
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -62,6 +62,15 @@ class StockTransaction(Base):
     batch_id = Column(String, nullable=True)  # For grouping related transactions
     notes = Column(Text, nullable=True)  # Additional notes
 
+    # Lot and pricing tracking (added in migration f3c7d9e5a2b1)
+    lot_id = Column(String(100), nullable=True, index=True)  # Lot/batch identifier
+    price_per_unit = Column(
+        Numeric(10, 4), nullable=True
+    )  # Unit price at time of transaction
+    total_price = Column(
+        Numeric(10, 4), nullable=True
+    )  # Total transaction price (quantity * price_per_unit)
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -71,7 +80,7 @@ class StockTransaction(Base):
     to_location = relationship("StorageLocation", foreign_keys=[to_location_id])
 
     def __repr__(self):
-        return f"<StockTransaction(id='{self.id}', component_id='{self.component_id}', type='{self.transaction_type.value}', qty_change={self.quantity_change})>"
+        return f"<StockTransaction(id='{self.id}', component_id='{self.component_id}', type='{self.transaction_type.value}', qty_change={self.quantity_change}, lot_id='{self.lot_id}', total_price={self.total_price})>"
 
     @property
     def is_stock_increase(self):
