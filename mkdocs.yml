@@ -57,6 +57,7 @@ extra:
       link: https://github.com/madeinoz67g/partshub
   version:
     provider: mike
+    default: latest
 
 # Extensions
 markdown_extensions:
