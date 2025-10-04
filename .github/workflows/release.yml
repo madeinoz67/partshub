@@ -4,7 +4,12 @@ name: "Release Automation"
   push:
     tags:
       - 'v*.*.*'  # Semantic versioning tags (fallback, if tag is pushed directly)
-  workflow_call: {}  # Allow this workflow to be called by other workflows
+  workflow_call:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (e.g., v0.2.0)'
+        required: false
+        type: string
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -33,7 +38,14 @@ jobs:
         id: version
         run: |
           # Extract version from tag
-          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          if [ -n "${{ inputs.tag_name }}" ]; then
+            # Called from workflow_call - use input tag_name
+            TAG_VERSION=${{ inputs.tag_name }}
+            TAG_VERSION=${TAG_VERSION#v}  # Remove 'v' prefix if present
+          else
+            # Triggered by tag push - use GITHUB_REF
+            TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          fi
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
           # Extract version from pyproject.toml
