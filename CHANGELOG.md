@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/madeinoz67/partshub/compare/v0.1.1...v0.1.2) (2025-10-04)
+
+
+### Documentation
+
+* Add comprehensive Docker deployment and user documentation ([#10](https://github.com/madeinoz67/partshub/issues/10)) ([b8f04a2](https://github.com/madeinoz67/partshub/commit/b8f04a26b0516914b7346ead7af6de774752d95d))
+
 ## [0.1.1](https://github.com/madeinoz67/partshub/compare/v0.1.0...v0.1.1) (2025-10-04)
 
 ### Added
@@ -39,4 +46,3 @@
 - Provider integration (Digi-Key, Mouser, LCSC)
 - Barcode scanning support
 - Documentation system with MkDocs
-

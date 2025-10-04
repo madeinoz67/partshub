@@ -1,8 +1,8 @@
 # PartsHub - Electronic Parts Inventory Management
 
-[![CI](https://github.com/owner/partshub/actions/workflows/ci.yml/badge.svg)](https://github.com/owner/partshub/actions/workflows/ci.yml)
-[![CD](https://github.com/owner/partshub/actions/workflows/cd.yml/badge.svg)](https://github.com/owner/partshub/actions/workflows/cd.yml)
-[![Release](https://github.com/owner/partshub/actions/workflows/release.yml/badge.svg)](https://github.com/owner/partshub/actions/workflows/release.yml)
+[![CI](https://github.com/madeinoz67/partshub/actions/workflows/ci.yml/badge.svg)](https://github.com/madeinoz67/partshub/actions/workflows/ci.yml)
+[![CD](https://github.com/madeinoz67/partshub/actions/workflows/cd.yml/badge.svg)](https://github.com/madeinoz67/partshub/actions/workflows/cd.yml)
+[![Release](https://github.com/madeinoz67/partshub/actions/workflows/release.yml/badge.svg)](https://github.com/madeinoz67/partshub/actions/workflows/release.yml)
 
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
