@@ -152,13 +152,11 @@ PartsHub container is configured with:
      - Configure max attachment size in application settings
 
 ### Backup Recommendations
-- **Always backup the entire `/app/data` directory** (database + attachments together)
-- Backup both `/app/data/partshub.db` AND `/app/data/attachments/` as a complete unit
-- Use volume snapshots or complete directory backups
-- See [Backup & Recovery Guide](backup.md) for detailed procedures
 
-!!! warning "Complete Backups Required"
-    Never backup only the database! Attachments must be backed up together with the database to maintain file reference integrity.
+For comprehensive backup procedures and best practices, see the [Backup & Recovery Guide](backup.md).
+
+!!! tip "Complete Data Backups"
+    Always backup the entire `/app/data` directory to preserve both database and attachments together.
 
 ## Best Practices
 
