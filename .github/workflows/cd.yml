@@ -110,6 +110,10 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:$VERSION" >> $GITHUB_OUTPUT
 
+          # Extract short SHA for dev tagging
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
       - name: Build and push all-in-one image
         uses: docker/build-push-action@v5
         with:
@@ -118,8 +122,9 @@ jobs:
           target: development
           push: true
           tags: |
-            ${{ steps.version.outputs.tag }}
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:latest
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:dev
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:dev-${{ steps.version.outputs.version }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:dev-${{ steps.version.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

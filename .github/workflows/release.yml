@@ -157,6 +157,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract version components
+        id: version_parts
+        run: |
+          VERSION="${{ needs.validate_release.outputs.version }}"
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "major_minor=${MAJOR}.${MINOR}" >> $GITHUB_OUTPUT
+
       - name: Build and push all-in-one image
         uses: docker/build-push-action@v5
         with:
@@ -167,7 +177,8 @@ jobs:
           tags: |
             ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:latest
             ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ needs.validate_release.outputs.version }}
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ steps.version_parts.outputs.major_minor }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}:${{ steps.version_parts.outputs.major }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -365,7 +376,8 @@ jobs:
 
           # Deploy this version and set as latest
           # Mike automatically creates .nojekyll and handles all git operations
-          uv run mike deploy --push --update-aliases $VERSION latest
+          # Use custom title to show "latest" in version dropdown
+          uv run mike deploy --push --update-aliases --title="latest ($VERSION)" $VERSION latest
 
           # Set this version as the default (redirects from root)
           uv run mike set-default --push latest
