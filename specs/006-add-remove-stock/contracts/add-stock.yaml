@@ -1,0 +1,236 @@
+openapi: 3.0.0
+info:
+  title: Add Stock API
+  description: API endpoint for adding stock to a component at a specific location
+  version: 1.0.0
+
+paths:
+  /api/v1/components/{component_id}/stock/add:
+    post:
+      summary: Add stock to a component
+      description: |
+        Adds stock to a specific component at a designated storage location.
+        This operation creates a StockTransaction audit record and updates the
+        ComponentLocation quantity. Supports manual entry and order-based receiving.
+
+        **Admin Only**: Requires admin role authentication.
+
+        **Atomicity**: Operation is atomic - all changes succeed or all fail.
+
+        **Locking**: Acquires pessimistic lock on target ComponentLocation during operation.
+      operationId: addStock
+      tags:
+        - Stock Operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: component_id
+          in: path
+          required: true
+          description: UUID of the component to add stock to
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - location_id
+                - quantity
+              properties:
+                location_id:
+                  type: string
+                  format: uuid
+                  description: UUID of the storage location to add stock to
+                  example: "660e8400-e29b-41d4-a716-446655440001"
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: Quantity of stock to add (must be positive)
+                  example: 50
+                price_per_unit:
+                  type: number
+                  format: decimal
+                  minimum: 0
+                  nullable: true
+                  description: Price per unit (optional, for "Per component" pricing)
+                  example: 0.25
+                total_price:
+                  type: number
+                  format: decimal
+                  minimum: 0
+                  nullable: true
+                  description: Total price for entire lot (optional, for "Entire lot" pricing)
+                  example: 12.50
+                lot_id:
+                  type: string
+                  maxLength: 100
+                  nullable: true
+                  description: Lot/batch identifier for tracking (optional)
+                  example: "LOT-2025-001"
+                comments:
+                  type: string
+                  nullable: true
+                  description: Additional comments/notes for this stock addition
+                  example: "Received from supplier XYZ, invoice #12345"
+                reference_id:
+                  type: string
+                  nullable: true
+                  description: Reference to related entity (e.g., order ID, purchase ID)
+                  example: "order-550e8400"
+                reference_type:
+                  type: string
+                  maxLength: 50
+                  nullable: true
+                  description: Type of reference (e.g., "purchase_order", "manual_entry")
+                  example: "purchase_order"
+            examples:
+              manual_entry_with_pricing:
+                summary: Manual entry with per-unit pricing
+                value:
+                  location_id: "660e8400-e29b-41d4-a716-446655440001"
+                  quantity: 100
+                  price_per_unit: 0.50
+                  lot_id: "LOT-2025-Q1-001"
+                  comments: "Manual stock addition - quarterly restock"
+              order_receiving:
+                summary: Receiving against purchase order
+                value:
+                  location_id: "660e8400-e29b-41d4-a716-446655440001"
+                  quantity: 50
+                  total_price: 25.00
+                  reference_id: "PO-2025-001"
+                  reference_type: "purchase_order"
+                  comments: "Received shipment against PO-2025-001"
+              no_pricing:
+                summary: Simple quantity addition without pricing
+                value:
+                  location_id: "660e8400-e29b-41d4-a716-446655440001"
+                  quantity: 25
+                  comments: "Found in old inventory"
+      responses:
+        '200':
+          description: Stock added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Stock added successfully"
+                  transaction_id:
+                    type: string
+                    format: uuid
+                    description: ID of created StockTransaction record
+                    example: "770e8400-e29b-41d4-a716-446655440002"
+                  component_id:
+                    type: string
+                    format: uuid
+                    example: "550e8400-e29b-41d4-a716-446655440000"
+                  location_id:
+                    type: string
+                    format: uuid
+                    example: "660e8400-e29b-41d4-a716-446655440001"
+                  quantity_added:
+                    type: integer
+                    description: Quantity of stock added
+                    example: 50
+                  previous_quantity:
+                    type: integer
+                    description: Stock quantity at location before addition
+                    example: 100
+                  new_quantity:
+                    type: integer
+                    description: Stock quantity at location after addition
+                    example: 150
+                  total_stock:
+                    type: integer
+                    description: Total component stock across all locations
+                    example: 250
+              examples:
+                success_response:
+                  summary: Successful stock addition
+                  value:
+                    success: true
+                    message: "Stock added successfully"
+                    transaction_id: "770e8400-e29b-41d4-a716-446655440002"
+                    component_id: "550e8400-e29b-41d4-a716-446655440000"
+                    location_id: "660e8400-e29b-41d4-a716-446655440001"
+                    quantity_added: 50
+                    previous_quantity: 100
+                    new_quantity: 150
+                    total_stock: 250
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    description: Error message describing validation failure
+              examples:
+                invalid_quantity:
+                  summary: Negative or zero quantity
+                  value:
+                    detail: "Quantity must be positive (minimum: 1)"
+                invalid_pricing:
+                  summary: Inconsistent pricing data
+                  value:
+                    detail: "Cannot specify both price_per_unit and total_price"
+                missing_location:
+                  summary: Location not found
+                  value:
+                    detail: "Storage location not found"
+        '403':
+          description: Forbidden - user lacks admin privileges
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Admin privileges required for stock operations"
+        '404':
+          description: Not found - component does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Component not found"
+        '409':
+          description: Conflict - resource locked by another operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Location is currently locked by another operation. Please try again."
+              examples:
+                lock_timeout:
+                  summary: Lock acquisition timeout
+                  value:
+                    detail: "Location is currently locked by another operation. Please try again."
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token (admin role required)

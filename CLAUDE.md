@@ -51,9 +51,9 @@ make docs         # Start documentation server
 - Run tests locally: `cd backend && uv run pytest`
 
 ## Recent Changes
+- 006-add-remove-stock: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 005-improve-component-functions: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend); Quasar Framework, Pinia (frontend)
 - 004-docker-and-user: Added Markdown, MkDocs (Python 3.11 for docs server) + MkDocs, Docker, existing PartsHub infrastructure
-- 003-location-improvements-as: Added Python 3.11+ (backend), Vue.js 3 with TypeScript (frontend) + FastAPI, SQLAlchemy, Pydantic (backend), Quasar Framework, Pinia (frontend)
 
 
 <!-- MANUAL ADDITIONS START -->
