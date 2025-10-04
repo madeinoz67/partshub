@@ -338,18 +338,25 @@ jobs:
 
           # Add version info to docs
           mkdir -p docs/releases
-          echo "# Version $VERSION" > docs/releases/v$VERSION.md
-          echo "" >> docs/releases/v$VERSION.md
-          echo "Released on $(date +%Y-%m-%d)" >> docs/releases/v$VERSION.md
-          echo "" >> docs/releases/v$VERSION.md
-          echo "This release includes:" >> docs/releases/v$VERSION.md
-          echo "" >> docs/releases/v$VERSION.md
 
-          # Generate mini changelog for this version
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
-          if [ ! -z "$PREVIOUS_TAG" ]; then
-            echo "### Changes since $PREVIOUS_TAG" >> docs/releases/v$VERSION.md
-            git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..v$VERSION" | head -10 >> docs/releases/v$VERSION.md
+          # Check if detailed release notes already exist
+          if [ -f "docs/releases/v$VERSION.md" ]; then
+            echo "Preserving existing detailed release notes for v$VERSION"
+          else
+            echo "Generating default release notes for v$VERSION"
+            echo "# Version $VERSION" > docs/releases/v$VERSION.md
+            echo "" >> docs/releases/v$VERSION.md
+            echo "Released on $(date +%Y-%m-%d)" >> docs/releases/v$VERSION.md
+            echo "" >> docs/releases/v$VERSION.md
+            echo "This release includes:" >> docs/releases/v$VERSION.md
+            echo "" >> docs/releases/v$VERSION.md
+
+            # Generate mini changelog for this version
+            PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+            if [ ! -z "$PREVIOUS_TAG" ]; then
+              echo "### Changes since $PREVIOUS_TAG" >> docs/releases/v$VERSION.md
+              git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..v$VERSION" | head -10 >> docs/releases/v$VERSION.md
+            fi
           fi
 
       - name: Deploy versioned docs with Mike
@@ -357,18 +364,11 @@ jobs:
           VERSION="${{ needs.validate_release.outputs.version }}"
 
           # Deploy this version and set as latest
+          # Mike automatically creates .nojekyll and handles all git operations
           uv run mike deploy --push --update-aliases $VERSION latest
 
           # Set this version as the default (redirects from root)
           uv run mike set-default --push latest
-
-          # Ensure .nojekyll exists to disable Jekyll processing
-          git checkout gh-pages
-          touch .nojekyll
-          git add .nojekyll
-          git commit -m "Add .nojekyll to disable Jekyll" || true
-          git push origin gh-pages
-          git checkout -
 
       - name: List mike versions
         run: uv run mike list

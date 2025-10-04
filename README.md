@@ -6,6 +6,8 @@
 
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
+**Latest Release**: v0.1.1 (October 2025) - Now featuring an advanced Storage Location Layout Generator!
+
 ## Features
 
 ### 📦 Component Management
@@ -100,16 +102,22 @@ make clean         # Clean build artifacts
 
 ### Storage Location Layout Generation
 
-PartsHub provides a powerful location layout generation feature to quickly create systematic storage locations.
+PartsHub provides a powerful bulk storage location generation feature (v0.1.1) to quickly create systematic storage locations with advanced organizational capabilities.
 
-#### Example: Creating Bin Locations
+#### Four Layout Types
 
-1. Navigate to Storage Locations page
-2. Click "Create Bulk Locations"
-3. Select layout type (Row, Grid, 3D Grid)
-4. Configure naming pattern:
-   - Row: Create bins `box1-a` through `box1-f`
-   - Grid: Create a grid of drawers `drawer-a-1` to `drawer-f-5`
+1. **Single Layout**: Perfect for unique storage needs
+2. **Row Layout (1D)**: Create linear sequences (e.g., `box1-a` through `box1-f`)
+3. **Grid Layout (2D)**: Create 2D organizational grids (e.g., `drawer-a-1` to `drawer-f-5`)
+4. **3D Grid Layout**: Generate multi-level hierarchical storage systems
+
+#### Key Features
+
+- **Real-time Preview**: See location names before creation
+- **Bulk Creation**: Create up to 500 locations per batch
+- **Flexible Naming**: Letter/number ranges, custom separators
+- **Hierarchical Support**: Parent-child location relationships
+- **Authentication-Gated**: Preview for all, creation for authenticated users
 
 #### API Preview Example
 
@@ -123,7 +131,6 @@ curl -X POST http://localhost:8000/api/v1/storage-locations/generate-preview \
     "layout_type": "row",
     "prefix": "box1-",
     "ranges": [{"range_type": "letters", "start": "a", "end": "f"}],
-    "separators": [],
     "location_type": "bin"
   }'
 ```
