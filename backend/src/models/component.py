@@ -4,7 +4,16 @@ Component model with JSON specifications field for flexible component data stora
 
 import uuid
 
-from sqlalchemy import JSON, Column, DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -17,6 +26,8 @@ class Component(Base):
 
     Uses JSON fields for flexible component specifications that vary by component type
     (e.g., resistors have resistance/tolerance, microcontrollers have memory/frequency).
+
+    Implements optimistic locking via version column to detect concurrent modifications.
     """
 
     __tablename__ = "components"
@@ -73,6 +84,12 @@ class Component(Base):
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    # Optimistic locking for concurrent modification detection
+    version = Column(Integer, nullable=False, default=1, server_default="1")
+
+    # SQLAlchemy configuration for optimistic locking
+    __mapper_args__ = {"version_id_col": version}
 
     # Relationships
     category = relationship("Category", back_populates="components")
