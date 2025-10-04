@@ -234,7 +234,7 @@
 
 **CRITICAL: Security review MUST be completed before frontend implementation**
 
-- [ ] **T019** [security] Security review of stock operations backend
+- [x] **T019** [security] Security review of stock operations backend
   - **Agent**: `security` (security analysis expert)
   - **File**: Review `backend/src/services/stock_operations.py`, `backend/src/api/stock_operations.py`
   - **Task**: Perform comprehensive security analysis:
@@ -256,7 +256,7 @@
 
 ### Frontend API Client
 
-- [ ] **T020** [vue] Create stock operations API client service
+- [x] **T020** [vue] Create stock operations API client service
   - **Agent**: `vue` (Vue/TypeScript frontend expert)
   - **File**: `frontend/src/services/stockOperations.ts`
   - **Task**: Create TypeScript API client with methods: `addStock`, `removeStock`, `moveStock` - call backend endpoints with JWT auth header; proper error handling; TypeScript interfaces matching Pydantic schemas
@@ -266,7 +266,7 @@
 
 ### Frontend Form Components
 
-- [ ] **T021** [P] [vue] Create AddStockForm.vue inline component
+- [x] **T021** [P] [vue] Create AddStockForm.vue inline component
   - **Agent**: `vue` (Vue/Quasar component expert)
   - **File**: `frontend/src/components/stock/AddStockForm.vue`
   - **Task**: Create inline multi-step form component with tabs: "Enter manually", "Receive against order", "Add to order"; quantity input, pricing options (no price/per component/entire lot), total calculation, location selector; local ref state; Quasar components (QInput, QSelect, QStepper); emit events on success/cancel
@@ -274,7 +274,7 @@
   - **Validation**: Renders inline (not modal); multi-step navigation works; pricing auto-calculated
   - **Dependencies**: T020 (API client), T019 (security approved)
 
-- [ ] **T022** [P] [vue] Create RemoveStockForm.vue inline component
+- [x] **T022** [P] [vue] Create RemoveStockForm.vue inline component
   - **Agent**: `vue` (Vue/Quasar component expert)
   - **File**: `frontend/src/components/stock/RemoveStockForm.vue`
   - **Task**: Create inline simple form component: location display with current quantity, quantity input with auto-capping (watch input, cap at max, show Quasar notify), comments textarea; local ref state; emit events on success/cancel
@@ -282,7 +282,7 @@
   - **Validation**: Renders inline; auto-capping works with visual feedback; simple UX
   - **Dependencies**: T020 (API client), T019 (security approved)
 
-- [ ] **T023** [P] [vue] Create MoveStockForm.vue inline component
+- [x] **T023** [P] [vue] Create MoveStockForm.vue inline component
   - **Agent**: `vue` (Vue/Quasar component expert)
   - **File**: `frontend/src/components/stock/MoveStockForm.vue`
   - **Task**: Create inline form component: source location pre-selected (from row context), destination selector (existing locations + "Other locations" option), quantity input with auto-capping, comments; local ref state; prevent same source/dest; emit events on success/cancel
@@ -292,7 +292,7 @@
 
 ### Frontend Integration
 
-- [ ] **T024** [vue] Integrate stock operation forms into ComponentList.vue
+- [x] **T024** [vue] Integrate stock operation forms into ComponentList.vue
   - **Agent**: `vue` (Vue integration expert)
   - **File**: `frontend/src/components/ComponentList.vue`
   - **Task**: Add three new tabs to expanded row: "Add Stock", "Remove Stock", "Move Stock"; import and render AddStockForm, RemoveStockForm, MoveStockForm components inline; wire up success handlers to refresh component data; hide/disable tabs for non-admin users (FR-052)
