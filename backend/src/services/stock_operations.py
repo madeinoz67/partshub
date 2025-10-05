@@ -11,6 +11,7 @@ All operations follow TDD principles and data-model.md state transitions.
 """
 
 import logging
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from fastapi import HTTPException
@@ -163,6 +164,11 @@ class StockOperationsService:
         if previous_quantity == 0 and calculated_price_per_unit is not None:
             comp_location.unit_cost_at_location = calculated_price_per_unit
 
+        # Update StorageLocation last_used_at timestamp
+        storage_location = self.session.get(StorageLocation, location_id)
+        if storage_location:
+            storage_location.last_used_at = datetime.now(UTC)
+
         # Step 7: Flush to get transaction ID and refresh component
         self.session.flush()
         self.session.refresh(component)
@@ -266,6 +272,11 @@ class StockOperationsService:
         # Step 5: Update ComponentLocation quantity
         comp_location.quantity_on_hand -= actual_quantity
         new_quantity = comp_location.quantity_on_hand
+
+        # Update StorageLocation last_used_at timestamp (before potential deletion)
+        storage_location = self.session.get(StorageLocation, location_id)
+        if storage_location:
+            storage_location.last_used_at = datetime.now(UTC)
 
         # Step 6: Delete ComponentLocation if quantity reaches 0 (FR-021)
         location_deleted = False
@@ -475,6 +486,17 @@ class StockOperationsService:
         if destination_location_created and source_price_per_unit is not None:
             dest_comp_location.unit_cost_at_location = source_price_per_unit
             pricing_inherited = True
+
+        # Update StorageLocation last_used_at timestamps for BOTH locations
+        source_storage_location = self.session.get(StorageLocation, source_location_id)
+        if source_storage_location:
+            source_storage_location.last_used_at = datetime.now(UTC)
+
+        dest_storage_location = self.session.get(
+            StorageLocation, destination_location_id
+        )
+        if dest_storage_location:
+            dest_storage_location.last_used_at = datetime.now(UTC)
 
         # Step 13: Flush and validate total_quantity unchanged (FR-038)
         self.session.flush()
