@@ -249,7 +249,7 @@
 
           <!-- Tags -->
           <div class="text-h6 q-mt-lg q-mb-sm">Tags</div>
-          <FuzzyTagSelector
+          <TagSelector
             v-model="form.tags"
             class="q-mb-md"
           />
@@ -283,7 +283,7 @@ import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
 import { useStorageStore } from '../stores/storage'
 import type { Component } from '../services/api'
-import FuzzyTagSelector from './FuzzyTagSelector.vue'
+import TagSelector from './TagSelector.vue'
 import FuzzyAutocomplete from './wizard/FuzzyAutocomplete.vue'
 import { wizardService } from '../services/wizardService'
 import { QForm } from 'quasar'
