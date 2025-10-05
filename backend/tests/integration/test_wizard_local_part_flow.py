@@ -38,9 +38,9 @@ class TestWizardLocalPartFlow:
         db_session.add_all(existing_components)
         db_session.commit()
 
-        # Step 3: Search for manufacturer "TI"
+        # Step 3: Search for manufacturer "Texas"
         mfg_search_response = client.get(
-            "/api/wizard/manufacturers/search?query=TI&limit=10",
+            "/api/wizard/manufacturers/search?query=Texas&limit=10",
             headers=auth_headers,
         )
 
@@ -50,10 +50,7 @@ class TestWizardLocalPartFlow:
         # Should return "Texas Instruments" with high score
         assert len(manufacturers) > 0
         top_manufacturer = manufacturers[0]
-        assert (
-            "Texas Instruments" in top_manufacturer["name"]
-            or "TI" in top_manufacturer["name"]
-        )
+        assert "Texas Instruments" in top_manufacturer["name"]
         assert top_manufacturer["score"] > 0
 
         # Step 4: Create local part with manufacturer

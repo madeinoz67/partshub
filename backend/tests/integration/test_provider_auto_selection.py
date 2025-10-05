@@ -301,4 +301,15 @@ class TestProviderAutoSelection:
 
         assert create_response.status_code == 201
         component = create_response.json()
-        assert component["provider_link"]["provider_name"] == "LCSC"
+        # Verify component created with linked part
+        assert component["name"] == "Auto-Selected Component"
+        assert component["part_type"] == "linked"
+
+        # Query database to verify provider_link was created
+        from backend.src.models.provider_link import ProviderLink
+        provider_link = db_session.query(ProviderLink).filter_by(
+            component_id=component["id"]
+        ).first()
+        assert provider_link is not None
+        assert provider_link.provider_id == selected_provider["id"]
+        assert provider_link.provider_part_number == "AUTO-001"

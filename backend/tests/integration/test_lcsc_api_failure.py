@@ -3,7 +3,7 @@ Integration test for LCSC API failure fallback to local creation.
 Tests graceful degradation when provider API is unavailable.
 """
 
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 class TestLCSCAPIFailure:
     """Integration tests for LCSC API failure scenarios"""
 
-    @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
+    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
     def test_lcsc_api_500_error(
         self,
         mock_search,
@@ -93,7 +93,7 @@ class TestLCSCAPIFailure:
         assert component["part_type"] == "local"
         assert component.get("provider_link") is None
 
-    @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
+    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
     def test_lcsc_api_timeout(
         self,
         mock_search,
@@ -143,7 +143,7 @@ class TestLCSCAPIFailure:
 
         assert create_response.status_code == 201
 
-    @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
+    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
     def test_lcsc_api_empty_results(
         self,
         mock_search,
@@ -166,7 +166,7 @@ class TestLCSCAPIFailure:
         db_session.refresh(provider)
 
         # Mock empty results
-        mock_search.return_value = {"results": [], "total": 0}
+        mock_search.return_value = []
 
         search_response = client.get(
             f"/api/providers/{provider.id}/search?query=NONEXISTENT_PART&limit=10",
@@ -176,8 +176,7 @@ class TestLCSCAPIFailure:
         # Should succeed but return empty results
         assert search_response.status_code == 200
         data = search_response.json()
-        assert data["results"] == []
-        assert data["total"] == 0
+        assert len(data) == 0
 
         # User creates local part when no results found
         component_data = {
@@ -196,7 +195,7 @@ class TestLCSCAPIFailure:
 
         assert create_response.status_code == 201
 
-    @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
+    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
     def test_lcsc_api_malformed_response(
         self,
         mock_search,
@@ -218,7 +217,7 @@ class TestLCSCAPIFailure:
         db_session.commit()
         db_session.refresh(provider)
 
-        # Mock malformed response
+        # Mock malformed response - return invalid structure
         mock_search.return_value = {"unexpected": "structure"}
 
         search_response = client.get(
@@ -273,7 +272,7 @@ class TestLCSCAPIFailure:
         # Should return error or validation failure
         assert search_response.status_code in [400, 403, 404]
 
-    @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
+    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
     def test_partial_api_failure_allows_local_creation(
         self,
         mock_search,
@@ -296,21 +295,18 @@ class TestLCSCAPIFailure:
         db_session.refresh(provider)
 
         # First search succeeds
-        mock_search.return_value = {
-            "results": [
-                {
-                    "part_number": "TEST-001",
-                    "name": "Test Part",
-                    "description": "Test",
-                    "manufacturer": "Test Mfg",
-                    "datasheet_url": "https://example.com/ds.pdf",
-                    "image_urls": [],
-                    "footprint": "0805",
-                    "provider_url": "https://lcsc.com/test",
-                }
-            ],
-            "total": 1,
-        }
+        mock_search.return_value = [
+            {
+                "part_number": "TEST-001",
+                "name": "Test Part",
+                "description": "Test",
+                "manufacturer": "Test Mfg",
+                "datasheet_url": "https://example.com/ds.pdf",
+                "image_urls": [],
+                "footprint": "0805",
+                "provider_url": "https://lcsc.com/test",
+            }
+        ]
 
         search1_response = client.get(
             f"/api/providers/{provider.id}/search?query=test&limit=10",
@@ -342,7 +338,7 @@ class TestLCSCAPIFailure:
 
         assert create_response.status_code == 201
 
-    @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
+    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
     def test_api_error_message_returned_to_frontend(
         self,
         mock_search,
