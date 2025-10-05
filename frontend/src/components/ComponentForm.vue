@@ -372,10 +372,7 @@ const componentsStore = useComponentsStore()
 const storageStore = useStorageStore()
 
 const { loading } = storeToRefs(componentsStore)
-const { locations } = storeToRefs(storageStore)
-
 const categoriesLoading = ref(false)
-const locationsLoading = ref(false)
 
 const form = ref({
   name: '',
@@ -412,10 +409,6 @@ const categoryOptions = computed(() => {
     value: id
   }))
 })
-
-const locationOptions = computed(() =>
-  storageStore.locationOptions
-)
 
 // Note: Total value is now calculated server-side based on storage locations
 

@@ -43,6 +43,12 @@ const routes = [
         component: () => import('../pages/ComponentDetailPage.vue')
       },
       {
+        path: 'components/:id/add-stock',
+        name: 'add-stock',
+        component: () => import('../pages/AddStockPage.vue'),
+        meta: { requiresAdmin: true }
+      },
+      {
         path: 'storage',
         name: 'storage',
         component: () => import('../pages/StorageLocationsPage.vue')

@@ -23,30 +23,22 @@ onMounted(() => {
   // Redirect if not admin
   if (!authStore.isAdmin) {
     router.push('/components')
+    return
   }
-  // Don't reset here - the watch handler will do it when appropriate
 })
 
 /**
- * Watch for route changes to this page
- * Reset wizard ONLY when navigating TO create page from elsewhere
+ * Reset wizard whenever we navigate to this page
+ * This ensures fresh state when user clicks "ADD COMPONENT"
  */
 watch(
   () => route.path,
-  (newPath, oldPath) => {
-    // Only reset if:
-    // 1. We're now on the create page
-    // 2. We came from a DIFFERENT page (oldPath is defined and different)
-    if (
-      newPath === '/components/create' &&
-      oldPath &&
-      oldPath !== '/components/create'
-    ) {
-      console.log(`Resetting wizard: navigated from ${oldPath} to ${newPath}`)
+  (newPath) => {
+    if (newPath === '/components/create') {
       wizardStore.reset()
     }
   },
-  { immediate: true } // Run on mount to handle initial navigation
+  { immediate: true } // Run immediately on mount AND whenever route changes
 )
 </script>
 

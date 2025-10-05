@@ -117,14 +117,11 @@ async function createComponent() {
     switch (action) {
       case 'view':
         // Navigate to component detail page
-        // Reset happens in onBeforeUnmount when the page component unmounts
         await router.push(`/components/${componentId}`)
         break
       case 'add_stock':
-        // Navigate to component detail page
-        // Reset happens in onBeforeUnmount when the page component unmounts
-        await router.push(`/components/${componentId}`)
-        // TODO: Open add stock dialog after navigation
+        // Navigate to dedicated add stock page
+        await router.push(`/components/${componentId}/add-stock`)
         break
       case 'continue':
         // Stay on wizard page, reset immediately for next component

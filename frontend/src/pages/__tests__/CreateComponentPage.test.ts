@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { createPinia, setActivePinia, type Pinia } from 'pinia'
+import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import { Quasar } from 'quasar'
 import CreateComponentPage from '../CreateComponentPage.vue'
 import { useWizardStore } from '../../stores/wizardStore'
@@ -16,8 +16,8 @@ vi.mock('../../components/wizard/WizardContainer.vue', () => ({
 }))
 
 describe('CreateComponentPage - Wizard Reset Behavior', () => {
-  let router: any
-  let pinia: any
+  let router: Router
+  let pinia: Pinia
 
   beforeEach(() => {
     // Create fresh pinia instance

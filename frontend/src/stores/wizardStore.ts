@@ -253,28 +253,6 @@ export const useWizardStore = defineStore('wizard', () => {
     localStorage.setItem('wizard_state', JSON.stringify(state))
   }
 
-  function restoreState() {
-    try {
-      const saved = localStorage.getItem('wizard_state')
-      if (saved) {
-        const state = JSON.parse(saved)
-        if (state.partType) {
-          partType.value = state.partType
-        }
-        if (state.providerId && state.providerName) {
-          // Note: We only restore the provider ID/name
-          // The full provider object will be fetched when needed
-          selectedProvider.value = {
-            id: state.providerId,
-            name: state.providerName,
-          } as Provider
-        }
-      }
-    } catch (err) {
-      console.error('Failed to restore wizard state:', err)
-    }
-  }
-
   function clearPersistedState() {
     localStorage.removeItem('wizard_state')
   }
