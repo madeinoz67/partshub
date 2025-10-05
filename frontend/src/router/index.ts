@@ -32,6 +32,12 @@ const routes = [
         component: () => import('../pages/ComponentsPage.vue')
       },
       {
+        path: 'components/create',
+        name: 'create-component',
+        component: () => import('../pages/CreateComponentPage.vue'),
+        meta: { requiresAdmin: true }
+      },
+      {
         path: 'components/:id',
         name: 'component-detail',
         component: () => import('../pages/ComponentDetailPage.vue')

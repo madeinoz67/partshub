@@ -34,6 +34,8 @@ dependencies = [
     "easyeda2kicad>=0.8.0",
     "anyio>=4.4.0",  # Override fastapi constraint for PVE-2024-71199 fix
     "openpyxl>=3.1.0",  # Excel export for stock history
+    "rapidfuzz>=3.5.0",  # Fuzzy search for manufacturers/footprints
+    "httpx>=0.25.0",  # LCSC API integration
 ]
 
 [project.optional-dependencies]
