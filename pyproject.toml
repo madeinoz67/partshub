@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "partshub"
-version = "0.2.1"
+version = "0.3.0"
 description = "Electronic parts inventory management system for Makers"
 authors = [
     {name = "Stephen Eaton"}
