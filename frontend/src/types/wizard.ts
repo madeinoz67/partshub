@@ -84,14 +84,14 @@ export interface ProviderLinkCreate {
 
 // Component creation request
 export interface CreateComponentRequest {
-  part_type: 'linked' | 'local' | 'meta'
+  part_type: 'linked' | 'local'
   name?: string
   description?: string
 
   // For linked parts
   provider_link?: ProviderLinkCreate
 
-  // For local/meta parts
+  // For local parts
   manufacturer_id?: number
   manufacturer_name?: string // For creating new manufacturer
   footprint_id?: number
@@ -131,7 +131,7 @@ export interface Component {
 }
 
 // Wizard state types
-export type PartType = 'linked' | 'local' | 'meta' | null
+export type PartType = 'linked' | 'local' | null
 export type PostAction = 'view' | 'add_stock' | 'continue' | null
 export type WizardStep = 1 | 2 | 3 | 4 | 5
 

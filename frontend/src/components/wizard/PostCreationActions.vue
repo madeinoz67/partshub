@@ -101,13 +101,13 @@ watch(
           </div>
         </div>
 
-        <!-- Local/Meta Part Summary -->
-        <div v-else-if="wizardStore.partType === 'local' || wizardStore.partType === 'meta'">
+        <!-- Local Part Summary -->
+        <div v-else-if="wizardStore.partType === 'local'">
           <div class="row q-mb-sm">
             <div class="col-4 text-grey-7">Type:</div>
             <div class="col-8">
-              <q-badge :color="wizardStore.partType === 'local' ? 'secondary' : 'accent'">
-                {{ wizardStore.partType === 'local' ? 'Local Part' : 'Meta-Part' }}
+              <q-badge color="secondary">
+                Local Part
               </q-badge>
             </div>
           </div>

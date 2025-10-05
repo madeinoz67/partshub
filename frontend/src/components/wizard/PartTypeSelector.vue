@@ -18,7 +18,7 @@ const partTypeOptions = [
   {
     value: 'linked' as PartType,
     label: 'Linked Part',
-    description: 'Component with manufacturer part number from a provider (e.g., Digi-Key, Mouser)',
+    description: 'Component with manufacturer part number from a provider (e.g., LCSC, Digi-Key, Mouser)',
     icon: 'link',
     color: 'primary',
   },
@@ -28,13 +28,6 @@ const partTypeOptions = [
     description: 'Generic or no-name component without provider link',
     icon: 'inventory_2',
     color: 'secondary',
-  },
-  {
-    value: 'meta' as PartType,
-    label: 'Meta-Part',
-    description: 'Generic part representing multiple interchangeable components',
-    icon: 'category',
-    color: 'accent',
   },
 ]
 
@@ -122,17 +115,6 @@ watch(() => wizardStore.partType, (newValue) => {
         <q-icon name="info" />
       </template>
       Local parts are perfect for generic components like resistors, capacitors, or custom PCBs.
-    </q-banner>
-
-    <q-banner
-      v-if="selectedType === 'meta'"
-      class="bg-info text-white q-mt-md"
-      rounded
-    >
-      <template v-slot:avatar>
-        <q-icon name="info" />
-      </template>
-      Meta-parts allow you to group similar components that can substitute for each other in a project.
     </q-banner>
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * LocalPartForm Component
- * Step 3 (for local/meta parts): Enter part details manually
+ * Step 3 (for local parts): Enter part details manually
  */
 
 import { ref, computed, watch, nextTick } from 'vue'
@@ -158,7 +158,7 @@ watch(
 <template>
   <div class="local-part-form">
     <p class="text-body1 q-mb-md">
-      Enter details for your {{ wizardStore.partType === 'meta' ? 'meta-part' : 'local part' }}:
+      Enter details for your local part:
     </p>
 
     <q-form class="q-gutter-md">
@@ -227,9 +227,8 @@ watch(
       />
     </q-form>
 
-    <!-- Helpful Info Banners -->
+    <!-- Helpful Info Banner -->
     <q-banner
-      v-if="wizardStore.partType === 'local'"
       class="bg-info text-white q-mt-md"
       rounded
     >
@@ -237,17 +236,6 @@ watch(
         <q-icon name="info" />
       </template>
       Local parts are perfect for generic components or custom items without a manufacturer part number.
-    </q-banner>
-
-    <q-banner
-      v-if="wizardStore.partType === 'meta'"
-      class="bg-info text-white q-mt-md"
-      rounded
-    >
-      <template v-slot:avatar>
-        <q-icon name="info" />
-      </template>
-      Meta-parts represent generic component types. You can link specific parts to this meta-part later.
     </q-banner>
 
     <!-- Validation Summary -->

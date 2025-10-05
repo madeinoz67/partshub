@@ -181,8 +181,8 @@ export const useWizardStore = defineStore('wizard', () => {
         }
       }
 
-      // Add local/meta part data
-      if (partType.value === 'local' || partType.value === 'meta') {
+      // Add local part data
+      if (partType.value === 'local') {
         request.name = localPartData.value.name
         request.description = localPartData.value.description || undefined
 

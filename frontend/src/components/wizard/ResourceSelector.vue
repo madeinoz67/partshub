@@ -177,11 +177,11 @@ watch(
       </div>
     </div>
 
-    <!-- No Resources (for local/meta parts) -->
+    <!-- No Resources (for local parts) -->
     <div v-else-if="!hasLinkedPart" class="text-center q-py-xl">
       <q-icon name="attachment" size="64px" color="grey-5" />
       <p class="text-body1 text-grey-7 q-mt-md">
-        No provider resources available for {{ wizardStore.partType }} parts
+        No provider resources available for local parts
       </p>
       <p class="text-body2 text-grey-6">
         You can add datasheets and other attachments after creating the component.

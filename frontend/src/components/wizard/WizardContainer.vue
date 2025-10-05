@@ -50,7 +50,7 @@ const showSearchStep = computed(() => {
 })
 
 const showLocalFormStep = computed(() => {
-  return wizardStore.partType === 'local' || wizardStore.partType === 'meta'
+  return wizardStore.partType === 'local'
 })
 
 /**
@@ -211,7 +211,7 @@ function cancelWizard() {
           <ProviderSearch />
         </q-step>
 
-        <!-- Step 3b: Local Part Form (for local/meta parts) -->
+        <!-- Step 3b: Local Part Form (for local parts) -->
         <q-step
           v-if="showLocalFormStep"
           :name="3"

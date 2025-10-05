@@ -58,7 +58,7 @@ class CreateComponentRequest(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=255)
     description: str | None = None
-    part_type: Literal["linked", "local", "meta"]
+    part_type: Literal["linked", "local"]
     manufacturer_id: int | None = None
     manufacturer_name: str | None = None
     footprint_id: int | None = None
