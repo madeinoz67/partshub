@@ -236,10 +236,12 @@ describe('MoveStockForm.vue', () => {
         props: { componentId: 'test-component-id', allLocations: mockComponentLocations }
       })
       await flushPromises()
+      await wrapper.vm.$nextTick()
 
       // Select source to populate destination options
       wrapper.vm.formData.source_location_id = 'comp-loc-1'
       await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const destOptions = wrapper.vm.destinationLocationOptions
 
@@ -257,10 +259,12 @@ describe('MoveStockForm.vue', () => {
         props: { componentId: 'test-component-id', allLocations: mockComponentLocations }
       })
       await flushPromises()
+      await wrapper.vm.$nextTick()
 
       // Select source to populate destination options
       wrapper.vm.formData.source_location_id = 'comp-loc-1'
       await flushPromises()
+      await wrapper.vm.$nextTick()
 
       const destOptions = wrapper.vm.destinationLocationOptions
 
