@@ -147,69 +147,6 @@
             Storage locations are managed through stock movements (Add/Remove Stock).
           </q-banner>
 
-          <!-- Stock Information -->
-          <div class="text-h6 q-mt-lg q-mb-sm">Stock Information</div>
-          <q-banner class="bg-info text-white q-mb-md" rounded>
-            <template v-slot:avatar>
-              <q-icon name="info" />
-            </template>
-            Stock quantities are managed per storage location. Use the stock management buttons to add/remove stock.
-          </q-banner>
-          <div class="row q-gutter-md">
-            <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model.number="form.minimum_stock"
-                label="Minimum Stock (Global)"
-                type="number"
-                outlined
-                min="0"
-                hint="Overall minimum stock threshold for alerts"
-              />
-            </div>
-
-            <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model.number="form.quantity_ordered"
-                label="Quantity Ordered (Global)"
-                type="number"
-                outlined
-                min="0"
-                hint="Overall quantity on order"
-              />
-            </div>
-          </div>
-
-          <!-- Pricing -->
-          <div class="text-h6 q-mt-lg q-mb-sm">Pricing</div>
-          <div class="row q-gutter-md">
-            <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model.number="form.average_purchase_price"
-                label="Average Purchase Price"
-                type="number"
-                step="0.01"
-                min="0"
-                outlined
-                prefix="$"
-              />
-            </div>
-
-            <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model.number="form.total_purchase_value"
-                label="Total Purchase Value"
-                type="number"
-                step="0.01"
-                min="0"
-                outlined
-                prefix="$"
-                readonly
-                :model-value="calculatedTotalValue"
-                hint="Calculated: Quantity × Average Price"
-              />
-            </div>
-          </div>
-
           <!-- Specifications -->
           <div class="text-h6 q-mt-lg q-mb-sm">
             Specifications
@@ -378,7 +315,6 @@ const componentsStore = useComponentsStore()
 const storageStore = useStorageStore()
 
 const { loading } = storeToRefs(componentsStore)
-const { locations } = storeToRefs(storageStore)
 const categoriesLoading = ref(false)
 
 const form = ref({
@@ -393,10 +329,6 @@ const form = ref({
   component_type: '',
   value: '',
   package: '',
-  quantity_ordered: 0,
-  minimum_stock: 0,
-  average_purchase_price: 0,
-  total_purchase_value: 0,
   notes: '',
   tags: [] as string[]
 })
@@ -480,10 +412,6 @@ const resetForm = () => {
     component_type: '',
     value: '',
     package: '',
-    quantity_ordered: 0,
-    minimum_stock: 0,
-    average_purchase_price: 0,
-    total_purchase_value: 0,
     notes: '',
     tags: []
   }
@@ -504,10 +432,6 @@ const populateForm = (component: Component) => {
     component_type: component.component_type || '',
     value: component.value || '',
     package: component.package || '',
-    quantity_ordered: component.quantity_ordered || 0,
-    minimum_stock: component.minimum_stock || 0,
-    average_purchase_price: component.average_purchase_price || 0,
-    total_purchase_value: component.total_purchase_value || 0,
     notes: component.notes || '',
     tags: component.tags ? component.tags.map(tag => tag.id) : []
   }
@@ -562,9 +486,11 @@ const onSubmit = async () => {
       // Components are created without stock, users add stock via Add Stock button
     }
 
-    // Include these stock fields for both create and update
-    componentData.quantity_ordered = form.value.quantity_ordered
-    componentData.minimum_stock = form.value.minimum_stock
+    console.log('Form values before submit:', {
+      manufacturer: form.value.manufacturer,
+      package: form.value.package,
+      tags: form.value.tags
+    })
 
     // Only include optional fields if they have values
     if (form.value.part_number) componentData.part_number = form.value.part_number
@@ -577,7 +503,6 @@ const onSubmit = async () => {
     if (form.value.component_type) componentData.component_type = form.value.component_type
     if (form.value.value) componentData.value = form.value.value
     if (form.value.package) componentData.package = form.value.package
-    if (form.value.average_purchase_price) componentData.average_purchase_price = form.value.average_purchase_price
     if (form.value.notes) componentData.notes = form.value.notes
     if (form.value.tags.length > 0) componentData.tags = form.value.tags
 
@@ -587,6 +512,8 @@ const onSubmit = async () => {
     // Add specifications and custom fields if present
     if (Object.keys(specsObject).length > 0) componentData.specifications = specsObject
     if (Object.keys(fieldsObject).length > 0) componentData.custom_fields = fieldsObject
+
+    console.log('Component data being sent:', componentData)
 
     let result: Component
     if (props.isEdit && props.component) {
@@ -634,10 +561,6 @@ watch(() => props.modelValue, (newValue) => {
       populateForm(props.component)
     } else {
       resetForm()
-    }
-
-    if (locations.value.length === 0) {
-      storageStore.fetchLocations()
     }
   }
 })
