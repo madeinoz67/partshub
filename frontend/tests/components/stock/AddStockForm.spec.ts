@@ -479,8 +479,8 @@ describe('AddStockForm.vue', () => {
       })
       await flushPromises()
 
-      // Location options should be available
-      expect(wrapper.vm.locationOptions.length).toBeGreaterThan(0)
+      // Location options should be available in the store
+      expect(storageStore.locationOptions.length).toBeGreaterThan(0)
     })
   })
 
