@@ -8,9 +8,11 @@ and fuzzy string matching with the rapidfuzz library.
 import logging
 
 from rapidfuzz import fuzz
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..models.component import Component
+from ..models.tag import Tag
 
 logger = logging.getLogger(__name__)
 
@@ -178,3 +180,91 @@ class FuzzySearchService:
 
         # Apply limit
         return unique_results[:limit]
+
+    @staticmethod
+    async def search_tags(db: Session, query: str, limit: int = 10) -> list[dict]:
+        """
+        Search for tags using fuzzy matching.
+
+        Args:
+            db: Database session
+            query: Search query string
+            limit: Maximum number of results
+
+        Returns:
+            List of dictionaries with tag information and usage count:
+            [
+                {
+                    "id": "uuid-string",
+                    "name": "Capacitor",
+                    "description": "Capacitor components",
+                    "score": 100,
+                    "component_count": 15
+                }
+            ]
+        """
+        if not query or not query.strip():
+            return []
+
+        query_lower = query.strip().lower()
+
+        # Get all tags with component counts
+        tags_with_counts = (
+            db.query(
+                Tag.id,
+                Tag.name,
+                Tag.description,
+                Tag.color,
+                Tag.is_system_tag,
+                func.count(Component.id).label("component_count"),
+            )
+            .outerjoin(Tag.components)
+            .group_by(Tag.id, Tag.name, Tag.description, Tag.color, Tag.is_system_tag)
+            .all()
+        )
+
+        # Score and rank tags
+        scored_results = []
+        for tag in tags_with_counts:
+            name_lower = tag.name.lower()
+            description_lower = tag.description.lower() if tag.description else ""
+
+            # Calculate score using ranking algorithm
+            name_score = 0
+            if name_lower == query_lower:
+                # Exact match on name
+                name_score = 100
+            elif name_lower.startswith(query_lower):
+                # Prefix match on name
+                name_score = 90
+            else:
+                # Fuzzy match on name
+                name_score = fuzz.ratio(query_lower, name_lower)
+
+            # Also check description
+            description_score = 0
+            if description_lower and query_lower in description_lower:
+                description_score = 70
+
+            # Use the higher score
+            score = max(name_score, description_score)
+
+            # Only include if score is above threshold
+            if score >= 50:  # Minimum relevance threshold
+                scored_results.append(
+                    {
+                        "id": tag.id,
+                        "name": tag.name,
+                        "description": tag.description,
+                        "color": tag.color,
+                        "is_system_tag": bool(tag.is_system_tag),
+                        "score": score,
+                        "component_count": tag.component_count,
+                    }
+                )
+
+        # Sort by score descending, then by component_count descending
+        scored_results.sort(key=lambda x: (x["score"], x["component_count"]), reverse=True)
+
+        # Apply limit
+        return scored_results[:limit]

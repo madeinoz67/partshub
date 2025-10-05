@@ -36,6 +36,18 @@ class FootprintSuggestion(BaseModel):
     score: int | float
 
 
+class TagSuggestion(BaseModel):
+    """Tag autocomplete suggestion"""
+
+    id: str
+    name: str
+    description: str | None = None
+    color: str | None = None
+    is_system_tag: bool = False
+    score: int | float
+    component_count: int = 0
+
+
 class ProviderLinkCreate(BaseModel):
     """Provider link data for component creation"""
 
@@ -133,6 +145,34 @@ async def search_footprints(
     Requires: Admin authentication
     """
     results = await FuzzySearchService.search_footprints(db, query, limit)
+
+    return results
+
+
+@router.get("/tags/search", response_model=list[TagSuggestion])
+async def search_tags(
+    query: str = Query(..., min_length=1, description="Search query (min 1 character)"),
+    limit: int = Query(10, ge=1, le=50, description="Maximum results (max 50)"),
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Search tags using fuzzy matching.
+
+    Returns ranked tag suggestions for autocomplete.
+    Uses multi-tier ranking: exact match > prefix match > fuzzy match.
+    Also searches in tag descriptions.
+
+    Args:
+        query: Search query string (min 1 character)
+        limit: Maximum number of results (default 10, max 50)
+
+    Returns:
+        List of TagSuggestion sorted by score descending, then by component count
+
+    Requires: Admin authentication
+    """
+    results = await FuzzySearchService.search_tags(db, query, limit)
 
     return results
 
