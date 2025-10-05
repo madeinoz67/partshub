@@ -281,7 +281,6 @@ import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
-import { useStorageStore } from '../stores/storage'
 import type { Component } from '../services/api'
 import TagSelector from './TagSelector.vue'
 import FuzzyAutocomplete from './wizard/FuzzyAutocomplete.vue'
@@ -312,7 +311,6 @@ const emit = defineEmits<{
 const $q = useQuasar()
 const formRef = ref<QForm>()
 const componentsStore = useComponentsStore()
-const storageStore = useStorageStore()
 
 const { loading } = storeToRefs(componentsStore)
 const categoriesLoading = ref(false)
