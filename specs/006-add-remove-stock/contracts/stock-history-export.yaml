@@ -1,0 +1,190 @@
+openapi: 3.0.3
+info:
+  title: Stock History Export API
+  description: Export stock transaction history in multiple formats (CSV, Excel, JSON)
+  version: 1.0.0
+
+paths:
+  /api/v1/components/{component_id}/stock/history/export:
+    get:
+      summary: Export stock history
+      description: |
+        Export complete stock transaction history for a component in the requested format.
+        Supports CSV, Excel (XLSX), and JSON formats. All historical entries are included (no pagination).
+      operationId: exportStockHistory
+      tags:
+        - Stock Operations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: component_id
+          in: path
+          required: true
+          description: UUID of the component
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          required: true
+          description: Export format
+          schema:
+            type: string
+            enum: [csv, xlsx, json]
+        - name: sort_by
+          in: query
+          required: false
+          description: Field to sort by
+          schema:
+            type: string
+            enum: [created_at, quantity_change, transaction_type, user_name]
+            default: created_at
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Stock history exported successfully
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+              example: |
+                Date,Type,Quantity Change,Previous Qty,New Qty,From Location,To Location,Lot ID,Price/Unit,Total Price,User,Reason,Notes
+                2025-10-05T10:30:00Z,ADD,+100,0,100,,Shelf A,LOT-001,0.50,50.00,admin,Received order,Order #12345
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResponse'
+        '400':
+          description: Bad request - invalid format parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - missing or invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Component not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ExportResponse:
+      type: object
+      required:
+        - component_id
+        - component_name
+        - exported_at
+        - entries
+      properties:
+        component_id:
+          type: string
+          format: uuid
+          description: Component UUID
+        component_name:
+          type: string
+          description: Component name
+        exported_at:
+          type: string
+          format: date-time
+          description: Export timestamp
+        total_entries:
+          type: integer
+          description: Total number of history entries
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockHistoryEntry'
+
+    StockHistoryEntry:
+      type: object
+      required:
+        - id
+        - created_at
+        - transaction_type
+        - quantity_change
+        - new_quantity
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        transaction_type:
+          type: string
+          enum: [ADD, REMOVE, MOVE, ADJUST]
+        quantity_change:
+          type: integer
+          description: With +/- indicator
+        previous_quantity:
+          type: integer
+        new_quantity:
+          type: integer
+        from_location_id:
+          type: string
+          format: uuid
+          nullable: true
+        from_location_name:
+          type: string
+          nullable: true
+        to_location_id:
+          type: string
+          format: uuid
+          nullable: true
+        to_location_name:
+          type: string
+          nullable: true
+        lot_id:
+          type: string
+          nullable: true
+        price_per_unit:
+          type: number
+          format: decimal
+          nullable: true
+        total_price:
+          type: number
+          format: decimal
+          nullable: true
+        user_id:
+          type: string
+          nullable: true
+        user_name:
+          type: string
+          nullable: true
+        reason:
+          type: string
+        notes:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string

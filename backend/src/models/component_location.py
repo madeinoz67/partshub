@@ -13,8 +13,9 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    select,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session, relationship
 from sqlalchemy.sql import func
 
 from ..database import Base
@@ -83,3 +84,48 @@ class ComponentLocation(Base):
     def is_out_of_stock(self):
         """Check if component at this location is completely out of stock."""
         return self.quantity_on_hand == 0
+
+    @classmethod
+    def acquire_lock(
+        cls, session: Session, location_ids: list[str]
+    ) -> list["ComponentLocation"]:
+        """
+        Acquire pessimistic locks on multiple component locations.
+
+        Uses SQLAlchemy's with_for_update(nowait=False) for blocking row-level locks.
+        Locations are locked in consistent order (sorted by ID) to prevent deadlocks.
+
+        Args:
+            session: SQLAlchemy session
+            location_ids: List of location UUIDs to lock
+
+        Returns:
+            List of locked ComponentLocation instances (in sorted ID order)
+
+        Raises:
+            OperationalError: If lock cannot be acquired (timeout or conflict)
+
+        Example:
+            >>> locked_locations = ComponentLocation.acquire_lock(session, ["id1", "id2"])
+            >>> # Perform stock operations on locked_locations
+            >>> session.commit()  # Releases locks
+        """
+        # Handle edge case: empty list
+        if not location_ids:
+            return []
+
+        # Sort location_ids to ensure consistent ordering (deadlock prevention)
+        sorted_ids = sorted(location_ids)
+
+        # Query with pessimistic locking (blocking mode)
+        stmt = (
+            select(cls)
+            .where(cls.id.in_(sorted_ids))
+            .with_for_update(nowait=False)
+            .order_by(cls.id)  # Ensure consistent ordering in result
+        )
+
+        # Execute and return locked instances
+        result = session.execute(stmt).scalars().all()
+
+        return list(result)

@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: Move Stock API
+  description: API endpoint for moving stock between storage locations
+  version: 1.0.0
+
+paths:
+  /api/v1/components/{component_id}/stock/move:
+    post:
+      summary: Move stock between locations
+      description: |
+        Atomically transfers stock from one storage location to another for a specific component.
+        This operation creates a StockTransaction audit record and updates both source and
+        destination ComponentLocation records.
+
+        **Admin Only**: Requires admin role authentication.
+
+        **Auto-Capping**: If requested quantity exceeds available stock at source, the system
+        automatically caps the move at available quantity (FR-029).
+
+        **Atomicity**: Both source decrement and destination increment succeed or both fail (FR-033).
+
+        **Locking**: Acquires pessimistic locks on BOTH locations (in consistent order) to prevent deadlocks.
+
+        **Pricing Inheritance**: Copies lot ID and pricing data from source to destination (FR-034).
+
+        **Zero Cleanup**: Deletes source ComponentLocation if quantity becomes 0 (FR-035).
+      operationId: moveStock
+      tags:
+        - Stock Operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: component_id
+          in: path
+          required: true
+          description: UUID of the component to move stock for
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - source_location_id
+                - destination_location_id
+                - quantity
+              properties:
+                source_location_id:
+                  type: string
+                  format: uuid
+                  description: UUID of the source storage location (where stock is moved from)
+                  example: "660e8400-e29b-41d4-a716-446655440001"
+                destination_location_id:
+                  type: string
+                  format: uuid
+                  description: UUID of the destination storage location (where stock is moved to)
+                  example: "660e8400-e29b-41d4-a716-446655440002"
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: |
+                    Quantity of stock to move (must be positive).
+                    Will be auto-capped at available quantity if exceeding source stock.
+                  example: 25
+                comments:
+                  type: string
+                  nullable: true
+                  description: Optional comments explaining the stock movement
+                  example: "Reorganizing inventory - consolidating to main warehouse"
+            examples:
+              simple_move:
+                summary: Simple stock movement
+                value:
+                  source_location_id: "660e8400-e29b-41d4-a716-446655440001"
+                  destination_location_id: "660e8400-e29b-41d4-a716-446655440002"
+                  quantity: 50
+                  comments: "Moving to primary storage"
+              move_to_new_location:
+                summary: Move to location that doesn't have this component yet
+                value:
+                  source_location_id: "660e8400-e29b-41d4-a716-446655440001"
+                  destination_location_id: "660e8400-e29b-41d4-a716-446655440003"
+                  quantity: 30
+                  comments: "Creating new stock entry at Lab B"
+              move_all_stock:
+                summary: Move all stock from source (will delete source location)
+                value:
+                  source_location_id: "660e8400-e29b-41d4-a716-446655440001"
+                  destination_location_id: "660e8400-e29b-41d4-a716-446655440002"
+                  quantity: 100
+                  comments: "Consolidating all stock to main warehouse"
+      responses:
+        '200':
+          description: Stock moved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Stock moved successfully"
+                  transaction_id:
+                    type: string
+                    format: uuid
+                    description: ID of created StockTransaction record
+                    example: "770e8400-e29b-41d4-a716-446655440002"
+                  component_id:
+                    type: string
+                    format: uuid
+                    example: "550e8400-e29b-41d4-a716-446655440000"
+                  source_location_id:
+                    type: string
+                    format: uuid
+                    example: "660e8400-e29b-41d4-a716-446655440001"
+                  destination_location_id:
+                    type: string
+                    format: uuid
+                    example: "660e8400-e29b-41d4-a716-446655440002"
+                  quantity_moved:
+                    type: integer
+                    description: Actual quantity moved (may be less than requested if auto-capped)
+                    example: 25
+                  requested_quantity:
+                    type: integer
+                    description: Originally requested quantity
+                    example: 25
+                  capped:
+                    type: boolean
+                    description: True if quantity was auto-capped due to insufficient source stock
+                    example: false
+                  source_previous_quantity:
+                    type: integer
+                    description: Stock quantity at source location before move
+                    example: 50
+                  source_new_quantity:
+                    type: integer
+                    description: Stock quantity at source location after move (0 if location deleted)
+                    example: 25
+                  source_location_deleted:
+                    type: boolean
+                    description: True if source ComponentLocation was deleted (quantity reached 0)
+                    example: false
+                  destination_previous_quantity:
+                    type: integer
+                    description: Stock quantity at destination location before move (0 if newly created)
+                    example: 75
+                  destination_new_quantity:
+                    type: integer
+                    description: Stock quantity at destination location after move
+                    example: 100
+                  destination_location_created:
+                    type: boolean
+                    description: True if destination ComponentLocation was newly created
+                    example: false
+                  total_stock:
+                    type: integer
+                    description: Total component stock across all locations (unchanged by move)
+                    example: 200
+                  pricing_inherited:
+                    type: boolean
+                    description: True if pricing data was copied from source to destination
+                    example: true
+              examples:
+                normal_move:
+                  summary: Normal stock movement between existing locations
+                  value:
+                    success: true
+                    message: "Stock moved successfully"
+                    transaction_id: "770e8400-e29b-41d4-a716-446655440002"
+                    component_id: "550e8400-e29b-41d4-a716-446655440000"
+                    source_location_id: "660e8400-e29b-41d4-a716-446655440001"
+                    destination_location_id: "660e8400-e29b-41d4-a716-446655440002"
+                    quantity_moved: 25
+                    requested_quantity: 25
+                    capped: false
+                    source_previous_quantity: 50
+                    source_new_quantity: 25
+                    source_location_deleted: false
+                    destination_previous_quantity: 75
+                    destination_new_quantity: 100
+                    destination_location_created: false
+                    total_stock: 200
+                    pricing_inherited: false
+                move_to_new_location:
+                  summary: Move to new location (destination created)
+                  value:
+                    success: true
+                    message: "Stock moved successfully (destination location created)"
+                    transaction_id: "770e8400-e29b-41d4-a716-446655440003"
+                    component_id: "550e8400-e29b-41d4-a716-446655440000"
+                    source_location_id: "660e8400-e29b-41d4-a716-446655440001"
+                    destination_location_id: "660e8400-e29b-41d4-a716-446655440003"
+                    quantity_moved: 30
+                    requested_quantity: 30
+                    capped: false
+                    source_previous_quantity: 30
+                    source_new_quantity: 0
+                    source_location_deleted: true
+                    destination_previous_quantity: 0
+                    destination_new_quantity: 30
+                    destination_location_created: true
+                    total_stock: 150
+                    pricing_inherited: true
+                auto_capped_move:
+                  summary: Auto-capped move (requested more than available)
+                  value:
+                    success: true
+                    message: "Stock moved successfully (quantity auto-capped at available stock)"
+                    transaction_id: "770e8400-e29b-41d4-a716-446655440004"
+                    component_id: "550e8400-e29b-41d4-a716-446655440000"
+                    source_location_id: "660e8400-e29b-41d4-a716-446655440001"
+                    destination_location_id: "660e8400-e29b-41d4-a716-446655440002"
+                    quantity_moved: 20
+                    requested_quantity: 50
+                    capped: true
+                    source_previous_quantity: 20
+                    source_new_quantity: 0
+                    source_location_deleted: true
+                    destination_previous_quantity: 100
+                    destination_new_quantity: 120
+                    destination_location_created: false
+                    total_stock: 200
+                    pricing_inherited: false
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    description: Error message describing validation failure
+              examples:
+                invalid_quantity:
+                  summary: Negative or zero quantity
+                  value:
+                    detail: "Quantity must be positive (minimum: 1)"
+                same_location:
+                  summary: Source and destination are the same
+                  value:
+                    detail: "Source and destination locations must be different"
+                no_source_stock:
+                  summary: Source location has no stock
+                  value:
+                    detail: "No stock available at source location"
+        '403':
+          description: Forbidden - user lacks admin privileges
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Admin privileges required for stock operations"
+        '404':
+          description: Not found - component, source location, or destination location does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+              examples:
+                component_not_found:
+                  summary: Component not found
+                  value:
+                    detail: "Component not found"
+                source_not_found:
+                  summary: Source ComponentLocation not found
+                  value:
+                    detail: "Component not found at source location"
+                destination_not_found:
+                  summary: Destination StorageLocation not found
+                  value:
+                    detail: "Destination storage location not found"
+        '409':
+          description: Conflict - resource locked by another operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "One or more locations are currently locked by another operation. Please try again."
+              examples:
+                lock_timeout:
+                  summary: Lock acquisition timeout (source or destination)
+                  value:
+                    detail: "One or more locations are currently locked by another operation. Please try again."
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token (admin role required)

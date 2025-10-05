@@ -129,6 +129,8 @@ def client(db_session):
 def sample_component_data():
     """
     Sample component data for tests
+    Note: quantity_on_hand and minimum_stock are NOT included here as they require
+    ComponentLocation records. Tests should add stock using the stock API endpoints.
     """
     return {
         "name": "Resistor 10kΩ 1% 0805",
@@ -137,8 +139,6 @@ def sample_component_data():
         "component_type": "resistor",
         "value": "10kΩ",
         "package": "0805",
-        "quantity_on_hand": 100,
-        "minimum_stock": 20,
         "specifications": {
             "resistance": "10kΩ",
             "tolerance": "±1%",
@@ -157,8 +157,7 @@ def sample_storage_location_data():
     return {
         "name": "drawer-1",
         "description": "Main workbench drawer 1",
-        "location_type": "drawer",
-        "is_single_part_only": False,
+        "type": "drawer",
     }
 
 

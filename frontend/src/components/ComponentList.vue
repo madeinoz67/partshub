@@ -411,32 +411,35 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'add-stock' }" @click="setActiveTab(props.row.id, 'add-stock')">
-                      <q-item-section avatar>
-                        <q-icon name="add_box" color="primary" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>Add Stock</q-item-label>
-                      </q-item-section>
-                    </q-item>
+                    <!-- Admin-only stock operations -->
+                    <template v-if="canPerformCrud()">
+                      <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'add-stock' }" @click="setActiveTab(props.row.id, 'add-stock')">
+                        <q-item-section avatar>
+                          <q-icon name="add_box" color="primary" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>Add Stock</q-item-label>
+                        </q-item-section>
+                      </q-item>
 
-                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'remove-stock' }" @click="setActiveTab(props.row.id, 'remove-stock')">
-                      <q-item-section avatar>
-                        <q-icon name="remove_circle" color="primary" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>Remove Stock</q-item-label>
-                      </q-item-section>
-                    </q-item>
+                      <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'remove-stock' }" @click="setActiveTab(props.row.id, 'remove-stock')">
+                        <q-item-section avatar>
+                          <q-icon name="remove_circle" color="primary" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>Remove Stock</q-item-label>
+                        </q-item-section>
+                      </q-item>
 
-                    <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'move-stock' }" @click="setActiveTab(props.row.id, 'move-stock')">
-                      <q-item-section avatar>
-                        <q-icon name="move_up" color="primary" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>Move Stock</q-item-label>
-                      </q-item-section>
-                    </q-item>
+                      <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'move-stock' }" @click="setActiveTab(props.row.id, 'move-stock')">
+                        <q-item-section avatar>
+                          <q-icon name="move_up" color="primary" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>Move Stock</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
 
                     <q-item v-ripple clickable :class="{ 'bg-blue-1': getActiveTab(props.row.id) === 'history' }" @click="setActiveTab(props.row.id, 'history')">
                       <q-item-section avatar>
@@ -934,6 +937,44 @@
                     </div>
                   </div>
 
+                  <!-- Add Stock Tab -->
+                  <div v-else-if="getActiveTab(props.row.id) === 'add-stock'">
+                    <AddStockForm
+                      :component-id="props.row.id"
+                      @success="handleStockOperationSuccess(props.row.id)"
+                      @cancel="setActiveTab(props.row.id, 'stock')"
+                    />
+                  </div>
+
+                  <!-- Remove Stock Tab -->
+                  <div v-else-if="getActiveTab(props.row.id) === 'remove-stock'">
+                    <RemoveStockForm
+                      :component-id="props.row.id"
+                      :locations="props.row.storage_locations || []"
+                      @success="handleStockOperationSuccess(props.row.id)"
+                      @cancel="setActiveTab(props.row.id, 'stock')"
+                    />
+                  </div>
+
+                  <!-- Move Stock Tab -->
+                  <div v-else-if="getActiveTab(props.row.id) === 'move-stock'">
+                    <MoveStockForm
+                      :component-id="props.row.id"
+                      :all-locations="props.row.storage_locations || []"
+                      @success="handleStockOperationSuccess(props.row.id)"
+                      @cancel="setActiveTab(props.row.id, 'stock')"
+                    />
+                  </div>
+
+                  <!-- Stock History Tab -->
+                  <div v-else-if="getActiveTab(props.row.id) === 'history'">
+                    <StockHistoryTable
+                      :component-id="props.row.id"
+                      :auto-refresh="historyRefreshTrigger[props.row.id] || false"
+                      @refreshed="handleHistoryRefreshed(props.row.id)"
+                    />
+                  </div>
+
                   <!-- Other tabs placeholder -->
                   <div v-else>
                     <div class="text-h6 q-mb-md">{{ getActiveTab(props.row.id).replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}</div>
@@ -1126,6 +1167,10 @@ import { useSelectionStore } from '../stores/selection'
 import { useAuth } from '../composables/useAuth'
 import FileUpload from './FileUpload.vue'
 import BarcodeScanner from './BarcodeScanner.vue'
+import AddStockForm from './stock/AddStockForm.vue'
+import RemoveStockForm from './stock/RemoveStockForm.vue'
+import MoveStockForm from './stock/MoveStockForm.vue'
+import StockHistoryTable from './stock/StockHistoryTable.vue'
 import { api } from '../boot/axios'
 import type { Component } from '../services/api'
 import type { ComponentAttachment } from '../types/componentList'
@@ -1186,6 +1231,7 @@ const activeTab = ref<Record<string, string>>({}) // Tab state per component ID
 const detailedAttachments = ref<Record<string, unknown[]>>({})
 const barcodeScannerRef = ref()
 const showBarcodeScanner = ref(false)
+const historyRefreshTrigger = ref<Record<string, boolean>>({}) // Track history refresh triggers per component
 
 // Sync selection with store
 watch(selected, (newSelected) => {
@@ -1603,6 +1649,23 @@ const handleUploadSuccess = async (data: unknown) => {
   if (data && data.componentId) {
     await fetchDetailedAttachments(data.componentId)
   }
+}
+
+const handleStockOperationSuccess = async (componentId: string) => {
+  // Refresh component data to show updated stock quantities
+  await componentsStore.fetchComponents()
+  await componentsStore.fetchMetrics()
+
+  // Trigger history refresh for this component
+  historyRefreshTrigger.value[componentId] = true
+
+  // Switch to stock history tab to show the new transaction
+  setActiveTab(componentId, 'history')
+}
+
+const handleHistoryRefreshed = (componentId: string) => {
+  // Reset the refresh trigger after history has been refreshed
+  historyRefreshTrigger.value[componentId] = false
 }
 
 const confirmDeleteAttachment = (attachment: ComponentAttachment, componentId: string) => {
