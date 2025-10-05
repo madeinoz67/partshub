@@ -6,14 +6,16 @@
 
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
-**Latest Release**: v0.2.1 (October 2025) - Now featuring Bulk Operations for Component Management!
+**Latest Release**: v0.3.0 (October 2025) - Now featuring Inline Stock Management Operations!
 
 ## Features
 
 ### 📦 Component Management
 - **Comprehensive tracking** of electronic components with detailed specifications
 - **Stock level monitoring** with low-stock tracking capabilities
-- **Storage location management** with hierarchical organization
+- **Inline stock operations** with add/remove/move capabilities (v0.3.0+)
+- **Stock transaction history** with pagination and export (v0.3.0+)
+- **Storage location management** with hierarchical organization and usage tracking
 - **Category and tagging system** for easy organization and searching
 - **Bulk operations** for efficient management of multiple components (v0.2.0+)
 
@@ -136,6 +138,50 @@ curl -X POST http://localhost:8000/api/v1/components/bulk/tags/add \
 ```
 
 For detailed documentation, see [Bulk Operations User Guide](docs/user/bulk-operations.md) and [Bulk Operations API Guide](docs/api/bulk-operations.md).
+
+### Inline Stock Management Operations (v0.3.0+)
+
+PartsHub provides comprehensive inline stock operations accessible directly from the component list, eliminating the need to navigate to separate pages for inventory management.
+
+#### Available Operations
+
+- **Add Stock**: Add inventory to any storage location with lot and pricing tracking
+- **Remove Stock**: Safely remove inventory with auto-capping validation
+- **Move Stock**: Transfer stock between locations with atomic operations
+- **View History**: Access paginated transaction history (10 entries/page)
+- **Export History**: Download transaction data in CSV, Excel, or JSON formats
+
+#### Key Features
+
+- **Inline Access**: All operations available from component row expansion menu
+- **Pessimistic Locking**: Row-level database locks prevent race conditions
+- **Atomic Transactions**: All-or-nothing execution ensures data consistency
+- **Location Tracking**: Auto-update `last_used_at` timestamp on all stock movements
+- **Pricing Support**: Track lot IDs, unit prices, and total costs
+- **Tiered Access**: Admin-only for destructive operations (remove, move, export)
+- **Complete Audit Trail**: Full transaction history with pagination and export
+
+#### API Example
+
+```bash
+# Add stock to a component
+curl -X POST http://localhost:8000/api/v1/components/{id}/stock/add \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "location_id": "storage-uuid",
+    "quantity": 100,
+    "lot_id": "LOT-2025-001",
+    "price_per_unit": 0.25
+  }'
+
+# Export stock history as Excel
+curl -X GET "http://localhost:8000/api/v1/components/{id}/stock/history/export?format=excel" \
+  -H "Authorization: Bearer <admin-token>" \
+  -o component_history.xlsx
+```
+
+For detailed documentation, see [Stock Operations User Guide](docs/user/stock-operations.md) and [Stock Operations API Guide](docs/api/stock-operations.md).
 
 ### Storage Location Layout Generation (v0.1.1)
 
