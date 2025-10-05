@@ -372,6 +372,7 @@ const componentsStore = useComponentsStore()
 const storageStore = useStorageStore()
 
 const { loading } = storeToRefs(componentsStore)
+const { locations } = storeToRefs(storageStore)
 const categoriesLoading = ref(false)
 
 const form = ref({
