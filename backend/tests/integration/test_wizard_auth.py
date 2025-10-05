@@ -24,12 +24,13 @@ class TestWizardAuth:
         3. POST /api/wizard/components with non-admin token -> 403 Forbidden
         4. Verify all wizard endpoints require admin role
         """
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create test provider for endpoint testing
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -84,11 +85,12 @@ class TestWizardAuth:
         db_session,
     ):
         """Test that wizard endpoints require authentication (not just admin)"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -135,12 +137,13 @@ class TestWizardAuth:
     ):
         """Test that admin users can access all wizard endpoints"""
         from backend.src.models.component import Component
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Seed test data
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )

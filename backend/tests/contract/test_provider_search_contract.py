@@ -15,12 +15,13 @@ class TestProviderSearchContract:
 
     def test_provider_search_requires_admin_auth(self, client: TestClient, db_session):
         """Test that provider search requires admin authentication"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create test provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -39,11 +40,12 @@ class TestProviderSearchContract:
         self, client: TestClient, user_auth_headers, db_session
     ):
         """Test that non-admin users cannot search providers"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -64,12 +66,13 @@ class TestProviderSearchContract:
         self, mock_search, client: TestClient, auth_headers, db_session
     ):
         """Test provider search with admin authentication"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create test provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -117,11 +120,12 @@ class TestProviderSearchContract:
         self, mock_search, client: TestClient, auth_headers, db_session
     ):
         """Test response structure matches ProviderPart schema"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -191,11 +195,12 @@ class TestProviderSearchContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test search without required query parameter"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -216,11 +221,12 @@ class TestProviderSearchContract:
         self, mock_search, client: TestClient, auth_headers, db_session
     ):
         """Test that limit parameter is respected"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -263,11 +269,12 @@ class TestProviderSearchContract:
         self, mock_search, client: TestClient, auth_headers, db_session
     ):
         """Test handling of provider API errors"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )

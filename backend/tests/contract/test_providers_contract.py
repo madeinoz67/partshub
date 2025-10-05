@@ -56,11 +56,12 @@ class TestProvidersContract:
     ):
         """Test response structure matches Provider schema"""
         # Seed a test provider
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        test_provider = ComponentDataProvider(
+        test_provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://wmsc.lcsc.com/wmsc",
             status="active",
             api_key_required=False,
         )
@@ -87,18 +88,20 @@ class TestProvidersContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test that inactive providers can be filtered or shown separately"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create active and inactive providers
-        active_provider = ComponentDataProvider(
+        active_provider = Provider(
             name="Active Provider",
-            api_endpoint="https://api.active.com",
+            adapter_class="ActiveAdapter",
+            base_url="https://api.active.com",
             status="active",
             api_key_required=False,
         )
-        inactive_provider = ComponentDataProvider(
+        inactive_provider = Provider(
             name="Inactive Provider",
-            api_endpoint="https://api.inactive.com",
+            adapter_class="InactiveAdapter",
+            base_url="https://api.inactive.com",
             status="inactive",
             api_key_required=True,
         )

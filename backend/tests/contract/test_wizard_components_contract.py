@@ -61,12 +61,13 @@ class TestWizardComponentsContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test creating linked component with provider link"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create test provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -133,11 +134,12 @@ class TestWizardComponentsContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test creating linked component with resource downloads"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -287,11 +289,12 @@ class TestWizardComponentsContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test response structure matches Component schema with provider link"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -353,11 +356,12 @@ class TestWizardComponentsContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test creating component with manufacturer and footprint IDs"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )

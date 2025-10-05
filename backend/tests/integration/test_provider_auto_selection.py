@@ -24,12 +24,13 @@ class TestProviderAutoSelection:
         3. Frontend logic: if len(providers) == 1, auto-select
         4. Verify provider list contains exactly one provider
         """
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Step 1: Seed only LCSC provider
-        lcsc_provider = ComponentDataProvider(
+        lcsc_provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -64,25 +65,28 @@ class TestProviderAutoSelection:
         db_session,
     ):
         """Test that with multiple providers, no auto-selection occurs (frontend logic)"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Seed multiple providers
         providers_data = [
-            ComponentDataProvider(
+            Provider(
                 name="LCSC",
-                api_endpoint="https://api.lcsc.com",
+                adapter_class="LCSCAdapter",
+                base_url="https://api.lcsc.com",
                 status="active",
                 api_key_required=False,
             ),
-            ComponentDataProvider(
+            Provider(
                 name="Digi-Key",
-                api_endpoint="https://api.digikey.com",
+                adapter_class="DigiKeyAdapter",
+                base_url="https://api.digikey.com",
                 status="active",
                 api_key_required=True,
             ),
-            ComponentDataProvider(
+            Provider(
                 name="Mouser",
-                api_endpoint="https://api.mouser.com",
+                adapter_class="MouserAdapter",
+                base_url="https://api.mouser.com",
                 status="active",
                 api_key_required=True,
             ),
@@ -125,12 +129,13 @@ class TestProviderAutoSelection:
         db_session,
     ):
         """Test that inactive providers are excluded from auto-selection"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Seed only inactive provider
-        inactive_provider = ComponentDataProvider(
+        inactive_provider = Provider(
             name="Inactive Provider",
-            api_endpoint="https://api.inactive.com",
+            adapter_class="TestAdapter",
+            base_url="https://api.inactive.com",
             status="inactive",
             api_key_required=False,
         )
@@ -155,25 +160,28 @@ class TestProviderAutoSelection:
         db_session,
     ):
         """Test auto-selection with one active and multiple inactive providers"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Seed one active and two inactive providers
         providers_data = [
-            ComponentDataProvider(
+            Provider(
                 name="LCSC",
-                api_endpoint="https://api.lcsc.com",
+                adapter_class="LCSCAdapter",
+                base_url="https://api.lcsc.com",
                 status="active",
                 api_key_required=False,
             ),
-            ComponentDataProvider(
+            Provider(
                 name="Old Provider 1",
-                api_endpoint="https://api.old1.com",
+                adapter_class="TestAdapter",
+                base_url="https://api.old1.com",
                 status="inactive",
                 api_key_required=False,
             ),
-            ComponentDataProvider(
+            Provider(
                 name="Old Provider 2",
-                api_endpoint="https://api.old2.com",
+                adapter_class="TestAdapter",
+                base_url="https://api.old2.com",
                 status="inactive",
                 api_key_required=True,
             ),
@@ -202,25 +210,28 @@ class TestProviderAutoSelection:
         db_session,
     ):
         """Test that providers are returned in consistent order"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Seed providers in specific order
         providers_data = [
-            ComponentDataProvider(
+            Provider(
                 name="Mouser",
-                api_endpoint="https://api.mouser.com",
+                adapter_class="MouserAdapter",
+                base_url="https://api.mouser.com",
                 status="active",
                 api_key_required=True,
             ),
-            ComponentDataProvider(
+            Provider(
                 name="LCSC",
-                api_endpoint="https://api.lcsc.com",
+                adapter_class="LCSCAdapter",
+                base_url="https://api.lcsc.com",
                 status="active",
                 api_key_required=False,
             ),
-            ComponentDataProvider(
+            Provider(
                 name="Digi-Key",
-                api_endpoint="https://api.digikey.com",
+                adapter_class="DigiKeyAdapter",
+                base_url="https://api.digikey.com",
                 status="active",
                 api_key_required=True,
             ),
@@ -246,12 +257,13 @@ class TestProviderAutoSelection:
         db_session,
     ):
         """Test that auto-selected provider can be used to create component"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Single provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )

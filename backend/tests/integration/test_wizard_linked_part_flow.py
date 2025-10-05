@@ -34,14 +34,15 @@ class TestWizardLinkedPartFlow:
         5. Verify datasheets download synchronously, images download async
         6. GET /api/resources/{id}/status -> check download status
         """
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Step 1: Admin already authenticated via auth_headers fixture
 
         # Step 2: Create LCSC provider
-        lcsc_provider = ComponentDataProvider(
+        lcsc_provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -179,12 +180,13 @@ class TestWizardLinkedPartFlow:
         db_session,
     ):
         """Test wizard flow creating component without selecting resources"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -251,7 +253,7 @@ class TestWizardLinkedPartFlow:
     ):
         """Test wizard flow using manufacturer and footprint autocomplete"""
         from backend.src.models.component import Component
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Seed existing manufacturers and footprints
         existing_components = [
@@ -264,9 +266,10 @@ class TestWizardLinkedPartFlow:
         db_session.commit()
 
         # Create provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )

@@ -29,14 +29,15 @@ class TestLCSCAPIFailure:
         4. Frontend receives error, switches to local part creation mode
         5. POST /api/wizard/components with {part_type: "local", ...} -> succeeds
         """
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Step 1: Admin authenticated via auth_headers fixture
 
         # Create LCSC provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -101,11 +102,12 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """Test LCSC API timeout scenario"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -150,11 +152,12 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """Test LCSC API returns empty results (not an error, just no matches)"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -202,11 +205,12 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """Test LCSC API returns malformed/unexpected response"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -247,12 +251,13 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """Test that inactive providers cannot be searched"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
         # Create inactive provider
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="Inactive Provider",
-            api_endpoint="https://api.inactive.com",
+            adapter_class="TestAdapter",
+            base_url="https://api.inactive.com",
             status="inactive",
             api_key_required=False,
         )
@@ -277,11 +282,12 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """Test that after initial successful search, API failure doesn't block local creation"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
@@ -345,11 +351,12 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """Test that API errors return meaningful error messages"""
-        from backend.src.models.provider import ComponentDataProvider
+        from backend.src.models.wizard_provider import Provider
 
-        provider = ComponentDataProvider(
+        provider = Provider(
             name="LCSC",
-            api_endpoint="https://api.lcsc.com",
+            adapter_class="LCSCAdapter",
+            base_url="https://api.lcsc.com",
             status="active",
             api_key_required=False,
         )
