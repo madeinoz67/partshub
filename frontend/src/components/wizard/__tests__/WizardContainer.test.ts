@@ -211,8 +211,8 @@ describe('WizardContainer - Navigation After Component Creation', () => {
     await wrapper.vm.createComponent()
     await flushPromises()
 
-    // Verify navigation occurred
-    expect(router.currentRoute.value.path).toBe('/components/123')
+    // Verify navigation occurred to add-stock page
+    expect(router.currentRoute.value.path).toBe('/components/123/add-stock')
   })
 
   it('should stay on wizard page and reset for "continue" action', async () => {

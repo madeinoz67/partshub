@@ -5,7 +5,7 @@
  * Admin-only access
  */
 
-import { onMounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useWizardStore } from '../stores/wizardStore'
@@ -25,6 +25,14 @@ onMounted(() => {
     router.push('/components')
     return
   }
+})
+
+/**
+ * Reset wizard when component unmounts
+ * This ensures clean state when navigating away
+ */
+onUnmounted(() => {
+  wizardStore.reset()
 })
 
 /**
