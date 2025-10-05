@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/madeinoz67/partshub/compare/v0.2.1...v0.3.0) (2025-10-05)
+
+
+### Features
+
+* **stock-ops:** add inline stock management operations ([#16](https://github.com/madeinoz67/partshub/issues/16)) ([dc33f9d](https://github.com/madeinoz67/partshub/commit/dc33f9d4ebdd7ec0d6c7dbfa8e83a99910be0639))
+
+
+### Bug Fixes
+
+* remove --no-build-isolation flag from release workflow ([10ed529](https://github.com/madeinoz67/partshub/commit/10ed52975524edd5caee2f430e7a62476fa04d32))
+
+
+### Documentation
+
+* add v0.3.0 release notes and update documentation ([12e1fb6](https://github.com/madeinoz67/partshub/commit/12e1fb67a5600d126aa61742d291939d27ae5c29))
+
 ## [0.2.1](https://github.com/madeinoz67/partshub/compare/v0.2.0...v0.2.1) (2025-10-04)
 
 
