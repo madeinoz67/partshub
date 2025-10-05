@@ -6,7 +6,7 @@ Tests user scenarios (lines 73-79) with end-to-end workflows
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.src.models import ComponentLocation, StockTransaction, TransactionType
+from backend.src.models import ComponentLocation
 
 
 @pytest.mark.integration
