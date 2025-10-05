@@ -114,6 +114,8 @@ describe('MoveStockForm.vue', () => {
     storageStore = useStorageStore()
     // Set the underlying locations array, not the computed locationOptions
     storageStore.locations = mockAllStorageLocations
+    // Mock fetchLocations to prevent it from overwriting our test data
+    storageStore.fetchLocations = vi.fn()
 
     vi.clearAllMocks()
   })
@@ -244,6 +246,10 @@ describe('MoveStockForm.vue', () => {
       await wrapper.vm.$nextTick()
 
       const destOptions = wrapper.vm.destinationLocationOptions
+
+      // Debug: Check if store has locations
+      expect(storageStore.locations.length).toBeGreaterThan(0)
+      expect(storageStore.locationOptions.length).toBeGreaterThan(0)
 
       // Check if separator exists (it should when there are "other" locations)
       const separator = destOptions.find((opt: any) => opt.label && opt.label.includes('Other Locations'))
