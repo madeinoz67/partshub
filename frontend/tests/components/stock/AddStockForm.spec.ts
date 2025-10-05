@@ -56,6 +56,9 @@ describe('AddStockForm.vue', () => {
     // Set the underlying locations array, not the computed locationOptions
     storageStore.locations = mockLocations
 
+    // Mock fetchLocations to prevent network calls
+    storageStore.fetchLocations = vi.fn().mockResolvedValue(undefined)
+
     // Reset mocks
     vi.clearAllMocks()
   })

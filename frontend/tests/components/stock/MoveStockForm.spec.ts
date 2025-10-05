@@ -114,8 +114,8 @@ describe('MoveStockForm.vue', () => {
     storageStore = useStorageStore()
     // Set the underlying locations array, not the computed locationOptions
     storageStore.locations = mockAllStorageLocations
-    // Mock fetchLocations to prevent it from overwriting our test data
-    storageStore.fetchLocations = vi.fn()
+    // Mock fetchLocations to prevent network calls
+    storageStore.fetchLocations = vi.fn().mockResolvedValue(undefined)
 
     vi.clearAllMocks()
   })
