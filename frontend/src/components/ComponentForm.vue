@@ -86,7 +86,7 @@
 
             <div class="col-md-6 col-xs-12">
               <FuzzyAutocomplete
-                v-model="form.manufacturer"
+                v-model="manufacturerObject"
                 :search-function="searchManufacturers"
                 label="Manufacturer"
                 placeholder="Start typing to search..."
@@ -114,7 +114,7 @@
 
             <div class="col-md-6 col-xs-12">
               <FuzzyAutocomplete
-                v-model="form.package"
+                v-model="packageObject"
                 :search-function="searchFootprints"
                 label="Package"
                 placeholder="Start typing to search..."
@@ -403,6 +403,21 @@ const form = ref({
 
 const specifications = ref<KeyValuePair[]>([])
 const customFields = ref<KeyValuePair[]>([])
+
+// Wrapper refs for FuzzyAutocomplete (converts between string and object)
+const manufacturerObject = computed({
+  get: () => form.value.manufacturer ? { id: null, name: form.value.manufacturer, score: 100 } : null,
+  set: (val) => {
+    form.value.manufacturer = val?.name || ''
+  }
+})
+
+const packageObject = computed({
+  get: () => form.value.package ? { id: null, name: form.value.package, score: 100 } : null,
+  set: (val) => {
+    form.value.package = val?.name || ''
+  }
+})
 
 const categoryOptions = computed(() => {
   const categoryMap = new Map<string, string>()
