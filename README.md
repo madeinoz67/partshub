@@ -6,7 +6,7 @@
 
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
-**Latest Release**: v0.3.0 (October 2025) - Now featuring Inline Stock Management Operations!
+**Latest Release**: v0.3.1 (October 2025) - Inline Stock Management with Security Fixes!
 
 ## Features
 
@@ -60,9 +60,9 @@ A modern, web-based inventory management system designed specifically for electr
 ## Quick Start
 
 ### Prerequisites
-- Node.js (v16+)
-- Python (3.10+)
-- uv (Python package manager)
+- **Node.js 20+** (required for frontend build)
+- **Python 3.10+** (required for backend)
+- **uv** (Python package manager)
 
 ### Installation
 
