@@ -201,7 +201,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useStorageStore } from '../../stores/storage'
-import { storeToRefs } from 'pinia'
 import { stockOperationsApi, type AddStockRequest } from '../../services/stockOperations'
 import type { QStepper } from 'quasar'
 
@@ -220,14 +219,13 @@ const emit = defineEmits<{
 
 // Store
 const storageStore = useStorageStore()
-const { locationOptions: allLocationOptions } = storeToRefs(storageStore)
 
 // Component state
 const currentStep = ref(1)
 const stepper = ref<QStepper | null>(null)
 const submitting = ref(false)
 const pricingType = ref<'no_price' | 'per_component' | 'entire_lot'>('no_price')
-const locationOptions = ref(allLocationOptions.value)
+const locationOptions = ref<Array<{ label: string; value: string; type: string }>>([])
 
 // Form data
 const formData = ref<{
@@ -280,10 +278,10 @@ const calculateUnitPrice = () => {
 const filterLocations = (val: string, update: (fn: () => void) => void) => {
   update(() => {
     if (val === '') {
-      locationOptions.value = allLocationOptions.value
+      locationOptions.value = [...storageStore.locationOptions]
     } else {
       const needle = val.toLowerCase()
-      locationOptions.value = allLocationOptions.value.filter(
+      locationOptions.value = storageStore.locationOptions.filter(
         loc => loc.label.toLowerCase().includes(needle)
       )
     }
@@ -345,10 +343,10 @@ const handleSubmit = async () => {
 // Lifecycle
 onMounted(async () => {
   // Fetch locations if not already loaded
-  if (allLocationOptions.value.length === 0) {
+  if (storageStore.locationOptions.length === 0) {
     await storageStore.fetchLocations()
   }
-  locationOptions.value = allLocationOptions.value
+  locationOptions.value = [...storageStore.locationOptions]
 })
 </script>
 

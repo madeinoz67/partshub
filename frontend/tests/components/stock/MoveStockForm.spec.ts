@@ -56,11 +56,51 @@ describe('MoveStockForm.vue', () => {
   ]
 
   const mockAllStorageLocations = [
-    { label: 'Main Workshop/Drawer 1/Bin A', value: 'comp-loc-1' },
-    { label: 'Main Workshop/Drawer 2/Bin B', value: 'comp-loc-2' },
-    { label: 'Main Workshop/Drawer 3/Bin C', value: 'other-loc-1' }, // Other location
-    { label: 'Storage Room/Shelf 1', value: 'comp-loc-3' },
-    { label: 'Storage Room/Shelf 2', value: 'other-loc-2' } // Other location
+    {
+      id: 'comp-loc-1',
+      name: 'Bin A',
+      location_hierarchy: 'Main Workshop/Drawer 1/Bin A',
+      type: 'bin',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    },
+    {
+      id: 'comp-loc-2',
+      name: 'Bin B',
+      location_hierarchy: 'Main Workshop/Drawer 2/Bin B',
+      type: 'bin',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    },
+    {
+      id: 'other-loc-1',
+      name: 'Bin C',
+      location_hierarchy: 'Main Workshop/Drawer 3/Bin C',
+      type: 'bin',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    },
+    {
+      id: 'comp-loc-3',
+      name: 'Shelf 1',
+      location_hierarchy: 'Storage Room/Shelf 1',
+      type: 'shelf',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    },
+    {
+      id: 'other-loc-2',
+      name: 'Shelf 2',
+      location_hierarchy: 'Storage Room/Shelf 2',
+      type: 'shelf',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    }
   ]
 
   beforeEach(async () => {
@@ -72,7 +112,8 @@ describe('MoveStockForm.vue', () => {
 
     // Setup storage store with all locations
     storageStore = useStorageStore()
-    storageStore.locationOptions = mockAllStorageLocations
+    // Set the underlying locations array, not the computed locationOptions
+    storageStore.locations = mockAllStorageLocations
 
     vi.clearAllMocks()
   })

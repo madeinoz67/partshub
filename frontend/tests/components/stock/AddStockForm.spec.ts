@@ -18,9 +18,33 @@ describe('AddStockForm.vue', () => {
   let storageStore: any
 
   const mockLocations = [
-    { label: 'Main Workshop/Drawer 1/Bin A', value: 'location-1' },
-    { label: 'Main Workshop/Drawer 2/Bin B', value: 'location-2' },
-    { label: 'Storage Room/Shelf 1', value: 'location-3' }
+    {
+      id: 'location-1',
+      name: 'Bin A',
+      location_hierarchy: 'Main Workshop/Drawer 1/Bin A',
+      type: 'bin',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    },
+    {
+      id: 'location-2',
+      name: 'Bin B',
+      location_hierarchy: 'Main Workshop/Drawer 2/Bin B',
+      type: 'bin',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    },
+    {
+      id: 'location-3',
+      name: 'Shelf 1',
+      location_hierarchy: 'Storage Room/Shelf 1',
+      type: 'shelf',
+      parent_id: null,
+      description: null,
+      qr_code_id: null
+    }
   ]
 
   beforeEach(() => {
@@ -29,7 +53,8 @@ describe('AddStockForm.vue', () => {
 
     // Setup storage store with mock locations
     storageStore = useStorageStore()
-    storageStore.locationOptions = mockLocations
+    // Set the underlying locations array, not the computed locationOptions
+    storageStore.locations = mockLocations
 
     // Reset mocks
     vi.clearAllMocks()

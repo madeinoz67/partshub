@@ -134,7 +134,6 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { Notify } from 'quasar'
 import { useStorageStore } from '../../stores/storage'
-import { storeToRefs } from 'pinia'
 import { stockOperationsApi, type MoveStockRequest } from '../../services/stockOperations'
 
 // Props
@@ -161,7 +160,6 @@ const emit = defineEmits<{
 
 // Store
 const storageStore = useStorageStore()
-const { locationOptions: allStorageLocations } = storeToRefs(storageStore)
 
 // Component state
 const submitting = ref(false)
@@ -199,7 +197,7 @@ const destinationLocationOptions = computed(() => {
   const componentLocationIds = new Set(props.allLocations.map(loc => loc.location.id))
 
   // Get all storage locations from store
-  const allDestinations = allStorageLocations.value
+  const allDestinations = storageStore.locationOptions
     .filter(loc => loc.value !== formData.value.source_location_id)
     .map(loc => ({
       label: loc.label,
@@ -335,7 +333,7 @@ const handleSubmit = async () => {
 // Lifecycle
 onMounted(async () => {
   // Fetch all storage locations if not already loaded
-  if (allStorageLocations.value.length === 0) {
+  if (storageStore.locationOptions.length === 0) {
     await storageStore.fetchLocations()
   }
 
