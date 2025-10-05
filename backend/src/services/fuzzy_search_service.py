@@ -264,7 +264,9 @@ class FuzzySearchService:
                 )
 
         # Sort by score descending, then by component_count descending
-        scored_results.sort(key=lambda x: (x["score"], x["component_count"]), reverse=True)
+        scored_results.sort(
+            key=lambda x: (x["score"], x["component_count"]), reverse=True
+        )
 
         # Apply limit
         return scored_results[:limit]

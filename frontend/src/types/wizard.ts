@@ -53,6 +53,17 @@ export interface FootprintSuggestion {
   component_count?: number
 }
 
+// Tag suggestion
+export interface TagSuggestion {
+  id: string
+  name: string
+  description?: string | null
+  color?: string | null
+  is_system_tag: boolean
+  score: number
+  component_count: number
+}
+
 // Resource selection
 export interface ResourceSelection {
   type: 'datasheet' | 'image' | 'footprint' | 'symbol' | '3d_model'

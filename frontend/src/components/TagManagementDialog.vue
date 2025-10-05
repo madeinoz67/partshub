@@ -9,25 +9,13 @@
         <!-- Add Tags Section -->
         <div class="q-mb-md">
           <div class="text-subtitle2 q-mb-sm">Add Tags</div>
-          <q-input
-            v-model="tagsToAdd"
-            outlined
-            dense
-            placeholder="Enter comma-separated tags"
-            hint="Separate tags with commas"
-          />
+          <TagSelector v-model="tagsToAddIds" />
         </div>
 
         <!-- Remove Tags Section -->
         <div class="q-mb-md">
           <div class="text-subtitle2 q-mb-sm">Remove Tags</div>
-          <q-input
-            v-model="tagsToRemove"
-            outlined
-            dense
-            placeholder="Enter comma-separated tags to remove"
-            hint="Separate tags with commas"
-          />
+          <TagSelector v-model="tagsToRemoveIds" />
         </div>
 
         <!-- Preview Section -->
@@ -102,9 +90,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { bulkOperationsApi, type TagPreview } from '../services/bulkOperationsApi'
+import { APIService, type Tag } from '../services/api'
+import TagSelector from './TagSelector.vue'
 
 // Props
 interface Props {
@@ -122,11 +112,22 @@ const emit = defineEmits<{
 
 // State
 const $q = useQuasar()
-const tagsToAdd = ref('')
-const tagsToRemove = ref('')
+const allTags = ref<Tag[]>([])
+const tagsToAddIds = ref<string[]>([])
+const tagsToRemoveIds = ref<string[]>([])
 const preview = ref<TagPreview[]>([])
 const loadingPreview = ref(false)
 const loadingApply = ref(false)
+
+// Load all tags on mount
+onMounted(async () => {
+  try {
+    const response = await APIService.getTags()
+    allTags.value = response.tags
+  } catch (error) {
+    console.error('Failed to load tags:', error)
+  }
+})
 
 // Computed
 const showDialog = computed({
@@ -135,7 +136,7 @@ const showDialog = computed({
 })
 
 const hasChanges = computed(() => {
-  return tagsToAdd.value.trim().length > 0 || tagsToRemove.value.trim().length > 0
+  return tagsToAddIds.value.length > 0 || tagsToRemoveIds.value.length > 0
 })
 
 const previewColumns = [
@@ -160,23 +161,22 @@ const previewColumns = [
 ]
 
 // Methods
-function parseTags(input: string): string[] {
-  return input
-    .split(',')
-    .map(tag => tag.trim())
-    .filter(tag => tag.length > 0)
+function convertTagIdsToNames(tagIds: string[]): string[] {
+  return tagIds
+    .map(id => allTags.value.find(tag => tag.id === id)?.name)
+    .filter((name): name is string => name !== undefined)
 }
 
 async function loadPreview() {
   loadingPreview.value = true
   try {
-    const addTags = parseTags(tagsToAdd.value)
-    const removeTags = parseTags(tagsToRemove.value)
+    const addTagNames = convertTagIdsToNames(tagsToAddIds.value)
+    const removeTagNames = convertTagIdsToNames(tagsToRemoveIds.value)
 
     const response = await bulkOperationsApi.previewTagChanges(
       props.componentIds,
-      addTags,
-      removeTags
+      addTagNames,
+      removeTagNames
     )
 
     preview.value = response.components
@@ -194,17 +194,17 @@ async function loadPreview() {
 async function handleApply() {
   loadingApply.value = true
   try {
-    const addTags = parseTags(tagsToAdd.value)
-    const removeTags = parseTags(tagsToRemove.value)
+    const addTagNames = convertTagIdsToNames(tagsToAddIds.value)
+    const removeTagNames = convertTagIdsToNames(tagsToRemoveIds.value)
 
     // Apply tag additions
-    if (addTags.length > 0) {
-      await bulkOperationsApi.bulkAddTags(props.componentIds, addTags)
+    if (addTagNames.length > 0) {
+      await bulkOperationsApi.bulkAddTags(props.componentIds, addTagNames)
     }
 
     // Apply tag removals
-    if (removeTags.length > 0) {
-      await bulkOperationsApi.bulkRemoveTags(props.componentIds, removeTags)
+    if (removeTagNames.length > 0) {
+      await bulkOperationsApi.bulkRemoveTags(props.componentIds, removeTagNames)
     }
 
     $q.notify({
@@ -226,8 +226,8 @@ async function handleApply() {
 }
 
 function handleCancel() {
-  tagsToAdd.value = ''
-  tagsToRemove.value = ''
+  tagsToAddIds.value = []
+  tagsToRemoveIds.value = []
   preview.value = []
   showDialog.value = false
 }

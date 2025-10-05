@@ -9,6 +9,7 @@ import type {
   ProviderSearchResponse,
   ManufacturerSuggestion,
   FootprintSuggestion,
+  TagSuggestion,
   CreateComponentRequest,
   Component,
 } from '../types/wizard'
@@ -85,6 +86,24 @@ export const wizardService = {
     } catch (err) {
       console.error('Footprint search failed:', err)
       throw new Error('Failed to search footprints. Please try again.')
+    }
+  },
+
+  /**
+   * Search for tag suggestions
+   */
+  async searchTags(query: string, limit = 10): Promise<TagSuggestion[]> {
+    try {
+      const response = await api.get('/api/wizard/tags/search', {
+        params: {
+          query,
+          limit,
+        },
+      })
+      return response.data
+    } catch (err) {
+      console.error('Tag search failed:', err)
+      throw new Error('Failed to search tags. Please try again.')
     }
   },
 

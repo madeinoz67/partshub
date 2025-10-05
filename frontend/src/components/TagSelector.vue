@@ -129,6 +129,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { APIService, type Tag } from '../services/api'
+import { wizardService } from '../services/wizardService'
 
 interface Props {
   modelValue: string[]
@@ -220,20 +221,46 @@ const loadTags = async () => {
   }
 }
 
-const filterTags = (val: string, update: (callback: () => void) => void) => {
+const filterTags = async (val: string, update: (callback: () => void) => void) => {
   searchQuery.value = val
 
-  update(() => {
-    if (val === '') {
+  // Empty query - show all tags
+  if (!val || val.length < 2) {
+    update(() => {
       filteredTags.value = allTags.value
-    } else {
+    })
+    return
+  }
+
+  // Use fuzzy search from backend
+  loading.value = true
+  try {
+    const results = await wizardService.searchTags(val, 20)
+    update(() => {
+      filteredTags.value = results.map(tag => ({
+        id: tag.id,
+        name: tag.name,
+        description: tag.description || '',
+        color: tag.color || 'primary',
+        is_system_tag: tag.is_system_tag,
+        component_count: tag.component_count,
+        created_at: '',
+        updated_at: ''
+      }))
+    })
+  } catch (error) {
+    console.error('Tag search failed:', error)
+    // Fallback to local filtering
+    update(() => {
       const needle = val.toLowerCase()
       filteredTags.value = allTags.value.filter(tag =>
         tag.name.toLowerCase().includes(needle) ||
         (tag.description && tag.description.toLowerCase().includes(needle))
       )
-    }
-  })
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 const createNewTag = (val: string) => {
