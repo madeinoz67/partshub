@@ -3,9 +3,10 @@ Contract test for GET /api/providers/{provider_id}/search
 Tests provider search endpoint for component discovery in wizard.
 """
 
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
 
 
 @pytest.mark.contract
@@ -169,7 +170,10 @@ class TestProviderSearchContract:
         assert isinstance(result["image_urls"], list)
         assert len(result["image_urls"]) == 2
         assert result["footprint"] == "LQFP-48"
-        assert result["provider_url"] == "https://lcsc.com/product-detail/STM32F103C8T6.html"
+        assert (
+            result["provider_url"]
+            == "https://lcsc.com/product-detail/STM32F103C8T6.html"
+        )
 
     def test_provider_search_invalid_provider_id(
         self, client: TestClient, auth_headers

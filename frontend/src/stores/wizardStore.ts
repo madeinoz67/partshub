@@ -177,13 +177,13 @@ export const useWizardStore = defineStore('wizard', () => {
         request.name = localPartData.value.name
         request.description = localPartData.value.description || undefined
 
-        if (localPartData.value.manufacturer_id) {
+        if (localPartData.value.manufacturer_id !== null && localPartData.value.manufacturer_id !== 0) {
           request.manufacturer_id = localPartData.value.manufacturer_id
         } else if (localPartData.value.manufacturer_name) {
           request.manufacturer_name = localPartData.value.manufacturer_name
         }
 
-        if (localPartData.value.footprint_id) {
+        if (localPartData.value.footprint_id !== null && localPartData.value.footprint_id !== 0) {
           request.footprint_id = localPartData.value.footprint_id
         } else if (localPartData.value.footprint_name) {
           request.footprint_name = localPartData.value.footprint_name
@@ -206,10 +206,8 @@ export const useWizardStore = defineStore('wizard', () => {
 
       const component = await wizardService.createComponent(request)
 
-      // If post_action is 'continue', reset wizard for next component
-      if (postAction.value === 'continue') {
-        reset()
-      }
+      // Don't reset here - let the caller handle it after navigation
+      // This prevents the wizard from resetting before the user is navigated away
 
       return component
     } catch (err) {
@@ -283,7 +281,9 @@ export const useWizardStore = defineStore('wizard', () => {
 
   // Initialize store
   function initialize() {
-    restoreState()
+    // Always start fresh when opening the wizard
+    // Don't restore previous state to avoid confusion
+    reset()
   }
 
   return {

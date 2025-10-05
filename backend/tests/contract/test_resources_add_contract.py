@@ -62,14 +62,12 @@ class TestResourcesAddContract:
         # Should return 404 for non-existent provider link
         assert response.status_code == 404
 
-    def test_add_datasheet_resource(
-        self, client: TestClient, auth_headers, db_session
-    ):
+    def test_add_datasheet_resource(self, client: TestClient, auth_headers, db_session):
         """Test adding a datasheet resource to provider link"""
         # Create test provider and provider link
+        from backend.src.models.component import Component
         from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.provider_link import ProviderLink
-        from backend.src.models.component import Component
 
         provider = ComponentDataProvider(
             name="LCSC",
@@ -124,13 +122,11 @@ class TestResourcesAddContract:
         assert "id" in data
         assert "created_at" in data
 
-    def test_add_image_resource(
-        self, client: TestClient, auth_headers, db_session
-    ):
+    def test_add_image_resource(self, client: TestClient, auth_headers, db_session):
         """Test adding an image resource to provider link"""
+        from backend.src.models.component import Component
         from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.provider_link import ProviderLink
-        from backend.src.models.component import Component
 
         provider = ComponentDataProvider(
             name="LCSC",
@@ -179,9 +175,9 @@ class TestResourcesAddContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test validation error when type is missing"""
+        from backend.src.models.component import Component
         from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.provider_link import ProviderLink
-        from backend.src.models.component import Component
 
         provider = ComponentDataProvider(
             name="LCSC",
@@ -225,9 +221,9 @@ class TestResourcesAddContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test validation error for invalid URL"""
+        from backend.src.models.component import Component
         from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.provider_link import ProviderLink
-        from backend.src.models.component import Component
 
         provider = ComponentDataProvider(
             name="LCSC",
@@ -272,9 +268,9 @@ class TestResourcesAddContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test response structure matches Resource schema"""
+        from backend.src.models.component import Component
         from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.provider_link import ProviderLink
-        from backend.src.models.component import Component
 
         provider = ComponentDataProvider(
             name="LCSC",
@@ -337,9 +333,9 @@ class TestResourcesAddContract:
         self, client: TestClient, auth_headers, db_session
     ):
         """Test adding multiple resources to same provider link"""
+        from backend.src.models.component import Component
         from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.provider_link import ProviderLink
-        from backend.src.models.component import Component
 
         provider = ComponentDataProvider(
             name="LCSC",

@@ -27,9 +27,7 @@ class TestResourcesStatusContract:
         # Should fail with 403 forbidden
         assert response.status_code == 403
 
-    def test_resource_status_not_found(
-        self, client: TestClient, auth_headers
-    ):
+    def test_resource_status_not_found(self, client: TestClient, auth_headers):
         """Test resource status for non-existent resource"""
         response = client.get("/api/resources/99999/status", headers=auth_headers)
 
@@ -56,7 +54,9 @@ class TestResourcesStatusContract:
         db_session.commit()
         db_session.refresh(resource)
 
-        response = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
 
         # Debug output if fails
         if response.status_code != 200:
@@ -88,7 +88,9 @@ class TestResourcesStatusContract:
         db_session.commit()
         db_session.refresh(resource)
 
-        response = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -116,7 +118,9 @@ class TestResourcesStatusContract:
         db_session.commit()
         db_session.refresh(resource)
 
-        response = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -126,9 +130,7 @@ class TestResourcesStatusContract:
         assert data["progress_percent"] == 100
         assert "error_message" not in data or data["error_message"] is None
 
-    def test_resource_status_failed(
-        self, client: TestClient, auth_headers, db_session
-    ):
+    def test_resource_status_failed(self, client: TestClient, auth_headers, db_session):
         """Test resource status for failed download"""
         from backend.src.models.resource import Resource
 
@@ -144,7 +146,9 @@ class TestResourcesStatusContract:
         db_session.commit()
         db_session.refresh(resource)
 
-        response = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -171,7 +175,9 @@ class TestResourcesStatusContract:
         db_session.commit()
         db_session.refresh(resource)
 
-        response = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -185,7 +191,12 @@ class TestResourcesStatusContract:
         # progress_percent should be present for pending/downloading/complete
         # error_message should be present only for failed status
         assert isinstance(data["id"], int)
-        assert data["download_status"] in ["pending", "downloading", "complete", "failed"]
+        assert data["download_status"] in [
+            "pending",
+            "downloading",
+            "complete",
+            "failed",
+        ]
 
     def test_resource_status_multiple_checks(
         self, client: TestClient, auth_headers, db_session
@@ -205,7 +216,9 @@ class TestResourcesStatusContract:
         db_session.refresh(resource)
 
         # First check
-        response1 = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response1 = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
         assert response1.status_code == 200
         data1 = response1.json()
         assert data1["download_status"] == "downloading"
@@ -216,7 +229,9 @@ class TestResourcesStatusContract:
         db_session.commit()
 
         # Second check
-        response2 = client.get(f"/api/resources/{resource.id}/status", headers=auth_headers)
+        response2 = client.get(
+            f"/api/resources/{resource.id}/status", headers=auth_headers
+        )
         assert response2.status_code == 200
         data2 = response2.json()
         assert data2["download_status"] == "downloading"

@@ -113,7 +113,9 @@ class TestWizardAuth:
         assert mfg_response.status_code == 401
 
         # GET /api/wizard/footprints/search
-        footprint_response = client.get("/api/wizard/footprints/search?query=SOIC&limit=10")
+        footprint_response = client.get(
+            "/api/wizard/footprints/search?query=SOIC&limit=10"
+        )
         assert footprint_response.status_code == 401
 
         # POST /api/wizard/components
@@ -132,8 +134,8 @@ class TestWizardAuth:
         db_session,
     ):
         """Test that admin users can access all wizard endpoints"""
-        from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.component import Component
+        from backend.src.models.provider import ComponentDataProvider
 
         # Seed test data
         provider = ComponentDataProvider(

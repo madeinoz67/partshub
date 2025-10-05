@@ -123,7 +123,7 @@
           <!-- Organization -->
           <div class="text-h6 q-mt-lg q-mb-sm">Organization</div>
           <div class="row q-gutter-md">
-            <div class="col-md-6 col-xs-12">
+            <div class="col-12">
               <q-select
                 v-model="form.category_id"
                 :options="categoryOptions"
@@ -135,55 +135,42 @@
                 :loading="categoriesLoading"
               />
             </div>
-
-            <div class="col-md-6 col-xs-12">
-              <q-select
-                v-model="form.storage_location_id"
-                :options="locationOptions"
-                label="Storage Location"
-                outlined
-                emit-value
-                map-options
-                clearable
-                :loading="locationsLoading"
-              />
-            </div>
           </div>
+          <q-banner class="bg-info text-white q-mt-md" rounded>
+            <template v-slot:avatar>
+              <q-icon name="info" />
+            </template>
+            Storage locations are managed through stock movements (Add/Remove Stock).
+          </q-banner>
 
           <!-- Stock Information -->
           <div class="text-h6 q-mt-lg q-mb-sm">Stock Information</div>
+          <q-banner class="bg-info text-white q-mb-md" rounded>
+            <template v-slot:avatar>
+              <q-icon name="info" />
+            </template>
+            Stock quantities are managed per storage location. Use the stock management buttons to add/remove stock.
+          </q-banner>
           <div class="row q-gutter-md">
-            <div class="col-md-4 col-xs-12">
-              <q-input
-                v-model.number="form.quantity_on_hand"
-                label="Current Stock *"
-                type="number"
-                outlined
-                min="0"
-                :rules="[
-                  val => val !== null && val !== undefined && val !== '' || 'Current stock is required',
-                  val => val >= 0 || 'Quantity must be positive'
-                ]"
-              />
-            </div>
-
-            <div class="col-md-4 col-xs-12">
+            <div class="col-md-6 col-xs-12">
               <q-input
                 v-model.number="form.minimum_stock"
-                label="Minimum Stock"
+                label="Minimum Stock (Global)"
                 type="number"
                 outlined
                 min="0"
+                hint="Overall minimum stock threshold for alerts"
               />
             </div>
 
-            <div class="col-md-4 col-xs-12">
+            <div class="col-md-6 col-xs-12">
               <q-input
                 v-model.number="form.quantity_ordered"
-                label="Quantity Ordered"
+                label="Quantity Ordered (Global)"
                 type="number"
                 outlined
                 min="0"
+                hint="Overall quantity on order"
               />
             </div>
           </div>
@@ -399,11 +386,9 @@ const form = ref({
   part_number: '',
   manufacturer: '',
   category_id: '',
-  storage_location_id: '',
   component_type: '',
   value: '',
   package: '',
-  quantity_on_hand: 0,
   quantity_ordered: 0,
   minimum_stock: 0,
   average_purchase_price: 0,
@@ -432,12 +417,7 @@ const locationOptions = computed(() =>
   storageStore.locationOptions
 )
 
-const calculatedTotalValue = computed(() => {
-  if (form.value.quantity_on_hand && form.value.average_purchase_price) {
-    return (form.value.quantity_on_hand * form.value.average_purchase_price).toFixed(2)
-  }
-  return '0.00'
-})
+// Note: Total value is now calculated server-side based on storage locations
 
 const addSpecification = () => {
   specifications.value.push({ key: '', value: '' })
@@ -465,11 +445,9 @@ const resetForm = () => {
     part_number: '',
     manufacturer: '',
     category_id: '',
-    storage_location_id: '',
     component_type: '',
     value: '',
     package: '',
-    quantity_on_hand: 0,
     quantity_ordered: 0,
     minimum_stock: 0,
     average_purchase_price: 0,
@@ -491,13 +469,11 @@ const populateForm = (component: Component) => {
     part_number: component.part_number || '',
     manufacturer: component.manufacturer || '',
     category_id: component.category_id || '',
-    storage_location_id: component.storage_location_id || '',
     component_type: component.component_type || '',
     value: component.value || '',
     package: component.package || '',
-    quantity_on_hand: component.quantity_on_hand,
-    quantity_ordered: component.quantity_ordered,
-    minimum_stock: component.minimum_stock,
+    quantity_ordered: component.quantity_ordered || 0,
+    minimum_stock: component.minimum_stock || 0,
     average_purchase_price: component.average_purchase_price || 0,
     total_purchase_value: component.total_purchase_value || 0,
     notes: component.notes || '',
@@ -550,10 +526,13 @@ const onSubmit = async () => {
     // Build component data, omitting empty/null optional fields
     const componentData: Record<string, unknown> = {
       name: form.value.name,
-      quantity_on_hand: form.value.quantity_on_hand,
-      quantity_ordered: form.value.quantity_ordered,
-      minimum_stock: form.value.minimum_stock,
+      // Note: quantity_on_hand and storage_location_id are managed via stock movements
+      // Components are created without stock, users add stock via Add Stock button
     }
+
+    // Include these stock fields for both create and update
+    componentData.quantity_ordered = form.value.quantity_ordered
+    componentData.minimum_stock = form.value.minimum_stock
 
     // Only include optional fields if they have values
     if (form.value.part_number) componentData.part_number = form.value.part_number
@@ -563,7 +542,6 @@ const onSubmit = async () => {
     if (form.value.provider_sku) componentData.provider_sku = form.value.provider_sku
     if (form.value.manufacturer) componentData.manufacturer = form.value.manufacturer
     if (form.value.category_id) componentData.category_id = form.value.category_id
-    if (form.value.storage_location_id) componentData.storage_location_id = form.value.storage_location_id
     if (form.value.component_type) componentData.component_type = form.value.component_type
     if (form.value.value) componentData.value = form.value.value
     if (form.value.package) componentData.package = form.value.package
@@ -571,8 +549,8 @@ const onSubmit = async () => {
     if (form.value.notes) componentData.notes = form.value.notes
     if (form.value.tags.length > 0) componentData.tags = form.value.tags
 
-    // Add calculated total value
-    componentData.total_purchase_value = form.value.quantity_on_hand * (form.value.average_purchase_price || 0)
+    // Total value is calculated server-side based on storage locations
+    // Don't send it from the client
 
     // Add specifications and custom fields if present
     if (Object.keys(specsObject).length > 0) componentData.specifications = specsObject

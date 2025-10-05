@@ -3,9 +3,10 @@ Integration test for complete wizard flow for linked part creation.
 Tests end-to-end workflow from provider search to component creation with resources.
 """
 
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, Mock
 
 
 @pytest.mark.integration
@@ -13,7 +14,9 @@ class TestWizardLinkedPartFlow:
     """Integration tests for complete wizard workflow for linked parts"""
 
     @patch("backend.src.services.lcsc_service.LCSCService.search_parts")
-    @patch("backend.src.services.resource_download_service.ResourceDownloadService.download_resource")
+    @patch(
+        "backend.src.services.resource_download_service.ResourceDownloadService.download_resource"
+    )
     def test_complete_wizard_flow_linked_part(
         self,
         mock_download,
@@ -140,11 +143,17 @@ class TestWizardLinkedPartFlow:
 
         # Verify component created
         assert created_component["name"] == "STM32F103C8T6"
-        assert created_component["description"] == "ARM Cortex-M3 MCU, 64KB Flash, 20KB RAM"
+        assert (
+            created_component["description"]
+            == "ARM Cortex-M3 MCU, 64KB Flash, 20KB RAM"
+        )
         assert created_component["part_type"] == "linked"
         assert "provider_link" in created_component
         assert created_component["provider_link"]["provider_name"] == "LCSC"
-        assert created_component["provider_link"]["provider_part_number"] == "STM32F103C8T6"
+        assert (
+            created_component["provider_link"]["provider_part_number"]
+            == "STM32F103C8T6"
+        )
 
         # Step 5: Verify resource download statuses
         # Datasheets should download synchronously (status='complete')
@@ -241,12 +250,14 @@ class TestWizardLinkedPartFlow:
         db_session,
     ):
         """Test wizard flow using manufacturer and footprint autocomplete"""
-        from backend.src.models.provider import ComponentDataProvider
         from backend.src.models.component import Component
+        from backend.src.models.provider import ComponentDataProvider
 
         # Seed existing manufacturers and footprints
         existing_components = [
-            Component(name="Old 1", manufacturer="STMicroelectronics", package="LQFP-48"),
+            Component(
+                name="Old 1", manufacturer="STMicroelectronics", package="LQFP-48"
+            ),
             Component(name="Old 2", manufacturer="Texas Instruments", package="SOIC-8"),
         ]
         db_session.add_all(existing_components)

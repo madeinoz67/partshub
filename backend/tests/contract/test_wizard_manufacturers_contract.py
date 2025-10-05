@@ -65,10 +65,12 @@ class TestWizardManufacturersContract:
         # Should return manufacturers matching "TI"
         # Each result should have ManufacturerSuggestion schema
         for suggestion in data:
-            assert "id" in suggestion or "name" in suggestion  # id might be null for new
+            assert (
+                "id" in suggestion or "name" in suggestion
+            )  # id might be null for new
             assert "name" in suggestion
             assert "score" in suggestion
-            assert isinstance(suggestion["score"], (int, float))
+            assert isinstance(suggestion["score"], int | float)
 
     def test_manufacturer_search_fuzzy_matching(
         self, client: TestClient, auth_headers, db_session
@@ -81,7 +83,9 @@ class TestWizardManufacturersContract:
             Component(name="Comp 1", manufacturer="Texas Instruments"),  # Exact match
             Component(name="Comp 2", manufacturer="TI Automotive"),  # Starts with TI
             Component(name="Comp 3", manufacturer="Microchip"),  # No match
-            Component(name="Comp 4", manufacturer="STMicroelectronics"),  # Contains "ti"
+            Component(
+                name="Comp 4", manufacturer="STMicroelectronics"
+            ),  # Contains "ti"
         ]
         db_session.add_all(components)
         db_session.commit()
@@ -246,7 +250,7 @@ class TestWizardManufacturersContract:
         assert "name" in suggestion
         assert "score" in suggestion
         assert suggestion["name"] == "STMicroelectronics"
-        assert isinstance(suggestion["score"], (int, float))
+        assert isinstance(suggestion["score"], int | float)
         assert suggestion["score"] > 0
 
         # Optional id field (might be null for suggestions without explicit manufacturer table)

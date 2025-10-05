@@ -4,7 +4,7 @@
  * Step 3 (for local/meta parts): Enter part details manually
  */
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
 import { useWizardStore } from '../../stores/wizardStore'
 import { wizardService } from '../../services/wizardService'
@@ -21,6 +21,9 @@ const formData = ref({
   manufacturer: null as ManufacturerSuggestion | null,
   footprint: null as FootprintSuggestion | null,
 })
+
+// Flag to prevent recursive updates
+const isUpdatingFromStore = ref(false)
 
 // Validation rules (FR-022)
 const nameRules = [
@@ -107,6 +110,8 @@ function updateStore() {
 watch(
   formData,
   () => {
+    // Don't update store if we're currently syncing from store
+    if (isUpdatingFromStore.value) return
     updateStore()
   },
   { deep: true }
@@ -116,6 +121,9 @@ watch(
 watch(
   () => wizardStore.localPartData,
   (newValue) => {
+    // Set flag to prevent recursive updates
+    isUpdatingFromStore.value = true
+
     formData.value.name = newValue.name
     formData.value.description = newValue.description
 
@@ -138,6 +146,11 @@ watch(
     } else {
       formData.value.footprint = null
     }
+
+    // Clear flag on next tick after all reactive updates are done
+    nextTick(() => {
+      isUpdatingFromStore.value = false
+    })
   }
 )
 </script>

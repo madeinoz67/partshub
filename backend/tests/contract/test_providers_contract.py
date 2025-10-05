@@ -27,9 +27,7 @@ class TestProvidersContract:
         # Should fail with 403 forbidden
         assert response.status_code == 403
 
-    def test_get_providers_with_admin_auth(
-        self, client: TestClient, auth_headers
-    ):
+    def test_get_providers_with_admin_auth(self, client: TestClient, auth_headers):
         """Test provider listing with admin authentication"""
         response = client.get("/api/providers", headers=auth_headers)
 

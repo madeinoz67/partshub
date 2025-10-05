@@ -159,6 +159,8 @@ class WizardService:
                 footprint_name = data["footprint_name"]
 
             # Create component
+            # Note: Components are created without storage locations
+            # Stock is added via stock movement operations (Add/Remove Stock)
             component = Component(
                 name=data["name"],
                 notes=data.get("description", ""),

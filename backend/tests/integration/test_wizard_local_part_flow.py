@@ -50,7 +50,10 @@ class TestWizardLocalPartFlow:
         # Should return "Texas Instruments" with high score
         assert len(manufacturers) > 0
         top_manufacturer = manufacturers[0]
-        assert "Texas Instruments" in top_manufacturer["name"] or "TI" in top_manufacturer["name"]
+        assert (
+            "Texas Instruments" in top_manufacturer["name"]
+            or "TI" in top_manufacturer["name"]
+        )
         assert top_manufacturer["score"] > 0
 
         # Step 4: Create local part with manufacturer
@@ -90,7 +93,10 @@ class TestWizardLocalPartFlow:
         assert created_component.get("provider_link") is None
 
         # Should have manufacturer (either ID or name)
-        assert "manufacturer" in created_component or "manufacturer_id" in created_component
+        assert (
+            "manufacturer" in created_component
+            or "manufacturer_id" in created_component
+        )
 
     def test_local_part_creation_with_new_manufacturer(
         self,

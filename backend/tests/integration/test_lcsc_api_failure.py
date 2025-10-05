@@ -3,9 +3,10 @@ Integration test for LCSC API failure fallback to local creation.
 Tests graceful degradation when provider API is unavailable.
 """
 
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
 
 
 @pytest.mark.integration
@@ -44,7 +45,9 @@ class TestLCSCAPIFailure:
         db_session.refresh(provider)
 
         # Step 2: Mock LCSC API to return error
-        mock_search.side_effect = Exception("LCSC API returned 500 Internal Server Error")
+        mock_search.side_effect = Exception(
+            "LCSC API returned 500 Internal Server Error"
+        )
 
         # Step 3: Search fails
         search_response = client.get(

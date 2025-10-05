@@ -111,16 +111,24 @@ async function createComponent() {
     })
 
     // Handle post-creation action
-    switch (wizardStore.postAction) {
+    const action = wizardStore.postAction
+    const componentId = component.id
+
+    switch (action) {
       case 'view':
-        router.push(`/components/${component.id}`)
+        // Navigate to component detail page
+        // Reset happens in onBeforeUnmount when the page component unmounts
+        await router.push(`/components/${componentId}`)
         break
       case 'add_stock':
-        router.push(`/components/${component.id}`)
+        // Navigate to component detail page
+        // Reset happens in onBeforeUnmount when the page component unmounts
+        await router.push(`/components/${componentId}`)
         // TODO: Open add stock dialog after navigation
         break
       case 'continue':
-        // Wizard is already reset by the store
+        // Stay on wizard page, reset immediately for next component
+        wizardStore.reset()
         $q.notify({
           type: 'info',
           message: 'Ready to create another component',

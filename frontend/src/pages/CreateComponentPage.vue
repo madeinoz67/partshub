@@ -5,13 +5,14 @@
  * Admin-only access
  */
 
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useWizardStore } from '../stores/wizardStore'
 import WizardContainer from '../components/wizard/WizardContainer.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const wizardStore = useWizardStore()
 
@@ -23,10 +24,30 @@ onMounted(() => {
   if (!authStore.isAdmin) {
     router.push('/components')
   }
-
-  // Initialize wizard store
-  wizardStore.initialize()
+  // Don't reset here - the watch handler will do it when appropriate
 })
+
+/**
+ * Watch for route changes to this page
+ * Reset wizard ONLY when navigating TO create page from elsewhere
+ */
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    // Only reset if:
+    // 1. We're now on the create page
+    // 2. We came from a DIFFERENT page (oldPath is defined and different)
+    if (
+      newPath === '/components/create' &&
+      oldPath &&
+      oldPath !== '/components/create'
+    ) {
+      console.log(`Resetting wizard: navigated from ${oldPath} to ${newPath}`)
+      wizardStore.reset()
+    }
+  },
+  { immediate: true } // Run on mount to handle initial navigation
+)
 </script>
 
 <template>

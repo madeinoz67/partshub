@@ -64,10 +64,12 @@ class TestWizardFootprintsContract:
         # Should return footprints matching "SOIC"
         # Each result should have FootprintSuggestion schema
         for suggestion in data:
-            assert "id" in suggestion or "name" in suggestion  # id might be null for new
+            assert (
+                "id" in suggestion or "name" in suggestion
+            )  # id might be null for new
             assert "name" in suggestion
             assert "score" in suggestion
-            assert isinstance(suggestion["score"], (int, float))
+            assert isinstance(suggestion["score"], int | float)
 
     def test_footprint_search_fuzzy_matching(
         self, client: TestClient, auth_headers, db_session
@@ -124,8 +126,7 @@ class TestWizardFootprintsContract:
 
         # Create many footprints
         components = [
-            Component(name=f"IC {i}", package=f"PACKAGE-{i}")
-            for i in range(20)
+            Component(name=f"IC {i}", package=f"PACKAGE-{i}") for i in range(20)
         ]
         db_session.add_all(components)
         db_session.commit()
@@ -244,7 +245,7 @@ class TestWizardFootprintsContract:
         assert "name" in suggestion
         assert "score" in suggestion
         assert suggestion["name"] == "LQFP-48"
-        assert isinstance(suggestion["score"], (int, float))
+        assert isinstance(suggestion["score"], int | float)
         assert suggestion["score"] > 0
 
         # Optional id field (might be null for suggestions without explicit footprint table)

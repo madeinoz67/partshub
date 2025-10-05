@@ -11,9 +11,7 @@ from fastapi.testclient import TestClient
 class TestWizardComponentsContract:
     """Contract tests for wizard component creation endpoint"""
 
-    def test_wizard_component_creation_requires_admin_auth(
-        self, client: TestClient
-    ):
+    def test_wizard_component_creation_requires_admin_auth(self, client: TestClient):
         """Test that wizard component creation requires admin authentication"""
         component_data = {
             "name": "Test Component",
@@ -126,7 +124,9 @@ class TestWizardComponentsContract:
         assert provider_link["provider_id"] == provider.id
         assert provider_link["provider_name"] == "LCSC"
         assert provider_link["provider_part_number"] == "STM32F103C8T6"
-        assert provider_link["provider_url"] == component_data["provider_link"]["part_url"]
+        assert (
+            provider_link["provider_url"] == component_data["provider_link"]["part_url"]
+        )
         assert provider_link["sync_status"] in ["pending", "synced"]
 
     def test_create_linked_component_with_resources(
@@ -345,7 +345,9 @@ class TestWizardComponentsContract:
         ]
 
         for field in provider_link_fields:
-            assert field in data["provider_link"], f"Missing provider_link field: {field}"
+            assert (
+                field in data["provider_link"]
+            ), f"Missing provider_link field: {field}"
 
     def test_create_component_with_manufacturer_and_footprint(
         self, client: TestClient, auth_headers, db_session
