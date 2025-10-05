@@ -74,17 +74,24 @@ export interface ResourceStatus {
   updated_at: string
 }
 
+// Provider link for component creation
+export interface ProviderLinkCreate {
+  provider_id: number
+  part_number: string
+  part_url: string
+  metadata?: Record<string, unknown> | null
+}
+
 // Component creation request
 export interface CreateComponentRequest {
   part_type: 'linked' | 'local' | 'meta'
-
-  // For linked parts
-  provider_id?: number
-  provider_part_number?: string
-
-  // For local/meta parts
   name?: string
   description?: string
+
+  // For linked parts
+  provider_link?: ProviderLinkCreate
+
+  // For local/meta parts
   manufacturer_id?: number
   manufacturer_name?: string // For creating new manufacturer
   footprint_id?: number

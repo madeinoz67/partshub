@@ -626,6 +626,8 @@ class ComponentService:
                 query = query.order_by(desc(Component.name))
             elif sort_by == "created_at":
                 query = query.order_by(desc(Component.created_at))
+            elif sort_by == "updated_at":
+                query = query.order_by(desc(Component.updated_at))
             # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
             # and cannot be used directly in SQL ORDER BY
         else:
@@ -633,6 +635,8 @@ class ComponentService:
                 query = query.order_by(Component.name)
             elif sort_by == "created_at":
                 query = query.order_by(Component.created_at)
+            elif sort_by == "updated_at":
+                query = query.order_by(Component.updated_at)
             # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
             # and cannot be used directly in SQL ORDER BY
 

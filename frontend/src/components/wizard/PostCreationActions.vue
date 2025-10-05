@@ -10,8 +10,13 @@ import type { PostAction } from '../../types/wizard'
 
 const wizardStore = useWizardStore()
 
-// Local state
-const selectedAction = ref<PostAction>(wizardStore.postAction)
+// Local state - default to 'view' if no action selected
+const selectedAction = ref<PostAction>(wizardStore.postAction || 'view')
+
+// Set default action in store if none selected
+if (!wizardStore.postAction) {
+  wizardStore.postAction = 'view'
+}
 
 // Post-action options (FR-012)
 const actionOptions = [
@@ -75,12 +80,16 @@ watch(
             </div>
           </div>
           <div class="row q-mb-sm">
+            <div class="col-4 text-grey-7">Name:</div>
+            <div class="col-8">{{ wizardStore.selectedPart.name || wizardStore.selectedPart.part_number }}</div>
+          </div>
+          <div class="row q-mb-sm">
             <div class="col-4 text-grey-7">Part Number:</div>
             <div class="col-8">{{ wizardStore.selectedPart.part_number }}</div>
           </div>
-          <div class="row q-mb-sm">
+          <div class="row q-mb-sm" v-if="wizardStore.selectedPart.description">
             <div class="col-4 text-grey-7">Description:</div>
-            <div class="col-8">{{ wizardStore.selectedPart.name }}</div>
+            <div class="col-8">{{ wizardStore.selectedPart.description }}</div>
           </div>
           <div class="row q-mb-sm" v-if="wizardStore.selectedPart.manufacturer">
             <div class="col-4 text-grey-7">Manufacturer:</div>

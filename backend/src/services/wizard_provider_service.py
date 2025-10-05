@@ -75,9 +75,9 @@ class WizardProviderService:
         """
         try:
             # Import adapter class from services module
-            # Example: adapter_class = "LCSCAdapter" -> backend.src.services.lcsc_adapter.LCSCAdapter
+            # Example: adapter_class = "LCSCAdapter" -> src.services.lcsc_adapter.LCSCAdapter
             module_name = provider.adapter_class.lower().replace("adapter", "_adapter")
-            module_path = f"backend.src.services.{module_name}"
+            module_path = f"src.services.{module_name}"
 
             module = importlib.import_module(module_path)
             adapter_class = getattr(module, provider.adapter_class)

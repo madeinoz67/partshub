@@ -52,6 +52,14 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f("ix_providers_name"), ["name"], unique=True)
         batch_op.create_index(batch_op.f("ix_providers_status"), ["status"], unique=False)
 
+    # Seed default provider (LCSC)
+    op.execute(
+        """
+        INSERT INTO providers (name, adapter_class, base_url, api_key_required, status)
+        VALUES ('LCSC', 'LCSCAdapter', 'https://wmsc.lcsc.com/wmsc', 0, 'active')
+        """
+    )
+
 
 def downgrade() -> None:
     """Remove providers table and indexes."""

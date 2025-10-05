@@ -168,8 +168,17 @@ export const useWizardStore = defineStore('wizard', () => {
 
       // Add linked part data
       if (partType.value === 'linked' && selectedPart.value && selectedProvider.value) {
-        request.provider_id = selectedProvider.value.id
-        request.provider_part_number = selectedPart.value.part_number
+        // Use part name or part number as component name
+        request.name = selectedPart.value.name || selectedPart.value.part_number
+        request.description = selectedPart.value.description
+
+        // Add provider link as nested object (matches backend ProviderLinkCreate schema)
+        request.provider_link = {
+          provider_id: selectedProvider.value.id,
+          part_number: selectedPart.value.part_number,
+          part_url: `https://www.lcsc.com/product-detail/${selectedPart.value.part_number}.html`,
+          metadata: null
+        }
       }
 
       // Add local/meta part data
