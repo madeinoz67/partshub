@@ -1,23 +1,29 @@
 name: "Release Please"
 
+# This workflow automates version management and releases:
+# 1. Monitors commits on main for conventional commits (feat:, fix:, docs:, etc.)
+# 2. Creates/updates a release PR with:
+#    - Bumped version in pyproject.toml
+#    - Updated CHANGELOG.md
+#    - Generated release notes
+# 3. When the release PR is merged:
+#    - Creates a git tag (e.g., v0.3.1)
+#    - Creates a GitHub release with release notes
+#    - Builds and uploads release artifacts (backend, frontend, source)
+# 4. The tag push triggers the release.yml workflow for Docker/docs deployment
+
 "on":
   push:
     branches: [main]
 
 permissions:
-  contents: write
-  pull-requests: write
-  packages: write      # For release workflow to push Docker images
-  issues: write        # For release workflow notifications
-  actions: write       # For release workflow cache
+  contents: write      # For creating releases and tags
+  pull-requests: write # For creating/updating release PRs
 
 jobs:
   release-please:
     name: "Create or Update Release PR"
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
 
     steps:
       - uses: googleapis/release-please-action@v4
@@ -26,16 +32,20 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
 
-  trigger-release:
-    name: "Trigger Release Workflow"
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
-    uses: ./.github/workflows/release.yml
-    with:
-      tag_name: ${{ needs.release-please.outputs.tag_name }}
-    permissions:
-      contents: write
-      packages: write
-      issues: write
-      actions: write
-    secrets: inherit
+      - name: Summary
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          # ✅ Release ${{ steps.release.outputs.tag_name }} Created
+
+          Release Please has created:
+          - Git tag: \`${{ steps.release.outputs.tag_name }}\`
+          - GitHub release with release notes
+          - Updated CHANGELOG.md
+
+          The release.yml workflow will now:
+          - Build and publish Docker images
+          - Deploy versioned documentation
+
+          View the release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.tag_name }}
+          EOF
