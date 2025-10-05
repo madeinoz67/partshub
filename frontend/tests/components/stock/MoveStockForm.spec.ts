@@ -104,6 +104,9 @@ describe('MoveStockForm.vue', () => {
   ]
 
   beforeEach(async () => {
+    // Reset mocks first
+    vi.clearAllMocks()
+
     // Get reference to the mocked Notify.create
     const { Notify } = await import('quasar')
     mockNotifyCreate = Notify.create as any
@@ -114,10 +117,8 @@ describe('MoveStockForm.vue', () => {
     storageStore = useStorageStore()
     // Set the underlying locations array, not the computed locationOptions
     storageStore.locations = mockAllStorageLocations
-    // Mock fetchLocations to prevent network calls
+    // Mock fetchLocations to prevent network calls (after clearAllMocks)
     storageStore.fetchLocations = vi.fn().mockResolvedValue(undefined)
-
-    vi.clearAllMocks()
   })
 
   afterEach(() => {
