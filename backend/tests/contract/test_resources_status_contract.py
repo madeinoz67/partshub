@@ -40,9 +40,9 @@ class TestResourcesStatusContract:
         """Test resource status for pending download"""
         # Create test provider, component, provider link, and resource
         from backend.src.models.component import Component
-        from backend.src.models.wizard_provider import Provider
         from backend.src.models.provider_link import ProviderLink
         from backend.src.models.resource import Resource
+        from backend.src.models.wizard_provider import Provider
 
         provider = Provider(
             name="LCSC",
@@ -96,9 +96,9 @@ class TestResourcesStatusContract:
     ):
         """Test resource status during active download"""
         from backend.src.models.component import Component
-        from backend.src.models.wizard_provider import Provider
         from backend.src.models.provider_link import ProviderLink
         from backend.src.models.resource import Resource
+        from backend.src.models.wizard_provider import Provider
 
         provider = Provider(
             name="LCSC",
@@ -151,9 +151,9 @@ class TestResourcesStatusContract:
     ):
         """Test resource status for completed download"""
         from backend.src.models.component import Component
-        from backend.src.models.wizard_provider import Provider
         from backend.src.models.provider_link import ProviderLink
         from backend.src.models.resource import Resource
+        from backend.src.models.wizard_provider import Provider
 
         provider = Provider(
             name="LCSC",
@@ -206,9 +206,9 @@ class TestResourcesStatusContract:
     def test_resource_status_failed(self, client: TestClient, auth_headers, db_session):
         """Test resource status for failed download"""
         from backend.src.models.component import Component
-        from backend.src.models.wizard_provider import Provider
         from backend.src.models.provider_link import ProviderLink
         from backend.src.models.resource import Resource
+        from backend.src.models.wizard_provider import Provider
 
         provider = Provider(
             name="LCSC",
@@ -261,9 +261,9 @@ class TestResourcesStatusContract:
     ):
         """Test response structure matches ResourceStatus schema"""
         from backend.src.models.component import Component
-        from backend.src.models.wizard_provider import Provider
         from backend.src.models.provider_link import ProviderLink
         from backend.src.models.resource import Resource
+        from backend.src.models.wizard_provider import Provider
 
         provider = Provider(
             name="LCSC",
@@ -327,9 +327,9 @@ class TestResourcesStatusContract:
     ):
         """Test that status can be checked multiple times"""
         from backend.src.models.component import Component
-        from backend.src.models.wizard_provider import Provider
         from backend.src.models.provider_link import ProviderLink
         from backend.src.models.resource import Resource
+        from backend.src.models.wizard_provider import Provider
 
         provider = Provider(
             name="LCSC",
@@ -381,7 +381,9 @@ class TestResourcesStatusContract:
         # Both should return same ID
         assert response1.json()["id"] == response2.json()["id"]
 
-    def test_resource_status_validation_invalid_id(self, client: TestClient, auth_headers):
+    def test_resource_status_validation_invalid_id(
+        self, client: TestClient, auth_headers
+    ):
         """Test validation error for invalid resource ID"""
         response = client.get("/api/resources/abc/status", headers=auth_headers)
 

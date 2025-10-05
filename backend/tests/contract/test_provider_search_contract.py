@@ -61,7 +61,9 @@ class TestProviderSearchContract:
         # Should fail with 403 forbidden
         assert response.status_code == 403
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_provider_search_with_admin_auth(
         self, mock_search, client: TestClient, auth_headers, db_session
     ):

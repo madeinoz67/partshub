@@ -307,9 +307,12 @@ class TestProviderAutoSelection:
 
         # Query database to verify provider_link was created
         from backend.src.models.provider_link import ProviderLink
-        provider_link = db_session.query(ProviderLink).filter_by(
-            component_id=component["id"]
-        ).first()
+
+        provider_link = (
+            db_session.query(ProviderLink)
+            .filter_by(component_id=component["id"])
+            .first()
+        )
         assert provider_link is not None
         assert provider_link.provider_id == selected_provider["id"]
         assert provider_link.provider_part_number == "AUTO-001"

@@ -13,7 +13,9 @@ from fastapi.testclient import TestClient
 class TestWizardLinkedPartFlow:
     """Integration tests for complete wizard workflow for linked parts"""
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_complete_wizard_flow_linked_part(
         self,
         mock_search,
@@ -90,7 +92,10 @@ class TestWizardLinkedPartFlow:
             "provider_link": {
                 "provider_id": lcsc_provider.id,
                 "part_number": selected_part["part_number"],
-                "part_url": selected_part.get("provider_url", f"https://lcsc.com/product/{selected_part['part_number']}"),
+                "part_url": selected_part.get(
+                    "provider_url",
+                    f"https://lcsc.com/product/{selected_part['part_number']}",
+                ),
                 "metadata": {
                     "manufacturer": selected_part.get("manufacturer", "Unknown"),
                     "description": selected_part.get("description", ""),
@@ -120,13 +125,19 @@ class TestWizardLinkedPartFlow:
 
         # Query database to verify provider_link was created
         from backend.src.models.provider_link import ProviderLink
-        provider_link = db_session.query(ProviderLink).filter_by(
-            component_id=created_component["id"]
-        ).first()
+
+        provider_link = (
+            db_session.query(ProviderLink)
+            .filter_by(component_id=created_component["id"])
+            .first()
+        )
         assert provider_link is not None
         assert provider_link.provider_id == lcsc_provider.id
         # Provider part number comes from the part we selected in the search
-        assert provider_link.provider_part_number == component_data["provider_link"]["part_number"]
+        assert (
+            provider_link.provider_part_number
+            == component_data["provider_link"]["part_number"]
+        )
 
         # Step 5: Verify resource download statuses
         # Datasheets should download synchronously (status='complete')
@@ -143,7 +154,9 @@ class TestWizardLinkedPartFlow:
         # This would test GET /api/resources/{resource_id}/status
         # Skipped here as resource retrieval mechanism not yet defined
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_wizard_flow_without_resources(
         self,
         mock_search,
@@ -212,7 +225,9 @@ class TestWizardLinkedPartFlow:
         assert component["name"] == "Test Part"
         assert component["part_type"] == "linked"
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_wizard_flow_with_manufacturer_footprint_autocomplete(
         self,
         mock_search,
