@@ -122,55 +122,71 @@ class LCSCAdapter(ProviderAdapter):
             }
 
             async with httpx.AsyncClient(follow_redirects=True) as client:
-                response = await client.get(search_url, params=params, headers=headers, timeout=10.0)
+                response = await client.get(
+                    search_url, params=params, headers=headers, timeout=10.0
+                )
                 response.raise_for_status()
 
                 # Parse HTML
-                soup = BeautifulSoup(response.text, 'html.parser')
+                soup = BeautifulSoup(response.text, "html.parser")
                 results = []
 
                 # Find product cards (LCSC uses various class names, adapt as needed)
                 # This is a best-effort scraping - may need adjustment based on LCSC's current HTML structure
-                product_items = soup.select('.product-item, .search-product-item, [data-product-code]')[:limit]
+                product_items = soup.select(
+                    ".product-item, .search-product-item, [data-product-code]"
+                )[:limit]
 
                 for item in product_items:
                     try:
                         # Extract product code (LCSC part number)
                         part_number = (
-                            item.get('data-product-code') or
-                            (item.select_one('[data-product-code]') or {}).get('data-product-code', '') or
-                            self._extract_part_number(item)
+                            item.get("data-product-code")
+                            or (item.select_one("[data-product-code]") or {}).get(
+                                "data-product-code", ""
+                            )
+                            or self._extract_part_number(item)
                         )
 
                         # Extract other details
-                        name_elem = item.select_one('.product-model, .product-name, h3, h4')
-                        name = name_elem.get_text(strip=True) if name_elem else part_number
+                        name_elem = item.select_one(
+                            ".product-model, .product-name, h3, h4"
+                        )
+                        name = (
+                            name_elem.get_text(strip=True) if name_elem else part_number
+                        )
 
-                        desc_elem = item.select_one('.product-intro, .product-description, p')
-                        description = desc_elem.get_text(strip=True) if desc_elem else ""
+                        desc_elem = item.select_one(
+                            ".product-intro, .product-description, p"
+                        )
+                        description = (
+                            desc_elem.get_text(strip=True) if desc_elem else ""
+                        )
 
-                        mfr_elem = item.select_one('.product-brand, .manufacturer')
+                        mfr_elem = item.select_one(".product-brand, .manufacturer")
                         manufacturer = mfr_elem.get_text(strip=True) if mfr_elem else ""
 
-                        pkg_elem = item.select_one('.product-package, .package')
+                        pkg_elem = item.select_one(".product-package, .package")
                         footprint = pkg_elem.get_text(strip=True) if pkg_elem else ""
 
-                        img_elem = item.select_one('img')
-                        image_url = img_elem.get('src', '') if img_elem else ""
-                        if image_url and not image_url.startswith('http'):
+                        img_elem = item.select_one("img")
+                        image_url = img_elem.get("src", "") if img_elem else ""
+                        if image_url and not image_url.startswith("http"):
                             image_url = f"https://www.lcsc.com{image_url}"
 
                         if part_number:
-                            results.append({
-                                "part_number": part_number,
-                                "name": name,
-                                "description": description,
-                                "manufacturer": manufacturer,
-                                "datasheet_url": f"https://www.lcsc.com/datasheet/lcsc_datasheet_{part_number}.pdf",
-                                "image_urls": [image_url] if image_url else [],
-                                "footprint": footprint,
-                                "provider_url": f"https://www.lcsc.com/product-detail/{part_number}.html",
-                            })
+                            results.append(
+                                {
+                                    "part_number": part_number,
+                                    "name": name,
+                                    "description": description,
+                                    "manufacturer": manufacturer,
+                                    "datasheet_url": f"https://www.lcsc.com/datasheet/lcsc_datasheet_{part_number}.pdf",
+                                    "image_urls": [image_url] if image_url else [],
+                                    "footprint": footprint,
+                                    "provider_url": f"https://www.lcsc.com/product-detail/{part_number}.html",
+                                }
+                            )
                     except Exception as e:
                         logger.warning(f"Failed to parse product item: {e}")
                         continue
@@ -178,7 +194,9 @@ class LCSCAdapter(ProviderAdapter):
                 # If web scraping found no results, use mock data
                 # (LCSC loads data dynamically with JavaScript, so scraping often fails)
                 if not results:
-                    logger.warning(f"Web scraping found no results for '{query}', using mock data")
+                    logger.warning(
+                        f"Web scraping found no results for '{query}', using mock data"
+                    )
                     results = self._generate_simple_mock(query, limit)
 
                 return results[:limit]
@@ -193,17 +211,19 @@ class LCSCAdapter(ProviderAdapter):
         query_upper = query.upper()
 
         # If it looks like an LCSC part number (C followed by digits)
-        if query_upper.startswith('C') and query_upper[1:].isdigit():
-            return [{
-                "part_number": query_upper,
-                "name": "STM32F103C8T6",
-                "description": "ARM Cortex-M3 MCU, 64KB Flash, 20KB RAM, 72MHz",
-                "manufacturer": "STMicroelectronics",
-                "datasheet_url": f"https://www.lcsc.com/datasheet/{query_upper}.pdf",
-                "image_urls": [],
-                "footprint": "LQFP-48",
-                "provider_url": f"https://www.lcsc.com/product-detail/{query_upper}.html",
-            }]
+        if query_upper.startswith("C") and query_upper[1:].isdigit():
+            return [
+                {
+                    "part_number": query_upper,
+                    "name": "STM32F103C8T6",
+                    "description": "ARM Cortex-M3 MCU, 64KB Flash, 20KB RAM, 72MHz",
+                    "manufacturer": "STMicroelectronics",
+                    "datasheet_url": f"https://www.lcsc.com/datasheet/{query_upper}.pdf",
+                    "image_urls": [],
+                    "footprint": "LQFP-48",
+                    "provider_url": f"https://www.lcsc.com/product-detail/{query_upper}.html",
+                }
+            ]
 
         # Generic search - return some sample parts with realistic names
         return [
@@ -223,7 +243,7 @@ class LCSCAdapter(ProviderAdapter):
         """Try to extract LCSC part number from various possible locations."""
         # Look for C followed by digits in text
         text = item.get_text()
-        match = re.search(r'C\d+', text)
+        match = re.search(r"C\d+", text)
         return match.group(0) if match else ""
 
     async def get_part_details(self, part_number: str) -> dict:
