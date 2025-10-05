@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.1](https://github.com/madeinoz67/partshub/compare/v0.3.0...v0.3.1) (2025-10-05)
+
+
+### Bug Fixes
+
+* resolve npm audit vulnerabilities in frontend dependencies ([#18](https://github.com/madeinoz67/partshub/issues/18)) ([a3d7003](https://github.com/madeinoz67/partshub/commit/a3d7003fb7f12ebeff4ae7c9be2272ac8efc0374))
+* update Node.js version to 20 in release workflow ([2557462](https://github.com/madeinoz67/partshub/commit/25574622ffebae77f2cdadb5c54d1606631f4fce))
+
+
+### Documentation
+
+* add v0.3.1 release notes and update requirements ([877ec04](https://github.com/madeinoz67/partshub/commit/877ec04e366077ec6de35a187ec26c767091ad78))
+
 ## [0.3.0](https://github.com/madeinoz67/partshub/compare/v0.2.1...v0.3.0) (2025-10-05)
 
 
