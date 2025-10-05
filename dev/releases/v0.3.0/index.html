@@ -12,13 +12,13 @@
         <meta name="author" content="Stephen Eaton">
       
       
-        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.1.1/">
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.3.0/">
       
       
-        <link rel="prev" href="../v0.2.0/">
+        <link rel="prev" href="../../developer/session-notes-2025-09-27/">
       
       
-        <link rel="next" href="../v0.1.0/">
+        <link rel="next" href="../v0.2.1/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Release Notes for PartsHub v0.1.1 - PartsHub Documentation</title>
+        <title>Release Notes for PartsHub v0.3.0 - PartsHub Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-for-partshub-v011" class="md-skip">
+        <a href="#release-notes-for-partshub-v030" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release Notes for PartsHub v0.1.1
+              Release Notes for PartsHub v0.3.0
             
           </span>
         </div>
@@ -427,7 +427,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../v0.3.0/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -1622,10 +1622,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v0.3.0/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.3.0
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1636,6 +1658,428 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inline-stock-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Inline Stock Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stock-transaction-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Stock Transaction History
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      🗄️ Database Enhancements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requestresponse-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Request/Response Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Improvements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend Improvements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-vue-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Vue Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-documentation-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Documentation Pages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updated-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Updated Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comprehensive-test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comprehensive Test Coverage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access Control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transaction-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transaction Safety
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Breaking Changes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Instructions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration Instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-migration-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Migration Required
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-code-changes-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      No Code Changes Required
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation &amp; Upgrade
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation &amp; Upgrade">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fresh-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fresh Installation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-from-v021" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrading from v0.2.1
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Files Changed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files Changed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#backend-files-addedmodified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend Files Added/Modified
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frontend-files-addedmodified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Files Added/Modified
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation-files-added" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Files Added
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constitutional-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Constitutional Compliance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Known Issues
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next-v040-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      What's Next (v0.4.0 Preview)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s Next (v0.4.0 Preview)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planned Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#community-requested" class="md-nav__link">
+    <span class="md-ellipsis">
+      Community Requested
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support &amp; Feedback
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1691,32 +2135,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Release Notes for PartsHub v0.1.1
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../v0.1.1/" class="md-nav__link">
         
   
   
@@ -1727,539 +2149,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#major-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Major Features
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Major Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-1-complete" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage Location Layout Generator (Phase 1 Complete)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Storage Location Layout Generator (Phase 1 Complete)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#four-layout-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Four Layout Types
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#key-capabilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Capabilities
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Endpoints
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Components
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#backend-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Services
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#test-coverage-achievement" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Coverage Achievement
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Test Coverage Achievement">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#backend-tests-473473-passing-100" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Tests: 473/473 Passing (100%)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-tests-157157-passing-100" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Tests: 157/157 Passing (100%)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cicd-test-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      CI/CD Test Improvements
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#database-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Database Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Database Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#schema-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Schema Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-optimizations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance Optimizations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-quality-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Code Quality Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Code Quality Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#backend-excellence" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Excellence
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Quality
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#infrastructure-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Infrastructure Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#github-actions-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      GitHub Actions Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#docker-enhancements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Docker Enhancements
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-resolutions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Resolutions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bug Fixes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Bug Fixes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#api-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      API &amp; Backend
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-infrastructure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Infrastructure
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#api-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#consistency-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Consistency Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#new-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      New Endpoints
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#breaking-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Breaking Changes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#migration-instructions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Migration Instructions
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Migration Instructions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#database-migration-required" class="md-nav__link">
-    <span class="md-ellipsis">
-      Database Migration Required
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-endpoint-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Endpoint Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#no-code-changes-required" class="md-nav__link">
-    <span class="md-ellipsis">
-      No Code Changes Required
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation-upgrade" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation &amp; Upgrade
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation &amp; Upgrade">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fresh-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fresh Installation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upgrading-from-v010" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrading from v0.1.0
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      Development Tools
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Tools">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      Commands
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-execution" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Execution
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files-changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Files Changed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next-v020-preview" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next (v0.2.0 Preview)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What&#39;s Next (v0.2.0 Preview)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage Location Layout Generator - Phase 2
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#enhanced-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Enhanced Features
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#known-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      Known Issues
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#acknowledgments" class="md-nav__link">
-    <span class="md-ellipsis">
-      Acknowledgments
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#support-feedback" class="md-nav__link">
-    <span class="md-ellipsis">
-      Support &amp; Feedback
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2354,262 +2243,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#major-features" class="md-nav__link">
+  <a href="#new-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Major Features
+      New Features
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Major Features">
+    <nav class="md-nav" aria-label="New Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-1-complete" class="md-nav__link">
+  <a href="#inline-stock-operations" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage Location Layout Generator (Phase 1 Complete)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Storage Location Layout Generator (Phase 1 Complete)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#four-layout-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Four Layout Types
+      🎯 Inline Stock Operations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#key-capabilities" class="md-nav__link">
+  <a href="#stock-transaction-history" class="md-nav__link">
     <span class="md-ellipsis">
-      Key Capabilities
+      📊 Stock Transaction History
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
+  <a href="#database-enhancements" class="md-nav__link">
     <span class="md-ellipsis">
-      API Endpoints
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Components
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#backend-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Services
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#test-coverage-achievement" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Coverage Achievement
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Test Coverage Achievement">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#backend-tests-473473-passing-100" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Tests: 473/473 Passing (100%)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-tests-157157-passing-100" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Tests: 157/157 Passing (100%)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cicd-test-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      CI/CD Test Improvements
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#database-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Database Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Database Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#schema-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Schema Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-optimizations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Performance Optimizations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-quality-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Code Quality Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Code Quality Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#backend-excellence" class="md-nav__link">
-    <span class="md-ellipsis">
-      Backend Excellence
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Quality
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#infrastructure-improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Infrastructure Improvements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Infrastructure Improvements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#github-actions-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      GitHub Actions Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#docker-enhancements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Docker Enhancements
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-resolutions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Resolutions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bug Fixes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Bug Fixes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#api-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      API &amp; Backend
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-infrastructure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Infrastructure
+      🗄️ Database Enhancements
     </span>
   </a>
   
@@ -2631,18 +2295,159 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#consistency-updates" class="md-nav__link">
+  <a href="#new-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Consistency Updates
+      New Endpoints
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#new-endpoints" class="md-nav__link">
+  <a href="#requestresponse-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      New Endpoints
+      Request/Response Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Improvements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend Improvements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-vue-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Vue Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-documentation-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Documentation Pages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updated-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Updated Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comprehensive-test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comprehensive Test Coverage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access Control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transaction-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transaction Safety
     </span>
   </a>
   
@@ -2682,15 +2487,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#api-endpoint-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Endpoint Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#no-code-changes-required" class="md-nav__link">
     <span class="md-ellipsis">
       No Code Changes Required
@@ -2724,51 +2520,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#upgrading-from-v010" class="md-nav__link">
+  <a href="#upgrading-from-v021" class="md-nav__link">
     <span class="md-ellipsis">
-      Upgrading from v0.1.0
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      Development Tools
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Tools">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      Commands
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-execution" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Execution
+      Upgrading from v0.2.1
     </span>
   </a>
   
@@ -2786,40 +2540,31 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next-v020-preview" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Next (v0.2.0 Preview)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What&#39;s Next (v0.2.0 Preview)">
+    <nav class="md-nav" aria-label="Files Changed">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#storage-location-layout-generator-phase-2" class="md-nav__link">
+  <a href="#backend-files-addedmodified" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage Location Layout Generator - Phase 2
+      Backend Files Added/Modified
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#enhanced-features" class="md-nav__link">
+  <a href="#frontend-files-addedmodified" class="md-nav__link">
     <span class="md-ellipsis">
-      Enhanced Features
+      Frontend Files Added/Modified
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#infrastructure" class="md-nav__link">
+  <a href="#documentation-files-added" class="md-nav__link">
     <span class="md-ellipsis">
-      Infrastructure
+      Documentation Files Added
     </span>
   </a>
   
@@ -2827,6 +2572,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constitutional-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Constitutional Compliance
+    </span>
+  </a>
   
 </li>
       
@@ -2840,11 +2594,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#acknowledgments" class="md-nav__link">
+  <a href="#whats-next-v040-preview" class="md-nav__link">
     <span class="md-ellipsis">
-      Acknowledgments
+      What's Next (v0.4.0 Preview)
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s Next (v0.4.0 Preview)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planned Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#community-requested" class="md-nav__link">
+    <span class="md-ellipsis">
+      Community Requested
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2873,7 +2651,7 @@
 
 
   
-    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.1.1.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.3.0.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2882,370 +2660,265 @@
     
       
     
-    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.1.1.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.3.0.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="release-notes-for-partshub-v011">Release Notes for PartsHub v0.1.1<a class="headerlink" href="#release-notes-for-partshub-v011" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date</strong>: October 4, 2025
-<strong>GitHub Release</strong>: <a href="https://github.com/madeinoz67/partshub/releases/tag/v0.1.1">v0.1.1</a>
-<strong>Comparison</strong>: <a href="https://github.com/madeinoz67/partshub/compare/v0.1.0...v0.1.1">v0.1.0...v0.1.1</a></p>
+<h1 id="release-notes-for-partshub-v030">Release Notes for PartsHub v0.3.0<a class="headerlink" href="#release-notes-for-partshub-v030" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date</strong>: October 5, 2025
+<strong>GitHub Release</strong>: <a href="https://github.com/madeinoz67/partshub/releases/tag/v0.3.0">v0.3.0</a>
+<strong>Comparison</strong>: <a href="https://github.com/madeinoz67/partshub/compare/v0.2.1...v0.3.0">v0.2.1...v0.3.0</a></p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>PartsHub v0.1.1 introduces the <strong>Storage Location Layout Generator</strong>, a powerful feature enabling bulk creation of systematic storage locations with automated naming patterns. This release transforms how users organize their electronic parts inventory, allowing creation of up to 500 locations in seconds with four flexible layout types. Additionally, this release achieves 100% test pass rate, resolves all security vulnerabilities, and significantly improves CI/CD infrastructure.</p>
-<h2 id="major-features">Major Features<a class="headerlink" href="#major-features" title="Permanent link">&para;</a></h2>
-<h3 id="storage-location-layout-generator-phase-1-complete">Storage Location Layout Generator (Phase 1 Complete)<a class="headerlink" href="#storage-location-layout-generator-phase-1-complete" title="Permanent link">&para;</a></h3>
-<p>The headline feature of v0.1.1 is the new bulk storage location generation system enabling rapid creation of organized storage hierarchies.</p>
-<h4 id="four-layout-types">Four Layout Types<a class="headerlink" href="#four-layout-types" title="Permanent link">&para;</a></h4>
-<ol>
-<li><strong>Single Layout</strong></li>
-<li>Create individual named locations</li>
-<li>
-<p>Perfect for unique storage needs</p>
-</li>
-<li>
-<p><strong>Row Layout (1D)</strong></p>
-</li>
-<li>Generate linear sequences (e.g., <code>box1-a</code> through <code>box1-f</code>)</li>
-<li>
-<p>Ideal for shelf bins, drawer rows, or sequential containers</p>
-</li>
-<li>
-<p><strong>Grid Layout (2D)</strong></p>
-</li>
-<li>Create 2D organizational grids (e.g., <code>drawer-a-1</code> to <code>drawer-f-5</code>)</li>
-<li>
-<p>Perfect for grid-style storage systems, PCB racks, or matrix layouts</p>
-</li>
-<li>
-<p><strong>3D Grid Layout</strong></p>
-</li>
-<li>Generate multi-level hierarchical storage systems</li>
-<li>Supports complex cabinet systems with shelves, rows, and columns</li>
-<li>Full parent-child relationship support</li>
-</ol>
-<h4 id="key-capabilities">Key Capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h4>
+<p>PartsHub v0.3.0 introduces a comprehensive inline stock management system that revolutionizes how you track and manage component inventory. This major feature release adds five new stock operations directly accessible from the component list, complete with transaction history, multi-format export capabilities, and automatic location tracking.</p>
+<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h2>
+<h3 id="inline-stock-operations">🎯 Inline Stock Operations<a class="headerlink" href="#inline-stock-operations" title="Permanent link">&para;</a></h3>
+<p>Manage component inventory directly from the component list with a streamlined row-expansion interface. All stock operations are now accessible from a single, intuitive menu without navigating away from the component list.</p>
+<p><strong>Available Operations</strong>:</p>
 <ul>
-<li><strong>Real-time Preview</strong>: See the first 5 and last location names before creation</li>
-<li><strong>Bulk Creation</strong>: Create up to 500 locations per batch with warnings at 100+</li>
-<li><strong>Flexible Naming</strong>:</li>
-<li>Letter ranges (a-z or A-Z) with capitalization options</li>
-<li>Number ranges (1-999) with optional zero-padding (01, 02, etc.)</li>
-<li>Custom separators and prefixes</li>
-<li><strong>Hierarchical Support</strong>: Parent-child location relationships for nested organization</li>
-<li><strong>Single-Part Designation</strong>: Mark locations for single-part storage only</li>
-<li><strong>Configuration Audit Trail</strong>: Layout configurations stored as JSONB in database</li>
-<li><strong>Duplicate Prevention</strong>: Transaction-safe validation prevents duplicate location names</li>
-<li><strong>Authentication-Gated</strong>: Anonymous users can preview, authenticated users can create</li>
+<li><strong>Add Stock</strong>: Add inventory to any storage location with optional lot and pricing information</li>
+<li><strong>Remove Stock</strong>: Safely remove inventory with auto-capping validation and zero-quantity cleanup</li>
+<li><strong>Move Stock</strong>: Transfer stock between locations with atomic operations and pricing inheritance</li>
+<li><strong>View History</strong>: Access paginated transaction history (10 entries/page) with complete audit trail</li>
+<li><strong>Export History</strong>: Download transaction history in CSV, Excel, or JSON formats (admin-only)</li>
 </ul>
-<h4 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Preview locations before creating (no authentication required)</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>POST<span class="w"> </span>/api/v1/storage-locations/generate-preview
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Content-Type:<span class="w"> </span>application/json
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="o">{</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="s2">&quot;layout_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;row&quot;</span>,
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="s2">&quot;prefix&quot;</span>:<span class="w"> </span><span class="s2">&quot;box1-&quot;</span>,
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="s2">&quot;ranges&quot;</span>:<span class="w"> </span><span class="o">[{</span><span class="s2">&quot;range_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;letters&quot;</span>,<span class="w"> </span><span class="s2">&quot;start&quot;</span>:<span class="w"> </span><span class="s2">&quot;a&quot;</span>,<span class="w"> </span><span class="s2">&quot;end&quot;</span>:<span class="w"> </span><span class="s2">&quot;f&quot;</span><span class="o">}]</span>,
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="s2">&quot;separators&quot;</span>:<span class="w"> </span><span class="o">[]</span>,
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="s2">&quot;location_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;bin&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="o">}</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Response: 200 OK</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="o">{</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="s2">&quot;sample_names&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;box1-a&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-b&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-c&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-d&quot;</span>,<span class="w"> </span><span class="s2">&quot;box1-e&quot;</span><span class="o">]</span>,
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="s2">&quot;total_count&quot;</span>:<span class="w"> </span><span class="m">6</span>,
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="s2">&quot;validation&quot;</span>:<span class="w"> </span><span class="o">{</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="s2">&quot;valid&quot;</span>:<span class="w"> </span>true,
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="s2">&quot;warnings&quot;</span>:<span class="w"> </span><span class="o">[]</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="o">}</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="o">}</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># Bulk create locations (authentication required)</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>POST<span class="w"> </span>/api/v1/storage-locations/bulk-create-layout
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;token&gt;
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>Content-Type:<span class="w"> </span>application/json
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># Response: 201 Created</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="o">{</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="s2">&quot;created_ids&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">5</span>,<span class="w"> </span><span class="m">6</span><span class="o">]</span>,
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">  </span><span class="s2">&quot;count&quot;</span>:<span class="w"> </span><span class="m">6</span>,
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">  </span><span class="s2">&quot;success&quot;</span>:<span class="w"> </span><span class="nb">true</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="o">}</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="c1"># Error responses:</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="c1"># 409 Conflict - Duplicate location names</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="c1"># 400 Bad Request - Location limit exceeded</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="c1"># 404 Not Found - Invalid parent location</span>
-</span></code></pre></div>
-<h3 id="frontend-components">Frontend Components<a class="headerlink" href="#frontend-components" title="Permanent link">&para;</a></h3>
+<p><strong>Key Features</strong>:</p>
 <ul>
-<li><strong>LocationLayoutDialog</strong>: Main dialog with tabbed layout type selection</li>
-<li><strong>LayoutTypeTabs</strong>: Tab navigation for 4 layout types</li>
-<li><strong>RangeConfigurator</strong>: Dynamic range configuration based on layout</li>
-<li><strong>LocationPreview</strong>: Preview with warnings/errors display</li>
-<li><strong>Responsive Storage Table</strong>: Expandable rows for detailed location information</li>
+<li>✅ <strong>Pessimistic Locking</strong>: Row-level database locks prevent race conditions</li>
+<li>✅ <strong>Atomic Transactions</strong>: All-or-nothing execution ensures data consistency</li>
+<li>✅ <strong>Auto-Capping</strong>: Remove operations automatically cap at available quantity</li>
+<li>✅ <strong>Zero Cleanup</strong>: Automatic deletion of <code>ComponentLocation</code> records when quantity reaches 0</li>
+<li>✅ <strong>Pricing Tracking</strong>: Track <code>lot_id</code>, <code>price_per_unit</code>, and <code>total_price</code> for all transactions</li>
+<li>✅ <strong>Location Tracking</strong>: Auto-update <code>last_used_at</code> timestamp on storage locations</li>
+<li>✅ <strong>Tiered Access</strong>: Admin-only for destructive operations (remove, move, export)</li>
 </ul>
-<h3 id="backend-services">Backend Services<a class="headerlink" href="#backend-services" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>BulkCreateService</strong>: Orchestrates bulk location creation with validation</li>
-<li><strong>LocationGenerator</strong>: Generates location names from configurations</li>
-<li><strong>LocationValidator</strong>: Validates business rules (duplicates, limits, parents)</li>
-<li><strong>PreviewService</strong>: Provides preview without database persistence</li>
-</ul>
-<h2 id="test-coverage-achievement">Test Coverage Achievement<a class="headerlink" href="#test-coverage-achievement" title="Permanent link">&para;</a></h2>
-<p><strong>100% test pass rate</strong> across the entire test suite - a major quality milestone!</p>
-<h3 id="backend-tests-473473-passing-100">Backend Tests: 473/473 Passing (100%)<a class="headerlink" href="#backend-tests-473473-passing-100" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Contract Tests</strong>: 21/21 (100%) - API endpoint validation</li>
-<li><strong>Integration Tests</strong>: 149/149 (100%) - End-to-end workflows</li>
-<li><strong>Unit Tests</strong>: 303/303 (100%) - Service/model logic</li>
-</ul>
-<h3 id="frontend-tests-157157-passing-100">Frontend Tests: 157/157 Passing (100%)<a class="headerlink" href="#frontend-tests-157157-passing-100" title="Permanent link">&para;</a></h3>
-<ul>
-<li>All component tests passing with TypeScript strict mode</li>
-<li>Quasar testing patterns established</li>
-<li>Proper interfaces for all components</li>
-</ul>
-<h3 id="cicd-test-improvements">CI/CD Test Improvements<a class="headerlink" href="#cicd-test-improvements" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Applied pytest markers (<code>@pytest.mark.unit/integration/contract</code>) to all 767 tests</li>
-<li>Fast checks now run only unit tests (~3s vs ~80s for full suite)</li>
-<li>Selective test execution enables efficient CI pipelines</li>
-<li>Enhanced mock patterns and fixture organization</li>
-</ul>
-<h2 id="database-changes">Database Changes<a class="headerlink" href="#database-changes" title="Permanent link">&para;</a></h2>
-<h3 id="schema-updates">Schema Updates<a class="headerlink" href="#schema-updates" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>New Storage Location Type</strong>: Added <code>'bag'</code> to storage location types enum</li>
-<li><strong>New Field</strong>: Added <code>location_code</code> field to <code>storage_locations</code> table</li>
-<li><strong>Enhanced Metadata</strong>: JSONB storage for layout configurations</li>
-<li><strong>Migration</strong>: <code>add_location_code_to_storage_locations</code></li>
-</ul>
-<h3 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h3>
-<p>Significant database performance improvements implemented:</p>
-<ul>
-<li><strong>40-60% query performance boost</strong> from critical performance indexes</li>
-<li><strong>50-70% faster</strong> inventory breakdown queries using optimized CTEs</li>
-<li><strong>60-70% faster</strong> financial analytics queries</li>
-<li>SQLite WAL mode with performance tuning enabled</li>
-<li>Comprehensive database constraints and validation</li>
-</ul>
-<h2 id="code-quality-improvements">Code Quality Improvements<a class="headerlink" href="#code-quality-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="backend-excellence">Backend Excellence<a class="headerlink" href="#backend-excellence" title="Permanent link">&para;</a></h3>
-<ul>
-<li>✅ <strong>0 ruff linting errors</strong> (reduced from 81 errors)</li>
-<li>✅ <strong>All files ruff formatted</strong> (91 Python files)</li>
-<li>✅ Comprehensive type hints throughout codebase</li>
-<li>✅ SQLAlchemy 2.0 compatibility complete</li>
-<li>✅ Pydantic V2 migration complete (<code>.model_dump()</code>, <code>@field_validator</code>)</li>
-<li>✅ Modern FastAPI patterns with lifespan context manager</li>
-</ul>
-<h3 id="frontend-quality">Frontend Quality<a class="headerlink" href="#frontend-quality" title="Permanent link">&para;</a></h3>
-<ul>
-<li>✅ <strong>0 ESLint errors, 0 warnings</strong></li>
-<li>✅ TypeScript strict mode, no <code>any</code> types</li>
-<li>✅ Proper interfaces for all components</li>
-<li>✅ Vue 3 composition API patterns</li>
-<li>✅ Standardized slot syntax (<code>#</code> instead of <code>v-slot:</code>)</li>
-<li>✅ HTML sanitization utilities for XSS protection</li>
-</ul>
-<h2 id="infrastructure-improvements">Infrastructure Improvements<a class="headerlink" href="#infrastructure-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="github-actions-updates">GitHub Actions Updates<a class="headerlink" href="#github-actions-updates" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Updated deprecated actions from v3 to v4:</li>
-<li><code>actions/upload-artifact@v3</code> → <code>v4</code></li>
-<li><code>actions/download-artifact@v3</code> → <code>v4</code></li>
-<li><code>actions/cache@v3</code> → <code>v4</code></li>
-<li><code>actions/setup-python@v4</code> → <code>v5</code></li>
-<li>Modernized release workflow with <code>softprops/action-gh-release@v1</code></li>
-<li>Eliminated UV deprecation warnings</li>
-<li>Enhanced test execution with pytest markers</li>
-</ul>
-<h3 id="docker-enhancements">Docker Enhancements<a class="headerlink" href="#docker-enhancements" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Complete multi-stage Dockerfile rebuild with proper targets</li>
-<li>Consolidated backend and frontend into all-in-one Docker image</li>
-<li>Frontend dev server binds to 0.0.0.0 for container access</li>
-<li>Node.js upgraded from 18 to 20</li>
-<li>Improved build caching and layer optimization</li>
-</ul>
-<h3 id="security-resolutions">Security Resolutions<a class="headerlink" href="#security-resolutions" title="Permanent link">&para;</a></h3>
-<p>Resolved multiple CVE vulnerabilities in dependencies:</p>
-<ul>
-<li><strong>FastAPI/Starlette</strong> → 0.115.0+ (multiple CVE fixes)</li>
-<li><strong>python-multipart</strong> (CVE-2024-53981)</li>
-<li><strong>python-jose</strong> (CVE-2024-33663, CVE-2024-33664)</li>
-<li><strong>requests</strong> (CVE-2024-47081, CVE-2024-35195)</li>
-<li><strong>pillow</strong> (CVE-2023-50447, CVE-2024-28219)</li>
-<li><strong>black</strong> (CVE-2024-21503)</li>
-<li><strong>anyio</strong> (PVE-2024-71199)</li>
-</ul>
-<p><strong>Known Issue</strong>: ecdsa library vulnerabilities documented but unfixed (no available patches)</p>
-<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
-<h3 id="api-backend">API &amp; Backend<a class="headerlink" href="#api-backend" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Fixed duplicate API endpoint in <code>storage.py</code> causing validation bypass</li>
-<li>Corrected integration test URLs to use proper <code>/api/v1</code> prefix</li>
-<li>Resolved API endpoint URL mismatch between frontend and backend</li>
-<li>Fixed authentication test database session isolation</li>
-<li>Added component validation for required fields (part_number, manufacturer, component_type)</li>
-<li>Improved Component model property setters for quantity updates</li>
-<li>Enhanced error handling with appropriate HTTP status codes:</li>
-<li><code>409 Conflict</code> for duplicate locations</li>
-<li><code>400 Bad Request</code> for location limit exceeded</li>
-<li><code>404 Not Found</code> for invalid parent locations</li>
-</ul>
-<h3 id="frontend">Frontend<a class="headerlink" href="#frontend" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Implemented responsive storage location table with expandable rows</li>
-<li>Enhanced bulk creation dialog with comprehensive validation feedback</li>
-<li>Improved type-safe error handling in Pinia stores</li>
-<li>Fixed event handling for <code>@update:model-value</code> emissions</li>
-<li>Standardized component formatting and readability</li>
-</ul>
-<h3 id="test-infrastructure">Test Infrastructure<a class="headerlink" href="#test-infrastructure" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Fixed authentication test fixtures across 38+ contract tests</li>
-<li>Resolved SQLAlchemy <code>func.case()</code> syntax for 2.0 compatibility</li>
-<li>Updated OAuth2 authentication to use form data instead of JSON</li>
-<li>Fixed provider integration test authentication patterns</li>
-<li>Improved mock patterns and fixture organization</li>
-<li>Enhanced component validation tests</li>
-</ul>
+<h3 id="stock-transaction-history">📊 Stock Transaction History<a class="headerlink" href="#stock-transaction-history" title="Permanent link">&para;</a></h3>
+<p><strong>Paginated History Table</strong>:
+- Server-side pagination (10 entries per page, configurable)
+- Color-coded transaction types (green for additions, red for removals, blue for moves)
+- Complete transaction details (timestamp, type, quantity, location, lot, pricing)
+- Real-time updates after stock operations
+- Sort by any column</p>
+<p><strong>Multi-Format Export</strong> (Admin-only):
+- <strong>CSV</strong>: Comma-separated values for spreadsheet applications
+- <strong>Excel</strong>: Native .xlsx format with formatted headers
+- <strong>JSON</strong>: Structured data for programmatic access
+- Streaming responses for large datasets
+- Unicode-safe filename handling</p>
+<h3 id="database-enhancements">🗄️ Database Enhancements<a class="headerlink" href="#database-enhancements" title="Permanent link">&para;</a></h3>
+<p><strong>Extended Stock Transactions Model</strong>:
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">stock_transactions</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">lot_id</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">stock_transactions</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">price_per_unit</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">stock_transactions</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">total_price</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+</span></code></pre></div></p>
+<p><strong>Storage Location Tracking</strong>:
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">storage_locations</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">last_used_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="p">;</span>
+</span></code></pre></div></p>
+<p>All stock movements (add/remove/move) automatically update the <code>last_used_at</code> timestamp, enabling you to identify frequently used or stale storage locations.</p>
 <h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
-<h3 id="consistency-updates">Consistency Updates<a class="headerlink" href="#consistency-updates" title="Permanent link">&para;</a></h3>
-<p>All storage location endpoints now use the <code>/api/v1/storage-locations</code> prefix for consistency.</p>
-<p><strong>Before</strong>: Mixed prefixes
-<strong>After</strong>: <code>/api/v1/storage-locations/*</code></p>
-<p>The frontend has been automatically updated. If you're using the API directly, update your endpoints accordingly.</p>
 <h3 id="new-endpoints">New Endpoints<a class="headerlink" href="#new-endpoints" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>POST /api/v1/storage-locations/generate-preview
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>POST /api/v1/storage-locations/bulk-create-layout
-</span></code></pre></div>
+<p><strong>Stock Operations</strong>:
+- <code>POST /api/v1/components/{id}/stock/add</code> - Add stock to a location
+- <code>POST /api/v1/components/{id}/stock/remove</code> - Remove stock from a location
+- <code>POST /api/v1/components/{id}/stock/move</code> - Move stock between locations</p>
+<p><strong>Stock History</strong>:
+- <code>GET /api/v1/components/{id}/stock/history</code> - Get paginated transaction history
+- <code>GET /api/v1/components/{id}/stock/history/export</code> - Export history (CSV/Excel/JSON)</p>
+<p>All endpoints are fully documented with OpenAPI contracts. See <a href="../../api/stock-operations/">Stock Operations API Reference</a> for complete details.</p>
+<h3 id="requestresponse-examples">Request/Response Examples<a class="headerlink" href="#requestresponse-examples" title="Permanent link">&para;</a></h3>
+<p><strong>Add Stock</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8000/api/v1/components/<span class="o">{</span>id<span class="o">}</span>/stock/add<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;token&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="s1">    &quot;location_id&quot;: &quot;storage-uuid&quot;,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="s1">    &quot;quantity&quot;: 100,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="s1">    &quot;lot_id&quot;: &quot;LOT-2025-001&quot;,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="s1">    &quot;price_per_unit&quot;: 0.25,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="s1">    &quot;notes&quot;: &quot;Received from supplier XYZ&quot;</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="s1">  }&#39;</span>
+</span></code></pre></div></p>
+<p><strong>Export History</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:8000/api/v1/components/{id}/stock/history/export?format=excel&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;admin-token&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-o<span class="w"> </span>component_history.xlsx
+</span></code></pre></div></p>
+<h2 id="frontend-improvements">Frontend Improvements<a class="headerlink" href="#frontend-improvements" title="Permanent link">&para;</a></h2>
+<h3 id="new-vue-components">New Vue Components<a class="headerlink" href="#new-vue-components" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>AddStockForm.vue</strong>: Add stock with lot/pricing inputs and location selection</li>
+<li><strong>RemoveStockForm.vue</strong>: Remove stock with auto-capping and quantity validation</li>
+<li><strong>MoveStockForm.vue</strong>: Move between locations with pricing inheritance options</li>
+<li><strong>StockHistoryTable.vue</strong>: Paginated history with export controls</li>
+</ul>
+<h3 id="integration">Integration<a class="headerlink" href="#integration" title="Permanent link">&para;</a></h3>
+<p>Stock operations are fully integrated into <code>ComponentList.vue</code>:
+- Access via row expansion menu (click arrow on left side of component row)
+- Operations appear as dialog forms over the component list
+- History auto-refreshes after each operation
+- Real-time feedback with optimistic UI updates</p>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h3 id="new-documentation-pages">New Documentation Pages<a class="headerlink" href="#new-documentation-pages" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../api/stock-operations/">Stock Operations API Reference</a></strong>: Complete API documentation with schemas and examples</li>
+<li><strong><a href="../../user/stock-operations/">Stock Operations User Guide</a></strong>: Step-by-step workflows and troubleshooting</li>
+</ul>
+<h3 id="updated-documentation">Updated Documentation<a class="headerlink" href="#updated-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../api/">API Documentation</a></strong>: Added stock operations overview</li>
+<li><strong><a href="../../user/features/">User Features Guide</a></strong>: Added stock management section</li>
+<li><strong>CLAUDE.md</strong>: Updated with stock operations patterns</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="comprehensive-test-coverage">Comprehensive Test Coverage<a class="headerlink" href="#comprehensive-test-coverage" title="Permanent link">&para;</a></h3>
+<p><strong>Backend</strong>: 917 tests passing ✅
+- 32 contract tests (OpenAPI validation)
+- 18 integration tests (user story scenarios)
+- 20 unit tests (locking, service logic)
+- Coverage: 80%+</p>
+<p><strong>Frontend</strong>: 319 tests passing ✅
+- 52 AddStockForm component tests
+- 67 MoveStockForm component tests
+- 48 StockHistoryTable component tests
+- All scenarios with auto-refresh validation</p>
+<p><strong>Total</strong>: 1,236 tests passing across backend and frontend</p>
+<h3 id="cicd-pipeline">CI/CD Pipeline<a class="headerlink" href="#cicd-pipeline" title="Permanent link">&para;</a></h3>
+<p>All quality gates passing:
+- ✅ Ruff linting (zero errors)
+- ✅ Type checking (frontend and backend)
+- ✅ All unit and integration tests
+- ✅ Security scans
+- ✅ Docker build validation</p>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Stock Operations</strong>: &lt;200ms response time for standard transactions</li>
+<li><strong>History Pagination</strong>: Efficient server-side pagination with 10 entries/page</li>
+<li><strong>Export</strong>: Streaming responses for large datasets (no memory issues)</li>
+<li><strong>Locking</strong>: Minimal lock duration (transaction scope only, typically &lt;50ms)</li>
+</ul>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<h3 id="access-control">Access Control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Read History</strong>: All authenticated users can view stock history</li>
+<li><strong>Add Stock</strong>: All authenticated users can add inventory</li>
+<li><strong>Remove Stock</strong>: Admin-only (destructive operation)</li>
+<li><strong>Move Stock</strong>: Admin-only (destructive operation)</li>
+<li><strong>Export History</strong>: Admin-only (data export)</li>
+</ul>
+<h3 id="transaction-safety">Transaction Safety<a class="headerlink" href="#transaction-safety" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Pessimistic Locking</strong>: Database row locks prevent concurrent modification</li>
+<li><strong>Atomic Operations</strong>: All operations execute atomically or roll back completely</li>
+<li><strong>Validation</strong>: Auto-capping prevents removing more than available quantity</li>
+<li><strong>Audit Trail</strong>: Complete transaction history for compliance and debugging</li>
+</ul>
 <h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
-<p><strong>None</strong> - All changes are additive and backward compatible.</p>
+<p><strong>None</strong> - All changes are additive. Existing functionality remains unchanged.</p>
 <h2 id="migration-instructions">Migration Instructions<a class="headerlink" href="#migration-instructions" title="Permanent link">&para;</a></h2>
 <h3 id="database-migration-required">Database Migration Required<a class="headerlink" href="#database-migration-required" title="Permanent link">&para;</a></h3>
-<p>Run the database migration to add the new indexes and schema updates:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Using Make (recommended)</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>make<span class="w"> </span>migrate
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># OR manually</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">cd</span><span class="w"> </span>backend
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;sqlite:///data/partshub.db&quot;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+<p>Run Alembic migrations to add new columns:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>backend
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
 </span></code></pre></div>
-<h3 id="api-endpoint-updates">API Endpoint Updates<a class="headerlink" href="#api-endpoint-updates" title="Permanent link">&para;</a></h3>
-<p>If you're using the storage locations API directly, update your endpoints to use the <code>/api/v1/storage-locations</code> prefix. The frontend has been updated automatically.</p>
+<p>This adds:
+- <code>stock_transactions.lot_id</code> (nullable VARCHAR)
+- <code>stock_transactions.price_per_unit</code> (nullable DECIMAL)
+- <code>stock_transactions.total_price</code> (nullable DECIMAL)
+- <code>storage_locations.last_used_at</code> (nullable TIMESTAMP)</p>
 <h3 id="no-code-changes-required">No Code Changes Required<a class="headerlink" href="#no-code-changes-required" title="Permanent link">&para;</a></h3>
-<p>All application code is backward compatible. Simply pull the latest changes and run migrations.</p>
+<p>All new features are opt-in. Existing stock management workflows continue to work:
+- Legacy stock updates still function
+- No changes to existing API endpoints
+- Frontend remains backward compatible</p>
 <h2 id="installation-upgrade">Installation &amp; Upgrade<a class="headerlink" href="#installation-upgrade" title="Permanent link">&para;</a></h2>
 <h3 id="fresh-installation">Fresh Installation<a class="headerlink" href="#fresh-installation" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Clone repository</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/madeinoz67/partshub.git
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">cd</span><span class="w"> </span>partshub
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Install dependencies</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>make<span class="w"> </span>install
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Run database migrations</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>make<span class="w"> </span>migrate
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1"># Start development servers</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>make<span class="w"> </span>dev
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Clone repository</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/madeinoz67/partshub.git
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nb">cd</span><span class="w"> </span>partshub
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Install dependencies</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>make<span class="w"> </span>install
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1"># Run migrations</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="c1"># Start development servers</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>make<span class="w"> </span>dev
 </span></code></pre></div>
-<h3 id="upgrading-from-v010">Upgrading from v0.1.0<a class="headerlink" href="#upgrading-from-v010" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Pull latest changes</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Install any new dependencies</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>make<span class="w"> </span>install
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Run database migrations</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>make<span class="w"> </span>migrate
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Restart development servers</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>make<span class="w"> </span>dev
-</span></code></pre></div>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Feature Guide</strong>: <code>docs/features/storage-location-layout.md</code></li>
-<li><strong>API Documentation</strong>: <code>docs/api.md</code> with comprehensive examples</li>
-<li><strong>CHANGELOG</strong>: Full changelog at <code>CHANGELOG.md</code></li>
-<li><strong>Developer Workflows</strong>: Enhanced developer documentation in <code>docs/</code></li>
-</ul>
-<h2 id="development-tools">Development Tools<a class="headerlink" href="#development-tools" title="Permanent link">&para;</a></h2>
-<h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>make<span class="w"> </span>install<span class="w">       </span><span class="c1"># Install all dependencies (Python + Node.js)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>make<span class="w"> </span>dev<span class="w">          </span><span class="c1"># Start backend + frontend + docs servers</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>make<span class="w"> </span><span class="nb">test</span><span class="w">         </span><span class="c1"># Run all tests (100% passing!)</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>make<span class="w"> </span>lint<span class="w">         </span><span class="c1"># Run ruff checks (0 errors!)</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>make<span class="w"> </span>docs<span class="w">         </span><span class="c1"># Start documentation server</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>make<span class="w"> </span>migrate<span class="w">      </span><span class="c1"># Run database migrations</span>
-</span></code></pre></div>
-<h3 id="test-execution">Test Execution<a class="headerlink" href="#test-execution" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># All tests</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest
+<h3 id="upgrading-from-v021">Upgrading from v0.2.1<a class="headerlink" href="#upgrading-from-v021" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Pull latest changes</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># By category (using markers)</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>unit<span class="w">          </span><span class="c1"># ~3s - fast unit tests only</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>integration<span class="w">   </span><span class="c1"># ~30s - integration tests</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>contract<span class="w">      </span><span class="c1"># ~10s - API contract tests</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># With coverage</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>src<span class="w"> </span>--cov-report<span class="o">=</span>html
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Update dependencies</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>make<span class="w"> </span>install
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Run database migrations</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Restart services</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>make<span class="w"> </span>dev
 </span></code></pre></div>
 <h2 id="files-changed">Files Changed<a class="headerlink" href="#files-changed" title="Permanent link">&para;</a></h2>
-<p><strong>305 files changed</strong>: 47,152 insertions(+), 8,723 deletions(-)</p>
-<p><strong>Key additions</strong>:
-- Backend: 14 new service/API files for layout generation
-- Frontend: 9 new Vue components
-- Tests: 34 new test files (21 contract, 11 integration, 2 unit)
-- Documentation: 2 new feature documentation files
-- Migrations: 1 new database migration</p>
-<h2 id="whats-next-v020-preview">What's Next (v0.2.0 Preview)<a class="headerlink" href="#whats-next-v020-preview" title="Permanent link">&para;</a></h2>
-<h3 id="storage-location-layout-generator-phase-2">Storage Location Layout Generator - Phase 2<a class="headerlink" href="#storage-location-layout-generator-phase-2" title="Permanent link">&para;</a></h3>
+<p><strong>87 files changed</strong> with significant additions to backend services, frontend components, and documentation.</p>
+<h3 id="backend-files-addedmodified">Backend Files Added/Modified<a class="headerlink" href="#backend-files-addedmodified" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Template-based location generation</li>
-<li>Import/export of location configurations</li>
-<li>Visual layout preview with drag-and-drop</li>
-<li>Batch editing of generated locations</li>
+<li><code>backend/src/api/stock_history.py</code> (new)</li>
+<li><code>backend/src/services/stock_operations.py</code> (new)</li>
+<li><code>backend/src/services/stock_history_service.py</code> (new)</li>
+<li><code>backend/src/schemas/stock_operations.py</code> (new)</li>
+<li><code>backend/migrations/versions/20251004_*.py</code> (new migrations)</li>
 </ul>
-<h3 id="enhanced-features">Enhanced Features<a class="headerlink" href="#enhanced-features" title="Permanent link">&para;</a></h3>
+<h3 id="frontend-files-addedmodified">Frontend Files Added/Modified<a class="headerlink" href="#frontend-files-addedmodified" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Improved KiCad integration with real-time symbol updates</li>
-<li>AI-powered component search and suggestions</li>
-<li>Advanced filtering and reporting</li>
-<li>Multi-user collaboration features</li>
-<li>Enhanced barcode scanning with batch operations</li>
+<li><code>frontend/src/components/stock/AddStockForm.vue</code> (new)</li>
+<li><code>frontend/src/components/stock/RemoveStockForm.vue</code> (new)</li>
+<li><code>frontend/src/components/stock/MoveStockForm.vue</code> (new)</li>
+<li><code>frontend/src/components/stock/StockHistoryTable.vue</code> (new)</li>
+<li><code>frontend/src/services/stockOperations.ts</code> (modified)</li>
+<li><code>frontend/src/components/ComponentList.vue</code> (modified)</li>
 </ul>
-<h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
+<h3 id="documentation-files-added">Documentation Files Added<a class="headerlink" href="#documentation-files-added" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Additional provider integrations</li>
-<li>Real-time inventory notifications</li>
-<li>Enhanced mobile experience</li>
-<li>Performance monitoring and analytics</li>
+<li><code>docs/api/stock-operations.md</code></li>
+<li><code>docs/user/stock-operations.md</code></li>
+<li><code>specs/006-add-remove-stock/contracts/*.yaml</code></li>
+</ul>
+<h2 id="constitutional-compliance">Constitutional Compliance<a class="headerlink" href="#constitutional-compliance" title="Permanent link">&para;</a></h2>
+<p>This release follows all 7 project constitution principles:</p>
+<ul>
+<li><strong>Principle I (API-First)</strong>: Complete OpenAPI contracts before implementation ✅</li>
+<li><strong>Principle II (TDD)</strong>: All tests written before implementation (RED-GREEN-REFACTOR) ✅</li>
+<li><strong>Principle III (Tiered Access)</strong>: Admin-only for destructive operations ✅</li>
+<li><strong>Principle IV (Quality Gates)</strong>: All tests passing, linting clean, CI green ✅</li>
+<li><strong>Principle V (Anonymous Contribution)</strong>: Standard commit format, no tool attribution ✅</li>
+<li><strong>Principle VI (Test Isolation)</strong>: In-memory SQLite, no production DB access ✅</li>
+<li><strong>Principle VII (Documentation)</strong>: Comprehensive API/user docs with examples ✅</li>
 </ul>
 <h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h2>
+<p>None at this time. All tests passing and CI pipeline green.</p>
+<h2 id="whats-next-v040-preview">What's Next (v0.4.0 Preview)<a class="headerlink" href="#whats-next-v040-preview" title="Permanent link">&para;</a></h2>
+<h3 id="planned-features">Planned Features<a class="headerlink" href="#planned-features" title="Permanent link">&para;</a></h3>
 <ul>
-<li>ecdsa library has unfixed vulnerabilities (documented in security scanning, no patches available)</li>
-<li>Mypy configured with permissive settings for incremental type safety improvements</li>
+<li><strong>Stock Alerts</strong>: Configurable low-stock notifications</li>
+<li><strong>Batch Stock Operations</strong>: Update stock for multiple components simultaneously</li>
+<li><strong>Stock Reconciliation</strong>: Compare physical counts with database records</li>
+<li><strong>Location Suggestions</strong>: AI-powered recommendations for stock placement</li>
+<li><strong>Import/Export</strong>: Bulk import stock data from CSV/Excel files</li>
 </ul>
-<h2 id="acknowledgments">Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permanent link">&para;</a></h2>
-<p>This release represents a major milestone in PartsHub development with:
-- 100% test coverage achievement
-- Zero linting errors across the codebase
-- Comprehensive security vulnerability resolution
-- Significant infrastructure improvements
-- Production-ready database optimizations</p>
-<p>The systematic approach to test-driven development and CI/CD optimization sets a strong foundation for future feature development.</p>
+<h3 id="community-requested">Community Requested<a class="headerlink" href="#community-requested" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Real-time stock updates via WebSocket</li>
+<li>Mobile barcode scanning for stock operations</li>
+<li>Advanced reporting dashboard with charts and analytics</li>
+<li>Integration with external inventory systems</li>
+</ul>
 <h2 id="support-feedback">Support &amp; Feedback<a class="headerlink" href="#support-feedback" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Issues</strong>: <a href="https://github.com/madeinoz67/partshub/issues">GitHub Issues</a></li>
 <li><strong>Discussions</strong>: <a href="https://github.com/madeinoz67/partshub/discussions">GitHub Discussions</a></li>
-<li><strong>Documentation</strong>: Check the <code>/docs/</code> directory in the repository</li>
+<li><strong>Documentation</strong>: <a href="../../user/stock-operations/">User Guide</a> | <a href="../../api/stock-operations/">API Reference</a></li>
 </ul>
 <hr />
 <p><strong>Full Changelog</strong>: <a href="https://github.com/madeinoz67/partshub/blob/main/CHANGELOG.md">https://github.com/madeinoz67/partshub/blob/main/CHANGELOG.md</a></p>
