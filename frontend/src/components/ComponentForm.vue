@@ -85,10 +85,12 @@
             </div>
 
             <div class="col-md-6 col-xs-12">
-              <q-input
+              <FuzzyAutocomplete
                 v-model="form.manufacturer"
+                :search-function="searchManufacturers"
                 label="Manufacturer"
-                outlined
+                placeholder="Start typing to search..."
+                @create-new="createNewManufacturer"
               />
             </div>
 
@@ -111,11 +113,13 @@
             </div>
 
             <div class="col-md-6 col-xs-12">
-              <q-input
+              <FuzzyAutocomplete
                 v-model="form.package"
+                :search-function="searchFootprints"
                 label="Package"
-                outlined
+                placeholder="Start typing to search..."
                 hint="e.g., 0805, TO-220, QFP-64, etc."
+                @create-new="createNewFootprint"
               />
             </div>
           </div>
@@ -343,6 +347,8 @@ import { useComponentsStore } from '../stores/components'
 import { useStorageStore } from '../stores/storage'
 import type { Component } from '../services/api'
 import FuzzyTagSelector from './FuzzyTagSelector.vue'
+import FuzzyAutocomplete from './wizard/FuzzyAutocomplete.vue'
+import { wizardService } from '../services/wizardService'
 import { QForm } from 'quasar'
 
 interface Props {
@@ -427,6 +433,23 @@ const addCustomField = () => {
 
 const removeCustomField = (index: number) => {
   customFields.value.splice(index, 1)
+}
+
+// Fuzzy search functions
+async function searchManufacturers(query: string) {
+  return await wizardService.searchManufacturers(query, 10)
+}
+
+async function searchFootprints(query: string) {
+  return await wizardService.searchFootprints(query, 10)
+}
+
+function createNewManufacturer(name: string) {
+  form.value.manufacturer = name
+}
+
+function createNewFootprint(name: string) {
+  form.value.package = name
 }
 
 const resetForm = () => {
