@@ -18,10 +18,13 @@ class ComponentSearchService:
 
     def __init__(self):
         self.fts_table = "components_fts"
-        self._ensure_fts_table()
+        self._initialized = False
 
     def _ensure_fts_table(self):
         """Create FTS5 virtual table if it doesn't exist."""
+        if self._initialized:
+            return
+
         session = get_session()
         try:
             # Create FTS5 virtual table for components
@@ -45,6 +48,7 @@ class ComponentSearchService:
             self._create_fts_triggers(session)
 
             session.commit()
+            self._initialized = True
             logger.info(f"FTS5 table '{self.fts_table}' initialized successfully")
 
         except Exception as e:
@@ -118,6 +122,7 @@ class ComponentSearchService:
 
     def rebuild_fts_index(self):
         """Rebuild the full-text search index from current components data."""
+        self._ensure_fts_table()
         session = get_session()
         try:
             # Clear existing FTS data
@@ -172,6 +177,7 @@ class ComponentSearchService:
         if not query or not query.strip():
             return []
 
+        self._ensure_fts_table()
         session = get_session()
         try:
             # Escape special FTS characters and prepare query
@@ -235,6 +241,7 @@ class ComponentSearchService:
 
     def get_fts_statistics(self) -> dict:
         """Get statistics about the FTS index."""
+        self._ensure_fts_table()
         session = get_session()
         try:
             # Get FTS table info
