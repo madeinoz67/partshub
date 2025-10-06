@@ -104,8 +104,9 @@ def db_session():
     """
     Create a database session for each test with proper transaction management
     """
-    import backend.src.database.search as search_module
     from sqlalchemy import text
+
+    import backend.src.database.search as search_module
 
     # Reset FTS singleton before each test for isolation
     search_module._component_search_service = None
