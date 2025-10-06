@@ -26,7 +26,7 @@ export interface ProviderPart {
   provider_url?: string | null
   lifecycle_status: string | null
   match_score?: number
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean | null>
   available_resources?: {
     datasheets: number
     images: number

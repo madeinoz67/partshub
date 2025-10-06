@@ -8,6 +8,7 @@ from typing import Any
 from sqlalchemy import and_, case, desc, func, or_
 from sqlalchemy.orm import Session, selectinload
 
+from ..database.search import search_components_fts
 from ..models import (
     Category,
     Component,
@@ -527,23 +528,13 @@ class ComponentService:
 
         # Apply filters
         if search:
-            search_term = f"%{search}%"
-            query = query.filter(
-                or_(
-                    Component.name.ilike(search_term),
-                    Component.part_number.ilike(search_term),
-                    Component.local_part_id.ilike(search_term),
-                    Component.barcode_id.ilike(search_term),
-                    Component.manufacturer_part_number.ilike(search_term),
-                    Component.provider_sku.ilike(search_term),
-                    Component.manufacturer.ilike(search_term),
-                    Component.component_type.ilike(search_term),
-                    Component.value.ilike(search_term),
-                    Component.package.ilike(search_term),
-                    Component.tags.any(Tag.name.ilike(search_term)),
-                    Component.notes.ilike(search_term),
-                )
-            )
+            # Use FTS5 full-text search for better performance and to search specifications
+            component_ids = search_components_fts(search, limit=1000)
+            if component_ids:
+                query = query.filter(Component.id.in_(component_ids))
+            else:
+                # No results from FTS - return empty result
+                query = query.filter(Component.id.is_(None))
 
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))

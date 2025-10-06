@@ -180,12 +180,15 @@ class ComponentSearchService:
             search_sql = f"""
             SELECT id, rank
             FROM {self.fts_table}
-            WHERE {self.fts_table} MATCH ?
+            WHERE {self.fts_table} MATCH :query
             ORDER BY rank
-            LIMIT ? OFFSET ?
+            LIMIT :limit OFFSET :offset
             """
 
-            result = session.execute(text(search_sql), (escaped_query, limit, offset))
+            result = session.execute(
+                text(search_sql),
+                {"query": escaped_query, "limit": limit, "offset": offset},
+            )
             component_ids = [row[0] for row in result.fetchall()]
 
             logger.debug(

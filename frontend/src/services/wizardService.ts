@@ -55,7 +55,7 @@ export const wizardService = {
   /**
    * Get detailed information about a part from a provider
    */
-  async getPartDetails(providerId: number, partNumber: string): Promise<any> {
+  async getPartDetails(providerId: number, partNumber: string): Promise<ProviderPart> {
     try {
       console.log(`[wizardService] Fetching part details for ${partNumber} from provider ${providerId}`)
       const response = await api.get(`/api/providers/${providerId}/parts/${partNumber}`)
