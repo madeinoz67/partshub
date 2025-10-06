@@ -59,9 +59,14 @@ def setup_test_database():
     """
     # Import the Base from the correct database module
     from backend.src.database import Base
+    from backend.src.database.search import ComponentSearchService
+    import backend.src.database.search as search_module
 
     # Import all models to ensure they are registered with SQLAlchemy
     # This is critical for table creation to work properly
+
+    # Reset global FTS service singleton to ensure test isolation
+    search_module._component_search_service = None
 
     # Enable SQLite-specific features for test database
     with test_engine.connect() as conn:
@@ -72,10 +77,26 @@ def setup_test_database():
     # Create all tables with proper metadata
     Base.metadata.create_all(bind=test_engine)
 
+    # Initialize FTS table and triggers BEFORE any tests run
+    # This ensures triggers are in place when components are created
+    session = TestingSessionLocal()
+    try:
+        search_service = ComponentSearchService()
+        search_service._ensure_fts_table(session)
+        session.commit()
+    except Exception as e:
+        print(f"Warning: Failed to initialize FTS table: {e}")
+        session.rollback()
+    finally:
+        session.close()
+
     yield
 
     # Clean up: Drop all tables after test for complete isolation
     Base.metadata.drop_all(bind=test_engine)
+
+    # Reset global FTS service singleton after test
+    search_module._component_search_service = None
 
 
 @pytest.fixture(scope="function")
