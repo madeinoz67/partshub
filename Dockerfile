@@ -113,16 +113,29 @@ CMD ["nginx", "-g", "daemon off;"]
 # ==============================================================================
 # Development Stage (Combined for local development)
 # ==============================================================================
-FROM node:20-alpine AS development
+FROM node:20-slim AS development
 
 # Install Python and required build tools + libmagic for file type detection + zbar for barcode scanning
-RUN apk add --no-cache python3 py3-pip python3-dev make g++ curl file-dev libmagic zbar zbar-dev
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-venv \
+    make \
+    g++ \
+    curl \
+    file \
+    libmagic1 \
+    libzbar0 \
+    libzbar-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Install Python uv (bypass externally managed environment)
-RUN pip3 install uv --break-system-packages
+# Install Python uv
+RUN pip3 install uv
 
 # Copy and install Python dependencies (consolidated)
 COPY pyproject.toml uv.lock* ./
