@@ -134,8 +134,8 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Install Python uv
-RUN pip3 install uv
+# Install Python uv (use pipx or break-system-packages for PEP 668 compliance)
+RUN pip3 install --break-system-packages uv
 
 # Copy and install Python dependencies (consolidated)
 COPY pyproject.toml uv.lock* ./
