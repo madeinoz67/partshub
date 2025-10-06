@@ -276,14 +276,23 @@ class ComponentSearchService:
             session.close()
 
 
-# Global instance
-component_search_service = ComponentSearchService()
+# Global instance - lazy initialized
+_component_search_service: ComponentSearchService | None = None
+
+
+def get_component_search_service() -> ComponentSearchService:
+    """Get or create the component search service instance."""
+    global _component_search_service
+    if _component_search_service is None:
+        _component_search_service = ComponentSearchService()
+    return _component_search_service
 
 
 def initialize_component_search():
     """Initialize component search on application startup."""
     try:
-        component_search_service.rebuild_fts_index()
+        service = get_component_search_service()
+        service.rebuild_fts_index()
         logger.info("Component search service initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize component search service: {e}")
@@ -301,4 +310,4 @@ def search_components_fts(query: str, limit: int = 50, offset: int = 0) -> list[
     Returns:
         List of component IDs
     """
-    return component_search_service.search_components(query, limit, offset)
+    return get_component_search_service().search_components(query, limit, offset)
