@@ -529,7 +529,7 @@ class ComponentService:
         # Apply filters
         if search:
             # Use FTS5 full-text search for better performance and to search specifications
-            component_ids = search_components_fts(search, limit=1000)
+            component_ids = search_components_fts(search, session=self.db, limit=1000)
             if component_ids:
                 query = query.filter(Component.id.in_(component_ids))
             else:

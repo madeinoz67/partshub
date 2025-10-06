@@ -18,14 +18,23 @@ class ComponentSearchService:
 
     def __init__(self):
         self.fts_table = "components_fts"
-        self._initialized = False
 
-    def _ensure_fts_table(self):
+    def _ensure_fts_table(self, session: Session | None = None):
         """Create FTS5 virtual table if it doesn't exist."""
-        if self._initialized:
-            return
+        close_session = False
+        if session is None:
+            session = get_session()
+            close_session = True
 
-        session = get_session()
+        try:
+            # Check if table exists by trying to query it
+            session.execute(text(f"SELECT 1 FROM {self.fts_table} LIMIT 1"))
+            # Table exists, we're done
+            return
+        except Exception:
+            # Table doesn't exist, create it
+            pass
+
         try:
             # Create FTS5 virtual table for components
             create_fts_sql = f"""
@@ -47,8 +56,13 @@ class ComponentSearchService:
             # Create trigger to automatically update FTS table when components change
             self._create_fts_triggers(session)
 
-            session.commit()
-            self._initialized = True
+            # Only commit if we created the session
+            if close_session:
+                session.commit()
+            else:
+                # Flush but don't commit - let caller handle commits
+                session.flush()
+
             logger.info(f"FTS5 table '{self.fts_table}' initialized successfully")
 
         except Exception as e:
@@ -56,7 +70,8 @@ class ComponentSearchService:
             session.rollback()
             raise
         finally:
-            session.close()
+            if close_session:
+                session.close()
 
     def _create_fts_triggers(self, session: Session):
         """Create triggers to keep FTS table in sync with components table."""
@@ -120,11 +135,15 @@ class ComponentSearchService:
         session.execute(text(delete_trigger))
         session.execute(text(update_trigger))
 
-    def rebuild_fts_index(self):
+    def rebuild_fts_index(self, session: Session | None = None):
         """Rebuild the full-text search index from current components data."""
-        self._ensure_fts_table()
-        session = get_session()
+        close_session = False
+        if session is None:
+            session = get_session()
+            close_session = True
+
         try:
+            self._ensure_fts_table(session)
             # Clear existing FTS data
             session.execute(text(f"DELETE FROM {self.fts_table}"))
 
@@ -158,10 +177,15 @@ class ComponentSearchService:
             session.rollback()
             raise
         finally:
-            session.close()
+            if close_session:
+                session.close()
 
     def search_components(
-        self, query: str, limit: int = 50, offset: int = 0
+        self,
+        query: str,
+        session: Session | None = None,
+        limit: int = 50,
+        offset: int = 0,
     ) -> list[str]:
         """
         Search components using FTS5 and return matching component IDs.
@@ -177,9 +201,13 @@ class ComponentSearchService:
         if not query or not query.strip():
             return []
 
-        self._ensure_fts_table()
-        session = get_session()
+        close_session = False
+        if session is None:
+            session = get_session()
+            close_session = True
+
         try:
+            self._ensure_fts_table(session)
             # Escape special FTS characters and prepare query
             escaped_query = self._escape_fts_query(query.strip())
 
@@ -206,7 +234,8 @@ class ComponentSearchService:
             logger.error(f"Error in FTS search: {e}")
             return []
         finally:
-            session.close()
+            if close_session:
+                session.close()
 
     def _escape_fts_query(self, query: str) -> str:
         """
@@ -239,11 +268,15 @@ class ComponentSearchService:
             or_terms = [f'"{term}"*' for term in terms]
             return " OR ".join(or_terms)
 
-    def get_fts_statistics(self) -> dict:
+    def get_fts_statistics(self, session: Session | None = None) -> dict:
         """Get statistics about the FTS index."""
-        self._ensure_fts_table()
-        session = get_session()
+        close_session = False
+        if session is None:
+            session = get_session()
+            close_session = True
+
         try:
+            self._ensure_fts_table(session)
             # Get FTS table info
             stats_sql = f"""
             SELECT
@@ -280,7 +313,8 @@ class ComponentSearchService:
                 "error": str(e),
             }
         finally:
-            session.close()
+            if close_session:
+                session.close()
 
 
 # Global instance - lazy initialized
@@ -305,16 +339,21 @@ def initialize_component_search():
         logger.error(f"Failed to initialize component search service: {e}")
 
 
-def search_components_fts(query: str, limit: int = 50, offset: int = 0) -> list[str]:
+def search_components_fts(
+    query: str, session: Session | None = None, limit: int = 50, offset: int = 0
+) -> list[str]:
     """
     Convenience function for FTS component search.
 
     Args:
         query: Search query
+        session: Database session to use (creates new one if None)
         limit: Maximum results
         offset: Results offset
 
     Returns:
         List of component IDs
     """
-    return get_component_search_service().search_components(query, limit, offset)
+    return get_component_search_service().search_components(
+        query, session, limit, offset
+    )
