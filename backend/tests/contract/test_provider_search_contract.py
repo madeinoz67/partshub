@@ -114,8 +114,11 @@ class TestProviderSearchContract:
         assert isinstance(data["results"], list)
         assert isinstance(data["total"], int)
 
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_provider_search_response_schema(
-        self, client: TestClient, auth_headers, db_session
+        self, mock_search, client: TestClient, auth_headers, db_session
     ):
         """Test response structure matches ProviderPart schema"""
         from backend.src.models.wizard_provider import Provider
@@ -131,8 +134,20 @@ class TestProviderSearchContract:
         db_session.commit()
         db_session.refresh(provider)
 
-        # Since actual web scraping falls back to mock data, we can test with real adapter
-        # The mock data provides a consistent response for testing
+        # Mock LCSC adapter response for consistent test results
+        mock_search.return_value = [
+            {
+                "part_number": "STM32F103C8T6",
+                "name": "STM32F103C8T6 MCU",
+                "description": "ARM Cortex-M3 32-bit RISC core",
+                "manufacturer": "STMicroelectronics",
+                "datasheet_url": "https://example.com/stm32f103.pdf",
+                "image_urls": ["https://example.com/stm32.jpg"],
+                "footprint": "LQFP-48",
+                "provider_url": "https://lcsc.com/product-detail/stm32f103",
+            }
+        ]
+
         response = client.get(
             f"/api/providers/{provider.id}/search?query=STM32F103&limit=20",
             headers=auth_headers,
