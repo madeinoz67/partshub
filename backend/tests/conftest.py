@@ -105,6 +105,7 @@ def db_session():
     Create a database session for each test with proper transaction management
     """
     import backend.src.database.search as search_module
+    from sqlalchemy import text
 
     # Reset FTS singleton before each test for isolation
     search_module._component_search_service = None
@@ -119,6 +120,14 @@ def db_session():
         session.rollback()
         raise
     finally:
+        # Clean up FTS table explicitly (virtual tables don't always respect rollback)
+        try:
+            session.execute(text("DELETE FROM components_fts"))
+            session.commit()
+        except Exception:
+            # Table might not exist, that's ok
+            pass
+
         # Always close the session to release resources
         session.close()
 
