@@ -104,6 +104,11 @@ def db_session():
     """
     Create a database session for each test with proper transaction management
     """
+    import backend.src.database.search as search_module
+
+    # Reset FTS singleton before each test for isolation
+    search_module._component_search_service = None
+
     session = TestingSessionLocal()
     try:
         # Start a transaction that will be rolled back after the test
@@ -116,6 +121,9 @@ def db_session():
     finally:
         # Always close the session to release resources
         session.close()
+
+        # Reset FTS singleton after each test
+        search_module._component_search_service = None
 
 
 # Remove global_test_users fixture to avoid duplicate user creation
