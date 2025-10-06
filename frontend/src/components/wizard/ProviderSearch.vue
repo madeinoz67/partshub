@@ -17,7 +17,10 @@ const searchInput = ref(wizardStore.searchQuery)
 const selectedPartNumber = ref<string | null>(
   wizardStore.selectedPart?.part_number || null
 )
+const selectedRows = ref<ProviderPart[]>([])
 const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
+const lastSearchQuery = ref<string>('')  // Track last search to prevent duplicates
+const isSelecting = ref<boolean>(false)  // Prevent searches during selection
 
 // Table columns
 const columns = [
@@ -54,19 +57,41 @@ const columns = [
  * Debounced search handler
  */
 function onSearchInput(value: string) {
+  console.log('[ProviderSearch] ========================================')
+  console.log('[ProviderSearch] onSearchInput called with:', JSON.stringify(value), 'length:', value.length)
+  console.log('[ProviderSearch] Current searchInput:', JSON.stringify(searchInput.value))
+  console.log('[ProviderSearch] Last search query:', JSON.stringify(lastSearchQuery.value))
+  console.log('[ProviderSearch] isSelecting:', isSelecting.value)
+  console.log('[ProviderSearch] ========================================')
+
+  // CRITICAL: Don't process input changes during selection
+  if (isSelecting.value) {
+    console.log('[ProviderSearch] !!! IGNORING input change during selection')
+    return
+  }
+
+  // Also ignore if we have a selected part and results (prevents clearing after selection)
+  if (wizardStore.selectedPart && wizardStore.searchResults.length > 0) {
+    console.log('[ProviderSearch] !!! Part already selected, ignoring spurious input event')
+    return
+  }
+
   searchInput.value = value
 
   // Clear any pending search
   if (searchTimeout.value) {
+    console.log('[ProviderSearch] Clearing pending timeout')
     clearTimeout(searchTimeout.value)
   }
 
   // Don't search for empty or very short queries
   if (!value || value.length < 2) {
+    console.log('[ProviderSearch] Query too short, skipping search')
     return
   }
 
   // Debounce search by 300ms
+  console.log('[ProviderSearch] Scheduling search in 300ms for:', JSON.stringify(value))
   searchTimeout.value = setTimeout(() => {
     performSearch(value)
   }, 300)
@@ -76,21 +101,57 @@ function onSearchInput(value: string) {
  * Perform the actual search
  */
 async function performSearch(query: string) {
+  console.log('[ProviderSearch] *** performSearch called with:', JSON.stringify(query))
+  console.log('[ProviderSearch] *** lastSearchQuery:', JSON.stringify(lastSearchQuery.value))
+  console.log('[ProviderSearch] *** current results count:', wizardStore.searchResults.length)
+
+  // Skip if this is the same query we just searched for
+  if (query === lastSearchQuery.value) {
+    console.log('[ProviderSearch] !!! SKIPPING - duplicate search detected')
+    return
+  }
+
+  // Skip if query is too short (defensive check)
+  if (!query || query.length < 2) {
+    console.log('[ProviderSearch] !!! SKIPPING - query too short in performSearch')
+    return
+  }
+
+  console.log('[ProviderSearch] >>> Executing search for:', JSON.stringify(query))
+  lastSearchQuery.value = query
   await wizardStore.searchProvider(query)
 }
 
 /**
- * Handle row click to select a part
+ * Handle selection change
  */
-function onRowClick(_evt: Event, row: ProviderPart) {
-  selectedPartNumber.value = row.part_number
-  wizardStore.selectPart(row)
+function onSelectionChange(selected: ProviderPart[]) {
+  console.log('[ProviderSearch] Selection changed:', selected)
 
-  $q.notify({
-    type: 'positive',
-    message: `Selected: ${row.part_number}`,
-    position: 'top',
-  })
+  // Set flag to prevent search input from triggering during selection
+  isSelecting.value = true
+
+  if (selected && selected.length > 0) {
+    const row = selected[0]
+    console.log('[ProviderSearch] Part selected:', row.part_number)
+    selectedPartNumber.value = row.part_number
+    wizardStore.selectPart(row)
+
+    $q.notify({
+      type: 'positive',
+      message: `Selected: ${row.part_number}`,
+      position: 'top',
+    })
+  } else {
+    console.log('[ProviderSearch] Selection cleared')
+    selectedPartNumber.value = null
+  }
+
+  // Clear the flag after a longer delay to allow background detail fetch
+  setTimeout(() => {
+    isSelecting.value = false
+    console.log('[ProviderSearch] Selection complete, re-enabling search input')
+  }, 500)
 }
 
 /**
@@ -108,10 +169,37 @@ function switchToLocal() {
   })
 }
 
-// Watch for external query changes
-watch(() => wizardStore.searchQuery, (newValue) => {
+// Watch for external query changes (only update if different to prevent loops)
+watch(() => wizardStore.searchQuery, (newValue, oldValue) => {
+  console.log('[ProviderSearch] wizardStore.searchQuery changed from:', oldValue, 'to:', newValue, 'current searchInput:', searchInput.value)
+
+  // NEVER allow the watcher to modify searchInput - it creates loops
+  // The input should only be updated by user typing
+  console.log('[ProviderSearch] Ignoring searchQuery watcher to prevent reactive loops')
+  return
+
+  /* DISABLED TO PREVENT LOOPS
+  // Don't update if we already have the right value
+  if (searchInput.value === newValue) {
+    console.log('[ProviderSearch] searchInput already matches, skipping update')
+    return
+  }
+
+  // Prevent clearing the input if we have results showing
+  if (!newValue && wizardStore.searchResults.length > 0) {
+    console.warn('[ProviderSearch] Preventing search input clear while results are displayed')
+    return
+  }
+
+  console.log('[ProviderSearch] Updating searchInput to:', newValue)
   searchInput.value = newValue
+  */
 })
+
+// Watch for search results changes
+watch(() => wizardStore.searchResults, (newResults) => {
+  console.log('[ProviderSearch] Search results changed. Count:', newResults.length)
+}, { deep: true })
 </script>
 
 <template>
@@ -126,14 +214,20 @@ watch(() => wizardStore.searchQuery, (newValue) => {
       outlined
       placeholder="Enter part number or description..."
       @update:model-value="(val: string | number | null) => onSearchInput(String(val || ''))"
-      clearable
       class="q-mb-md"
+      autocomplete="off"
     >
       <template v-slot:prepend>
         <q-icon name="search" />
       </template>
-      <template v-slot:append v-if="wizardStore.isLoading">
-        <q-spinner color="primary" size="20px" />
+      <template v-slot:append>
+        <q-spinner v-if="wizardStore.isLoading" color="primary" size="20px" />
+        <q-icon
+          v-else-if="searchInput"
+          name="clear"
+          class="cursor-pointer"
+          @click="searchInput = ''; lastSearchQuery = ''"
+        />
       </template>
     </q-input>
 
@@ -144,12 +238,12 @@ watch(() => wizardStore.searchQuery, (newValue) => {
       :columns="columns"
       row-key="part_number"
       :loading="wizardStore.isLoading"
-      :selected="selectedPartNumber ? [wizardStore.searchResults.find(r => r.part_number === selectedPartNumber)] : []"
+      v-model:selected="selectedRows"
       selection="single"
-      @row-click="onRowClick"
       flat
       bordered
       class="search-results-table"
+      @update:selected="onSelectionChange"
     >
       <template v-slot:body-cell-datasheet="props">
         <q-td :props="props">

@@ -63,6 +63,7 @@ class ComponentSearchService:
             session.execute(text(f"DROP TRIGGER IF EXISTS {trigger_name}"))
 
         # Trigger for INSERT
+        # Convert JSON specifications to searchable text (key: value pairs)
         insert_trigger = f"""
         CREATE TRIGGER components_ai AFTER INSERT ON components BEGIN
             INSERT INTO {self.fts_table}(
@@ -77,7 +78,7 @@ class ComponentSearchService:
                 new.value,
                 new.package,
                 new.notes,
-                COALESCE(new.specifications, '{{}}')
+                REPLACE(REPLACE(COALESCE(new.specifications, '{{}}'), '"', ''), ',', ' ')
             );
         END
         """
@@ -90,6 +91,7 @@ class ComponentSearchService:
         """
 
         # Trigger for UPDATE
+        # Convert JSON specifications to searchable text (key: value pairs)
         update_trigger = f"""
         CREATE TRIGGER components_au AFTER UPDATE ON components BEGIN
             DELETE FROM {self.fts_table} WHERE id = old.id;
@@ -105,7 +107,7 @@ class ComponentSearchService:
                 new.value,
                 new.package,
                 new.notes,
-                COALESCE(new.specifications, '{{}}')
+                REPLACE(REPLACE(COALESCE(new.specifications, '{{}}'), '"', ''), ',', ' ')
             );
         END
         """
@@ -122,6 +124,7 @@ class ComponentSearchService:
             session.execute(text(f"DELETE FROM {self.fts_table}"))
 
             # Repopulate from components table
+            # Convert JSON specifications to searchable text (key: value pairs)
             populate_sql = f"""
             INSERT INTO {self.fts_table}(
                 id, name, part_number, manufacturer, component_type,
@@ -129,7 +132,8 @@ class ComponentSearchService:
             )
             SELECT
                 id, name, part_number, manufacturer, component_type,
-                value, package, notes, COALESCE(specifications, '{{}}')
+                value, package, notes,
+                REPLACE(REPLACE(COALESCE(specifications, '{{}}'), '"', ''), ',', ' ')
             FROM components
             """
             session.execute(text(populate_sql))

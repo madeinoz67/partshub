@@ -92,21 +92,38 @@ export const useWizardStore = defineStore('wizard', () => {
       return
     }
 
+    // Don't search empty queries
+    if (!query || query.trim().length === 0) {
+      console.log('[wizardStore] Skipping search for empty query')
+      searchResults.value = []
+      searchTotal.value = 0
+      return
+    }
+
     searchQuery.value = query
     isLoading.value = true
     error.value = null
 
     try {
+      console.log(`[wizardStore] Searching provider ${selectedProvider.value.id} for "${query}" (length: ${query.length})`)
       const response = await wizardService.searchProvider(
         selectedProvider.value.id,
         query,
         limit
       )
+      console.log(`[wizardStore] Search returned ${response.results.length} results:`, response)
+
+      if (response.results.length === 0) {
+        console.warn('[wizardStore] WARNING: Search returned 0 results!')
+        console.trace('[wizardStore] Stack trace for zero results:')
+      }
+
       searchResults.value = response.results
       searchTotal.value = response.total
     } catch (err) {
       console.error('Provider search error:', err)
       error.value = err instanceof Error ? err.message : 'Failed to search provider'
+      console.log('[wizardStore] Clearing search results due to error')
       searchResults.value = []
       searchTotal.value = 0
     } finally {
@@ -114,36 +131,84 @@ export const useWizardStore = defineStore('wizard', () => {
     }
   }
 
-  function selectPart(part: ProviderPart) {
+  async function selectPart(part: ProviderPart) {
+    console.log('[wizardStore] selectPart called with:', part)
     selectedPart.value = part
 
-    // Initialize resources based on available resources
-    if (part.available_resources) {
+    // Initialize resources immediately with search data
+    const initializeResources = (currentPart: ProviderPart) => {
       selectedResources.value = []
 
-      // Datasheet is always selected and required
-      if (part.datasheet_url) {
+      // Datasheet is always selected and required if available
+      if (currentPart.datasheet_url) {
+        console.log('[wizardStore] Adding datasheet resource:', currentPart.datasheet_url)
+        const datasheetFilename = `${currentPart.part_number}_datasheet.pdf`
         selectedResources.value.push({
           type: 'datasheet',
-          url: part.datasheet_url,
+          url: currentPart.datasheet_url,
           selected: true,
           required: true,
+          file_name: datasheetFilename,
         })
       }
 
-      // Other resources are optional
-      if (part.image_url) {
-        selectedResources.value.push({
-          type: 'image',
-          url: part.image_url,
-          selected: false,
+      // Image URLs (check both singular and array forms)
+      const imageUrls = currentPart.image_urls || (currentPart.image_url ? [currentPart.image_url] : [])
+      if (imageUrls && imageUrls.length > 0) {
+        console.log('[wizardStore] Adding image resources:', imageUrls)
+        imageUrls.forEach((url, index) => {
+          selectedResources.value.push({
+            type: 'image',
+            url: url,
+            selected: false,
+            file_name: `${currentPart.part_number}_image_${index + 1}.jpg`,
+          })
         })
       }
+
+      console.log('[wizardStore] Total resources initialized:', selectedResources.value.length)
+    }
+
+    // Initialize resources with search data first
+    initializeResources(part)
+
+    // Fetch part details in background to get datasheet, description, and package
+    // This is non-blocking so the UI stays responsive
+    if (selectedProvider.value) {
+      console.log('[wizardStore] Fetching part details in background...')
+
+      // Don't block the UI - fetch in background
+      wizardService.getPartDetails(
+        selectedProvider.value.id,
+        part.part_number
+      ).then(details => {
+        console.log('[wizardStore] Part details fetched:', details)
+
+        // Update part with details from detail page
+        const updatedPart = {
+          ...part,
+          datasheet_url: details.datasheet_url || part.datasheet_url || '',
+          description: details.description || part.description || '',
+          footprint: details.footprint || part.footprint || '',
+          specifications: details.specifications || part.specifications || {},
+        }
+
+        selectedPart.value = updatedPart
+
+        // Re-initialize resources with updated data (now includes datasheet)
+        initializeResources(updatedPart)
+      }).catch(err => {
+        console.warn('[wizardStore] Failed to fetch part details:', err)
+        // Continue with search data - resources already initialized
+      })
     }
   }
 
   function toggleResource(resource: ResourceSelection) {
-    const index = selectedResources.value.findIndex(r => r.type === resource.type)
+    // Find by both type and URL to handle multiple resources of same type (e.g., multiple images)
+    const index = selectedResources.value.findIndex(
+      r => r.type === resource.type && r.url === resource.url
+    )
     if (index >= 0) {
       // Don't allow deselecting required resources
       if (selectedResources.value[index].required) {
@@ -168,15 +233,33 @@ export const useWizardStore = defineStore('wizard', () => {
 
       // Add linked part data
       if (partType.value === 'linked' && selectedPart.value && selectedProvider.value) {
+        console.log('[wizardStore] Creating linked component with part:', selectedPart.value)
+
         // Use part name or part number as component name
         request.name = selectedPart.value.name || selectedPart.value.part_number
         request.description = selectedPart.value.description
+
+        // Add manufacturer if available
+        if (selectedPart.value.manufacturer) {
+          request.manufacturer_name = selectedPart.value.manufacturer
+        }
+
+        // Add footprint if available
+        if (selectedPart.value.footprint) {
+          request.footprint_name = selectedPart.value.footprint
+        }
+
+        // Add specifications if available
+        if (selectedPart.value.specifications && Object.keys(selectedPart.value.specifications).length > 0) {
+          console.log('[wizardStore] Adding specifications:', selectedPart.value.specifications)
+          request.specifications = selectedPart.value.specifications
+        }
 
         // Add provider link as nested object (matches backend ProviderLinkCreate schema)
         request.provider_link = {
           provider_id: selectedProvider.value.id,
           part_number: selectedPart.value.part_number,
-          part_url: `https://www.lcsc.com/product-detail/${selectedPart.value.part_number}.html`,
+          part_url: selectedPart.value.provider_url || `https://www.lcsc.com/product-detail/${selectedPart.value.part_number}.html`,
           metadata: null
         }
       }
@@ -201,19 +284,28 @@ export const useWizardStore = defineStore('wizard', () => {
 
       // Add selected resources
       if (selectedResources.value.length > 0) {
-        request.resources = selectedResources.value
-          .filter(r => r.selected)
-          .map(r => ({
-            type: r.type,
-            url: r.url,
-            file_name: r.file_name,
-          }))
+        const selected = selectedResources.value.filter(r => r.selected)
+        console.log('[wizardStore] Selected resources:', selected)
+
+        // Backend expects 'resource_selections' not 'resources'
+        request.resource_selections = selected.map(r => ({
+          type: r.type,
+          url: r.url,
+          file_name: r.file_name,
+        }))
+
+        console.log('[wizardStore] Resources in request:', request.resource_selections)
+      } else {
+        console.log('[wizardStore] No resources to include')
       }
 
       // Add post action
       request.post_action = postAction.value || undefined
 
+      console.log('[wizardStore] Final component creation request:', request)
       const component = await wizardService.createComponent(request)
+      console.log('[wizardStore] Component created successfully:', component)
+      console.log('[wizardStore] Component ID:', component.id)
 
       // Don't reset here - let the caller handle it after navigation
       // This prevents the wizard from resetting before the user is navigated away

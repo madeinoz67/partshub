@@ -210,6 +210,13 @@ async def create_component(
         # Convert Pydantic model to dict
         data = component_data.model_dump()
 
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.info(f"[WIZARD] Creating component with data: {data}")
+        logger.info(f"[WIZARD] Resource selections: {data.get('resource_selections')}")
+        logger.info(f"[WIZARD] Specifications received: {data.get('specifications')}")
+
         # Create component via service
         component = await WizardService.create_component(
             db, data, background_tasks=background_tasks

@@ -99,8 +99,8 @@ watch(
     <div v-if="hasLinkedPart && hasResources">
       <q-list bordered separator>
         <q-item
-          v-for="resource in selectedResources"
-          :key="resource.type"
+          v-for="(resource, index) in selectedResources"
+          :key="`${resource.type}-${index}`"
           tag="label"
           clickable
           @click="toggleResource(resource)"

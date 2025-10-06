@@ -44,6 +44,9 @@ docs = [
     "mkdocs-material>=9.4.0",
     "mike>=2.0.0",
 ]
+scraping = [
+    "playwright>=1.40.0",  # JavaScript rendering for LCSC search
+]
 dev = [
     "pytest==7.4.3",
     "pytest-asyncio==0.21.1",

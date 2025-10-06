@@ -22,15 +22,14 @@ class TestLCSCAPIFailure:
         db_session,
     ):
         """
-        Test LCSC API failure scenario with graceful fallback:
+        Test LCSC API failure scenario:
         1. Admin authenticates
         2. Mock LCSC API to raise exception
-        3. GET /api/providers/1/search?query=STM32 -> adapter returns mock data (graceful degradation)
-        4. Frontend receives mock results and can create components
+        3. GET /api/providers/1/search?query=STM32 -> returns empty results (no mock data)
+        4. Frontend receives empty results and can create components locally
         5. POST /api/wizard/components with {part_type: "local", ...} -> succeeds
 
-        Note: LCSCAdapter has built-in error handling that returns mock data on failure,
-        so exceptions don't propagate to the API layer. This tests graceful degradation.
+        Note: LCSCAdapter now returns empty list on errors instead of mock data.
         """
         from backend.src.models.wizard_provider import Provider
 
@@ -48,20 +47,20 @@ class TestLCSCAPIFailure:
         db_session.commit()
         db_session.refresh(provider)
 
-        # Step 2: Mock LCSC API to raise exception, but adapter will catch and return mock data
-        # We need to mock the actual implementation to bypass the adapter's error handling
-        mock_search.side_effect = Exception(
-            "LCSC API returned 500 Internal Server Error"
-        )
+        # Step 2: Mock LCSC API to return empty list (simulating scraping failure)
+        mock_search.return_value = []
 
-        # Step 3: Search request - the service will catch the exception
+        # Step 3: Search request - should return empty results
         search_response = client.get(
             f"/api/providers/{provider.id}/search?query=STM32&limit=10",
             headers=auth_headers,
         )
 
-        # Should return error status (500 or 503) because service re-raises exceptions
-        assert search_response.status_code in [500, 503]
+        # Should return 200 with empty results
+        assert search_response.status_code == 200
+        data = search_response.json()
+        assert data["total"] == 0
+        assert len(data["results"]) == 0
 
         # Step 4: Frontend would switch to local creation
         # Step 5: Create local part instead

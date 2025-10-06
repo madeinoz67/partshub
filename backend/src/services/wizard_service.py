@@ -30,7 +30,7 @@ class WizardService:
 
     # Validation constants
     MAX_NAME_LENGTH = 255
-    NAME_PATTERN = re.compile(r"^[a-zA-Z0-9\s\-._]+$")
+    NAME_PATTERN = re.compile(r"^[a-zA-Z0-9\s\-._()]+$")
 
     @staticmethod
     def _validate_name(name: str, field_name: str) -> None:
@@ -55,7 +55,7 @@ class WizardService:
         if not WizardService.NAME_PATTERN.match(name):
             raise ValueError(
                 f"{field_name} contains invalid characters. "
-                "Only alphanumeric, spaces, hyphens, periods, and underscores allowed"
+                "Only alphanumeric, spaces, hyphens, periods, underscores, and parentheses allowed"
             )
 
     @staticmethod
@@ -191,9 +191,15 @@ class WizardService:
                 db.flush()  # Get provider_link ID
 
                 # Create resources if provided
+                logger.info(
+                    f"[WIZARD_SERVICE] Checking for resource_selections: {data.get('resource_selections')}"
+                )
                 if data.get("resource_selections"):
                     from .resource_service import ResourceService
 
+                    logger.info(
+                        f"[WIZARD_SERVICE] Creating {len(data['resource_selections'])} resources"
+                    )
                     for resource_data in data["resource_selections"]:
                         # Create resource record
                         resource = Resource(

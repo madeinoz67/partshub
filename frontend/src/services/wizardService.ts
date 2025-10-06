@@ -37,16 +37,33 @@ export const wizardService = {
     limit = 20
   ): Promise<ProviderSearchResponse> {
     try {
+      console.log(`[wizardService] API call: GET /api/providers/${providerId}/search?query=${query}&limit=${limit}`)
       const response = await api.get(`/api/providers/${providerId}/search`, {
         params: {
           query,
           limit,
         },
       })
+      console.log(`[wizardService] API response:`, response.data)
       return response.data
     } catch (err) {
       console.error('Provider search failed:', err)
       throw new Error('Failed to search provider. Please try again.')
+    }
+  },
+
+  /**
+   * Get detailed information about a part from a provider
+   */
+  async getPartDetails(providerId: number, partNumber: string): Promise<any> {
+    try {
+      console.log(`[wizardService] Fetching part details for ${partNumber} from provider ${providerId}`)
+      const response = await api.get(`/api/providers/${providerId}/parts/${partNumber}`)
+      console.log(`[wizardService] Part details:`, response.data)
+      return response.data
+    } catch (err) {
+      console.error('Failed to fetch part details:', err)
+      throw new Error('Failed to fetch part details. Please try again.')
     }
   },
 
@@ -112,6 +129,7 @@ export const wizardService = {
    */
   async createComponent(data: CreateComponentRequest): Promise<Component> {
     try {
+      console.log('[wizardService] Sending component creation request:', JSON.stringify(data, null, 2))
       const response = await api.post('/api/wizard/components', data)
       return response.data
     } catch (err) {
@@ -122,15 +140,30 @@ export const wizardService = {
         const axiosError = err as {
           response?: {
             data?: {
-              detail?: string
+              detail?: string | Array<{ msg: string; type: string }>
               message?: string
             }
           }
         }
-        const detail =
-          axiosError.response?.data?.detail || axiosError.response?.data?.message
-        if (detail) {
+
+        console.log('[wizardService] Error response data:', axiosError.response?.data)
+
+        const detail = axiosError.response?.data?.detail
+
+        // Handle Pydantic validation errors (array format)
+        if (Array.isArray(detail)) {
+          const errors = detail.map(e => e.msg).join(', ')
+          throw new Error(`Validation error: ${errors}`)
+        }
+
+        // Handle string detail
+        if (typeof detail === 'string') {
           throw new Error(detail)
+        }
+
+        // Handle message field
+        if (axiosError.response?.data?.message) {
+          throw new Error(axiosError.response.data.message)
         }
       }
 

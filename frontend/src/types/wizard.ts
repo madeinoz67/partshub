@@ -21,8 +21,12 @@ export interface ProviderPart {
   description: string | null
   datasheet_url: string | null
   image_url: string | null
+  image_urls?: string[]
+  footprint?: string | null
+  provider_url?: string | null
   lifecycle_status: string | null
   match_score?: number
+  specifications?: Record<string, any>
   available_resources?: {
     datasheets: number
     images: number
@@ -108,8 +112,8 @@ export interface CreateComponentRequest {
   footprint_id?: number
   footprint_name?: string // For creating new footprint
 
-  // Resource selection
-  resources?: Array<{
+  // Resource selection (backend expects 'resource_selections')
+  resource_selections?: Array<{
     type: string
     url?: string
     file_name?: string

@@ -124,3 +124,50 @@ async def search_provider(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Provider search failed: {str(e)}",
         )
+
+
+@router.get("/{provider_id}/parts/{part_number}")
+async def get_part_details(
+    provider_id: int,
+    part_number: str,
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Get detailed information about a specific part from a provider.
+
+    Fetches complete part details including datasheet URL, specifications, etc.
+
+    Args:
+        provider_id: Provider ID
+        part_number: Provider's part number
+
+    Returns:
+        Part details with datasheet URL and other information
+
+    Raises:
+        404: Provider or part not found
+        500: Provider API error
+
+    Requires: Admin authentication
+    """
+    try:
+        # Call service to get part details
+        part_details = await WizardProviderService.get_part_details(
+            db, provider_id, part_number
+        )
+
+        return part_details
+
+    except ValueError as e:
+        # Provider not found or inactive
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except Exception as e:
+        # Provider API error or other failures
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get part details: {str(e)}",
+        )

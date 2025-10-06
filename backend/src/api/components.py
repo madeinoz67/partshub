@@ -374,7 +374,7 @@ def get_component(component_id: str, db: Session = Depends(get_db)):
         "manufacturer": component.manufacturer,
         "category_id": component.category_id,
         "storage_location_id": component.storage_locations[0].id
-        if component.storage_locations
+        if component.storage_locations and len(component.storage_locations) > 0
         else None,
         "component_type": component.component_type,
         "value": component.value,
