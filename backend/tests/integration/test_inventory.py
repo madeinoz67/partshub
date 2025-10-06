@@ -25,10 +25,10 @@ class TestInventoryManagement:
         """Create a shared database session for testing"""
         from fastapi.security import HTTPAuthorizationCredentials
 
+        import backend.src.database.search as search_module
         from backend.src.auth.dependencies import get_optional_user
         from backend.src.auth.jwt_auth import get_current_user as get_user_from_token
         from backend.src.database.search import ComponentSearchService
-        import backend.src.database.search as search_module
         from backend.src.models import User
 
         # Reset global FTS service singleton to ensure test isolation

@@ -13,7 +13,9 @@ from fastapi.testclient import TestClient
 class TestLCSCAPIFailure:
     """Integration tests for LCSC API failure scenarios"""
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_lcsc_api_500_error(
         self,
         mock_search,
@@ -96,7 +98,9 @@ class TestLCSCAPIFailure:
         assert component["part_type"] == "local"
         assert component.get("provider_link") is None
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_lcsc_api_timeout(
         self,
         mock_search,
@@ -146,7 +150,9 @@ class TestLCSCAPIFailure:
 
         assert create_response.status_code == 201
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_lcsc_api_empty_results(
         self,
         mock_search,
@@ -201,7 +207,9 @@ class TestLCSCAPIFailure:
 
         assert create_response.status_code == 201
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_lcsc_api_malformed_response(
         self,
         mock_search,
@@ -279,7 +287,9 @@ class TestLCSCAPIFailure:
         # Should return error or validation failure
         assert search_response.status_code in [400, 403, 404]
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_partial_api_failure_allows_local_creation(
         self,
         mock_search,
@@ -345,7 +355,9 @@ class TestLCSCAPIFailure:
 
         assert create_response.status_code == 201
 
-    @patch("backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock)
+    @patch(
+        "backend.src.services.lcsc_adapter.LCSCAdapter.search", new_callable=AsyncMock
+    )
     def test_api_error_message_returned_to_frontend(
         self,
         mock_search,

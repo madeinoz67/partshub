@@ -58,9 +58,9 @@ def setup_test_database():
     Set up fresh in-memory test database for each test with proper model loading
     """
     # Import the Base from the correct database module
+    import backend.src.database.search as search_module
     from backend.src.database import Base
     from backend.src.database.search import ComponentSearchService
-    import backend.src.database.search as search_module
 
     # Import all models to ensure they are registered with SQLAlchemy
     # This is critical for table creation to work properly
