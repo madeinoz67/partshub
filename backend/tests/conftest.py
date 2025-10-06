@@ -121,14 +121,6 @@ def db_session():
         session.rollback()
         raise
     finally:
-        # Clean up FTS table explicitly (virtual tables don't always respect rollback)
-        try:
-            session.execute(text("DELETE FROM components_fts"))
-            session.commit()
-        except Exception:
-            # Table might not exist, that's ok
-            pass
-
         # Always close the session to release resources
         session.close()
 
