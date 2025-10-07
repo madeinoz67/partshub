@@ -150,10 +150,13 @@ class TestFirstTimeSetup:
         search_response = client.get("/api/v1/components?search=10k")
         assert search_response.status_code == 200
         search_data = search_response.json()
-        assert search_data["total"] >= 1
+        assert search_data["total"] >= 1, f"Search returned no results: {search_data}"
+
+        # Debug: print what components were found
+        found_parts = [comp["part_number"] for comp in search_data["components"]]
         assert any(
             comp["part_number"] == "CFR25J10K" for comp in search_data["components"]
-        )
+        ), f"Component CFR25J10K not found in search results. Found: {found_parts}"
 
         # Step 9: Test stock transaction
         stock_response = client.post(
