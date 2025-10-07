@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/madeinoz67/partshub/compare/v0.3.1...v0.4.0) (2025-10-07)
+
+
+### Features
+
+* simplify component creation with wizard and fuzzy search ([#19](https://github.com/madeinoz67/partshub/issues/19)) ([091520d](https://github.com/madeinoz67/partshub/commit/091520d6da41a9f2403fd48b3ed8afd051ed86a5))
+
 ## [0.3.1](https://github.com/madeinoz67/partshub/compare/v0.3.0...v0.3.1) (2025-10-05)
 
 
