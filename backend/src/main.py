@@ -25,11 +25,14 @@ from .api.integrations import router as integrations_router
 from .api.kicad import router as kicad_router
 from .api.location_layout import router as location_layout_router
 from .api.projects import router as projects_router
+from .api.providers import router as providers_router
 from .api.reports import router as reports_router
+from .api.resources import router as resources_router
 from .api.stock_history import router as stock_history_router
 from .api.stock_operations import router as stock_operations_router
 from .api.storage import router as storage_router
 from .api.tags import router as tags_router
+from .api.wizard import router as wizard_router
 from .auth.admin import ensure_admin_exists
 
 # Import for startup events
@@ -192,6 +195,9 @@ app.include_router(categories_router)
 app.include_router(bulk_operations_router)
 app.include_router(stock_operations_router)
 app.include_router(stock_history_router)
+app.include_router(providers_router)
+app.include_router(wizard_router)
+app.include_router(resources_router)
 
 
 @app.get("/")

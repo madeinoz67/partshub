@@ -48,6 +48,9 @@ describe('AddStockForm.vue', () => {
   ]
 
   beforeEach(() => {
+    // Reset mocks first
+    vi.clearAllMocks()
+
     // Create a fresh Pinia instance for each test
     setActivePinia(createPinia())
 
@@ -56,8 +59,8 @@ describe('AddStockForm.vue', () => {
     // Set the underlying locations array, not the computed locationOptions
     storageStore.locations = mockLocations
 
-    // Reset mocks
-    vi.clearAllMocks()
+    // Mock fetchLocations to prevent network calls (after clearAllMocks)
+    storageStore.fetchLocations = vi.fn().mockResolvedValue(undefined)
   })
 
   afterEach(() => {

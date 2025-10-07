@@ -13,33 +13,39 @@ readme = {text = "PartsHub - Electronic parts inventory management system for Ma
 requires-python = ">=3.11"
 dependencies = [
     # Core backend dependencies
-    "fastapi>=0.115.0",  # Starlette CVE fixes (0.47.2+ required)
+    "fastapi>=0.115.0", # Starlette CVE fixes (0.47.2+ required)
     "uvicorn[standard]>=0.24.0",
     "sqlalchemy==2.0.23",
     "alembic==1.12.1",
-    "python-multipart>=0.0.18",  # CVE-2024-53981 fix
+    "python-multipart>=0.0.18", # CVE-2024-53981 fix
     "pydantic==2.4.2",
     "passlib[bcrypt]==1.7.4",
     "bcrypt>=4.0.0,<5.0.0",
-    "python-jose[cryptography]>=3.4.0",  # CVE-2024-33663, CVE-2024-33664 fix (ecdsa: no fix available)
+    "python-jose[cryptography]>=3.4.0", # CVE-2024-33663, CVE-2024-33664 fix (ecdsa: no fix available)
     "python-dateutil==2.8.2",
-    "requests>=2.32.4",  # CVE-2024-47081, CVE-2024-35195 fix
+    "requests>=2.32.4", # CVE-2024-47081, CVE-2024-35195 fix
     "pyzbar==0.1.9",
-    "pillow>=10.3.0",  # CVE-2023-50447, CVE-2024-28219 fix
+    "pillow>=10.3.0", # CVE-2023-50447, CVE-2024-28219 fix
     "aiofiles==23.2.1",
     "aiohttp>=3.12.15",
     "faker==22.0.0",
     "email-validator>=2.3.0",
     "python-magic>=0.4.27",
     "easyeda2kicad>=0.8.0",
-    "anyio>=4.4.0",  # Override fastapi constraint for PVE-2024-71199 fix
-    "openpyxl>=3.1.0",  # Excel export for stock history
+    "anyio>=4.4.0", # Override fastapi constraint for PVE-2024-71199 fix
+    "openpyxl>=3.1.0", # Excel export for stock history
+    "rapidfuzz>=3.5.0", # Fuzzy search for manufacturers/footprints
+    "httpx>=0.25.0", # LCSC API integration
+    "beautifulsoup4>=4.14.2",
 ]
 
 [project.optional-dependencies]
 docs = [
     "mkdocs-material>=9.4.0",
     "mike>=2.0.0",
+]
+scraping = [
+    "playwright>=1.40.0",  # JavaScript rendering for LCSC search
 ]
 dev = [
     "pytest==7.4.3",

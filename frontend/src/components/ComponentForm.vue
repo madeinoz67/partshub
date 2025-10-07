@@ -85,10 +85,12 @@
             </div>
 
             <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model="form.manufacturer"
+              <FuzzyAutocomplete
+                v-model="manufacturerObject"
+                :search-function="searchManufacturers"
                 label="Manufacturer"
-                outlined
+                placeholder="Start typing to search..."
+                @create-new="createNewManufacturer"
               />
             </div>
 
@@ -111,11 +113,13 @@
             </div>
 
             <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model="form.package"
+              <FuzzyAutocomplete
+                v-model="packageObject"
+                :search-function="searchFootprints"
                 label="Package"
-                outlined
+                placeholder="Start typing to search..."
                 hint="e.g., 0805, TO-220, QFP-64, etc."
+                @create-new="createNewFootprint"
               />
             </div>
           </div>
@@ -123,7 +127,7 @@
           <!-- Organization -->
           <div class="text-h6 q-mt-lg q-mb-sm">Organization</div>
           <div class="row q-gutter-md">
-            <div class="col-md-6 col-xs-12">
+            <div class="col-12">
               <q-select
                 v-model="form.category_id"
                 :options="categoryOptions"
@@ -135,89 +139,13 @@
                 :loading="categoriesLoading"
               />
             </div>
-
-            <div class="col-md-6 col-xs-12">
-              <q-select
-                v-model="form.storage_location_id"
-                :options="locationOptions"
-                label="Storage Location"
-                outlined
-                emit-value
-                map-options
-                clearable
-                :loading="locationsLoading"
-              />
-            </div>
           </div>
-
-          <!-- Stock Information -->
-          <div class="text-h6 q-mt-lg q-mb-sm">Stock Information</div>
-          <div class="row q-gutter-md">
-            <div class="col-md-4 col-xs-12">
-              <q-input
-                v-model.number="form.quantity_on_hand"
-                label="Current Stock *"
-                type="number"
-                outlined
-                min="0"
-                :rules="[
-                  val => val !== null && val !== undefined && val !== '' || 'Current stock is required',
-                  val => val >= 0 || 'Quantity must be positive'
-                ]"
-              />
-            </div>
-
-            <div class="col-md-4 col-xs-12">
-              <q-input
-                v-model.number="form.minimum_stock"
-                label="Minimum Stock"
-                type="number"
-                outlined
-                min="0"
-              />
-            </div>
-
-            <div class="col-md-4 col-xs-12">
-              <q-input
-                v-model.number="form.quantity_ordered"
-                label="Quantity Ordered"
-                type="number"
-                outlined
-                min="0"
-              />
-            </div>
-          </div>
-
-          <!-- Pricing -->
-          <div class="text-h6 q-mt-lg q-mb-sm">Pricing</div>
-          <div class="row q-gutter-md">
-            <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model.number="form.average_purchase_price"
-                label="Average Purchase Price"
-                type="number"
-                step="0.01"
-                min="0"
-                outlined
-                prefix="$"
-              />
-            </div>
-
-            <div class="col-md-6 col-xs-12">
-              <q-input
-                v-model.number="form.total_purchase_value"
-                label="Total Purchase Value"
-                type="number"
-                step="0.01"
-                min="0"
-                outlined
-                prefix="$"
-                readonly
-                :model-value="calculatedTotalValue"
-                hint="Calculated: Quantity × Average Price"
-              />
-            </div>
-          </div>
+          <q-banner class="bg-info text-white q-mt-md" rounded>
+            <template v-slot:avatar>
+              <q-icon name="info" />
+            </template>
+            Storage locations are managed through stock movements (Add/Remove Stock).
+          </q-banner>
 
           <!-- Specifications -->
           <div class="text-h6 q-mt-lg q-mb-sm">
@@ -353,9 +281,10 @@ import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
 import { useComponentsStore } from '../stores/components'
-import { useStorageStore } from '../stores/storage'
 import type { Component } from '../services/api'
 import TagSelector from './TagSelector.vue'
+import FuzzyAutocomplete from './wizard/FuzzyAutocomplete.vue'
+import { wizardService } from '../services/wizardService'
 import { QForm } from 'quasar'
 
 interface Props {
@@ -382,13 +311,9 @@ const emit = defineEmits<{
 const $q = useQuasar()
 const formRef = ref<QForm>()
 const componentsStore = useComponentsStore()
-const storageStore = useStorageStore()
 
 const { loading } = storeToRefs(componentsStore)
-const { locations } = storeToRefs(storageStore)
-
 const categoriesLoading = ref(false)
-const locationsLoading = ref(false)
 
 const form = ref({
   name: '',
@@ -399,21 +324,30 @@ const form = ref({
   part_number: '',
   manufacturer: '',
   category_id: '',
-  storage_location_id: '',
   component_type: '',
   value: '',
   package: '',
-  quantity_on_hand: 0,
-  quantity_ordered: 0,
-  minimum_stock: 0,
-  average_purchase_price: 0,
-  total_purchase_value: 0,
   notes: '',
   tags: [] as string[]
 })
 
 const specifications = ref<KeyValuePair[]>([])
 const customFields = ref<KeyValuePair[]>([])
+
+// Wrapper refs for FuzzyAutocomplete (converts between string and object)
+const manufacturerObject = computed({
+  get: () => form.value.manufacturer ? { id: null, name: form.value.manufacturer, score: 100 } : null,
+  set: (val) => {
+    form.value.manufacturer = val?.name || ''
+  }
+})
+
+const packageObject = computed({
+  get: () => form.value.package ? { id: null, name: form.value.package, score: 100 } : null,
+  set: (val) => {
+    form.value.package = val?.name || ''
+  }
+})
 
 const categoryOptions = computed(() => {
   const categoryMap = new Map<string, string>()
@@ -428,16 +362,7 @@ const categoryOptions = computed(() => {
   }))
 })
 
-const locationOptions = computed(() =>
-  storageStore.locationOptions
-)
-
-const calculatedTotalValue = computed(() => {
-  if (form.value.quantity_on_hand && form.value.average_purchase_price) {
-    return (form.value.quantity_on_hand * form.value.average_purchase_price).toFixed(2)
-  }
-  return '0.00'
-})
+// Note: Total value is now calculated server-side based on storage locations
 
 const addSpecification = () => {
   specifications.value.push({ key: '', value: '' })
@@ -455,6 +380,23 @@ const removeCustomField = (index: number) => {
   customFields.value.splice(index, 1)
 }
 
+// Fuzzy search functions
+async function searchManufacturers(query: string) {
+  return await wizardService.searchManufacturers(query, 10)
+}
+
+async function searchFootprints(query: string) {
+  return await wizardService.searchFootprints(query, 10)
+}
+
+function createNewManufacturer(name: string) {
+  form.value.manufacturer = name
+}
+
+function createNewFootprint(name: string) {
+  form.value.package = name
+}
+
 const resetForm = () => {
   form.value = {
     name: '',
@@ -465,15 +407,9 @@ const resetForm = () => {
     part_number: '',
     manufacturer: '',
     category_id: '',
-    storage_location_id: '',
     component_type: '',
     value: '',
     package: '',
-    quantity_on_hand: 0,
-    quantity_ordered: 0,
-    minimum_stock: 0,
-    average_purchase_price: 0,
-    total_purchase_value: 0,
     notes: '',
     tags: []
   }
@@ -491,15 +427,9 @@ const populateForm = (component: Component) => {
     part_number: component.part_number || '',
     manufacturer: component.manufacturer || '',
     category_id: component.category_id || '',
-    storage_location_id: component.storage_location_id || '',
     component_type: component.component_type || '',
     value: component.value || '',
     package: component.package || '',
-    quantity_on_hand: component.quantity_on_hand,
-    quantity_ordered: component.quantity_ordered,
-    minimum_stock: component.minimum_stock,
-    average_purchase_price: component.average_purchase_price || 0,
-    total_purchase_value: component.total_purchase_value || 0,
     notes: component.notes || '',
     tags: component.tags ? component.tags.map(tag => tag.id) : []
   }
@@ -550,10 +480,15 @@ const onSubmit = async () => {
     // Build component data, omitting empty/null optional fields
     const componentData: Record<string, unknown> = {
       name: form.value.name,
-      quantity_on_hand: form.value.quantity_on_hand,
-      quantity_ordered: form.value.quantity_ordered,
-      minimum_stock: form.value.minimum_stock,
+      // Note: quantity_on_hand and storage_location_id are managed via stock movements
+      // Components are created without stock, users add stock via Add Stock button
     }
+
+    console.log('Form values before submit:', {
+      manufacturer: form.value.manufacturer,
+      package: form.value.package,
+      tags: form.value.tags
+    })
 
     // Only include optional fields if they have values
     if (form.value.part_number) componentData.part_number = form.value.part_number
@@ -563,20 +498,20 @@ const onSubmit = async () => {
     if (form.value.provider_sku) componentData.provider_sku = form.value.provider_sku
     if (form.value.manufacturer) componentData.manufacturer = form.value.manufacturer
     if (form.value.category_id) componentData.category_id = form.value.category_id
-    if (form.value.storage_location_id) componentData.storage_location_id = form.value.storage_location_id
     if (form.value.component_type) componentData.component_type = form.value.component_type
     if (form.value.value) componentData.value = form.value.value
     if (form.value.package) componentData.package = form.value.package
-    if (form.value.average_purchase_price) componentData.average_purchase_price = form.value.average_purchase_price
     if (form.value.notes) componentData.notes = form.value.notes
     if (form.value.tags.length > 0) componentData.tags = form.value.tags
 
-    // Add calculated total value
-    componentData.total_purchase_value = form.value.quantity_on_hand * (form.value.average_purchase_price || 0)
+    // Total value is calculated server-side based on storage locations
+    // Don't send it from the client
 
     // Add specifications and custom fields if present
     if (Object.keys(specsObject).length > 0) componentData.specifications = specsObject
     if (Object.keys(fieldsObject).length > 0) componentData.custom_fields = fieldsObject
+
+    console.log('Component data being sent:', componentData)
 
     let result: Component
     if (props.isEdit && props.component) {
@@ -624,10 +559,6 @@ watch(() => props.modelValue, (newValue) => {
       populateForm(props.component)
     } else {
       resetForm()
-    }
-
-    if (locations.value.length === 0) {
-      storageStore.fetchLocations()
     }
   }
 })

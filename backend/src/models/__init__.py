@@ -19,13 +19,16 @@ from .meta_part import MetaPart, MetaPartComponent
 from .project import Project, ProjectComponent, ProjectStatus
 from .provider import ComponentDataProvider
 from .provider_data import ComponentProviderData
+from .provider_link import ProviderLink
 from .purchase import Purchase, PurchaseItem
+from .resource import Resource
 from .stock_transaction import StockTransaction, TransactionType
 from .storage_location import StorageLocation
 from .substitute import Substitute
 from .supplier import Supplier
 from .tag import Tag, component_tags
 from .user import User
+from .wizard_provider import Provider
 
 # Export all models
 __all__ = [
@@ -56,4 +59,7 @@ __all__ = [
     "KiCadLibraryData",
     "MetaPart",
     "MetaPartComponent",
+    "Provider",
+    "ProviderLink",
+    "Resource",
 ]

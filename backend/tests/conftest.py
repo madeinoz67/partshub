@@ -58,10 +58,15 @@ def setup_test_database():
     Set up fresh in-memory test database for each test with proper model loading
     """
     # Import the Base from the correct database module
+    import backend.src.database.search as search_module
     from backend.src.database import Base
+    from backend.src.database.search import ComponentSearchService
 
     # Import all models to ensure they are registered with SQLAlchemy
     # This is critical for table creation to work properly
+
+    # Reset global FTS service singleton to ensure test isolation
+    search_module._component_search_service = None
 
     # Enable SQLite-specific features for test database
     with test_engine.connect() as conn:
@@ -72,10 +77,26 @@ def setup_test_database():
     # Create all tables with proper metadata
     Base.metadata.create_all(bind=test_engine)
 
+    # Initialize FTS table and triggers BEFORE any tests run
+    # This ensures triggers are in place when components are created
+    session = TestingSessionLocal()
+    try:
+        search_service = ComponentSearchService()
+        search_service._ensure_fts_table(session)
+        session.commit()
+    except Exception as e:
+        print(f"Warning: Failed to initialize FTS table: {e}")
+        session.rollback()
+    finally:
+        session.close()
+
     yield
 
     # Clean up: Drop all tables after test for complete isolation
     Base.metadata.drop_all(bind=test_engine)
+
+    # Reset global FTS service singleton after test
+    search_module._component_search_service = None
 
 
 @pytest.fixture(scope="function")
@@ -83,6 +104,11 @@ def db_session():
     """
     Create a database session for each test with proper transaction management
     """
+    import backend.src.database.search as search_module
+
+    # Reset FTS singleton before each test for isolation
+    search_module._component_search_service = None
+
     session = TestingSessionLocal()
     try:
         # Start a transaction that will be rolled back after the test
@@ -95,6 +121,9 @@ def db_session():
     finally:
         # Always close the session to release resources
         session.close()
+
+        # Reset FTS singleton after each test
+        search_module._component_search_service = None
 
 
 # Remove global_test_users fixture to avoid duplicate user creation

@@ -135,6 +135,9 @@ class TestFirstTimeSetup:
         component_data = component_response.json()
         component_id = component_data["id"]
 
+        # Ensure the database transaction is committed and FTS triggers have fired
+        db_session.commit()
+
         # Step 7: Verify component was created properly
         get_component_response = client.get(f"/api/v1/components/{component_id}")
         assert get_component_response.status_code == 200
@@ -147,13 +150,22 @@ class TestFirstTimeSetup:
         assert retrieved_component["specifications"]["resistance"] == "10000"
 
         # Step 8: Test search functionality
+        # Manually rebuild FTS index to ensure it's populated for this test
+        from backend.src.database.search import get_component_search_service
+
+        search_service = get_component_search_service()
+        search_service.rebuild_fts_index(db_session)
+
         search_response = client.get("/api/v1/components?search=10k")
         assert search_response.status_code == 200
         search_data = search_response.json()
-        assert search_data["total"] >= 1
+        assert search_data["total"] >= 1, f"Search returned no results: {search_data}"
+
+        # Debug: print what components were found
+        found_parts = [comp["part_number"] for comp in search_data["components"]]
         assert any(
             comp["part_number"] == "CFR25J10K" for comp in search_data["components"]
-        )
+        ), f"Component CFR25J10K not found in search results. Found: {found_parts}"
 
         # Step 9: Test stock transaction
         stock_response = client.post(

@@ -146,9 +146,11 @@ def list_components(
         None, pattern="^(low|out|available)$", description="Filter by stock status"
     ),
     sort_by: str = Query(
-        "name", pattern="^(name|quantity|created_at)$", description="Sort field"
+        "updated_at",
+        pattern="^(name|quantity|created_at|updated_at)$",
+        description="Sort field",
     ),
-    sort_order: str = Query("asc", pattern="^(asc|desc)$", description="Sort order"),
+    sort_order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
     limit: int = Query(50, ge=1, le=100, description="Number of items to return"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
     db: Session = Depends(get_db),
@@ -372,7 +374,7 @@ def get_component(component_id: str, db: Session = Depends(get_db)):
         "manufacturer": component.manufacturer,
         "category_id": component.category_id,
         "storage_location_id": component.storage_locations[0].id
-        if component.storage_locations
+        if component.storage_locations and len(component.storage_locations) > 0
         else None,
         "component_type": component.component_type,
         "value": component.value,

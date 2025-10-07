@@ -68,7 +68,7 @@
             <q-btn
               class="add-button-primary"
               icon="add"
-              @click="$emit('create-component')"
+              @click="navigateToWizard"
             >
               <span class="add-text-full">Add Component</span>
               <span class="add-text-short">Add</span>
@@ -1162,6 +1162,7 @@
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 import { useComponentsStore } from '../stores/components'
 import { useSelectionStore } from '../stores/selection'
 import { useAuth } from '../composables/useAuth'
@@ -1210,6 +1211,7 @@ const componentsStore = useComponentsStore()
 const selectionStore = useSelectionStore()
 const { canPerformCrud } = useAuth()
 const $q = useQuasar()
+const router = useRouter()
 const {
   components,
   loading,
@@ -1554,6 +1556,11 @@ const getThumbnailUrl = (attachmentId: string, componentId: string) => {
   return `http://localhost:8000/api/v1/components/${componentId}/attachments/${attachmentId}/thumbnail`
 }
 
+
+// Navigation functions
+const navigateToWizard = () => {
+  router.push('/components/create')
+}
 
 // Barcode scanner functions
 const openBarcodeScanner = () => {

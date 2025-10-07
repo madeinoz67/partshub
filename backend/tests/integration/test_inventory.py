@@ -25,9 +25,14 @@ class TestInventoryManagement:
         """Create a shared database session for testing"""
         from fastapi.security import HTTPAuthorizationCredentials
 
+        import backend.src.database.search as search_module
         from backend.src.auth.dependencies import get_optional_user
         from backend.src.auth.jwt_auth import get_current_user as get_user_from_token
+        from backend.src.database.search import ComponentSearchService
         from backend.src.models import User
+
+        # Reset global FTS service singleton to ensure test isolation
+        search_module._component_search_service = None
 
         db_fd, db_path = tempfile.mkstemp()
         engine = create_engine(f"sqlite:///{db_path}")
@@ -37,6 +42,16 @@ class TestInventoryManagement:
 
         Base.metadata.create_all(bind=engine)
         session = testing_session_local()
+
+        # Initialize FTS table and triggers BEFORE any tests run
+        # This ensures triggers are in place when components are created
+        try:
+            search_service = ComponentSearchService()
+            search_service._ensure_fts_table(session)
+            session.commit()
+        except Exception as e:
+            print(f"Warning: Failed to initialize FTS table: {e}")
+            session.rollback()
 
         def override_get_db():
             yield session
@@ -73,6 +88,9 @@ class TestInventoryManagement:
         os.close(db_fd)
         os.unlink(db_path)
         app.dependency_overrides.clear()
+
+        # Reset global FTS service singleton after test
+        search_module._component_search_service = None
 
     @pytest.fixture
     def client(self, db_session):

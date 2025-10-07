@@ -132,6 +132,11 @@ class Component(Base):
         cascade="all, delete-orphan",
         lazy="select",
     )
+    provider_links = relationship(
+        "ProviderLink",
+        back_populates="component",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return f"<Component(id='{self.id}', name='{self.name}', part_number='{self.part_number}')>"

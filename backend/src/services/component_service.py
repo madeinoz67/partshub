@@ -8,6 +8,7 @@ from typing import Any
 from sqlalchemy import and_, case, desc, func, or_
 from sqlalchemy.orm import Session, selectinload
 
+from ..database.search import search_components_fts
 from ..models import (
     Category,
     Component,
@@ -527,23 +528,13 @@ class ComponentService:
 
         # Apply filters
         if search:
-            search_term = f"%{search}%"
-            query = query.filter(
-                or_(
-                    Component.name.ilike(search_term),
-                    Component.part_number.ilike(search_term),
-                    Component.local_part_id.ilike(search_term),
-                    Component.barcode_id.ilike(search_term),
-                    Component.manufacturer_part_number.ilike(search_term),
-                    Component.provider_sku.ilike(search_term),
-                    Component.manufacturer.ilike(search_term),
-                    Component.component_type.ilike(search_term),
-                    Component.value.ilike(search_term),
-                    Component.package.ilike(search_term),
-                    Component.tags.any(Tag.name.ilike(search_term)),
-                    Component.notes.ilike(search_term),
-                )
-            )
+            # Use FTS5 full-text search for better performance and to search specifications
+            component_ids = search_components_fts(search, session=self.db, limit=1000)
+            if component_ids:
+                query = query.filter(Component.id.in_(component_ids))
+            else:
+                # No results from FTS - return empty result
+                query = query.filter(Component.id.is_(None))
 
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
@@ -626,6 +617,8 @@ class ComponentService:
                 query = query.order_by(desc(Component.name))
             elif sort_by == "created_at":
                 query = query.order_by(desc(Component.created_at))
+            elif sort_by == "updated_at":
+                query = query.order_by(desc(Component.updated_at))
             # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
             # and cannot be used directly in SQL ORDER BY
         else:
@@ -633,6 +626,8 @@ class ComponentService:
                 query = query.order_by(Component.name)
             elif sort_by == "created_at":
                 query = query.order_by(Component.created_at)
+            elif sort_by == "updated_at":
+                query = query.order_by(Component.updated_at)
             # Note: quantity sorting removed - quantity_on_hand is now a hybrid property
             # and cannot be used directly in SQL ORDER BY
 

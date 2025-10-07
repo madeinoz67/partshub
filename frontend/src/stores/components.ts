@@ -32,8 +32,8 @@ export const useComponentsStore = defineStore('components', () => {
     storage_location: '',
     component_type: '',
     stock_status: undefined,
-    sort_by: 'name',
-    sort_order: 'asc',
+    sort_by: 'updated_at',
+    sort_order: 'desc',
   })
 
   // Getters
@@ -275,8 +275,8 @@ export const useComponentsStore = defineStore('components', () => {
       storage_location: '',
       component_type: '',
       stock_status: undefined,
-      sort_by: 'name',
-      sort_order: 'asc',
+      sort_by: 'updated_at',
+      sort_order: 'desc',
     }
     currentPage.value = 1
     fetchComponents()
