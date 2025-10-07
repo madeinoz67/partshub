@@ -135,6 +135,9 @@ class TestFirstTimeSetup:
         component_data = component_response.json()
         component_id = component_data["id"]
 
+        # Ensure the database transaction is committed and FTS triggers have fired
+        db_session.commit()
+
         # Step 7: Verify component was created properly
         get_component_response = client.get(f"/api/v1/components/{component_id}")
         assert get_component_response.status_code == 200
