@@ -150,6 +150,12 @@ class TestFirstTimeSetup:
         assert retrieved_component["specifications"]["resistance"] == "10000"
 
         # Step 8: Test search functionality
+        # Manually rebuild FTS index to ensure it's populated for this test
+        from backend.src.database.search import get_component_search_service
+
+        search_service = get_component_search_service()
+        search_service.rebuild_fts_index(db_session)
+
         search_response = client.get("/api/v1/components?search=10k")
         assert search_response.status_code == 200
         search_data = search_response.json()
