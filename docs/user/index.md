@@ -50,11 +50,21 @@ New to PartsHub? We offer multiple ways to get started:
   - Team inventory sharing
   - Export and reporting capabilities
 
+## Feature Guides
+
+### Component Management
+- **[Component Creation Wizard](component-creation.md)** - Step-by-step guide to adding components (v0.4.0+)
+- **[Bulk Operations](bulk-operations.md)** - Manage multiple components efficiently (v0.2.0+)
+- **[Stock Operations](stock-operations.md)** - Track and manage inventory levels (v0.3.0+)
+
+### Integrations
+- **[KiCad Workflow Integration](kicad-workflows.md)** - Generate libraries and symbols
+
 ## Quick Reference
 
 ### Common Tasks
 1. **Adding Components**
-   - Use web interface "+" button
+   - Use the [Component Creation Wizard](component-creation.md) with fuzzy search
    - Scan barcodes for instant entry
    - Bulk import via CSV/spreadsheet
 

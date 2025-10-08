@@ -7,6 +7,42 @@
 
 * simplify component creation with wizard and fuzzy search ([#19](https://github.com/madeinoz67/partshub/issues/19)) ([091520d](https://github.com/madeinoz67/partshub/commit/091520d6da41a9f2403fd48b3ed8afd051ed86a5))
 
+### Added
+- **Component Creation Wizard**: New streamlined wizard interface for creating components
+  - Two-part workflow: Basic Information → Resources (optional)
+  - Smart component type selection with autocomplete
+  - Fuzzy search for manufacturers and footprints with real-time suggestions
+  - Support for both linked parts (from providers) and local-only parts
+  - Optional provider integration with LCSC, Digi-Key, and Mouser
+  - Automatic datasheet fetching from provider APIs
+- **Fuzzy Search Autocomplete**: Intelligent autocomplete component with:
+  - Real-time fuzzy matching using RapidFuzz library
+  - Case-insensitive search with score-based ranking
+  - Configurable result limits and minimum match scores
+  - Support for creating new entries inline
+  - Customizable display with icons and captions
+  - Keyboard navigation support
+- **API Enhancements**:
+  - New `/api/v1/wizard/manufacturers/search` endpoint for fuzzy manufacturer search
+  - New `/api/v1/wizard/footprints/search` endpoint for fuzzy footprint search
+  - New `/api/v1/wizard/components` endpoint for wizard-based component creation
+  - Admin-only access control for wizard endpoints
+  - Comprehensive request validation and error handling
+- **Database Improvements**:
+  - Full-text search (FTS5) optimization for component discovery
+  - Improved search index management with proper transaction handling
+  - Test isolation improvements for FTS functionality
+
+### Changed
+- Component creation workflow simplified from complex form to intuitive wizard
+- Manufacturer and footprint selection now uses fuzzy search instead of exact match
+- Provider integration made optional during component creation
+
+### Fixed
+- FTS search index population in test environments
+- Transaction isolation issues with SQLite FTS triggers
+- Import sorting and linting issues in test configuration
+
 ## [0.3.1](https://github.com/madeinoz67/partshub/compare/v0.3.0...v0.3.1) (2025-10-05)
 
 
