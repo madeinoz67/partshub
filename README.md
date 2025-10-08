@@ -6,11 +6,14 @@
 
 A modern, web-based inventory management system designed specifically for electronic components and parts. PartsHub provides comprehensive tracking of components, storage locations, stock levels, and specifications with both web interface and API access.
 
-**Latest Release**: v0.3.1 (October 2025) - Inline Stock Management with Security Fixes!
+**Latest Release**: v0.4.0 (October 2025) - Simplified Component Creation with Wizard & Fuzzy Search!
 
 ## Features
 
 ### 📦 Component Management
+- **Wizard-based component creation** with intuitive two-step workflow (v0.4.0+)
+- **Fuzzy search autocomplete** for manufacturers and footprints (v0.4.0+)
+- **Provider integration** with LCSC, Digi-Key, and Mouser for linked parts (v0.4.0+)
 - **Comprehensive tracking** of electronic components with detailed specifications
 - **Stock level monitoring** with low-stock tracking capabilities
 - **Inline stock operations** with add/remove/move capabilities (v0.3.0+)
@@ -101,6 +104,52 @@ make build         # Build all components
 make docs          # Start documentation server
 make clean         # Clean build artifacts
 ```
+
+### Component Creation Wizard (v0.4.0+)
+
+PartsHub introduces a streamlined wizard interface for creating components, making it faster and easier to add new parts to your inventory.
+
+#### Two-Step Workflow
+
+1. **Basic Information**: Enter essential component details with smart autocomplete
+2. **Resources (Optional)**: Link to provider data or add custom specifications
+
+#### Key Features
+
+- **Fuzzy Search Autocomplete**: Intelligent search for manufacturers and footprints
+  - Real-time suggestions as you type
+  - Case-insensitive matching with score-based ranking
+  - Option to create new entries inline
+- **Dual Creation Modes**:
+  - **Linked Parts**: Connect to LCSC, Digi-Key, or Mouser for automatic datasheet fetching
+  - **Local Parts**: Create standalone components without provider integration
+- **Smart Component Types**: Autocomplete selection for component categories
+- **Provider Integration**: Optional connection to supplier APIs for enriched data
+
+#### API Example
+
+```bash
+# Create a component using the wizard (linked part)
+curl -X POST http://localhost:8000/api/v1/wizard/components \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "10kΩ Resistor",
+    "component_type": "resistor",
+    "manufacturer_name": "Yageo",
+    "footprint": "0603",
+    "category_id": "uuid",
+    "storage_location_id": "uuid",
+    "provider": "LCSC",
+    "provider_sku": "C12345"
+  }'
+
+# Search for manufacturers with fuzzy matching
+curl -X GET "http://localhost:8000/api/v1/wizard/manufacturers/search?q=yag&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+For detailed documentation, see [Component Creation Guide](docs/user/component-creation.md).
 
 ### Bulk Operations for Component Management (v0.2.0+)
 

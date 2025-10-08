@@ -116,6 +116,7 @@ nav:
       - Getting Started: user/getting-started.md
       - Docker Quickstart: user/docker-quickstart.md
       - Features: user/features.md
+      - Component Creation: user/component-creation.md
       - Bulk Operations: user/bulk-operations.md
       - Stock Operations: user/stock-operations.md
       - KiCad Workflows: user/kicad-workflows.md
@@ -147,6 +148,7 @@ nav:
       - Workflows: developer/workflows.md
       - Session Notes (2025-09-27): developer/session-notes-2025-09-27.md
   - Releases:
+      - releases/v0.4.0.md
       - releases/v0.3.1.md
       - releases/v0.3.0.md
       - releases/v0.2.1.md
