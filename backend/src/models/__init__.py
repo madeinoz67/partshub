@@ -22,6 +22,7 @@ from .provider_data import ComponentProviderData
 from .provider_link import ProviderLink
 from .purchase import Purchase, PurchaseItem
 from .resource import Resource
+from .saved_search import SavedSearch
 from .stock_transaction import StockTransaction, TransactionType
 from .storage_location import StorageLocation
 from .substitute import Substitute
@@ -62,4 +63,5 @@ __all__ = [
     "Provider",
     "ProviderLink",
     "Resource",
+    "SavedSearch",
 ]
