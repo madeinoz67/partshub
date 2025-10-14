@@ -37,7 +37,7 @@ PartsHub is built with modern technologies:
 
     Learn how to use PartsHub effectively
 
-    [:octicons-arrow-right-24: User Guide](user/)
+    [:octicons-arrow-right-24: User Guide](user/index.md)
 
 -   :material-brain: __Architecture__
 
@@ -45,7 +45,7 @@ PartsHub is built with modern technologies:
 
     Understand the system design and architecture
 
-    [:octicons-arrow-right-24: Architecture](architecture/)
+    [:octicons-arrow-right-24: Architecture](architecture/index.md)
 
 -   :material-api: __Backend__
 
@@ -53,7 +53,7 @@ PartsHub is built with modern technologies:
 
     Python FastAPI backend documentation
 
-    [:octicons-arrow-right-24: Backend](backend/)
+    [:octicons-arrow-right-24: Backend](backend/index.md)
 
 -   :material-database: __Database Performance__
 
@@ -61,7 +61,7 @@ PartsHub is built with modern technologies:
 
     Detailed performance optimization and analysis
 
-    [:octicons-arrow-right-24: Database Performance](database/performance/)
+    [:octicons-arrow-right-24: Database Performance](database/performance/index.md)
 
 -   :material-vuejs: __Frontend__
 
@@ -69,7 +69,7 @@ PartsHub is built with modern technologies:
 
     Vue.js frontend development guide
 
-    [:octicons-arrow-right-24: Frontend](frontend/)
+    [:octicons-arrow-right-24: Frontend](frontend/index.md)
 
 </div>
 
@@ -90,6 +90,6 @@ Check out our [Developer Guide](developer/index.md) for the latest development p
 !!! tip "Need Help?"
 
     - Check the [Getting Started Guide](user/getting-started.md) for setup instructions
-    - Browse the [User Guide](user/) for feature documentation
-    - Explore the [Architecture](architecture/) section for technical details
-    - Review [Backend](backend/) or [Frontend](frontend/) docs for development
+    - Browse the [User Guide](user/index.md) for feature documentation
+    - Explore the [Architecture](architecture/index.md) section for technical details
+    - Review [Backend](backend/index.md) or [Frontend](frontend/index.md) docs for development

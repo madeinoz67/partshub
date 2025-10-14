@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.0 (2025-10-07)
+
+### Features
+
+* **Component Creation Wizard** - Simplified two-step workflow for adding components ([091520d](https://github.com/madeinoz67/partshub/commit/091520d))
+* **Fuzzy Search Autocomplete** - Intelligent search for manufacturers, footprints, and tags with typo tolerance
+* **Provider Integration** - Optional linking to LCSC, Digi-Key, and Mouser for enriched component data
+* **Multi-tier Ranking Algorithm** - Score-based search results (exact match > prefix match > fuzzy match)
+* **Inline Entry Creation** - Create new manufacturers and footprints directly from autocomplete
+
+### Bug Fixes
+
+* Fix FTS search index population in test environments
+* Resolve transaction isolation issues with SQLite FTS triggers
+* Improve test stability in CI environments
+
+### Documentation
+
+* Add comprehensive [v0.4.0 release notes](releases/v0.4.0.md)
+* Update [Component Creation Guide](user/component-creation.md)
+* Enhanced README with wizard features and examples
+
+For detailed information, see the full [v0.4.0 Release Notes](releases/v0.4.0.md).
+
+---
+
 ## 0.1.0 (2025-10-02)
 
 
