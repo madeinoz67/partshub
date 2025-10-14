@@ -2,10 +2,11 @@
 Unit tests for SavedSearchService
 """
 
-import pytest
-from datetime import UTC, datetime
+from datetime import datetime
 
-from backend.src.models import SavedSearch, User
+import pytest
+
+from backend.src.models import User
 from backend.src.services.saved_search_service import SavedSearchService
 
 
@@ -138,9 +139,7 @@ class TestSavedSearchService:
             )
 
         # Sort by name
-        searches = saved_search_service.list_user_searches(
-            test_user.id, sort_by="name"
-        )
+        searches = saved_search_service.list_user_searches(test_user.id, sort_by="name")
 
         assert [s.name for s in searches] == ["Apple", "Mango", "Zebra"]
 
@@ -157,15 +156,11 @@ class TestSavedSearchService:
             )
 
         # Get first page
-        page1 = saved_search_service.list_user_searches(
-            test_user.id, limit=5, offset=0
-        )
+        page1 = saved_search_service.list_user_searches(test_user.id, limit=5, offset=0)
         assert len(page1) == 5
 
         # Get second page
-        page2 = saved_search_service.list_user_searches(
-            test_user.id, limit=5, offset=5
-        )
+        page2 = saved_search_service.list_user_searches(test_user.id, limit=5, offset=5)
         assert len(page2) == 5
 
         # Ensure no overlap

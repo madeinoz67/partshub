@@ -119,6 +119,7 @@ nav:
       - Component Creation: user/component-creation.md
       - Bulk Operations: user/bulk-operations.md
       - Stock Operations: user/stock-operations.md
+      - Natural Language Search: user/natural-language-search.md
       - Saved Searches: user/saved-searches.md
       - KiCad Workflows: user/kicad-workflows.md
   - Deployment:

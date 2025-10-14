@@ -252,5 +252,7 @@ class SavedSearchService:
         self.db.commit()
         self.db.refresh(duplicate)
 
-        logger.info(f"Duplicated saved search {search_id} to {duplicate.id} for user {user_id}")
+        logger.info(
+            f"Duplicated saved search {search_id} to {duplicate.id} for user {user_id}"
+        )
         return duplicate

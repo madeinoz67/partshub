@@ -58,4 +58,5 @@ class SavedSearch(Base):
     def mark_as_used(self):
         """Update the last_used_at timestamp."""
         from datetime import UTC, datetime
+
         self.last_used_at = datetime.now(UTC)

@@ -32,6 +32,24 @@ Progressive enhancement barcode scanning with fallback support. See [Barcode Sca
 ### KiCad Integration
 Frontend interface for KiCad library management and component export. See [KiCad Integration Guide](../architecture/kicad-integration.md) for details.
 
+### Natural Language Search
+Intuitive component search using everyday language with pattern-based parsing.
+
+**Implementation:**
+- Search mode toggle in `ComponentSearch.vue`
+- Natural language input with example queries
+- Confidence scoring display with color-coded badges
+- Parsed entity chips showing extracted filters
+- Search history with localStorage persistence
+- Fallback to full-text search for low confidence queries
+
+**Key Components:**
+- `ComponentSearch.vue` - Main search interface with NL mode toggle
+- Backend integration via `/api/v1/components?nl_query=...`
+- Response includes `nl_metadata` with confidence and parsed entities
+
+See [Natural Language Search User Guide](../user/natural-language-search.md) for user documentation.
+
 ### Saved Searches
 Save and reuse component search queries. See [Saved Searches Integration](saved-searches-integration.md) for implementation details.
 
@@ -39,6 +57,68 @@ Save and reuse component search queries. See [Saved Searches Integration](saved-
 Mobile-first responsive design using Quasar's responsive utilities and components.
 
 ## Feature Integration Guides
+
+### Natural Language Search
+
+The natural language search feature provides an intuitive search interface that understands component queries in plain English.
+
+**Frontend Implementation:**
+- **Search Mode Toggle**: Switch between standard and natural language search modes
+- **Example Queries**: Pre-populated chips showing common query patterns
+- **Confidence Display**: Badge showing query understanding confidence (80-100% = high, 50-79% = medium, <50% = low)
+- **Parsed Entities**: Chips displaying extracted filters (component type, stock status, location, value, etc.)
+- **Search History**: Last 10 queries stored in localStorage for quick re-use
+- **Fallback Warnings**: Banner shown when falling back to full-text search
+
+**API Integration:**
+```javascript
+// Natural language search request
+const response = await api.get('/api/v1/components', {
+  params: {
+    nl_query: 'resistors with low stock',
+    limit: 20
+  }
+});
+
+// Response structure
+{
+  components: [...],
+  nl_metadata: {
+    confidence: 0.85,
+    parsed_entities: {
+      component_type: 'resistor',
+      stock_status: 'low'
+    },
+    fallback_to_fts5: false
+  }
+}
+```
+
+**UI Components:**
+- Search mode toggle (`q-btn-toggle`)
+- Natural language input field with psychology icon
+- Example query chips (clickable)
+- Confidence badge with tooltip
+- Parsed filter chips (removable)
+- Fallback warning banner
+- History dropdown with clear option
+
+**State Management:**
+```javascript
+const searchMode = ref('standard')  // 'standard' or 'nl'
+const nlQuery = ref('')
+const nlMetadata = ref(null)
+const nlSearchHistory = ref([])
+```
+
+**User Experience Features:**
+- Inline help text explaining NL search
+- Color-coded confidence badges (green/yellow/red)
+- Removable filter chips for query refinement
+- Search history for frequently used queries
+- Smooth mode switching with state preservation
+
+See [Natural Language Search User Guide](../user/natural-language-search.md) for end-user documentation.
 
 ### Saved Searches
 Complete Vue 3 + Quasar integration for saved searches functionality.

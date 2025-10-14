@@ -4,7 +4,7 @@ Integration tests for Saved Searches API endpoints
 
 import pytest
 
-from backend.src.models import SavedSearch, User
+from backend.src.models import User
 
 
 @pytest.mark.integration

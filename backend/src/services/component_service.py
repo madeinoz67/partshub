@@ -2,6 +2,7 @@
 ComponentService with CRUD and search operations for components.
 """
 
+import logging
 import uuid
 from typing import Any
 
@@ -18,6 +19,8 @@ from ..models import (
     StorageLocation,
     Tag,
 )
+
+logger = logging.getLogger(__name__)
 
 # Import EasyEDA service for LCSC KiCad conversion
 try:
@@ -498,7 +501,8 @@ class ComponentService:
         sort_order: str = "asc",
         limit: int = 50,
         offset: int = 0,
-    ) -> list[Component]:
+        nl_query: str | None = None,
+    ) -> tuple[list[Component], dict[str, Any] | None]:
         """
         List components with filtering and pagination.
 
@@ -516,7 +520,79 @@ class ComponentService:
         results are automatically ranked by field priority to ensure the most relevant
         components appear first (e.g., searching "cap" returns capacitors before components
         that only mention "capital" in their notes).
+
+        Args:
+            nl_query: Natural language query string (e.g., "find resistors with low stock").
+                     When provided, parsed parameters override manual parameters unless
+                     manual parameters are explicitly set. Returns metadata about parsing.
+
+        Returns:
+            Tuple of (components_list, nl_metadata). nl_metadata is None if nl_query not used.
         """
+        nl_metadata = None
+
+        # Process natural language query if provided
+        if nl_query:
+            try:
+                from .natural_language_search_service import (
+                    NaturalLanguageSearchService,
+                )
+
+                nl_service = NaturalLanguageSearchService()
+                parsed_result = nl_service.parse_query(nl_query)
+
+                logger.info(
+                    f"NL query parsed: '{nl_query}' -> "
+                    f"Intent: {parsed_result.get('intent')}, "
+                    f"Confidence: {parsed_result.get('confidence'):.2f}, "
+                    f"Fallback: {parsed_result.get('fallback_to_fts5')}"
+                )
+
+                # Build metadata for response
+                nl_metadata = {
+                    "query": nl_query,
+                    "confidence": parsed_result.get("confidence", 0.0),
+                    "parsed_entities": parsed_result.get("parsed_entities", {}),
+                    "fallback_to_fts5": parsed_result.get("fallback_to_fts5", True),
+                    "intent": parsed_result.get("intent", "unknown"),
+                }
+
+                # Merge parsed parameters with manual parameters
+                # Priority: Manual filters > NL parsed filters
+                # Only use NL params if manual params are not set
+                if search is None and "search" in parsed_result:
+                    search = parsed_result["search"]
+                if component_type is None and "component_type" in parsed_result:
+                    component_type = parsed_result["component_type"]
+                if stock_status is None and "stock_status" in parsed_result:
+                    stock_status = parsed_result["stock_status"]
+                if storage_location is None and "storage_location" in parsed_result:
+                    storage_location = parsed_result["storage_location"]
+                if category is None and "category" in parsed_result:
+                    category = parsed_result["category"]
+
+                # Log low confidence queries for analysis
+                if parsed_result.get("confidence", 0.0) < 0.5:
+                    logger.warning(
+                        f"Low confidence NL query: '{nl_query}' "
+                        f"(confidence: {parsed_result.get('confidence'):.2f})"
+                    )
+
+            except Exception as e:
+                # Never fail the entire request if NL parsing fails
+                logger.error(
+                    f"NL query parsing failed for '{nl_query}': {e}", exc_info=True
+                )
+                # Set metadata to indicate parsing error
+                nl_metadata = {
+                    "query": nl_query,
+                    "confidence": 0.0,
+                    "parsed_entities": {},
+                    "fallback_to_fts5": True,
+                    "intent": "error",
+                    "error": str(e),
+                }
+
         query = self.db.query(Component).options(
             selectinload(Component.category),
             selectinload(Component.locations).selectinload(
@@ -639,11 +715,11 @@ class ComponentService:
             all_results = query.all()
             ranked_results = self._rank_search_results(all_results, search.lower())
             # Apply pagination to ranked results
-            return ranked_results[offset : offset + limit]
+            return ranked_results[offset : offset + limit], nl_metadata
         else:
             # Apply pagination
             query = query.offset(offset).limit(limit)
-            return query.all()
+            return query.all(), nl_metadata
 
     def count_components(
         self,

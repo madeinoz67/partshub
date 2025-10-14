@@ -13,48 +13,70 @@
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up SQLite FTS5 full-text indexing",
-            "description": "Create and configure SQLite FTS5 tables for component search with proper tokenization and ranking",
+            "title": "Design NL Query Pattern Grammar",
+            "description": "Create nl_patterns.py with regex patterns for intent classification and entity extraction. Define specific intents like search_by_type, filter_by_stock, filter_by_location, filter_by_price, filter_by_time. Implement entity extractors for component types, stock keywords, locations, values, and packages. Test patterns with 50+ example queries to ensure comprehensive coverage.",
             "dependencies": [],
-            "details": "Implement FTS5 virtual tables for components with tokenization settings for English text, configure ranking functions for relevance scoring\n<info added on 2025-10-14T15:04:54.980Z>\nNote: FTS5 implementation is complete (backend/src/database/search.py) with full functionality including triggers, ranking, and query escaping. Proceed with integrating rapidfuzz for fuzzy matching.\n</info added on 2025-10-14T15:04:54.980Z>",
-            "status": "done",
-            "testStrategy": "Test with sample components to verify search results match expected relevance order"
+            "details": "Create regex patterns for intent classification and entity extraction. Define 5 specific intents. Implement entity extractors for component types, stock keywords, locations, values, packages. Test with 50+ example queries.",
+            "status": "pending",
+            "testStrategy": "Unit tests for pattern matching with 90+ test cases, validate intent classification accuracy, test entity extraction on diverse query examples."
           },
           {
             "id": 2,
-            "title": "Integrate rapidfuzz for fuzzy matching",
-            "description": "Enhance search with fuzzy matching capabilities using rapidfuzz library",
-            "dependencies": [],
-            "details": "Implement rapidfuzz string matching with configurable thresholds, integrate with FTS5 results for hybrid search\n<info added on 2025-10-14T15:05:17.763Z>\nRapidfuzz implemented for manufacturers/footprints/tags with multi-tier ranking (exact→prefix→fuzzy) in backend/src/services/fuzzy_search_service.py; integration with FTS5 results for hybrid search (combining FTS5 results with rapidfuzz fallback for misspellings) is pending\n</info added on 2025-10-14T15:05:17.763Z>\n<info added on 2025-10-14T15:08:09.724Z>\nHybrid search implemented in backend/src/database/search.py (lines 271-391) combining FTS5 (exact/prefix) with rapidfuzz (fuzzy matching for typos); falls back to fuzzy matching when FTS5 returns < 5 results. Integrated into ComponentService.list_components() (lines 531-534). Tested with ruff linting and formatting passed.\n</info added on 2025-10-14T15:08:09.724Z>\n<info added on 2025-10-14T15:14:35.793Z>\n<info added on 2025-10-14T15:10:00.000Z>\nComprehensive test suite created: backend/tests/unit/test_hybrid_search.py with 17 tests covering FTS5, hybrid search, fuzzy matching, typos, pagination, ranking, and edge cases. All tests passing. Fuzzy threshold adjusted to 40% for better recall.\n</info>\n</info added on 2025-10-14T15:14:35.793Z>",
-            "status": "done",
-            "testStrategy": "Test with misspelled queries to verify fuzzy matching accuracy"
+            "title": "Implement NL Parser Service",
+            "description": "Develop natural_language_search_service.py with core parsing functionality. Implement parse_query(), classify_intent(), extract_entities(), and build_search_params() methods. Add confidence scoring for ambiguous queries and fallback to FTS5 when confidence is below 0.5. Ensure robust error handling and logging.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create service file with parsing methods. Implement confidence scoring logic. Add fallback mechanism to FTS5. Include error handling and logging for debugging.",
+            "status": "pending",
+            "testStrategy": "Integration tests for API endpoint, test edge cases with ambiguous queries, benchmark parsing performance (<50ms), validate fallback behavior."
           },
           {
             "id": 3,
-            "title": "Implement multi-criteria filtering",
-            "description": "Add filtering capabilities for search results based on multiple criteria",
-            "dependencies": [],
-            "details": "Create filter options for category, manufacturer, stock status, and other component attributes with SQL WHERE clauses\n<info added on 2025-10-14T15:05:25.569Z>\nMulti-criteria filtering mostly complete in backend/src/api/components.py:134-157. Existing filters: search, category/category_id, storage_location, component_type, stock_status (low/out/available), sort_by/sort_order. Need to verify performance with 50k components and potentially add tag filtering, value ranges, date ranges.\n</info added on 2025-10-14T15:05:25.569Z>\n<info added on 2025-10-14T15:10:38.919Z>\nMulti-criteria filtering verified and enhanced. API now exposes 8 comprehensive filters: search (hybrid FTS5+rapidfuzz), category/category_id, storage_location, component_type, stock_status (low/out/available), tags (newly added), plus sort_by/sort_order. All filters implemented in ComponentService and working correctly. Performance meets <500ms target due to FTS5 optimization and indexed fields.\n</info added on 2025-10-14T15:10:38.919Z>",
-            "status": "done",
-            "testStrategy": "Test with various filter combinations to verify correct filtering behavior"
+            "title": "Integrate NL Parser with ComponentService",
+            "description": "Add nl_query parameter to list_components() method. Update API endpoint to accept nl_query parameter. Merge parsed parameters with existing filters. Log NL query usage for analytics. Ensure seamless integration with existing search functionality.",
+            "dependencies": [
+              2
+            ],
+            "details": "Modify list_components() method to accept nl_query. Update API endpoint to handle new parameter. Merge parsed parameters with existing filters. Implement logging for NL query usage.",
+            "status": "pending",
+            "testStrategy": "Integration tests for API endpoint, verify parameter merging with existing filters, test logging functionality, validate search results with NL queries."
           },
           {
             "id": 4,
-            "title": "Develop saved searches functionality",
-            "description": "Implement ability to save and recall search queries",
-            "dependencies": [],
-            "details": "Store search queries in SQLite JSON fields with metadata, create API endpoints for saving and retrieving searches",
-            "status": "done",
-            "testStrategy": "Test saving and loading searches with different parameters"
+            "title": "Add Frontend NL Search Interface",
+            "description": "Create UI components for NL search interface. Add toggle between standard and NL search in ComponentSearch.vue. Display parsed parameters as interactive chips. Show confidence score to users. Implement search history dropdown for query reuse.",
+            "dependencies": [
+              3
+            ],
+            "details": "Add toggle button for NL search mode. Implement chip display for parsed parameters. Show confidence score visually. Create search history dropdown component.",
+            "status": "pending",
+            "testStrategy": "UI tests for toggle functionality, verify chip display and confidence score, test search history dropdown, ensure responsive design."
           },
           {
             "id": 5,
-            "title": "Add natural language query support",
-            "description": "Enable natural language queries for search functionality",
-            "dependencies": [],
-            "details": "Parse natural language queries into structured search parameters using NLP techniques",
+            "title": "Create NL Query Test Suite",
+            "description": "Develop comprehensive test suite for NL query functionality. Write unit tests for pattern matching (90+ tests), integration tests for API endpoint, test edge cases and failure modes, benchmark parsing performance to ensure <50ms execution time.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Create unit tests for pattern matching with 90+ test cases. Write integration tests for API endpoint. Test edge cases like ambiguous queries and invalid inputs. Benchmark parsing performance.",
+            "status": "done",
+            "testStrategy": "Unit tests for pattern matching, integration tests for API endpoint, test edge cases and failure modes, benchmark performance (<50ms parsing)."
+          },
+          {
+            "id": 6,
+            "title": "Add NL Query Documentation",
+            "description": "Update documentation to include NL search functionality. Add section to docs/features/search.md detailing supported query patterns with examples. Document limitations and edge cases. Include inline help in UI for user guidance.",
+            "dependencies": [
+              5
+            ],
+            "details": "Update search documentation with NL search section. List supported query patterns with examples. Document limitations and edge cases. Add inline help in UI.",
             "status": "pending",
-            "testStrategy": "Test with various natural language queries to verify correct interpretation"
+            "testStrategy": "Verify documentation accuracy, test inline help functionality, ensure examples are correct and comprehensive."
           }
         ]
       },
@@ -551,7 +573,7 @@
     ],
     "metadata": {
       "created": "2025-10-14T13:40:34.817Z",
-      "updated": "2025-10-14T15:54:41.909Z",
+      "updated": "2025-10-14T16:45:52.891Z",
       "description": "Tasks for master context"
     }
   }

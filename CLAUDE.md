@@ -188,3 +188,4 @@ Start with semantic search, then narrow with specific queries.
 **Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
 @./.taskmaster/CLAUDE.md
 - when you use a library, first check the docs with ref
+- Don't write 500-line components (break them up!)

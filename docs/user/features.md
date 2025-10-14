@@ -82,6 +82,34 @@ Electronics Lab
 - Instant results as you type
 - Supports complex query combinations
 
+### Natural Language Search
+
+PartsHub features an intuitive natural language search mode that lets you find components using everyday language.
+
+**Key Features:**
+- **Describe what you want**: Use natural phrases like "resistors with low stock" or "capacitors in A1"
+- **Pattern-based parsing**: Fast, predictable results without AI dependencies
+- **Confidence scoring**: See how well the system understood your query
+- **Search history**: Quick access to recent queries
+- **Multi-entity queries**: Combine multiple criteria in one search
+
+**Supported Query Patterns:**
+- Component types: `resistors`, `capacitors`, `ICs`, `transistors`
+- Stock status: `low stock`, `out of stock`, `available`, `unused`
+- Locations: `in A1`, `location Bin-23`, `stored in Shelf-A`
+- Values: `10k`, `100μF`, `5V`, `3.3V`, `16MHz`
+- Packages: `0805`, `1206`, `DIP8`, `SOT-23`
+- Manufacturers: `TI`, `Texas Instruments`, `Infineon`, `Murata`
+- Price: `cheap`, `under $5`, `less than $10`
+- Combinations: `10k SMD resistors with low stock in A1`
+
+**Confidence Levels:**
+- **High (80-100%)**: Query well understood, accurate filtering
+- **Medium (50-79%)**: Query partially understood, may need refinement
+- **Low (<50%)**: Using fallback full-text search
+
+**Learn more:** [Natural Language Search Guide](natural-language-search.md)
+
 ### Filter Options
 - By Manufacturer
 - By Component Type
@@ -108,6 +136,7 @@ Save frequently used search queries for quick access:
 - Find all resistors with stock < 10
 - List components added in the last 30 days
 - Search for specific manufacturers or part numbers
+- Natural language: "10k SMD resistors with low stock"
 
 ## 4. Barcode Scanning Features
 

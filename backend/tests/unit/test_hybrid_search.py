@@ -192,14 +192,10 @@ class TestHybridSearch:
 
     def test_hybrid_search_result_ordering(self, db_session, sample_components):
         """Test that hybrid search returns relevant results first"""
-        results = hybrid_search_components(
-            "Resistor", session=db_session, limit=10
-        )
+        results = hybrid_search_components("Resistor", session=db_session, limit=10)
 
         # Get the components
-        components = (
-            db_session.query(Component).filter(Component.id.in_(results)).all()
-        )
+        components = db_session.query(Component).filter(Component.id.in_(results)).all()
 
         # Build a map of ID to component
         id_to_component = {c.id: c for c in components}
@@ -264,7 +260,5 @@ class TestHybridSearch:
         assert len(results) >= 1
 
         # Verify result
-        components = (
-            db_session.query(Component).filter(Component.id.in_(results)).all()
-        )
+        components = db_session.query(Component).filter(Component.id.in_(results)).all()
         assert any("capacitor" in c.name.lower() for c in components)

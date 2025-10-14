@@ -25,6 +25,7 @@ New to PartsHub? We offer multiple ways to get started:
   - Visual storage mapping and allocation
 
 - **Intelligent Search & Discovery**
+  - Natural language search - describe what you want in plain English
   - Powerful search with multi-criteria filtering
   - Smart suggestion and related component recommendations
   - Real-time inventory insights and analytics
@@ -59,6 +60,7 @@ New to PartsHub? We offer multiple ways to get started:
 - **[Stock Operations](stock-operations.md)** - Track and manage inventory levels (v0.3.0+)
 
 ### Search & Discovery
+- **[Natural Language Search](natural-language-search.md)** - Search using everyday language (v0.5.0+)
 - **[Saved Searches](saved-searches.md)** - Save and reuse component search queries (v0.5.0+)
 
 ### Integrations
@@ -78,6 +80,7 @@ New to PartsHub? We offer multiple ways to get started:
    - Track real-time inventory movements
 
 3. **Advanced Search & Retrieval**
+   - [Natural language queries](natural-language-search.md) like "resistors with low stock"
    - Multi-parameter search
    - Filters by manufacturer, type, stock level
    - [Save frequently used searches](saved-searches.md)
@@ -94,6 +97,7 @@ New to PartsHub? We offer multiple ways to get started:
 - Regularly backup inventory data
 - Use project tracking for comprehensive management
 - Save complex searches for quick reuse
+- Try natural language search for faster component discovery
 
 ## Need Help?
 
