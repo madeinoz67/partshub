@@ -1,0 +1,101 @@
+{
+	"meta": {
+		"generatedAt": "2025-10-14T15:00:03.962Z",
+		"tasksAnalyzed": 11,
+		"totalTasks": 11,
+		"analysisCount": 11,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": false
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Advanced Search and Discovery",
+			"complexityScore": 8,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down the search functionality into 3 distinct phases: 1) Core search engine implementation (FTS5 + rapidfuzz integration), 2) User-facing features (saved searches, natural language parsing), 3) Performance optimization and testing. Focus on the most complex technical challenges in each phase.",
+			"reasoning": "This task combines multiple complex technologies (FTS5, rapidfuzz, SQLite JSON) with performance requirements. The natural language query component is particularly challenging due to NLP complexity. While subtasks exist, they don't sufficiently address the integration challenges between different search components. The performance requirement (<500ms for 50k components) adds significant complexity that needs dedicated attention."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Enhanced KiCad Integration",
+			"complexityScore": 9,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide into 4 key areas: 1) Symbol/footprint parsing and data modeling, 2) Library management system, 3) BOM processing with fuzzy matching, 4) Project integration and reservation system. Focus on the most complex dependencies between these areas.",
+			"reasoning": "This task has high complexity due to the need to parse KiCad's XML-based symbol files, implement bidirectional library management, and integrate with multiple systems (BOM processing, stock management). The dependencies between subtasks (especially subtask 5 depending on 3 and 4) create significant integration challenges. The requirement for SVG previews adds frontend complexity."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Barcode and QR Code Enhancements",
+			"complexityScore": 5,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "While this task has multiple features, they're relatively straightforward to implement with existing technologies (Web APIs, Python libraries). The mobile-responsive PWA interface is standard for modern web development. The complexity is moderate but doesn't require significant subtask decomposition as the features are well-defined and independent."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Advanced Stock Management",
+			"complexityScore": 7,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Break into 2 main components: 1) Core stock management enhancements (reorder alerts, FIFO, slow-moving identification), 2) Analytics and forecasting system. Focus on the most complex technical challenges in each component.",
+			"reasoning": "This task has moderate complexity due to the multiple enhancements required. The reorder alerts and FIFO logic are relatively straightforward, but the forecasting and analytics dashboard require significant data processing and visualization work. The existing stock management foundation reduces complexity, but the new features still require careful implementation."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Basic Multi-User Features",
+			"complexityScore": 4,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "This task is relatively straightforward as it builds on existing JWT authentication. The RBAC implementation is standard for most applications, and the activity log/commenting features are common patterns. The performance requirements are reasonable for a small team (2-10 users)."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Enhanced Supplier Management and Parts Ordering",
+			"complexityScore": 9,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide into 4 key areas: 1) Order state machine and database design, 2) Smart order creation logic, 3) API integration with suppliers, 4) Scan-to-receive workflow and price tracking. Focus on the most complex dependencies between these areas.",
+			"reasoning": "This task has high complexity due to the need to implement a comprehensive order management system with multiple states, integrate with multiple supplier APIs, and create a scan-to-receive workflow. The smart order creation logic requires complex business rules, and the API integrations add significant technical challenges. The dependencies between subtasks (especially subtask 3 depending on 2) create integration complexity."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Built-in Reporting and Analytics",
+			"complexityScore": 6,
+			"recommendedSubtasks": 1,
+			"expansionPrompt": "Break into 2 main components: 1) Report generation engine (CSV/Excel/PDF), 2) Dashboard visualization system. Focus on the most complex technical challenges in each component.",
+			"reasoning": "This task has moderate complexity due to the multiple report types and export formats required. The analytics dashboard is relatively straightforward with Chart.js, but the report generation engine requires handling multiple formats and data processing. The performance requirements (5s for 50k components) add some complexity."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Progressive Web App (PWA)",
+			"complexityScore": 6,
+			"recommendedSubtasks": 1,
+			"expansionPrompt": "Break into 2 main components: 1) Service worker implementation for offline functionality, 2) Mobile-optimized UI and core offline workflows. Focus on the most complex technical challenges in each component.",
+			"reasoning": "This task has moderate complexity due to the need to implement offline functionality with service workers and IndexedDB. The mobile-responsive UI is standard for modern web development. The core offline workflows require careful implementation to ensure data consistency on reconnect."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "AI-Powered Features (Lightweight)",
+			"complexityScore": 7,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Break into 2 main components: 1) Component matching and usage prediction, 2) Natural language search and datasheet OCR. Focus on the most complex technical challenges in each component.",
+			"reasoning": "This task has moderate complexity due to the AI/ML implementation requirements. The lightweight models are manageable, but the natural language search component requires significant NLP work. The datasheet OCR adds complexity with potential accuracy issues. The performance requirements (<5s processing) add some complexity."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Data Import and Migration Tools",
+			"complexityScore": 8,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break into 3 main components: 1) Schema validation and mapping, 2) Preview validation engine, 3) Background processing and error handling. Focus on the most complex technical challenges in each component.",
+			"reasoning": "This task has high complexity due to the need to handle multiple data formats (CSV/Excel, InvenTree, PartKeepr, KiCad), implement comprehensive validation, and process large datasets efficiently. The duplicate detection system adds significant complexity, and the background processing requires careful error handling."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "LLM-Enhanced Component Metadata",
+			"complexityScore": 10,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Divide into 5 key areas: 1) LLM extraction schema and validation rules, 2) Provider data extraction workflow, 3) Anti-hallucination safeguards implementation, 4) Metadata enhancement and validation layer, 5) Performance and cost optimization. Focus on the most complex dependencies between these areas.",
+			"reasoning": "This task has the highest complexity due to the need to implement LLM-based extraction with 11 anti-hallucination safeguards, strict performance requirements (<3s cloud, <10s local), and zero hallucination tolerance. The integration of multiple technologies (PydanticAI, LangGraph, LangChain) creates significant technical challenges. The requirement for 90%+ accuracy with zero hallucination tolerance adds substantial complexity."
+		}
+	]
+}

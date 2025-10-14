@@ -7,7 +7,7 @@
         "description": "Enhance search capabilities using lightweight SQLite-based technologies (FTS5, rapidfuzz) with multi-criteria filtering, saved searches, and natural language queries.",
         "details": "Technical: SQLite FTS5 for full-text indexing, Python cachetools for caching, enhance existing rapidfuzz, saved searches in SQLite JSON fields. Performance: <500ms for 50k components.",
         "testStrategy": "",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "subtasks": [
@@ -16,8 +16,8 @@
             "title": "Set up SQLite FTS5 full-text indexing",
             "description": "Create and configure SQLite FTS5 tables for component search with proper tokenization and ranking",
             "dependencies": [],
-            "details": "Implement FTS5 virtual tables for components with tokenization settings for English text, configure ranking functions for relevance scoring",
-            "status": "pending",
+            "details": "Implement FTS5 virtual tables for components with tokenization settings for English text, configure ranking functions for relevance scoring\n<info added on 2025-10-14T15:04:54.980Z>\nNote: FTS5 implementation is complete (backend/src/database/search.py) with full functionality including triggers, ranking, and query escaping. Proceed with integrating rapidfuzz for fuzzy matching.\n</info added on 2025-10-14T15:04:54.980Z>",
+            "status": "done",
             "testStrategy": "Test with sample components to verify search results match expected relevance order"
           },
           {
@@ -25,8 +25,8 @@
             "title": "Integrate rapidfuzz for fuzzy matching",
             "description": "Enhance search with fuzzy matching capabilities using rapidfuzz library",
             "dependencies": [],
-            "details": "Implement rapidfuzz string matching with configurable thresholds, integrate with FTS5 results for hybrid search",
-            "status": "pending",
+            "details": "Implement rapidfuzz string matching with configurable thresholds, integrate with FTS5 results for hybrid search\n<info added on 2025-10-14T15:05:17.763Z>\nRapidfuzz implemented for manufacturers/footprints/tags with multi-tier ranking (exact→prefix→fuzzy) in backend/src/services/fuzzy_search_service.py; integration with FTS5 results for hybrid search (combining FTS5 results with rapidfuzz fallback for misspellings) is pending\n</info added on 2025-10-14T15:05:17.763Z>\n<info added on 2025-10-14T15:08:09.724Z>\nHybrid search implemented in backend/src/database/search.py (lines 271-391) combining FTS5 (exact/prefix) with rapidfuzz (fuzzy matching for typos); falls back to fuzzy matching when FTS5 returns < 5 results. Integrated into ComponentService.list_components() (lines 531-534). Tested with ruff linting and formatting passed.\n</info added on 2025-10-14T15:08:09.724Z>",
+            "status": "done",
             "testStrategy": "Test with misspelled queries to verify fuzzy matching accuracy"
           },
           {
@@ -34,7 +34,7 @@
             "title": "Implement multi-criteria filtering",
             "description": "Add filtering capabilities for search results based on multiple criteria",
             "dependencies": [],
-            "details": "Create filter options for category, manufacturer, stock status, and other component attributes with SQL WHERE clauses",
+            "details": "Create filter options for category, manufacturer, stock status, and other component attributes with SQL WHERE clauses\n<info added on 2025-10-14T15:05:25.569Z>\nMulti-criteria filtering mostly complete in backend/src/api/components.py:134-157. Existing filters: search, category/category_id, storage_location, component_type, stock_status (low/out/available), sort_by/sort_order. Need to verify performance with 50k components and potentially add tag filtering, value ranges, date ranges.\n</info added on 2025-10-14T15:05:25.569Z>",
             "status": "pending",
             "testStrategy": "Test with various filter combinations to verify correct filtering behavior"
           },
@@ -457,7 +457,7 @@
     ],
     "metadata": {
       "created": "2025-10-14T13:40:34.817Z",
-      "updated": "2025-10-14T13:53:12.926Z",
+      "updated": "2025-10-14T15:08:09.769Z",
       "description": "Tasks for master context"
     }
   }

@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy import and_, case, desc, func, or_
 from sqlalchemy.orm import Session, selectinload
 
-from ..database.search import search_components_fts
+from ..database.search import hybrid_search_components
 from ..models import (
     Category,
     Component,
@@ -528,12 +528,14 @@ class ComponentService:
 
         # Apply filters
         if search:
-            # Use FTS5 full-text search for better performance and to search specifications
-            component_ids = search_components_fts(search, session=self.db, limit=1000)
+            # Use hybrid search (FTS5 + rapidfuzz) for better recall and typo tolerance
+            component_ids = hybrid_search_components(
+                search, session=self.db, limit=1000, fuzzy_threshold=5
+            )
             if component_ids:
                 query = query.filter(Component.id.in_(component_ids))
             else:
-                # No results from FTS - return empty result
+                # No results from search - return empty result
                 query = query.filter(Component.id.is_(None))
 
         if category:

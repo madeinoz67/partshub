@@ -268,6 +268,136 @@ class ComponentSearchService:
             or_terms = [f'"{term}"*' for term in terms]
             return " OR ".join(or_terms)
 
+    def hybrid_search_components(
+        self,
+        query: str,
+        session: Session | None = None,
+        limit: int = 50,
+        offset: int = 0,
+        fuzzy_threshold: int = 5,
+    ) -> list[str]:
+        """
+        Hybrid search combining FTS5 and rapidfuzz for better results.
+
+        Strategy:
+        1. First use FTS5 for fast exact/prefix matching
+        2. If FTS5 returns fewer than fuzzy_threshold results, supplement with rapidfuzz
+        3. Deduplicate and rank combined results
+
+        Args:
+            query: Search query
+            session: Database session
+            limit: Maximum results to return
+            offset: Number of results to skip
+            fuzzy_threshold: Min FTS5 results before adding fuzzy matches
+
+        Returns:
+            List of component IDs ranked by relevance
+        """
+        if not query or not query.strip():
+            return []
+
+        from rapidfuzz import fuzz
+
+        close_session = False
+        if session is None:
+            session = get_session()
+            close_session = True
+
+        try:
+            # Step 1: Get FTS5 results
+            fts_results = self.search_components(
+                query, session, limit=limit * 2, offset=0
+            )
+
+            # Step 2: If we have enough FTS results, just return them
+            if len(fts_results) >= fuzzy_threshold:
+                logger.debug(
+                    f"Hybrid search: FTS5 returned {len(fts_results)} results, "
+                    f"skipping fuzzy matching"
+                )
+                return fts_results[offset : offset + limit]
+
+            # Step 3: FTS results are limited, add fuzzy matching
+            logger.debug(
+                f"Hybrid search: FTS5 returned {len(fts_results)} results, "
+                f"adding fuzzy matching"
+            )
+
+            # Get all components for fuzzy matching
+            # Only fetch id, name, part_number, manufacturer for scoring
+            from ..models.component import Component
+
+            all_components_query = session.query(
+                Component.id,
+                Component.name,
+                Component.part_number,
+                Component.manufacturer,
+                Component.manufacturer_part_number,
+            ).all()
+
+            # Score each component with rapidfuzz
+            query_lower = query.strip().lower()
+            scored_components = []
+
+            for (
+                comp_id,
+                name,
+                part_num,
+                manufacturer,
+                manuf_part,
+            ) in all_components_query:
+                # Build searchable text from available fields
+                searchable_fields = [
+                    name or "",
+                    part_num or "",
+                    manufacturer or "",
+                    manuf_part or "",
+                ]
+                combined_text = " ".join(searchable_fields).lower()
+
+                # Calculate fuzzy score
+                if not combined_text.strip():
+                    continue
+
+                # Use token_set_ratio for better partial matching
+                score = fuzz.token_set_ratio(query_lower, combined_text)
+
+                # Only include if score is above threshold (50%)
+                if score >= 50:
+                    # Boost score if already in FTS results (exact/prefix match)
+                    if comp_id in fts_results:
+                        score += 20  # Boost FTS matches
+
+                    scored_components.append((comp_id, score))
+
+            # Sort by score descending
+            scored_components.sort(key=lambda x: x[1], reverse=True)
+
+            # Extract IDs and deduplicate (maintain order)
+            seen_ids = set()
+            final_results = []
+            for comp_id, score in scored_components:
+                if comp_id not in seen_ids:
+                    seen_ids.add(comp_id)
+                    final_results.append(comp_id)
+
+            logger.debug(
+                f"Hybrid search: Combined {len(fts_results)} FTS + fuzzy = "
+                f"{len(final_results)} total results"
+            )
+
+            # Apply pagination
+            return final_results[offset : offset + limit]
+
+        except Exception as e:
+            logger.error(f"Error in hybrid search: {e}")
+            # Fallback to FTS-only results
+            return fts_results[offset : offset + limit] if fts_results else []
+        finally:
+            if close_session:
+                session.close()
+
     def get_fts_statistics(self, session: Session | None = None) -> dict:
         """Get statistics about the FTS index."""
         close_session = False
@@ -356,4 +486,33 @@ def search_components_fts(
     """
     return get_component_search_service().search_components(
         query, session, limit, offset
+    )
+
+
+def hybrid_search_components(
+    query: str,
+    session: Session | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    fuzzy_threshold: int = 5,
+) -> list[str]:
+    """
+    Hybrid search combining FTS5 and rapidfuzz for better results.
+
+    First attempts FTS5 for fast exact/prefix matching. If fewer than fuzzy_threshold
+    results are found, supplements with rapidfuzz fuzzy matching for better recall
+    on misspellings and partial matches.
+
+    Args:
+        query: Search query
+        session: Database session to use (creates new one if None)
+        limit: Maximum results
+        offset: Results offset
+        fuzzy_threshold: Minimum FTS5 results before adding fuzzy matches (default: 5)
+
+    Returns:
+        List of component IDs, deduplicated and ranked by relevance
+    """
+    return get_component_search_service().hybrid_search_components(
+        query, session, limit, offset, fuzzy_threshold
     )
