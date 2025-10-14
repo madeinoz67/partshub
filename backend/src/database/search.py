@@ -363,8 +363,8 @@ class ComponentSearchService:
                 # Use token_set_ratio for better partial matching
                 score = fuzz.token_set_ratio(query_lower, combined_text)
 
-                # Only include if score is above threshold (50%)
-                if score >= 50:
+                # Only include if score is above threshold (40% for better recall)
+                if score >= 40:
                     # Boost score if already in FTS results (exact/prefix match)
                     if comp_id in fts_results:
                         score += 20  # Boost FTS matches
