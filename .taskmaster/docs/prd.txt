@@ -1,0 +1,1005 @@
+# Product Requirements Document: PartsHub Home Edition
+**Version**: 2.5
+**Date**: October 14, 2025
+**Status**: Draft
+**Project**: PartsHub Electronic Parts Inventory Management System
+**Architecture**: All-in-One Home-Based Application
+
+## Executive Summary
+
+PartsHub is a modern, web-based inventory management system for electronic components designed for hobbyists, makers, and small electronics workshops. This PRD outlines the next phase of development focusing on practical features that enhance the home electronics workflow while maintaining a simple, all-in-one architecture.
+
+**Key Principle**: Keep it simple - single application, SQLite database, Docker deployment, optimized for home use (1-10 users, 10k-50k components).
+
+## Current State (v0.4.0)
+
+### Core Inventory Management (Implemented)
+
+**Components & Organization:**
+- Wizard-based component creation with fuzzy search autocomplete
+- Component model with comprehensive metadata (part numbers, specifications, descriptions)
+- Bulk operations for multi-component management
+- Custom fields system for extensible component metadata
+- Component substitutes tracking (alternative/equivalent parts)
+- File attachments for datasheets and documentation
+- Meta parts for grouping related components
+
+**Categorization & Tagging:**
+- Hierarchical category system for component organization
+- Flexible tag system for multi-dimensional classification
+- Category-based filtering and search
+
+**Stock & Inventory Tracking:**
+- Inline stock management with transaction history
+- Multi-location stock tracking (component_locations table)
+- Stock transactions with full audit trail (add, remove, transfer, adjust)
+- Lot/batch tracking capabilities
+- Real-time stock level updates
+
+**Storage Management:**
+- Storage location hierarchy and layout generation
+- Multi-level location tracking (warehouse → shelf → bin)
+- Location-based component allocation
+- Storage location metadata and capacity tracking
+
+**Projects & Allocation:**
+- Project model for tracking builds and designs
+- Project-component allocation system
+- Component reservation for specific projects
+- Project-based consumption tracking
+- Project status and completion tracking
+
+**Suppliers & Purchasing:**
+- Supplier database with contact information
+- Purchase tracking system
+- Purchase-to-stock reconciliation
+- Supplier performance data
+- Historical purchase records
+
+**Provider Integration:**
+- Provider integration (LCSC, Digi-Key, Mouser)
+- Provider data caching and synchronization
+- Provider links for component sourcing
+- Resource tracking for provider-specific data
+- Wizard provider integration for component creation
+
+**KiCad Integration (Basic):**
+- KiCad data model for library integration
+- Component-to-KiCad mapping
+- Basic symbol and footprint tracking
+
+**Authentication & API:**
+- JWT authentication and session management
+- API token management for programmatic access
+- User model with role-based access control
+- RESTful API with OpenAPI documentation
+- Comprehensive API endpoints for all models
+
+**Frontend:**
+- Responsive Vue.js 3 + Quasar UI
+- Component-based architecture
+- Real-time updates
+- Mobile-responsive design
+
+### Technology Stack (All-in-One)
+- **Backend**: Python 3.11+, FastAPI, SQLAlchemy, SQLite
+- **Frontend**: Vue.js 3, TypeScript, Quasar Framework, Pinia
+- **Search**: SQLite FTS5 (full-text search), rapidfuzz (fuzzy matching)
+- **Caching**: Python cachetools (in-memory)
+- **Background Tasks**: FastAPI BackgroundTasks
+- **Deployment**: Single Docker container, Docker Compose
+- **CI/CD**: GitHub Actions, automated testing
+
+## Feature Requirements
+
+### FR-001: Advanced Search and Discovery
+
+**Priority**: High
+**Effort**: Medium
+**Dependencies**: None
+
+#### Description
+Enhance search capabilities using lightweight SQLite-based technologies suitable for home deployment.
+
+#### Requirements
+1. **Multi-Criteria Search with SQLite FTS5**
+   - Combine filters: manufacturer, footprint, category, stock level, price range
+   - Boolean operators (AND, OR, NOT) using SQLite query syntax
+   - Search history stored in SQLite with quick access
+   - Enhanced fuzzy matching using existing rapidfuzz library
+
+2. **Saved Searches and Smart Collections**
+   - Save frequently used search queries in SQLite (JSON fields)
+   - Create smart collections that auto-update based on criteria
+   - Simple sharing via export/import JSON files
+
+3. **Natural Language Search (Lightweight)**
+   - Simple pattern matching for queries like "10k resistors in stock"
+   - No external NLP services - use regex and keyword extraction
+   - Typo-tolerant search with improved fuzzy matching
+   - Similar component suggestions based on specifications
+
+4. **Advanced Filters**
+   - Date ranges (added, last modified, last stocked)
+   - Custom field filters for user-defined attributes
+   - Stock threshold filters (low stock, out of stock, overstock)
+   - Provider availability filters
+
+#### Technical Implementation
+- SQLite FTS5 virtual tables for full-text indexing
+- Python cachetools for caching frequent searches (LRU cache)
+- Enhanced rapidfuzz configuration for better fuzzy matching
+- All processing in-process (no external services)
+
+#### Acceptance Criteria
+- Users can combine 5+ filters simultaneously
+- Search results update in <500ms for 50k components
+- Saved searches persist across sessions in SQLite
+- Natural language queries work for common patterns
+
+---
+
+### FR-002: Enhanced KiCad Integration
+
+**Priority**: High
+**Effort**: High
+**Dependencies**: FR-001
+
+#### Description
+**Enhance existing basic KiCad integration** to provide seamless PCB design workflows with bidirectional synchronization, BOM management, and advanced project tracking.
+
+**Current Capabilities:**
+- Basic KiCad data model and component mapping
+- Symbol and footprint tracking
+- Component-to-KiCad associations
+
+**Enhancements:**
+
+#### Requirements
+1. **Bidirectional Synchronization**
+   - Import component data from existing KiCad libraries (parse .kicad_sym files)
+   - Export PartsHub inventory as KiCad-compatible libraries
+   - Store KiCad-specific metadata in SQLite JSON fields
+
+2. **BOM Management**
+   - Import BOM from KiCad projects (CSV format)
+   - Match BOM components to inventory using fuzzy matching
+   - Highlight missing/low-stock components with visual indicators
+   - Generate procurement lists grouped by supplier
+
+3. **Custom Symbol/Footprint Management**
+   - Store custom KiCad symbols as files with SQLite metadata
+   - Associate multiple footprints per component
+   - Simple preview using SVG rendering in browser
+   - Track symbol versions with timestamps
+
+4. **Project-Based Inventory Allocation**
+   - Reserve components for specific projects
+   - Track component consumption during assembly
+   - Update stock levels when marking project components as used
+   - Simple project dashboard showing component status
+
+#### Technical Implementation
+- Parse KiCad files using Python libraries (no external services)
+- Store symbol/footprint files in local filesystem
+- SQLite tables for project tracking
+- Background tasks for BOM processing
+
+#### Acceptance Criteria
+- Import/export KiCad libraries without data loss
+- BOM analysis completes in <10 seconds for 200+ components
+- Symbol preview renders correctly for common formats
+- Stock allocation prevents double-allocation
+
+---
+
+### FR-003: Barcode and QR Code Enhancements
+
+**Priority**: Medium
+**Effort**: Medium
+**Dependencies**: None
+
+#### Description
+Expand barcode functionality for improved inventory tracking with mobile-friendly features.
+
+#### Requirements
+1. **Enhanced Barcode Scanning**
+   - Web-based camera scanning (no native apps required)
+   - Batch scanning mode for multiple components
+   - Support for common formats: Code128, EAN, UPC, QR, DataMatrix
+   - Offline mode with sync when connection restored
+
+2. **Custom QR Code Generation**
+   - Generate QR codes embedding component URLs
+   - Include key data: part number, location, stock level
+   - Batch generate QR code labels with print templates
+   - Export as PNG or PDF for label printing
+
+3. **Mobile-Responsive Scanning**
+   - Progressive Web App (PWA) for offline capability
+   - Touch-optimized scanning interface
+   - Haptic feedback on successful scan (where supported)
+   - Simple audit mode: scan locations to verify inventory
+
+4. **Barcode Workflows**
+   - Scan-to-view component details
+   - Scan-to-update stock levels
+   - Scan-to-move between storage locations
+   - Scan-to-add to project BOM
+
+#### Technical Implementation
+- Browser-based scanning using Web APIs (no native apps)
+- QR code generation with Python libraries (qrcode, Pillow)
+- SQLite for tracking scan history
+- Service workers for offline PWA functionality
+
+#### Acceptance Criteria
+- Scan workflow completes in <3 seconds per code
+- PWA works offline and syncs on reconnect
+- QR codes work with standard smartphone cameras
+- Label templates support common label sizes
+
+---
+
+### FR-004: Advanced Stock Management
+
+**Priority**: High
+**Effort**: Medium
+**Dependencies**: FR-001
+
+#### Description
+**Enhance existing stock management** with automated reorder alerts, usage analytics, and predictive features for practical home inventory management.
+
+**Current Capabilities:**
+- Stock transactions with full audit trail (add, remove, transfer, adjust)
+- Multi-location stock tracking
+- Lot/batch tracking
+- Real-time stock level updates
+- Transaction history
+
+**Enhancements:**
+
+#### Requirements
+1. **Reorder Alerts (Simple)**
+   - Set minimum stock levels per component
+   - Email/web notifications when stock falls below threshold
+   - Suggested reorder quantities based on recent usage
+   - Simple lead time tracking for planning
+
+2. **Multi-Location Stock Tracking**
+   - Track same component across multiple storage areas
+   - Transfer stock between locations with transaction log
+   - Location-specific stock views and reports
+
+3. **Stock Analytics (SQLite-Based)**
+   - Usage trend charts using aggregated transaction data
+   - Identify slow-moving stock (no usage in 90+ days)
+   - Cost analysis: average cost, total value
+   - Simple forecasting using moving averages
+
+4. **Lot and Batch Tracking**
+   - Lot number management for traceable components
+   - Expiration date tracking (for chemicals, solder paste)
+   - FIFO picking suggestions
+   - Simple recall workflow for problematic lots
+
+#### Technical Implementation
+- SQLite triggers for automatic reorder detection
+- Background tasks for daily analytics calculation
+- Python email for notifications (SMTP)
+- Charts using Chart.js in frontend
+
+#### Acceptance Criteria
+- Reorder alerts check every hour via background task
+- Analytics dashboard loads in <3 seconds
+- Stock tracking handles 50k+ components efficiently
+- FIFO suggestions are correct based on timestamp
+
+---
+
+### FR-005: Basic Multi-User Features
+
+**Priority**: Medium
+**Effort**: Medium
+**Dependencies**: None
+
+#### Description
+Simple multi-user support for families or small workshop teams (2-10 users).
+
+#### Requirements
+1. **Simple User Management**
+   - Basic role-based access: Admin, Editor, Viewer
+   - User management UI for admins
+   - JWT authentication (already implemented)
+   - Password reset via email
+
+2. **Activity Log**
+   - Simple activity feed showing recent changes
+   - Track who changed what and when
+   - Filter by user, action type, date range
+   - Export activity log as CSV
+
+3. **Basic Commenting**
+   - Add notes to components (stored in SQLite)
+   - Timestamp and user attribution
+   - Edit/delete own comments
+   - Simple markdown formatting
+
+4. **Simple Notifications**
+   - In-app notifications for stock changes
+   - Email notifications for reorder alerts
+   - Configurable notification preferences per user
+
+#### Technical Implementation
+- SQLite tables for users, activity_log, comments
+- FastAPI endpoints for user management
+- Python email for notifications
+- Vue.js notification component
+
+#### Acceptance Criteria
+- Support 10 concurrent users
+- Activity log performs well with 100k+ entries
+- Notifications deliver within 5 minutes
+- User management requires <5 clicks per user
+
+---
+
+### FR-006: Enhanced Supplier Management and Parts Ordering
+
+**Priority**: High
+**Effort**: High
+**Dependencies**: FR-004
+
+#### Description
+**Enhance existing supplier and purchase tracking** to provide comprehensive ordering workflows optimized for home electronics hobbyists, with support for direct provider API ordering.
+
+**Current Capabilities:**
+- Supplier database with contact information
+- Basic purchase tracking system
+- Purchase history and records
+- Supplier performance data
+
+**Enhancements:**
+
+#### Requirements
+1. **Supplier Database**
+   - Store supplier contact info, websites, and account details
+   - Track preferred suppliers per component with priority ranking
+   - Supplier notes, payment methods, shipping costs
+   - Import/export supplier data via CSV
+   - Track supplier performance (delivery time, order accuracy)
+
+2. **Smart Order Creation**
+   - Create orders from multiple sources:
+     - Reorder alerts (low stock components)
+     - Shopping lists (manual curation)
+     - BOM requirements (KiCad project integration)
+     - Quick-add from component page
+   - Auto-suggest supplier based on:
+     - Price + shipping cost optimization
+     - Stock availability from provider APIs
+     - Historical supplier performance
+     - Component MOQ (minimum order quantity)
+   - Consolidate components by supplier to minimize shipping
+
+3. **Order Management Workflow**
+   - **Order States**: Draft → Placed → Shipped → Received → Completed
+   - Track order details:
+     - Order number (internal + supplier reference)
+     - Order date, expected delivery date
+     - Total cost breakdown (items, shipping, tax)
+     - Tracking numbers with carrier links
+     - Payment method and status
+   - Order actions:
+     - Edit draft orders
+     - Mark as placed (manual or API)
+     - Update tracking info
+     - Partial receive (split shipments)
+     - Cancel orders
+   - Email notifications at each state change
+
+4. **Direct Provider Ordering (Where Supported)**
+   - One-click ordering via provider APIs (LCSC, Digi-Key, Mouser)
+   - API-based cart management
+   - Automatic price and availability refresh
+   - Order placement with saved payment methods (provider-side)
+   - Automatic order status sync
+   - Handle API failures gracefully (fallback to manual)
+
+5. **Receiving Workflow**
+   - Scan-to-receive: Barcode/QR scanning for fast receiving
+   - Line-item receiving with quantity verification
+   - Flag discrepancies (missing items, wrong quantity, damage)
+   - Batch receive (mark entire order as received)
+   - Auto-update stock levels transactionally
+   - Attach photos of received items (quality control)
+   - Print received labels with QR codes
+
+6. **Price Tracking and Optimization**
+   - Real-time price updates from provider APIs
+   - Price history charts per component (6-month view)
+   - Price alert notifications (>20% increase/decrease)
+   - Cost comparison across suppliers
+   - Track bulk discount tiers
+   - Suggest optimal order quantities
+   - Total cost of ownership (TCO) calculator (price + shipping + time)
+
+7. **Order History and Analytics**
+   - Order history with search and filters
+   - Monthly spend by supplier
+   - Most ordered components
+   - Average delivery time by supplier
+   - Order success rate (received vs placed)
+   - Export order history to CSV/Excel
+
+#### Technical Implementation
+- **Database**:
+  - SQLite tables: suppliers, orders, order_items, order_history, price_tracking
+  - Foreign keys ensure referential integrity
+  - Transactions for atomic stock updates
+- **Provider API Integration**:
+  - LCSC API for automated ordering
+  - Digi-Key/Mouser APIs for pricing and availability
+  - Fallback to web UI for unsupported providers
+  - Rate limiting and caching to avoid API quotas
+- **Background Tasks**:
+  - Daily price refresh for active components
+  - Order status sync (every 6 hours)
+  - Delivery date notifications
+- **Frontend**:
+  - Vue.js order management dashboard
+  - Drag-and-drop to reorganize order items
+  - Shopping cart UI for order creation
+  - Barcode scanning for receiving
+
+#### Integration Points
+- **FR-004 (Stock Management)**: Reorder alerts create draft orders
+- **FR-002 (KiCad Integration)**: BOM creates multi-component orders
+- **FR-003 (Barcode Scanning)**: Scan-to-receive workflow
+- **FR-011 (LLM Metadata)**: Extract supplier info from order confirmations
+
+#### Acceptance Criteria
+- Create order in <3 clicks from reorder alert
+- Support 100+ suppliers and 1000+ orders
+- Direct ordering works for 80%+ of components (LCSC/Digi-Key)
+- Receiving updates stock within 2 seconds
+- Price tracking shows 6+ months history
+- Order consolidation reduces shipping costs by >25%
+- Scan-to-receive processes 10+ items per minute
+- API failures degrade gracefully to manual workflow
+- All order operations are atomic (no partial updates)
+
+---
+
+### FR-007: Built-in Reporting
+
+**Priority**: Medium
+**Effort**: Medium
+**Dependencies**: FR-004
+
+#### Description
+Simple, pre-built reports for common inventory needs.
+
+#### Requirements
+1. **Pre-Built Reports**
+   - Inventory valuation (total value by category)
+   - Stock movement report (date range)
+   - Low stock and reorder report
+   - Component usage by project
+   - Supplier spend analysis
+
+2. **Export Capabilities**
+   - Export reports to CSV, Excel (XLSX)
+   - Export to PDF for printing
+   - Include charts in PDF exports
+   - Scheduled exports via background tasks (optional)
+
+3. **Simple Dashboard**
+   - Overview page with key metrics
+   - Total component count, total value
+   - Low stock items count
+   - Recent activity summary
+   - Quick links to common tasks
+
+4. **Basic Charts**
+   - Stock level distribution (pie chart)
+   - Value by category (bar chart)
+   - Stock movement over time (line chart)
+   - Top 10 most/least used components
+
+#### Technical Implementation
+- SQLite queries for report data
+- Python libraries: pandas (CSV/Excel), ReportLab (PDF)
+- Chart.js for frontend charts
+- Background tasks for scheduled reports
+
+#### Acceptance Criteria
+- Reports generate in <5 seconds for 50k components
+- Exports include all relevant data
+- Dashboard loads in <2 seconds
+- Charts are interactive and responsive
+
+---
+
+### FR-008: Progressive Web App (PWA)
+
+**Priority**: Medium
+**Effort**: Medium
+**Dependencies**: FR-003
+
+#### Description
+Make the existing web UI work offline as a PWA for mobile inventory management.
+
+#### Requirements
+1. **Offline Capability**
+   - Service worker for offline asset caching
+   - IndexedDB for offline data storage
+   - Sync changes when back online
+   - Clear offline indicators in UI
+
+2. **Mobile-Optimized UI**
+   - Touch-friendly interface (already responsive)
+   - Dark mode for workshop environments
+   - Large tap targets for scanning workflows
+   - Swipe gestures for common actions
+
+3. **Install Prompts**
+   - "Add to Home Screen" prompts
+   - App manifest for proper PWA installation
+   - Custom app icons and splash screens
+
+4. **Core Offline Workflows**
+   - View component details offline
+   - Update stock levels (sync later)
+   - Scan barcodes offline
+   - View recent activity
+
+#### Technical Implementation
+- Service worker with Workbox
+- IndexedDB for offline data
+- Background sync API for queued updates
+- Vue.js PWA plugin
+
+#### Acceptance Criteria
+- App works fully offline after first load
+- Syncs changes within 1 minute of reconnection
+- PWA installs successfully on iOS and Android
+- Offline storage handles 10k+ components
+
+---
+
+### FR-009: AI-Powered Features (Lightweight)
+
+**Priority**: Low
+**Effort**: High
+**Dependencies**: FR-001, FR-004
+
+#### Description
+Practical AI/ML features using lightweight models suitable for home deployment.
+
+#### Requirements
+1. **Intelligent Component Matching**
+   - Suggest component substitutes using similarity scoring
+   - Find equivalent parts from different manufacturers
+   - Use specification-based similarity (resistance, voltage, etc.)
+   - Learn from user selections to improve suggestions
+
+2. **Usage Prediction**
+   - Simple time-series forecasting for component usage
+   - Predict reorder needs 30 days ahead
+   - Identify seasonal usage patterns
+   - Suggest optimal stock levels based on history
+
+3. **Natural Language Search Enhancement**
+   - Understand queries like "blue LEDs under 50 cents"
+   - Extract specifications from free-text descriptions
+   - Auto-suggest search refinements
+   - Context-aware search ranking
+
+4. **Datasheet Processing (Optional)**
+   - Extract specifications from PDF datasheets using OCR
+   - Auto-populate component fields from datasheet
+   - Store extracted text in SQLite FTS5 for searching
+   - Manual verification/correction workflow
+
+#### Technical Implementation
+- **Lightweight ML Models**: scikit-learn for predictions (no TensorFlow/PyTorch)
+- **Local Processing**: All AI runs in-process, no external APIs
+- **Simple NLP**: spaCy (small models) or regex patterns
+- **OCR**: Tesseract via Python (optional feature)
+- **Caching**: Cache predictions in SQLite to avoid recomputation
+
+#### Acceptance Criteria
+- Component matching suggestions >80% relevant
+- Usage predictions reasonable for components with 6+ months history
+- Natural language search handles common queries
+- OCR extraction works for standard datasheet formats
+- All processing completes in <5 seconds
+
+---
+
+### FR-010: Data Import and Migration Tools
+
+**Priority**: High
+**Effort**: Medium
+**Dependencies**: None
+
+#### Description
+Robust tools for importing existing inventory from common formats.
+
+#### Requirements
+1. **Import Formats**
+   - CSV/Excel with flexible column mapping
+   - Import from InvenTree, PartKeepr exports
+   - Import from KiCad library files
+   - Direct API import for bulk operations
+
+2. **Import Wizard**
+   - Step-by-step import process
+   - Preview import with validation
+   - Map columns to PartsHub fields
+   - Detect and skip duplicate components
+   - Show import progress with detailed log
+
+3. **Validation and Error Handling**
+   - Pre-import validation rules
+   - Clear error messages for invalid data
+   - Option to skip or fix invalid rows
+   - Rollback option for failed imports
+
+4. **Data Transformation**
+   - Unit conversions (nF ↔ µF, mil ↔ mm)
+   - Format standardization (footprint names)
+   - Batch operations for corrections
+   - Support for custom transformation scripts (Python)
+
+#### Technical Implementation
+- Python pandas for CSV/Excel parsing
+- SQLite transactions for atomic imports
+- Background tasks for large imports
+- Vue.js wizard component with progress bar
+
+#### Acceptance Criteria
+- Import 10,000 components in <2 minutes
+- Column mapping saves as template for reuse
+- Error rate <1% with proper validation
+- Support 95% of standard CSV formats
+
+---
+
+### FR-011: LLM-Enhanced Component Metadata
+
+**Priority**: High
+**Effort**: Medium
+**Dependencies**: None
+
+#### Description
+Use Large Language Models to intelligently extract, enhance, and validate component metadata from provider sources, replacing brittle web scraping with robust AI-powered workflows.
+
+#### Requirements
+1. **Provider Data Extraction**
+   - LLM-based extraction from provider product pages (LCSC, Digi-Key, Mouser)
+   - Parse unstructured product descriptions into structured fields
+   - Extract specifications from free-text descriptions
+   - Handle multiple data formats and layouts automatically
+   - Fallback to existing web scraping if LLM extraction fails
+
+2. **Intelligent Field Mapping**
+   - Automatically map provider fields to PartsHub schema
+   - Normalize units (e.g., "1uF" → "1µF", "10k ohms" → "10kΩ")
+   - Standardize manufacturer names (fuzzy matching)
+   - Suggest component categories based on description
+   - Detect and flag ambiguous or conflicting data
+
+3. **Metadata Enhancement**
+   - Generate descriptive summaries from technical specs
+   - Suggest appropriate footprints based on package info
+   - Extract related/compatible components from descriptions
+   - Auto-tag components (e.g., "surface-mount", "automotive-grade")
+   - Infer missing fields from context (e.g., voltage rating from part number)
+
+4. **Quality Validation**
+   - Validate extracted data against known patterns
+   - Flag suspicious values (e.g., "1000000V" capacitor)
+   - Cross-reference specifications for consistency
+   - Suggest corrections for common errors
+   - Confidence scoring for extracted fields
+
+5. **Anti-Hallucination Safeguards**
+   - **Structured Output Only**: Use JSON mode/function calling (no free-text parsing)
+   - **Source Verification**: Always include source URL and extraction timestamp
+   - **Range Validation**: Check values against component type ranges (e.g., resistor 0.1Ω-100MΩ)
+   - **Confidence Thresholds**: Reject extractions with <80% confidence
+   - **Human-in-the-Loop**: Always show user extracted data before saving
+   - **Diff View**: Highlight LLM-populated fields vs user-entered fields
+   - **Audit Trail**: Log all LLM extractions with model, prompt, response
+   - **Rollback**: Allow user to revert to pre-LLM data
+   - **Critical Fields Protected**: Voltage, current, power ratings require explicit user confirmation
+   - **Cross-Validation**: Compare LLM extraction with existing web scraping (if available)
+   - **Known Good Database**: Build database of verified extractions to detect drift
+
+#### Technical Implementation
+- **AI Framework (Structured Workflows)**:
+  - **Primary**: PydanticAI for type-safe validation and structured outputs
+  - **Alternative**: LangGraph for complex multi-step workflows
+  - **Fallback**: LangChain for general LLM orchestration
+  - **Benefits**: Type safety, validation, retry logic, observability
+- **LLM Options (User Configurable)**:
+  - **Cloud APIs**: OpenAI GPT-4o-mini, Anthropic Claude Haiku (low cost, fast)
+  - **Local Models**: Ollama with Llama 3 8B, Mistral 7B (privacy, no API costs)
+  - **Structured Output**: Use Pydantic models for guaranteed schema compliance
+- **Validation Pipeline**:
+  - Step 1: LLM extraction → Pydantic model validation
+  - Step 2: Range validation (component type specific)
+  - Step 3: Confidence scoring (reject <80%)
+  - Step 4: User review (diff view)
+- **Caching**: Cache provider page extractions in SQLite (6-month TTL)
+- **Background Processing**: Use FastAPI BackgroundTasks for non-blocking extraction
+- **Fallback Chain**: PydanticAI extraction → Web scraping → Manual entry
+- **Cost Control**: Cache aggressively, use small/efficient models, retry with exponential backoff
+
+#### Integration Points
+- **Component Creation Wizard**: Auto-populate fields when user pastes provider URL
+- **Bulk Import**: Process CSV imports with LLM enrichment
+- **Provider Sync**: Scheduled background updates for price/availability
+- **Manual Override**: Always allow user to review and edit LLM suggestions
+
+#### Acceptance Criteria
+- Extract 90%+ of fields accurately from provider pages
+- Process component in <3 seconds (cloud API) or <10 seconds (local model)
+- Reduce manual data entry time by 70%+
+- Cost <$0.01 per component extraction (cloud API)
+- Graceful degradation when LLM unavailable
+- **Safety**: Zero tolerance for hallucinated critical specs (voltage, current, power)
+- **Transparency**: 100% of LLM extractions show confidence scores
+- **Human Review**: All extractions require explicit user confirmation before save
+- **Audit**: Complete audit trail for all LLM operations (model, timestamp, input/output)
+
+---
+
+## Non-Functional Requirements
+
+### NFR-001: Performance (Home Scale)
+- API response time: <200ms for 95% of requests
+- Database queries: <100ms for typical queries
+- Frontend page load: <2 seconds on 4G connection
+- Handle 10 concurrent users comfortably
+- Support inventory of 50,000 components
+- SQLite database size: <500MB for typical use
+
+### NFR-002: Security (Home Use)
+- HTTPS required (Let's Encrypt certificates)
+- Secure password hashing (bcrypt)
+- JWT tokens with reasonable expiration
+- Basic SQL injection prevention (SQLAlchemy ORM)
+- Regular security updates
+- Optional 2FA using TOTP
+
+### NFR-003: Reliability (Home Server)
+- Automated SQLite backups daily
+- Export/import for disaster recovery
+- Graceful handling of browser disconnects
+- Transaction integrity for stock operations
+- Health check endpoints for monitoring
+
+### NFR-004: Usability
+- Mobile-responsive design (already implemented)
+- Keyboard navigation support
+- Context-sensitive help tooltips
+- Undo for accidental operations
+- Dark mode support
+
+### NFR-005: Maintainability
+- Comprehensive API documentation
+- Code coverage >70% for critical paths
+- Automated tests in CI/CD
+- Clear upgrade path between versions
+- Self-contained: minimal external dependencies
+
+### NFR-006: Deployment (Home Friendly)
+- Single Docker container deployment
+- Docker Compose for easy setup
+- Volume mounts for data persistence
+- Environment variable configuration
+- Works on Raspberry Pi 4 (ARM64)
+- Resource usage: <1GB RAM, <50% CPU (idle)
+
+### NFR-007: LLM Safety and Transparency
+- **No Silent Automation**: LLM never auto-saves data without user review
+- **Explainability**: Show user why LLM made each suggestion
+- **Confidence Display**: Visual indicators (high/medium/low confidence)
+- **Critical Field Protection**: Voltage, current, power ratings require explicit confirmation
+- **Audit Logging**: All LLM interactions logged with full context
+- **Rollback Capability**: User can revert any LLM-populated data
+- **Offline Graceful Degradation**: System fully functional without LLM
+- **Cost Visibility**: Show user monthly LLM API costs (if using cloud)
+- **Model Selection**: User chooses between cloud (fast) and local (private)
+- **Data Privacy**: Option to use local models (no data leaves system)
+
+## Technical Requirements
+
+### TR-001: Backend Stack (Simplified)
+- **Database**: SQLite only (no PostgreSQL)
+- **Caching**: Python cachetools (in-memory LRU cache)
+- **Background Tasks**: FastAPI BackgroundTasks
+- **Search**: SQLite FTS5 for full-text, rapidfuzz for fuzzy
+- **File Storage**: Local filesystem (volume mounts)
+- **Email**: Python smtplib or SendGrid API (optional)
+- **LLM Integration**: OpenAI/Anthropic APIs or Ollama (local models)
+- **AI Frameworks**: PydanticAI (primary), LangGraph (workflows), LangChain (fallback)
+- **Validation**: Pydantic v2 for schema validation and structured outputs
+
+### TR-002: Frontend Improvements
+- Progressive Web App (PWA) with service workers
+- IndexedDB for offline data persistence
+- WebSocket for real-time updates (optional)
+- Bundle size: <800KB initial load
+- Lazy loading for routes and heavy components
+
+### TR-003: Deployment (Docker)
+- Single Docker image with multi-stage build
+- Docker Compose with volumes for data/backups
+- Health check endpoint for monitoring
+- Automatic backups to mounted volume
+- Optional reverse proxy (Traefik/Nginx) setup
+
+### TR-004: API Standards
+- RESTful API following OpenAPI 3.1
+- Rate limiting per user (in-memory)
+- API versioning via URL path (/api/v1)
+- Webhook support for key events (optional)
+- GraphQL endpoint (optional, future)
+
+### TR-005: Testing Requirements
+- Backend: pytest with >70% coverage
+- Frontend: Vitest for unit tests
+- E2E: Playwright for critical paths
+- API: OpenAPI contract testing
+- Performance: Basic load testing with pytest-benchmark
+
+## Success Metrics
+
+### User Adoption (Home/Hobbyist Scale)
+- Active installations: 1,000 by end of year 1
+- GitHub stars: >500
+- User satisfaction: >4.0/5.0 in feedback
+- Documentation completion rate: >90%
+
+### Performance Metrics
+- Page load: <2 seconds (95th percentile)
+- API response: <200ms (95th percentile)
+- Error rate: <0.5% of requests
+- Docker startup: <30 seconds
+
+### Community Metrics
+- GitHub issues resolved: >80% within 30 days
+- Active contributors: >10
+- Documentation coverage: >80% of features
+- Tutorial completion rate: >70%
+
+## Project Phases (Home Edition)
+
+### Phase 1: Foundation (Q1 2026)
+- FR-001: Advanced Search with SQLite FTS5
+- FR-010: Data Import Tools
+- FR-011: LLM-Enhanced Component Metadata
+- NFR-001: Performance optimization
+- TR-001: Backend architecture refinements
+
+### Phase 2: KiCad & Tracking (Q2 2026)
+- FR-002: Enhanced KiCad Integration
+- FR-003: Barcode/QR Enhancements
+- FR-004: Advanced Stock Management
+- TR-002: PWA implementation
+
+### Phase 3: Multi-User & Reports (Q3 2026)
+- FR-005: Basic Multi-User Features
+- FR-006: Enhanced Supplier Management and Parts Ordering
+- FR-007: Built-in Reporting
+- NFR-002: Security improvements
+
+### Phase 4: Intelligence (Q4 2026)
+- FR-008: PWA refinements
+- FR-009: AI-Powered Features (lightweight)
+- NFR-003: Reliability improvements
+- Community features and polish
+
+## Risk Assessment
+
+### High Risk
+- **SQLite performance at scale**: Mitigation - Optimize indexes, WAL mode
+- **LLM hallucinations on critical specs**: Mitigation - Mandatory human review, range validation, confidence thresholds, audit trail
+- **LLM API costs spiraling**: Mitigation - Aggressive caching, local model option, cost dashboard, rate limiting
+- **Offline sync complexity**: Mitigation - Limit offline operations
+
+### Medium Risk
+- **User adoption**: Mitigation - Great docs, easy setup
+- **KiCad format changes**: Mitigation - Version detection, graceful degradation
+- **Hardware limitations**: Mitigation - Test on Raspberry Pi, optimize
+
+### Low Risk
+- **Browser compatibility**: Mitigation - Test on Chrome, Firefox, Safari
+- **Dark mode consistency**: Mitigation - CSS variables, design system
+
+## Dependencies
+
+### External Libraries (Minimal)
+- Component provider APIs (LCSC, Digi-Key, Mouser)
+- Optional: Email service (SendGrid, SMTP)
+- Optional: Let's Encrypt for HTTPS
+
+### Internal Dependencies
+- Docker for deployment
+- SQLite 3.35+ (FTS5 support)
+- Python 3.11+ (backend)
+- Node.js 18+ (frontend build)
+
+## Appendix
+
+### AI Framework Strategy
+
+PartsHub uses a layered approach to LLM integration for safety, maintainability, and flexibility:
+
+**Primary: PydanticAI**
+- Type-safe structured outputs with Pydantic v2 validation
+- Automatic retry logic with exponential backoff
+- Built-in observability and logging
+- Zero hallucination tolerance with schema enforcement
+- Best for: Component metadata extraction, field validation
+
+**Secondary: LangGraph**
+- Stateful workflows with graph-based orchestration
+- Multi-step processes with branching logic
+- Error recovery and fallback paths
+- Best for: Complex workflows (e.g., BOM processing, multi-source enrichment)
+
+**Fallback: LangChain**
+- Mature ecosystem with extensive integrations
+- General-purpose LLM application framework
+- Wide model support (OpenAI, Anthropic, Ollama, etc.)
+- Best for: Exploratory features, prototyping
+
+**Why This Stack?**
+1. **Type Safety**: Pydantic models prevent invalid data at compile time
+2. **Validation**: Multi-layer validation (schema → range → confidence → human)
+3. **Observability**: Built-in logging for debugging and auditing
+4. **Flexibility**: Easy to swap models (cloud ↔ local) without code changes
+5. **Cost Control**: Aggressive caching, retry logic, model selection
+
+### Glossary
+- **BOM**: Bill of Materials - List of components for a project
+- **FTS5**: Full-Text Search extension for SQLite
+- **FIFO**: First In, First Out - Inventory rotation principle
+- **KiCad**: Open-source PCB design software
+- **LangChain**: Python framework for building LLM applications with chains and agents
+- **LangGraph**: LangChain library for building stateful, multi-actor applications with LLMs
+- **LLM**: Large Language Model - AI model for text processing
+- **MOQ**: Minimum Order Quantity - Smallest quantity a supplier will sell
+- **PO**: Purchase Order - Formal order document for procurement
+- **PydanticAI**: Type-safe AI framework using Pydantic models for structured outputs
+- **PWA**: Progressive Web App - Web app with offline capability
+- **TCO**: Total Cost of Ownership - Price + shipping + time cost
+
+### References
+- SQLite FTS5: https://www.sqlite.org/fts5.html
+- KiCad File Formats: https://dev-docs.kicad.org/en/file-formats/
+- FastAPI: https://fastapi.tiangolo.com/
+- Vue.js 3: https://vuejs.org/
+- PWA Guide: https://web.dev/progressive-web-apps/
+- PydanticAI: https://ai.pydantic.dev/
+- LangGraph: https://langchain-ai.github.io/langgraph/
+- LangChain: https://python.langchain.com/
+- Pydantic v2: https://docs.pydantic.dev/latest/
+- Ollama: https://ollama.ai/
+- LCSC API: https://www.lcsc.com/api
+- Digi-Key API: https://developer.digikey.com/
+- Mouser API: https://www.mouser.com/api-hub/
+
+### Change Log
+- v2.5 (2025-10-14): **MAJOR UPDATE** - Documented complete existing functionality (projects, suppliers, purchases, categories, tags, custom fields, attachments, substitutes, meta parts, component locations). Updated FR-002, FR-004, FR-006 to reflect they are enhancements of existing features, not new features. This prevents task duplication and ensures proper baseline understanding.
+- v2.4 (2025-10-14): Enhanced FR-006 with comprehensive parts ordering functionality (direct provider ordering, scan-to-receive, smart order creation)
+- v2.3 (2025-10-14): Specified AI frameworks (PydanticAI, LangGraph, LangChain) for structured LLM workflows
+- v2.2 (2025-10-14): Added comprehensive anti-hallucination safeguards to FR-011, new NFR-007 for LLM safety
+- v2.1 (2025-10-14): Added FR-011 LLM-Enhanced Component Metadata
+- v2.0 (2025-10-14): Revised for home-based all-in-one architecture
+- v1.0 (2025-10-14): Initial enterprise-focused PRD (superseded)

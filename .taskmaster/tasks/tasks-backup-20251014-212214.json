@@ -1,0 +1,202 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Implement Advanced Search Infrastructure",
+        "description": "Set up the foundation for advanced search capabilities including multi-criteria filtering, saved searches, and semantic search enhancements.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Implement SQLite FTS5 for full-text search capabilities with custom analyzers for component specifications. Use Python's cachetools library for caching search results and user search history. Create a new SearchService class in Python with:\n- Multi-criteria filter builder using SQLAlchemy's ORM\n- Saved search functionality with PostgreSQL JSONB fields\n- Fuzzy matching with enhanced rapidfuzz 2.2.2 for typo tolerance\n\nFrontend implementation:\n- Create SearchQueryBuilder component in Vue 3 with Quasar's QSelect and QChip components\n- Implement search history persistence using Pinia store with IndexedDB fallback\n- Add natural language processing UI with QInput and QAutocomplete\n\nAPI endpoints:\n- POST /api/v2/search with request body for complex queries\n- GET /api/v2/saved-searches for saved searches\n- GET /api/v2/semantic-search for natural language queries",
+        "testStrategy": "Test with 10,000+ components to verify search results within 500ms. Validate saved searches persist across sessions. Test natural language queries for common use cases (e.g., 'find all 10k resistors in stock'). Verify fuzzy matching handles typos like 'resistor' → 'resistors'.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement SQLite FTS5 with custom analyzers",
+            "description": "Set up SQLite FTS5 for full-text search with custom analyzers for component specifications. Configure tokenizer for component names, descriptions, and specifications.",
+            "dependencies": [],
+            "details": "Create FTS5 virtual table with custom tokenizer using SQLite's FTS5 extension. Implement analyzer for component specifications using regex patterns. Test with sample component data.",
+            "status": "pending",
+            "testStrategy": "Verify search results match component specifications. Test with 10,000+ components to ensure search results within 500ms."
+          },
+          {
+            "id": 2,
+            "title": "Create SearchService class with multi-criteria filter builder",
+            "description": "Develop SearchService class with SQLAlchemy ORM-based filter builder for multi-criteria search.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement filter builder using SQLAlchemy's ORM. Create methods for building complex queries with AND/OR conditions. Add support for component specifications and stock status.",
+            "status": "pending",
+            "testStrategy": "Test with complex queries including multiple criteria. Verify query execution time <500ms for 10,000+ components."
+          },
+          {
+            "id": 3,
+            "title": "Implement saved search functionality with PostgreSQL JSONB",
+            "description": "Create saved search functionality using PostgreSQL JSONB fields for storing search parameters.",
+            "dependencies": [
+              2
+            ],
+            "details": "Add saved_searches table with JSONB field for search parameters. Implement methods to save, load, and execute saved searches. Add user authentication for saved searches.\n<info added on 2025-10-14T12:59:31.425Z>\nAdd saved_searches table with TEXT column storing JSON string for search parameters. Implement methods to save, load, and execute saved searches using SQLite's JSON1 extension for querying JSON data. Add user authentication for saved searches.\n</info added on 2025-10-14T12:59:31.425Z>",
+            "status": "pending",
+            "testStrategy": "Verify saved searches persist across sessions. Test with 100+ saved searches to ensure performance."
+          },
+          {
+            "id": 4,
+            "title": "Integrate cachetools for search result caching",
+            "description": "Implement caching for search results and user search history using Python's cachetools library.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Configure LRU cache with 1000 items. Implement cache key generation based on query parameters. Add cache invalidation for stock updates.",
+            "status": "pending",
+            "testStrategy": "Test cache hit rate >90% for repeated searches. Verify cache invalidation works when stock changes."
+          },
+          {
+            "id": 5,
+            "title": "Implement fuzzy matching with rapidfuzz 2.2.2",
+            "description": "Add fuzzy matching capabilities using rapidfuzz 2.2.2 for typo tolerance in search queries.",
+            "dependencies": [
+              2
+            ],
+            "details": "Integrate rapidfuzz for string similarity calculations. Implement fuzzy matching for component names and descriptions. Add configuration for match thresholds.",
+            "status": "pending",
+            "testStrategy": "Test with common typos like 'resistor' → 'resistors'. Verify match accuracy >85% for 100+ test cases."
+          },
+          {
+            "id": 6,
+            "title": "Create Vue 3 SearchQueryBuilder component",
+            "description": "Develop SearchQueryBuilder component in Vue 3 with Quasar's QSelect and QChip components.",
+            "dependencies": [
+              3,
+              4,
+              5
+            ],
+            "details": "Build UI with QSelect for criteria selection and QChip for applied filters. Implement search history persistence using Pinia store. Add natural language processing UI with QInput and QAutocomplete.",
+            "status": "pending",
+            "testStrategy": "Test with 10+ different search criteria combinations. Verify search history persists across sessions."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Enhance KiCad Integration",
+        "description": "Implement bidirectional synchronization between PartsHub and KiCad, including BOM management and custom symbol handling.",
+        "details": "Backend implementation:\n- Create KiCadLibraryService using kicad-library-parser 1.2.3 to handle KiCad library formats\n- Implement bidirectional sync with:\n  * POST /api/v2/kicad/sync for sending data to KiCad\n  * GET /api/v2/kicad/sync for receiving data from KiCad\n- Add BOM analysis with:\n  * POST /api/v2/bom/analyze for BOM processing\n  * GET /api/v2/bom/procurement for procurement lists\n- Implement symbol management with:\n  * POST /api/v2/symbols for custom symbol storage\n  * GET /api/v2/symbols/:id for symbol retrieval\n\nFrontend implementation:\n- Create KiCadIntegrationPage with:\n  * QUploader for library uploads\n  * QTree for symbol/footprint management\n  * QDialog for BOM analysis results\n- Add symbol preview using SVG.js 3.0.2\n\nDatabase changes:\n- Add kicad_sync table with:\n  * component_id (FK)\n  * sync_type (enum: 'import', 'export')\n  * sync_timestamp\n  * status (enum: 'pending', 'completed', 'failed')",
+        "testStrategy": "Test import/export of 100+ component libraries without data loss. Verify BOM analysis completes in <5 seconds for 100+ components. Validate symbol preview renders correctly. Test stock allocation prevents overselling by attempting to reserve more components than available.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Barcode and QR Code Enhancements",
+        "description": "Develop advanced barcode scanning capabilities and QR code generation for inventory management.",
+        "details": "Frontend implementation:\n- Create BarcodeScanner component using vue3-qr-reader 2.1.0 with:\n  * Multi-barcode detection using OpenCV.js 4.5.5\n  * Batch scanning mode with QBtnGroup\n  * Offline scanning with Workbox 6.5.0\n  * Support for DataMatrix and Aztec codes\n- Implement QRCodeGenerator using qrcode.js 1.5.0 with:\n  * Customizable templates with Vue 3 slots\n  * Batch label printing with html2pdf 0.10.1\n  * Support for thermal printer formats\n\nBackend implementation:\n- Add /api/v2/barcodes endpoint for:\n  * Barcode validation\n  * Batch processing\n  * QR code generation\n- Implement barcode scanning service with:\n  * Workbox for offline caching\n  * Service workers for background sync\n\nPWA implementation:\n- Add manifest.json with:\n  * Short_name: 'PartsHub Mobile'\n  * Start_url: '/mobile'\n  * Icons for different resolutions\n- Implement offline-first architecture with:\n  * IndexedDB for local storage\n  * Background sync with Workbox\n\nTesting:\n- Test scanning 5+ barcodes per second in batch mode\n- Verify PWA works offline with sync on reconnect\n- Validate QR codes encode all essential component data\n- Test label printing with standard thermal printers",
+        "testStrategy": "Test scanning 5+ barcodes per second in batch mode. Verify PWA works offline with sync on reconnect. Validate QR codes encode all essential component data. Test label printing with standard thermal printers.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Advanced Stock Management Implementation",
+        "description": "Implement sophisticated inventory management features including automated reordering, multi-location tracking, and stock analytics.",
+        "details": "Backend implementation:\n- Create StockService with:\n  * Reorder point calculations using Python's statsmodels 0.14.0\n  * Multi-location tracking with PostgreSQL's JSONB fields\n  * Stock analytics with:\n    - Usage trend analysis using pandas 2.1.0\n    - Forecasting with Prophet 1.1.0\n  * Lot tracking with:\n    - FIFO implementation using Redis sorted sets\n    - Expiration date handling with dateutil 2.8.2\n\nDatabase changes:\n- Add stock_locations table with:\n  * location_id (FK)\n  * component_id (FK)\n  * quantity\n  * last_updated\n- Add stock_transactions table with:\n  * transaction_type (enum: 'in', 'out', 'transfer')\n  * quantity\n  * location_from\n  * location_to\n  * timestamp\n\nAPI endpoints:\n- POST /api/v2/stock/reorder for reorder point calculations\n- GET /api/v2/stock/analytics for stock analytics\n- POST /api/v2/stock/transfer for location transfers\n- GET /api/v2/stock/lot for lot tracking\n\nFrontend implementation:\n- Create StockDashboard with:\n  * QChart for usage trends\n  * QTable for stock movements\n  * QStepper for reorder point configuration\n- Implement lot tracking with:\n  * QDate for expiration dates\n  * QChip for lot status",
+        "testStrategy": "Verify reorder alerts trigger within 1 hour of threshold breach. Test analytics dashboard loads in <2 seconds. Validate stock forecasting accuracy >80% for 30-day predictions. Test FIFO picking suggestions are correct 100% of the time.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Collaboration and Team Features Implementation",
+        "description": "Implement multi-user collaboration features including RBAC, activity feeds, and approval workflows.",
+        "details": "Backend implementation:\n- Create RBACService with:\n  * Custom role definitions using SQLAlchemy's polymorphic tables\n  * Permission checks with fastapi-security 0.1.0\n- Implement activity feed with:\n  * PostgreSQL JSONB for activity logs\n  * WebSocket notifications using FastAPI's WebSocket\n- Add approval workflow with:\n  * Workflow engine using Celery 5.3.0\n  * Approval states with PostgreSQL enums\n\nDatabase changes:\n- Add user_roles table with:\n  * role_id (PK)\n  * role_name (unique)\n  * permissions (JSONB)\n- Add activity_logs table with:\n  * user_id (FK)\n  * action_type (enum: 'create', 'update', 'delete')\n  * target_id (FK)\n  * timestamp\n- Add approval_workflows table with:\n  * workflow_id (PK)\n  * component_id (FK)\n  * status (enum: 'pending', 'approved', 'rejected')\n  * approver_id (FK)\n  * timestamp\n\nAPI endpoints:\n- POST /api/v2/roles for role management\n- GET /api/v2/activity for activity feed\n- POST /api/v2/approvals for approval workflows\n- GET /api/v2/comments for comment management\n\nFrontend implementation:\n- Create ActivityFeed component with:\n  * QList for activity items\n  * QAvatar for user icons\n  * QChip for action types\n- Implement approval workflow with:\n  * QStepper for workflow steps\n  * QBtnGroup for approval actions\n- Add comment system with:\n  * Quill editor for rich text\n  * @mention support with Vue 3 composition API",
+        "testStrategy": "Verify RBAC supports 10+ custom roles. Test activity feed updates in real-time (<1 second). Validate approval workflows handle 3+ approval stages. Test comments support markdown formatting.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Supplier and Procurement Management",
+        "description": "Implement comprehensive supplier management and procurement workflows.",
+        "details": "Backend implementation:\n- Create SupplierService with:\n  * Supplier database using PostgreSQL\n  * Price tracking with:\n    - Real-time updates using webhooks\n    - Price history with pandas 2.1.0\n  * Purchase order management with:\n    - PO creation using FastAPI's ORM\n    - PO status tracking with PostgreSQL enums\n- Implement procurement automation with:\n  * Smart supplier selection using scikit-learn 1.4.0\n  * Order consolidation with:\n    - Optimization algorithms using PuLP 2.7.0\n    - Shipping cost calculations\n\nDatabase changes:\n- Add suppliers table with:\n  * supplier_id (PK)\n  * name\n  * contact_info (JSONB)\n  * performance_metrics (JSONB)\n- Add purchase_orders table with:\n  * po_id (PK)\n  * supplier_id (FK)\n  * status (enum: 'pending', 'ordered', 'received')\n  * total_cost\n- Add po_items table with:\n  * po_item_id (PK)\n  * po_id (FK)\n  * component_id (FK)\n  * quantity\n  * price\n\nAPI endpoints:\n- POST /api/v2/suppliers for supplier management\n- POST /api/v2/purchase-orders for PO creation\n- GET /api/v2/price-history for price tracking\n- POST /api/v2/procurement for automation\n\nFrontend implementation:\n- Create SupplierDashboard with:\n  * QTable for supplier listings\n  * QBar for performance metrics\n  * QStepper for PO creation\n- Implement price tracking with:\n  * QLine for price history charts\n  * QChip for price alerts\n- Add procurement automation with:\n  * QStepper for workflow steps\n  * QBtnGroup for action buttons",
+        "testStrategy": "Verify supplier database supports 100+ suppliers. Test PO creation takes <3 clicks from component page. Validate price updates sync automatically daily. Test order consolidation reduces shipping by >30%.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Reporting and Analytics Dashboard",
+        "description": "Implement comprehensive reporting suite with customizable dashboards for inventory insights.",
+        "details": "Backend implementation:\n- Create ReportService with:\n  * Pre-built reports using SQLAlchemy queries\n  * Custom report builder with:\n    - Dynamic query generation\n    - Data aggregation with pandas 2.1.0\n  * Dashboard configuration with:\n    - Widget definitions using JSON\n    - User preferences with PostgreSQL JSONB\n- Implement data export with:\n  * PDF generation using WeasyPrint 55.0\n  * Excel export using openpyxl 3.1.2\n  * CSV export using Python's csv module\n\nDatabase changes:\n- Add reports table with:\n  * report_id (PK)\n  * name\n  * description\n  * query (JSONB)\n  * created_by (FK)\n  * last_updated\n- Add dashboards table with:\n  * dashboard_id (PK)\n  * name\n  * widgets (JSONB)\n  * user_id (FK)\n  * created_at\n\nAPI endpoints:\n- GET /api/v2/reports for report listing\n- POST /api/v2/reports/generate for report generation\n- GET /api/v2/dashboards for dashboard listing\n- POST /api/v2/dashboards for dashboard creation\n\nFrontend implementation:\n- Create ReportBuilder with:\n  * QDraggable for widget placement\n  * QSelect for data fields\n  * QDate for date ranges\n- Implement dashboard with:\n  * QCard for widgets\n  * QBar for charts\n  * QTable for data tables\n- Add export functionality with:\n  * QBtnGroup for export formats\n  * QSpinner for loading indicators",
+        "testStrategy": "Verify reports generate in <5 seconds for 10k+ components. Test custom reports support 20+ data fields. Validate dashboards update in real-time. Test exports handle 100k+ records without timeout.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Mobile App Development",
+        "description": "Develop native or PWA mobile application for on-the-go inventory management.",
+        "details": "Frontend implementation:\n- Create PWA with:\n  * Workbox for service workers\n  * Manifest.json with:\n    - Short_name: 'PartsHub Mobile'\n    - Start_url: '/mobile'\n    - Icons for different resolutions\n  * Offline-first architecture with:\n    - IndexedDB for local storage\n    - Background sync with Workbox\n- Implement mobile-specific features:\n  * Barcode scanning with vue3-qr-reader 2.1.0\n  * Voice commands with Web Speech API\n  * Swipe gestures with Vue 3 composition API\n  * Dark mode with Quasar's theme system\n\nBackend implementation:\n- Add mobile-specific endpoints:\n  * POST /api/v2/mobile/scan for barcode scanning\n  * POST /api/v2/mobile/stock for stock updates\n  * GET /api/v2/mobile/location for location tracking\n- Implement mobile-specific optimizations:\n  * Image compression with Sharp 0.33.0\n  * Lazy loading with Vue 3's Suspense\n  * Battery-efficient background sync with Workbox\n\nTesting:\n- Test app works fully offline with sync on reconnect\n- Verify scanning workflow takes <5 seconds per component\n- Validate app install size <10MB\n- Test battery drain <5% per hour of active use",
+        "testStrategy": "Test app works fully offline with sync on reconnect. Verify scanning workflow takes <5 seconds per component. Validate app install size <10MB. Test battery drain <5% per hour of active use.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "AI-Powered Features Implementation",
+        "description": "Implement AI/ML capabilities for intelligent predictions, recommendations, and automation.",
+        "details": "Backend implementation:\n- Create AIService with:\n  * Component matching using SentenceTransformers 2.2.2\n  * Demand forecasting with Prophet 1.1.0\n  * NLP processing with spaCy 3.7.0\n  * Image recognition with TensorFlow.js 3.20.0\n- Implement:\n  * Component substitution suggestions\n  * Demand forecasting models\n  * Natural language query processing\n  * Image-based component identification\n\nDatabase changes:\n- Add ai_recommendations table with:\n  * recommendation_id (PK)\n  * component_id (FK)\n  * recommended_component_id (FK)\n  * confidence_score\n  * created_at\n- Add ai_analytics table with:\n  * analytics_id (PK)\n  * type (enum: 'demand_forecast', 'anomaly_detection')\n  * data (JSONB)\n  * timestamp\n\nAPI endpoints:\n- POST /api/v2/ai/component-match for component matching\n- POST /api/v2/ai/demand-forecast for forecasting\n- POST /api/v2/ai/nlp for natural language processing\n- POST /api/v2/ai/image-recognition for image recognition\n\nFrontend implementation:\n- Create AIChat component with:\n  * QInput for natural language queries\n  * QList for recommendations\n  * QChip for confidence scores\n- Implement image recognition with:\n  * QUploader for image uploads\n  * QImg for preview\n  * QProgress for processing indicators",
+        "testStrategy": "Verify component matching accuracy >85%. Test demand forecasting accuracy >75% for 90-day predictions. Validate NLP queries handle 80% of common questions. Test image recognition works for common component types.",
+        "priority": "low",
+        "dependencies": [
+          1,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Data Import and Migration Tools",
+        "description": "Develop robust tools for importing existing inventory data and migrating from other systems.",
+        "details": "Backend implementation:\n- Create ImportService with:\n  * CSV/Excel parsing using pandas 2.1.0\n  * Competitor system importers with:\n    - InvenTree adapter\n    - PartKeepr adapter\n    - KiCad adapter\n  * Validation rules with:\n    - Custom validation functions\n    - Error reporting with JSON\n- Implement:\n  * Import validation with:\n    - Preview functionality\n    - Duplicate detection\n    - Field mapping suggestions\n  * Migration assistance with:\n    - Step-by-step wizard\n    - Progress tracking\n    - Rollback capability\n\nDatabase changes:\n- Add import_sessions table with:\n  * session_id (PK)\n  * status (enum: 'pending', 'processing', 'completed', 'failed')\n  * start_time\n  * end_time\n  * error_count\n- Add import_errors table with:\n  * error_id (PK)\n  * session_id (FK)\n  * row_number\n  * error_type\n  * error_message\n\nAPI endpoints:\n- POST /api/v2/import for import initiation\n- GET /api/v2/import/status for status checking\n- POST /api/v2/import/validate for validation\n- POST /api/v2/import/migrate for migration\n\nFrontend implementation:\n- Create ImportWizard with:\n  * QStepper for multi-step process\n  * QUploader for file uploads\n  * QTable for preview and validation\n- Implement error handling with:\n  * QAlert for error messages\n  * QBtnGroup for resolution actions\n- Add progress tracking with:\n  * QLinearProgress for overall progress\n  * QChip for error counts",
+        "testStrategy": "Test import 10,000 components in <5 minutes. Verify error rate <1% with proper validation. Validate support for 90% of standard CSV formats. Test migration wizard completion rate >80%.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-10-14T11:07:42.703Z",
+      "updated": "2025-10-14T11:07:42.703Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

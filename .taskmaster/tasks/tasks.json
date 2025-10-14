@@ -1,0 +1,464 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Advanced Search and Discovery",
+        "description": "Enhance search capabilities using lightweight SQLite-based technologies (FTS5, rapidfuzz) with multi-criteria filtering, saved searches, and natural language queries.",
+        "details": "Technical: SQLite FTS5 for full-text indexing, Python cachetools for caching, enhance existing rapidfuzz, saved searches in SQLite JSON fields. Performance: <500ms for 50k components.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up SQLite FTS5 full-text indexing",
+            "description": "Create and configure SQLite FTS5 tables for component search with proper tokenization and ranking",
+            "dependencies": [],
+            "details": "Implement FTS5 virtual tables for components with tokenization settings for English text, configure ranking functions for relevance scoring",
+            "status": "pending",
+            "testStrategy": "Test with sample components to verify search results match expected relevance order"
+          },
+          {
+            "id": 2,
+            "title": "Integrate rapidfuzz for fuzzy matching",
+            "description": "Enhance search with fuzzy matching capabilities using rapidfuzz library",
+            "dependencies": [],
+            "details": "Implement rapidfuzz string matching with configurable thresholds, integrate with FTS5 results for hybrid search",
+            "status": "pending",
+            "testStrategy": "Test with misspelled queries to verify fuzzy matching accuracy"
+          },
+          {
+            "id": 3,
+            "title": "Implement multi-criteria filtering",
+            "description": "Add filtering capabilities for search results based on multiple criteria",
+            "dependencies": [],
+            "details": "Create filter options for category, manufacturer, stock status, and other component attributes with SQL WHERE clauses",
+            "status": "pending",
+            "testStrategy": "Test with various filter combinations to verify correct filtering behavior"
+          },
+          {
+            "id": 4,
+            "title": "Develop saved searches functionality",
+            "description": "Implement ability to save and recall search queries",
+            "dependencies": [],
+            "details": "Store search queries in SQLite JSON fields with metadata, create API endpoints for saving and retrieving searches",
+            "status": "pending",
+            "testStrategy": "Test saving and loading searches with different parameters"
+          },
+          {
+            "id": 5,
+            "title": "Add natural language query support",
+            "description": "Enable natural language queries for search functionality",
+            "dependencies": [],
+            "details": "Parse natural language queries into structured search parameters using NLP techniques",
+            "status": "pending",
+            "testStrategy": "Test with various natural language queries to verify correct interpretation"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Enhanced KiCad Integration",
+        "description": "Enhance existing basic KiCad integration with bidirectional sync, BOM management, custom symbol/footprint management, and project-based inventory allocation.",
+        "details": "Current: Basic KiCad data model exists. Enhancements: Parse .kicad_sym files, import/export libraries, BOM CSV import with fuzzy matching, symbol preview (SVG), project component reservation, stock updates on board assembly.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Parse .kicad_sym files for symbol metadata extraction",
+            "description": "Implement parser to extract symbol metadata from KiCad .kicad_sym files including reference designators, pins, and properties",
+            "dependencies": [],
+            "details": "Use Python's xml.etree.ElementTree to parse XML-based .kicad_sym files, extract symbol properties, pins, and reference designators into structured data model",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement library import/export functionality",
+            "description": "Create bidirectional library management system for KiCad symbol and footprint libraries",
+            "dependencies": [
+              1
+            ],
+            "details": "Build REST API endpoints for importing/exporting KiCad libraries, implement file conversion between .kicad_sym and internal data model, add version control for library updates",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Develop BOM CSV import with fuzzy matching",
+            "description": "Create BOM processing system that handles CSV imports with fuzzy matching against component database",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement rapidfuzz for fuzzy matching between BOM components and database entries, add confidence scoring, handle duplicate entries, create import validation workflow",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Add symbol preview functionality using SVG",
+            "description": "Implement SVG-based symbol previews for component selection",
+            "dependencies": [
+              2
+            ],
+            "details": "Convert KiCad symbol data to SVG format, create preview component in frontend, integrate with symbol selection interface",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Implement project-based component reservation system",
+            "description": "Create system for reserving components in inventory for specific projects",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Add reservation tracking to stock management, create project-specific component allocation, implement reservation expiration logic, integrate with BOM processing",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Barcode and QR Code Enhancements",
+        "description": "Expand barcode functionality with web-based camera scanning, batch mode, custom QR code generation, and mobile-responsive PWA scanning interface.",
+        "details": "Tech: Browser Web APIs for camera, QR generation (Python qrcode, Pillow), service workers for offline PWA. Features: Multi-format support (Code128, EAN, UPC, QR, DataMatrix), batch scanning, scan-to-update workflows, label printing templates.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Advanced Stock Management",
+        "description": "Enhance existing stock management with automated reorder alerts, usage analytics, forecasting, and advanced FIFO/lot tracking.",
+        "details": "Current: Stock transactions, multi-location tracking, lot/batch tracking exist. Enhancements: Reorder alerts (SQLite triggers, email), analytics dashboard (Chart.js), usage trends, FIFO picking suggestions, slow-moving stock identification, simple forecasting (moving averages).",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement SQLite triggers for reorder alerts",
+            "description": "Create SQLite triggers to automatically calculate stock levels and trigger reorder alerts when stock falls below threshold.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use SQLite FTS5 for stock level monitoring, implement trigger logic to check stock levels against reorder thresholds, and store alert states in a new alerts table.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Develop analytics dashboard with Chart.js",
+            "description": "Build a visual analytics dashboard showing usage trends, stock levels, and forecasting metrics.",
+            "dependencies": [
+              4
+            ],
+            "details": "Integrate Chart.js for interactive charts, create API endpoints to fetch usage data, and design responsive dashboard layout.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Implement FIFO picking suggestions",
+            "description": "Add functionality to suggest optimal FIFO picking order based on lot tracking data.",
+            "dependencies": [
+              4
+            ],
+            "details": "Query lot tracking data to determine oldest lots, implement logic to prioritize these lots for picking, and display suggestions in the UI.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Create slow-moving stock identification",
+            "description": "Develop a system to identify slow-moving stock items based on usage patterns.",
+            "dependencies": [
+              4
+            ],
+            "details": "Calculate usage rates over time, set thresholds for slow-moving items, and generate reports showing these items.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Implement simple forecasting using moving averages",
+            "description": "Add forecasting capabilities using moving averages to predict future stock needs.",
+            "dependencies": [
+              4
+            ],
+            "details": "Calculate moving averages from historical usage data, implement forecasting logic, and display predictions in the analytics dashboard.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Basic Multi-User Features",
+        "description": "Implement simple multi-user support for families/small teams (2-10 users) with basic RBAC (Admin/Editor/Viewer), activity log, commenting, and notifications.",
+        "details": "Current: JWT auth, user model exist. Add: Role-based access control (3 roles), activity feed with filters, component commenting (markdown), in-app + email notifications, password reset. SQLite tables: activity_log, comments. Performance: 10 concurrent users, 100k+ log entries.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Enhanced Supplier Management and Parts Ordering",
+        "description": "Enhance existing supplier/purchase system with smart order creation, direct provider API ordering (LCSC/Digi-Key/Mouser), scan-to-receive workflow, and comprehensive order management.",
+        "details": "Current: Supplier database, purchase tracking exist. Add: Order states (Draft→Placed→Shipped→Received→Completed), smart order creation from reorder alerts/BOMs, direct API ordering, scan-to-receive with barcode, price tracking (6mo history), TCO calculator, order consolidation. SQLite tables: orders, order_items, order_history, price_tracking.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          4
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Order State Machine and Database Schema",
+            "description": "Create detailed state transition diagram for order lifecycle (Draft→Placed→Shipped→Received→Completed) and extend SQLite schema with order_states table and state transition logic.",
+            "dependencies": [
+              4
+            ],
+            "details": "Implement state machine with SQLite triggers for state transitions, define state transition rules, create order_states table with state_id, state_name, description fields",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement Smart Order Creation from Reorder Alerts",
+            "description": "Develop system to automatically generate orders from reorder alerts based on inventory thresholds and BOMs.",
+            "dependencies": [
+              4
+            ],
+            "details": "Create reorder alert triggers in SQLite, implement BOM-to-order conversion logic, add 'smart_order' flag to orders table",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Integrate Direct API Ordering with LCSC/Digi-Key/Mouser",
+            "description": "Implement API integration for direct ordering with LCSC, Digi-Key, and Mouser providers.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create API client classes for each provider, implement authentication flow, add order placement logic with error handling",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Develop Scan-to-Receive Barcode Workflow",
+            "description": "Build barcode scanning functionality for receiving parts into inventory.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement barcode scanning UI with ZXing, create receive workflow with validation against order items, update inventory quantities",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Add Price Tracking and TCO Calculator",
+            "description": "Implement price history tracking and total cost of ownership calculation for components.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create price_tracking table with timestamp, price, and source fields, implement TCO calculation logic with usage data",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Built-in Reporting and Analytics",
+        "description": "Implement pre-built reports (inventory valuation, stock movement, low stock, project usage, supplier spend) with export capabilities (CSV, Excel, PDF) and simple dashboard with charts.",
+        "details": "Tech: SQLite queries, pandas (CSV/Excel), ReportLab (PDF), Chart.js (frontend). Reports: 7 pre-built types, scheduled exports via background tasks. Dashboard: key metrics, quick links, interactive charts (pie, bar, line). Performance: <5s for 50k components, <2s dashboard load.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          4
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Progressive Web App (PWA)",
+        "description": "Make existing web UI work offline as PWA for mobile inventory management with service workers, IndexedDB, and background sync.",
+        "details": "Tech: Service worker with Workbox, IndexedDB for offline data, Background sync API, Vue.js PWA plugin. Features: Offline capability, mobile-optimized UI, install prompts, core offline workflows (search, view, quick stock updates). Performance: Works fully offline, <1min sync on reconnect, 10k+ components in offline storage.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "AI-Powered Features (Lightweight)",
+        "description": "Implement practical AI/ML features using lightweight models: component matching, usage prediction, natural language search, optional datasheet OCR.",
+        "details": "Tech: scikit-learn (no TensorFlow/PyTorch), spaCy small models or regex, Tesseract OCR (optional). Features: Component substitutes suggestion, time-series forecasting, NLP queries, datasheet extraction. All processing in-process, cache predictions in SQLite. Performance: <5s processing, >80% relevance.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1,
+          4
+        ],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Data Import and Migration Tools",
+        "description": "Robust tools for importing existing inventory from CSV/Excel, InvenTree, PartKeepr, KiCad libraries with validation and transformation.",
+        "details": "Tech: Python pandas for CSV/Excel, SQLite transactions for atomic imports, background tasks for large imports, Vue.js wizard with progress bar. Features: Column mapping, preview validation, duplicate detection, unit conversions, format standardization. Performance: 10k components in <2min, <1% error rate.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define CSV/Excel import schema validation rules",
+            "description": "Create comprehensive validation rules for CSV/Excel imports including required fields, data types, and format constraints.",
+            "dependencies": [],
+            "details": "Define validation rules for all supported fields (part number, description, quantity, unit price, etc.) with specific constraints like regex patterns, minimum/maximum values, and required fields.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement column mapping interface",
+            "description": "Develop a Vue.js interface for users to map source columns to target inventory fields.",
+            "dependencies": [],
+            "details": "Create drag-and-drop interface with dropdowns for each field, showing source headers and target fields with validation feedback.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Build preview validation engine",
+            "description": "Create a validation engine that previews import results before committing to database.",
+            "dependencies": [],
+            "details": "Implement pandas-based validation that checks for duplicates, unit conversions, format standardization, and shows preview with error counts.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Develop background import processing",
+            "description": "Implement background task processing for large imports with progress tracking.",
+            "dependencies": [],
+            "details": "Use Celery or similar for background tasks with progress bar updates, SQLite transactions for atomic imports, and error handling for partial failures.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Create duplicate detection system",
+            "description": "Implement duplicate detection logic for imported inventory items.",
+            "dependencies": [],
+            "details": "Develop fuzzy matching algorithm for part numbers, descriptions, and other identifiers with configurable thresholds.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "LLM-Enhanced Component Metadata",
+        "description": "Use LLMs (PydanticAI, LangGraph, LangChain) to intelligently extract and validate component metadata from provider sources with anti-hallucination safeguards.",
+        "details": "Tech: PydanticAI for structured extraction, LangGraph for workflows, cloud (GPT-4o-mini, Claude Haiku) or local (Ollama Llama 3 8B). 11 anti-hallucination safeguards: structured output, range validation, 80% confidence threshold, mandatory human review, audit trail, critical field protection. Features: Provider data extraction, intelligent field mapping, metadata enhancement, quality validation. Performance: <3s cloud, <10s local, <$0.01/component, 90%+ accuracy, zero hallucination tolerance.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define LLM extraction schema and validation rules",
+            "description": "Create structured Pydantic models for component metadata fields with validation constraints and confidence thresholds",
+            "dependencies": [],
+            "details": "Define Pydantic models for component metadata fields including required fields, data types, and validation rules. Implement confidence threshold checks (80%+), range validation, and mandatory human review triggers. Include audit trail requirements for all extraction attempts.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement provider data extraction workflow",
+            "description": "Build LangGraph workflow to fetch and process component data from provider sources",
+            "dependencies": [
+              1
+            ],
+            "details": "Create LangGraph workflow that fetches data from provider APIs, processes raw responses, and passes structured data to extraction pipeline. Include error handling for API failures and rate limiting. Implement cloud/local LLM selection logic based on performance requirements (<3s cloud, <10s local).",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Integrate anti-hallucination safeguards",
+            "description": "Implement 11 anti-hallucination safeguards into extraction pipeline",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Implement structured output validation, confidence threshold checks, mandatory human review triggers, audit trail logging, and critical field protection. Ensure all safeguards are integrated into the extraction workflow with proper error handling and fallback mechanisms. Test all 11 safeguards individually and in combination.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Build metadata enhancement and validation layer",
+            "description": "Create intelligent field mapping and quality validation system",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Implement intelligent field mapping between provider data and internal metadata schema. Add quality validation checks including accuracy thresholds (90%+), zero hallucination tolerance, and confidence scoring. Create fallback mechanisms for low-confidence extractions. Ensure all validation logic is integrated with the anti-hallucination safeguards.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Optimize performance and cost metrics",
+            "description": "Ensure extraction meets performance and cost targets",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Implement performance monitoring for extraction time (<3s cloud, <10s local) and cost tracking (<$0.01/component). Add logging for cost and time metrics. Create optimization strategies for both cloud and local LLM implementations. Test all performance and cost targets with realistic data volumes.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-10-14T13:40:34.817Z",
+      "updated": "2025-10-14T13:53:12.926Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
