@@ -12,13 +12,13 @@
         <meta name="author" content="Stephen Eaton">
       
       
-        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.3.1/">
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/releases/v0.4.0/">
       
       
-        <link rel="prev" href="../v0.4.0/">
+        <link rel="prev" href="../../developer/session-notes-2025-09-27/">
       
       
-        <link rel="next" href="../v0.3.0/">
+        <link rel="next" href="../v0.3.1/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Release Notes for PartsHub v0.3.1 - PartsHub Documentation</title>
+        <title>Release Notes: v0.4.0 - PartsHub Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-for-partshub-v031" class="md-skip">
+        <a href="#release-notes-v040" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release Notes for PartsHub v0.3.1
+              Release Notes: v0.4.0
             
           </span>
         </div>
@@ -427,7 +427,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../v0.4.0/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -1776,29 +1776,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../v0.4.0/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Release Notes: v0.4.0
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1816,7 +1793,7 @@
   
   
   <span class="md-ellipsis">
-    Release Notes for PartsHub v0.3.1
+    Release Notes: v0.4.0
     
   </span>
   
@@ -1829,7 +1806,7 @@
   
   
   <span class="md-ellipsis">
-    Release Notes for PartsHub v0.3.1
+    Release Notes: v0.4.0
     
   </span>
   
@@ -1861,28 +1838,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#highlights" class="md-nav__link">
     <span class="md-ellipsis">
-      Bug Fixes
+      🎯 Highlights
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Bug Fixes">
+    <nav class="md-nav" aria-label="🎯 Highlights">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-release-workflow-build-failure" class="md-nav__link">
+  <a href="#component-creation-wizard" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Release Workflow Build Failure
+      Component Creation Wizard
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-npm-security-vulnerabilities" class="md-nav__link">
+  <a href="#fuzzy-search-autocomplete" class="md-nav__link">
     <span class="md-ellipsis">
-      2. NPM Security Vulnerabilities
+      Fuzzy Search Autocomplete
     </span>
   </a>
   
@@ -1894,19 +1871,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#security-analysis" class="md-nav__link">
+  <a href="#new-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Security Analysis
+      🆕 New Features
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Security Analysis">
+    <nav class="md-nav" aria-label="🆕 New Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#investigation-summary" class="md-nav__link">
+  <a href="#frontend" class="md-nav__link">
     <span class="md-ellipsis">
-      Investigation Summary
+      Frontend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database
     </span>
   </a>
   
@@ -1918,39 +1913,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#technical-details" class="md-nav__link">
+  <a href="#changes" class="md-nav__link">
     <span class="md-ellipsis">
-      Technical Details
+      🔄 Changes
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Technical Details">
+    <nav class="md-nav" aria-label="🔄 Changes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#nodejs-version-compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      Node.js Version Compatibility
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-security-posture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Security Posture
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#breaking-changes" class="md-nav__link">
     <span class="md-ellipsis">
       Breaking Changes
@@ -1958,15 +1930,188 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#migration-instructions" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#improvements" class="md-nav__link">
     <span class="md-ellipsis">
-      Migration Instructions
+      Improvements
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Migration Instructions">
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Technical Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Technical Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requestresponse-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Request/Response Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Schema
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Coverage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Known Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Performance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔐 Security
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updated-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Updated Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎓 Migration Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎓 Migration Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1993,135 +2138,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-upgrade" class="md-nav__link">
+  <a href="#whats-next" class="md-nav__link">
     <span class="md-ellipsis">
-      Installation &amp; Upgrade
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation &amp; Upgrade">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fresh-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fresh Installation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upgrading-from-v030" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrading from v0.3.0
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files-changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Files Changed
+      🔮 What's Next
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#verification" class="md-nav__link">
+  <a href="#support" class="md-nav__link">
     <span class="md-ellipsis">
-      Verification
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Verification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#release-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Release Workflow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Security
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-suite" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Suite
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-included-from-v030" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Included from v0.3.0
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What&#39;s Included from v0.3.0">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#inline-stock-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      🎯 Inline Stock Operations
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#stock-transaction-history" class="md-nav__link">
-    <span class="md-ellipsis">
-      📊 Stock Transaction History
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#known-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      Known Issues
+      📞 Support
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#support-feedback" class="md-nav__link">
+  <a href="#acknowledgments" class="md-nav__link">
     <span class="md-ellipsis">
-      Support &amp; Feedback
+      🙏 Acknowledgments
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-changelog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Changelog
     </span>
   </a>
   
@@ -2131,6 +2177,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.3.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.3.1
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2317,28 +2386,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#highlights" class="md-nav__link">
     <span class="md-ellipsis">
-      Bug Fixes
+      🎯 Highlights
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Bug Fixes">
+    <nav class="md-nav" aria-label="🎯 Highlights">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-release-workflow-build-failure" class="md-nav__link">
+  <a href="#component-creation-wizard" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Release Workflow Build Failure
+      Component Creation Wizard
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-npm-security-vulnerabilities" class="md-nav__link">
+  <a href="#fuzzy-search-autocomplete" class="md-nav__link">
     <span class="md-ellipsis">
-      2. NPM Security Vulnerabilities
+      Fuzzy Search Autocomplete
     </span>
   </a>
   
@@ -2350,19 +2419,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#security-analysis" class="md-nav__link">
+  <a href="#new-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Security Analysis
+      🆕 New Features
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Security Analysis">
+    <nav class="md-nav" aria-label="🆕 New Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#investigation-summary" class="md-nav__link">
+  <a href="#frontend" class="md-nav__link">
     <span class="md-ellipsis">
-      Investigation Summary
+      Frontend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database
     </span>
   </a>
   
@@ -2374,39 +2461,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#technical-details" class="md-nav__link">
+  <a href="#changes" class="md-nav__link">
     <span class="md-ellipsis">
-      Technical Details
+      🔄 Changes
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Technical Details">
+    <nav class="md-nav" aria-label="🔄 Changes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#nodejs-version-compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      Node.js Version Compatibility
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-security-posture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Security Posture
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#breaking-changes" class="md-nav__link">
     <span class="md-ellipsis">
       Breaking Changes
@@ -2414,15 +2478,188 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#migration-instructions" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#improvements" class="md-nav__link">
     <span class="md-ellipsis">
-      Migration Instructions
+      Improvements
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Migration Instructions">
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Technical Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Technical Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requestresponse-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Request/Response Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Schema
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Coverage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Known Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Performance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔐 Security
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updated-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Updated Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎓 Migration Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎓 Migration Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2449,135 +2686,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-upgrade" class="md-nav__link">
+  <a href="#whats-next" class="md-nav__link">
     <span class="md-ellipsis">
-      Installation &amp; Upgrade
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation &amp; Upgrade">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fresh-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fresh Installation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upgrading-from-v030" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upgrading from v0.3.0
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files-changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Files Changed
+      🔮 What's Next
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#verification" class="md-nav__link">
+  <a href="#support" class="md-nav__link">
     <span class="md-ellipsis">
-      Verification
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Verification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#release-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Release Workflow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      Frontend Security
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-suite" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Suite
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-included-from-v030" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Included from v0.3.0
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What&#39;s Included from v0.3.0">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#inline-stock-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      🎯 Inline Stock Operations
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#stock-transaction-history" class="md-nav__link">
-    <span class="md-ellipsis">
-      📊 Stock Transaction History
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#known-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      Known Issues
+      📞 Support
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#support-feedback" class="md-nav__link">
+  <a href="#acknowledgments" class="md-nav__link">
     <span class="md-ellipsis">
-      Support &amp; Feedback
+      🙏 Acknowledgments
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-changelog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Changelog
     </span>
   </a>
   
@@ -2599,7 +2737,7 @@
 
 
   
-    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.3.1.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/releases/v0.4.0.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2608,209 +2746,207 @@
     
       
     
-    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.3.1.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/releases/v0.4.0.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="release-notes-for-partshub-v031">Release Notes for PartsHub v0.3.1<a class="headerlink" href="#release-notes-for-partshub-v031" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date</strong>: October 5, 2025
-<strong>GitHub Release</strong>: <a href="https://github.com/madeinoz67/partshub/releases/tag/v0.3.1">v0.3.1</a>
-<strong>Comparison</strong>: <a href="https://github.com/madeinoz67/partshub/compare/v0.3.0...v0.3.1">v0.3.0...v0.3.1</a></p>
+<h1 id="release-notes-v040">Release Notes: v0.4.0<a class="headerlink" href="#release-notes-v040" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date</strong>: October 7, 2025</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>PartsHub v0.3.1 is a patch release that fixes critical build issues in the release workflow and resolves all npm security vulnerabilities in frontend dependencies. This release ensures reliable automated releases and a secure frontend build environment.</p>
-<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
-<h3 id="1-release-workflow-build-failure">1. Release Workflow Build Failure<a class="headerlink" href="#1-release-workflow-build-failure" title="Permanent link">&para;</a></h3>
-<p><strong>Fixed frontend build failure due to Node.js version mismatch</strong></p>
-<p>The v0.3.0 release workflow failed with the error <code>crypto.hash is not a function</code> because the release workflow was using Node.js 18 while the codebase requires Node.js 20+.</p>
-<p><strong>Root Cause</strong>:
-- Release workflow used Node.js 18
-- CI workflow uses Node.js 20
-- <code>@vitejs/plugin-vue v6.0.1</code> (bundled in Quasar) uses <code>crypto.hash()</code> API
-- <code>crypto.hash()</code> was added in Node.js 20.12.0 (March 2024)</p>
-<p><strong>Changes</strong>:
-- Updated <code>.github/workflows/release.yml</code> to use Node.js 20
-- Updated <code>frontend/package.json</code> engines to require Node.js &gt;=20.0.0
-- Updated npm requirement to &gt;=10.0.0</p>
-<p><strong>Impact</strong>: Release workflow now succeeds and builds all artifacts correctly.</p>
-<h3 id="2-npm-security-vulnerabilities">2. NPM Security Vulnerabilities<a class="headerlink" href="#2-npm-security-vulnerabilities" title="Permanent link">&para;</a></h3>
-<p><strong>Resolved 8 moderate severity vulnerabilities in frontend dependencies</strong></p>
-<p>All npm audit vulnerabilities have been fixed by updating frontend dev dependencies to their latest secure versions.</p>
-<p><strong>Vulnerabilities Fixed</strong>:</p>
-<ol>
-<li><strong>esbuild &lt;=0.24.2</strong> (GHSA-67mh-4wv8-2f99)</li>
-<li>Severity: Moderate</li>
-<li>Issue: Development server exploit vulnerability</li>
-<li>Impact: Dev environment only</li>
+<p>Version 0.4.0 introduces a major improvement to the component creation workflow with a new wizard interface and intelligent fuzzy search functionality. This release makes adding components faster, more intuitive, and less error-prone.</p>
+<h2 id="highlights">🎯 Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="component-creation-wizard">Component Creation Wizard<a class="headerlink" href="#component-creation-wizard" title="Permanent link">&para;</a></h3>
+<p>The new wizard-based interface simplifies component creation with:</p>
+<ul>
+<li><strong>Two-step workflow</strong>: Basic Information → Resources (optional)</li>
+<li><strong>Intelligent autocomplete</strong> for manufacturers and footprints</li>
+<li><strong>Dual creation modes</strong>: Linked parts (with provider integration) or local-only parts</li>
+<li><strong>Provider support</strong>: LCSC, Digi-Key, and Mouser integration</li>
+</ul>
+<h3 id="fuzzy-search-autocomplete">Fuzzy Search Autocomplete<a class="headerlink" href="#fuzzy-search-autocomplete" title="Permanent link">&para;</a></h3>
+<p>Smart search that understands what you're looking for:</p>
+<ul>
+<li><strong>Real-time suggestions</strong> as you type</li>
+<li><strong>Typo tolerance</strong> finds matches even with spelling errors</li>
+<li><strong>Score-based ranking</strong> puts best matches first</li>
+<li><strong>Inline creation</strong> of new manufacturers and footprints</li>
+<li><strong>Case-insensitive</strong> matching</li>
+</ul>
+<h2 id="new-features">🆕 New Features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h2>
+<h3 id="frontend">Frontend<a class="headerlink" href="#frontend" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Component Creation Wizard</strong> (<code>frontend/src/components/wizard/</code>)</li>
+<li>Two-step wizard interface with progress indicator</li>
+<li>Smart form validation with real-time feedback</li>
+<li>Autocomplete for component types, manufacturers, and footprints</li>
 <li>
-<p>Fix: Updated via vite dependency</p>
+<p>Optional provider integration step</p>
 </li>
 <li>
-<p><strong>vue-template-compiler &gt;=2.0.0</strong> (GHSA-g3ch-rx76-35fx)</p>
+<p><strong>Fuzzy Autocomplete Component</strong> (<code>FuzzyAutocomplete.vue</code>)</p>
 </li>
-<li>Severity: Moderate</li>
-<li>Issue: Client-side XSS vulnerability</li>
-<li>Impact: Dev dependency only (vue-tsc)</li>
-<li>Fix: Updated via vue-tsc dependency</li>
-</ol>
-<p><strong>Package Updates</strong> (SemVer major, dev dependencies only):
-- <code>@vitejs/plugin-vue</code>: 4.6.2 → 6.0.1
-- <code>vitest</code>: 0.34.6 → 3.2.4
-- <code>vue-tsc</code>: 1.8.22 → 3.1.0</p>
-<p><strong>Verification</strong>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>npm<span class="w"> </span>audit<span class="w">          </span><span class="c1"># Shows 0 vulnerabilities ✅</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>npm<span class="w"> </span><span class="nb">test</span><span class="w">          </span><span class="c1"># All 319 tests passing ✅</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>npm<span class="w"> </span>run<span class="w"> </span>build<span class="w">     </span><span class="c1"># Build succeeds ✅</span>
+<li>Reusable autocomplete with fuzzy matching</li>
+<li>Configurable appearance (icons, captions, labels)</li>
+<li>Keyboard navigation support</li>
+<li>Create-new-entry functionality</li>
+</ul>
+<h3 id="backend">Backend<a class="headerlink" href="#backend" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Wizard API Endpoints</strong> (<code>backend/src/api/wizard.py</code>)</li>
+<li><code>POST /api/v1/wizard/components</code> - Create components via wizard</li>
+<li><code>GET /api/v1/wizard/manufacturers/search</code> - Fuzzy search manufacturers</li>
+<li><code>GET /api/v1/wizard/footprints/search</code> - Fuzzy search footprints</li>
+<li>
+<p>Admin-only access control</p>
+</li>
+<li>
+<p><strong>Wizard Service</strong> (<code>backend/src/services/wizard_service.py</code>)</p>
+</li>
+<li>Fuzzy matching using RapidFuzz library</li>
+<li>Score-based result ranking</li>
+<li>Configurable match thresholds</li>
+<li>Support for both linked and local parts</li>
+</ul>
+<h3 id="database">Database<a class="headerlink" href="#database" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Full-Text Search Optimization</strong></li>
+<li>Improved FTS5 index management</li>
+<li>Better transaction handling in tests</li>
+<li>Enhanced search performance</li>
+</ul>
+<h2 id="changes">🔄 Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h3 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<p>None - this release is backward compatible.</p>
+<h3 id="improvements">Improvements<a class="headerlink" href="#improvements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Component creation workflow simplified from single complex form to guided wizard</li>
+<li>Manufacturer and footprint selection now uses fuzzy search instead of exact match dropdown</li>
+<li>Provider integration made optional rather than required</li>
+<li>Better error messages and validation feedback</li>
+</ul>
+<h2 id="bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed FTS search index population in test environments</li>
+<li>Resolved transaction isolation issues with SQLite FTS triggers</li>
+<li>Corrected import sorting and linting in test configuration</li>
+<li>Improved test stability in CI environments</li>
+</ul>
+<h2 id="technical-details">📊 Technical Details<a class="headerlink" href="#technical-details" title="Permanent link">&para;</a></h2>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Frontend</strong>: No new dependencies</li>
+<li><strong>Backend</strong>: Uses existing <code>rapidfuzz</code> library for fuzzy matching</li>
+</ul>
+<h3 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h3>
+<h4 id="new-endpoints">New Endpoints<a class="headerlink" href="#new-endpoints" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>POST   /api/v1/wizard/components
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>GET    /api/v1/wizard/manufacturers/search
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>GET    /api/v1/wizard/footprints/search
+</span></code></pre></div>
+<p>All wizard endpoints require admin authentication.</p>
+<h4 id="requestresponse-examples">Request/Response Examples<a class="headerlink" href="#requestresponse-examples" title="Permanent link">&para;</a></h4>
+<p><strong>Create Component (Linked Part)</strong>:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">POST</span><span class="w"> </span><span class="err">/api/v</span><span class="mi">1</span><span class="err">/wizard/compo</span><span class="kc">nents</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10kΩ Resistor&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resistor&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;manufacturer_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Yageo&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;footprint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0603&quot;</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">&quot;category_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nt">&quot;storage_location_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LCSC&quot;</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">&quot;provider_sku&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;C25804&quot;</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<h2 id="security-analysis">Security Analysis<a class="headerlink" href="#security-analysis" title="Permanent link">&para;</a></h2>
-<h3 id="investigation-summary">Investigation Summary<a class="headerlink" href="#investigation-summary" title="Permanent link">&para;</a></h3>
-<p>The <code>crypto.hash is not a function</code> error initially raised concerns about potential malicious packages. A comprehensive security review was conducted:</p>
-<p><strong>Findings</strong>:
-- ✅ <strong>No malicious packages detected</strong>
-- ✅ <strong>All dependencies from official npm registry</strong>
-- ✅ <strong>crypto.hash() usage is legitimate</strong> - Official Node.js 20+ API
-- ✅ <strong>All crypto operations use Node.js core module</strong> (<code>node:crypto</code>)
-- ✅ <strong>No supply chain attack indicators</strong></p>
-<p><strong>Details</strong>:
-- <code>crypto.hash()</code> is used by <code>@vitejs/plugin-vue v6.0.1</code> for generating Vue component descriptor IDs
-- This is a convenience method added to Node.js core in v20.12.0
-- Replaces older pattern: <code>crypto.createHash("sha256").update(text).digest("hex")</code>
-- Bundled in Quasar's <code>@quasar/app-vite</code> package dependency</p>
-<h2 id="technical-details">Technical Details<a class="headerlink" href="#technical-details" title="Permanent link">&para;</a></h2>
-<h3 id="nodejs-version-compatibility">Node.js Version Compatibility<a class="headerlink" href="#nodejs-version-compatibility" title="Permanent link">&para;</a></h3>
-<p><strong>Before</strong>: Release workflow failed with:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[vite:vue] crypto.hash is not a function
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>file: /home/runner/work/partshub/partshub/frontend/src/App.vue
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    at getHash (file:///.../node_modules/@vitejs/plugin-vue/dist/index.js:140:16)
+<p><strong>Search Manufacturers</strong>:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="err">GET</span><span class="w"> </span><span class="err">/api/v</span><span class="mi">1</span><span class="err">/wizard/ma</span><span class="kc">nufa</span><span class="err">c</span><span class="kc">turers</span><span class="err">/search?q=yag&amp;limi</span><span class="kc">t</span><span class="err">=</span><span class="mi">10</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="err">Respo</span><span class="kc">nse</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">[</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Yageo&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">95</span><span class="p">},</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Yamaichi&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">75</span><span class="p">}</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">]</span>
 </span></code></pre></div></p>
-<p><strong>After</strong>: Release workflow succeeds with Node.js 20:
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># .github/workflows/release.yml</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up Node.js</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v4</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">with</span><span class="p">:</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span><span class="w">  </span><span class="c1"># Updated from &quot;18&quot;</span>
-</span></code></pre></div></p>
-<h3 id="frontend-security-posture">Frontend Security Posture<a class="headerlink" href="#frontend-security-posture" title="Permanent link">&para;</a></h3>
-<p><strong>npm audit results</strong>:
-- Before: 8 moderate vulnerabilities
-- After: 0 vulnerabilities ✅</p>
-<p><strong>Test coverage</strong>:
-- All 319 frontend tests passing
-- No breaking changes to production code
-- Frontend builds successfully</p>
-<h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
-<p><strong>None</strong> - This is a patch release with no breaking changes to APIs or functionality.</p>
-<h2 id="migration-instructions">Migration Instructions<a class="headerlink" href="#migration-instructions" title="Permanent link">&para;</a></h2>
+<h3 id="database-schema">Database Schema<a class="headerlink" href="#database-schema" title="Permanent link">&para;</a></h3>
+<p>No database schema changes in this release.</p>
+<h2 id="testing">🧪 Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="test-coverage">Test Coverage<a class="headerlink" href="#test-coverage" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Backend Tests</strong>: 1072 passing</li>
+<li>Integration tests for wizard endpoints</li>
+<li>Unit tests for fuzzy search service</li>
+<li>
+<p>FTS index management tests</p>
+</li>
+<li>
+<p><strong>Frontend Tests</strong>: All passing</p>
+</li>
+<li>Component wizard flow tests</li>
+<li>Fuzzy autocomplete component tests</li>
+</ul>
+<h3 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h3>
+<p>None at release time.</p>
+<h2 id="performance">📈 Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fuzzy search is highly optimized using RapidFuzz</li>
+<li>Typical search response time: &lt;50ms for datasets with 10,000+ components</li>
+<li>FTS5 indexes provide sub-100ms full-text search</li>
+</ul>
+<h2 id="security">🔐 Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<ul>
+<li>All wizard endpoints require admin authentication</li>
+<li>No new security vulnerabilities introduced</li>
+<li>Maintains existing RBAC (Role-Based Access Control)</li>
+</ul>
+<h2 id="documentation">📚 Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h3 id="new-documentation">New Documentation<a class="headerlink" href="#new-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../../user/component-creation/">Component Creation Guide</a> - Complete wizard usage guide</li>
+<li>Updated README.md with v0.4.0 features</li>
+<li>Enhanced CHANGELOG.md</li>
+</ul>
+<h3 id="updated-documentation">Updated Documentation<a class="headerlink" href="#updated-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../../user/">User Guide Index</a> - Added component creation section</li>
+<li>Feature overview updated with wizard information</li>
+</ul>
+<h2 id="migration-guide">🎓 Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
 <h3 id="for-users">For Users<a class="headerlink" href="#for-users" title="Permanent link">&para;</a></h3>
-<p>No migration required. Simply update to v0.3.1:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-</span></code></pre></div>
+<p>No migration needed. The new wizard interface is the default for component creation, but existing components are unaffected.</p>
 <h3 id="for-developers">For Developers<a class="headerlink" href="#for-developers" title="Permanent link">&para;</a></h3>
-<p><strong>Node.js Requirement Updated</strong>:</p>
-<p>If you're developing locally, ensure you're using Node.js 20+:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Check Node.js version</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>node<span class="w"> </span>--version<span class="w">  </span><span class="c1"># Should show v20.x.x or higher</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># If using nvm</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>nvm<span class="w"> </span>install<span class="w"> </span><span class="m">20</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>nvm<span class="w"> </span>use<span class="w"> </span><span class="m">20</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># Install dependencies</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>npm<span class="w"> </span>install
-</span></code></pre></div>
-<p><strong>No other changes required</strong> - all updates are in CI/CD workflows and dev dependencies.</p>
-<h2 id="installation-upgrade">Installation &amp; Upgrade<a class="headerlink" href="#installation-upgrade" title="Permanent link">&para;</a></h2>
-<h3 id="fresh-installation">Fresh Installation<a class="headerlink" href="#fresh-installation" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Clone repository</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/madeinoz67/partshub.git
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nb">cd</span><span class="w"> </span>partshub
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Check Node.js version</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>node<span class="w"> </span>--version<span class="w">  </span><span class="c1"># Must be v20.x.x or higher</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1"># Install dependencies</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>make<span class="w"> </span>install
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="c1"># Run migrations</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1"># Start development servers</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>make<span class="w"> </span>dev
-</span></code></pre></div>
-<h3 id="upgrading-from-v030">Upgrading from v0.3.0<a class="headerlink" href="#upgrading-from-v030" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Pull latest changes</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Update dependencies (optional - only if developing)</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nb">cd</span><span class="w"> </span>frontend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>install
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># No other steps required - all fixes are in workflows</span>
-</span></code></pre></div>
-<h2 id="files-changed">Files Changed<a class="headerlink" href="#files-changed" title="Permanent link">&para;</a></h2>
-<p><strong>3 files changed</strong>: 5 insertions(+), 3 deletions(-)</p>
-<p><strong>Modified files</strong>:
-- <code>.github/workflows/release.yml</code> - Updated Node.js version to 20
-- <code>frontend/package.json</code> - Updated engines requirements and dependencies
-- <code>frontend/package-lock.json</code> - Updated dependency lock file</p>
-<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
-<h3 id="release-workflow">Release Workflow<a class="headerlink" href="#release-workflow" title="Permanent link">&para;</a></h3>
-<p>The release workflow now completes successfully:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>✅<span class="w"> </span>Validate<span class="w"> </span>Release<span class="w"> </span>Prerequisites
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>✅<span class="w"> </span>Build<span class="w"> </span>Release<span class="w"> </span>Artifacts
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>✅<span class="w"> </span>Backend<span class="w"> </span>artifact<span class="w"> </span>created
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span>✅<span class="w"> </span>Frontend<span class="w"> </span>artifact<span class="w"> </span>created
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span>✅<span class="w"> </span>Source<span class="w"> </span>archive<span class="w"> </span>created
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span>✅<span class="w"> </span>Checksums<span class="w"> </span>generated
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>✅<span class="w"> </span>Build<span class="w"> </span>Docker<span class="w"> </span>Image
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>✅<span class="w"> </span>Deploy<span class="w"> </span>Documentation
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>✅<span class="w"> </span>Create<span class="w"> </span>GitHub<span class="w"> </span>Release
-</span></code></pre></div></p>
-<h3 id="frontend-security">Frontend Security<a class="headerlink" href="#frontend-security" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>npm<span class="w"> </span>audit
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># found 0 vulnerabilities ✅</span>
-</span></code></pre></div>
-<h3 id="test-suite">Test Suite<a class="headerlink" href="#test-suite" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>npm<span class="w"> </span><span class="nb">test</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="c1"># Test Files  16 passed (16)</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1">#      Tests  319 passed (319) ✅</span>
-</span></code></pre></div>
-<h2 id="whats-included-from-v030">What's Included from v0.3.0<a class="headerlink" href="#whats-included-from-v030" title="Permanent link">&para;</a></h2>
-<p>This release includes all features from v0.3.0:</p>
-<h3 id="inline-stock-operations">🎯 Inline Stock Operations<a class="headerlink" href="#inline-stock-operations" title="Permanent link">&para;</a></h3>
+<p>If you've customized component creation:</p>
+<ol>
+<li>Review the new wizard API endpoints</li>
+<li>Update custom integrations to use <code>/api/v1/wizard/components</code></li>
+<li>Test fuzzy search functionality with your data</li>
+</ol>
+<h2 id="whats-next">🔮 What's Next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
+<p>Planned for v0.5.0:</p>
 <ul>
-<li>Add/Remove/Move stock operations</li>
-<li>Paginated transaction history (10 entries/page)</li>
-<li>Multi-format export (CSV/Excel/JSON)</li>
-<li>Automatic location tracking with <code>last_used_at</code></li>
-<li>Complete audit trail with lot and pricing information</li>
+<li>Wizard support for batch component import</li>
+<li>Enhanced provider integration with real-time pricing</li>
+<li>Component templates for common parts</li>
+<li>Improved mobile UI for wizard</li>
 </ul>
-<h3 id="stock-transaction-history">📊 Stock Transaction History<a class="headerlink" href="#stock-transaction-history" title="Permanent link">&para;</a></h3>
+<h2 id="support">📞 Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Server-side pagination</li>
-<li>Color-coded transaction types</li>
-<li>Real-time updates after operations</li>
-<li>Admin-only export functionality</li>
-</ul>
-<p>See <a href="../v0.3.0/">v0.3.0 release notes</a> for complete feature details.</p>
-<h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h2>
-<p><strong>TypeScript Strict Type Checking</strong>:
-- vue-tsc v3.1.0 has stricter type checking than v1.x
-- Produces ~50 type errors in test files
-- Does NOT affect:
-  - Runtime behavior ✅
-  - Test execution ✅
-  - Production builds ✅</p>
-<p>These are cosmetic errors related to test type assertions and can be addressed in future maintenance work.</p>
-<h2 id="support-feedback">Support &amp; Feedback<a class="headerlink" href="#support-feedback" title="Permanent link">&para;</a></h2>
-<ul>
+<li><strong>Documentation</strong>: <a href="https://docs.partshub.io">https://docs.partshub.io</a></li>
 <li><strong>Issues</strong>: <a href="https://github.com/madeinoz67/partshub/issues">GitHub Issues</a></li>
 <li><strong>Discussions</strong>: <a href="https://github.com/madeinoz67/partshub/discussions">GitHub Discussions</a></li>
-<li><strong>Documentation</strong>: <a href="../../user/stock-operations/">User Guide</a> | <a href="../../api/stock-operations/">API Reference</a></li>
+</ul>
+<h2 id="acknowledgments">🙏 Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permanent link">&para;</a></h2>
+<p>This release was made possible by:</p>
+<ul>
+<li>Improved testing infrastructure from v0.3.1</li>
+<li>Foundation laid in v0.3.0 for inline operations</li>
+<li>Community feedback on component creation workflow</li>
 </ul>
 <hr />
-<p><strong>Full Changelog</strong>: <a href="https://github.com/madeinoz67/partshub/blob/main/CHANGELOG.md">https://github.com/madeinoz67/partshub/blob/main/CHANGELOG.md</a></p>
+<h2 id="complete-changelog">Complete Changelog<a class="headerlink" href="#complete-changelog" title="Permanent link">&para;</a></h2>
+<p>For a detailed list of all changes, see <a href="../../CHANGELOG/#040-2025-10-07">CHANGELOG.md</a>.</p>
 
 
 
