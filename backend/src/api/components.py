@@ -145,6 +145,7 @@ def list_components(
     stock_status: str | None = Query(
         None, pattern="^(low|out|available)$", description="Filter by stock status"
     ),
+    tags: list[str] | None = Query(None, description="Filter by tag names"),
     sort_by: str = Query(
         "updated_at",
         pattern="^(name|quantity|created_at|updated_at)$",
@@ -166,6 +167,7 @@ def list_components(
         storage_location=storage_location,
         component_type=component_type,
         stock_status=stock_status,
+        tags=tags,
     )
 
     components = service.list_components(
@@ -175,6 +177,7 @@ def list_components(
         storage_location=storage_location,
         component_type=component_type,
         stock_status=stock_status,
+        tags=tags,
         sort_by=sort_by,
         sort_order=sort_order,
         limit=limit,
