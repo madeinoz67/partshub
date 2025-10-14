@@ -79,7 +79,7 @@
             </div>
           </q-expansion-item>
 
-          <div class="row q-gutter-sm">
+          <div class="row q-gutter-sm items-center">
             <q-btn
               type="submit"
               :label="searchButtonLabel"
@@ -94,6 +94,32 @@
               :disable="loading"
               @click="clearSearch"
             />
+
+            <!-- Save Search Button -->
+            <q-btn
+              v-if="hasSearched"
+              label="Save Search"
+              icon="bookmark_border"
+              color="secondary"
+              outline
+              :disable="loading"
+              @click="showSaveDialog = true"
+            />
+
+            <!-- Saved Searches Dropdown -->
+            <q-btn-dropdown
+              label="Saved Searches"
+              icon="bookmark"
+              color="primary"
+              outline
+              :disable="loading"
+            >
+              <saved-searches
+                compact
+                :max-items="5"
+                @execute="handleExecuteSavedSearch"
+              />
+            </q-btn-dropdown>
           </div>
         </q-form>
       </q-card-section>
@@ -219,6 +245,13 @@
         </div>
       </q-card-section>
     </q-card>
+
+    <!-- Save Search Dialog -->
+    <save-search-dialog
+      v-model="showSaveDialog"
+      :search-parameters="currentSearchParameters"
+      @saved="handleSearchSaved"
+    />
   </div>
 </template>
 
@@ -228,12 +261,17 @@ import { api } from '../boot/axios'
 import { useQuasar } from 'quasar'
 import ComponentSearchResults from './ComponentSearchResults.vue'
 import ComponentSearchResultCard from './ComponentSearchResultCard.vue'
+import SaveSearchDialog from './SaveSearchDialog.vue'
+import SavedSearches from './SavedSearches.vue'
+import { executeSavedSearch } from '../services/savedSearchesService'
 
 export default {
   name: 'ComponentSearch',
   components: {
     ComponentSearchResults,
-    ComponentSearchResultCard
+    ComponentSearchResultCard,
+    SaveSearchDialog,
+    SavedSearches
   },
   setup() {
     const $q = useQuasar()
@@ -247,11 +285,22 @@ export default {
     const providers = ref(['lcsc'])
     const selectedProviders = ref(['lcsc'])
 
+    // Saved searches state
+    const showSaveDialog = ref(false)
+    const hasSearched = ref(false)
+
     const searchTypeOptions = [
       { label: 'Unified Search', value: 'unified' },
       { label: 'Part Number', value: 'part_number' },
       { label: 'Provider SKU', value: 'provider_sku' }
     ]
+
+    const currentSearchParameters = computed(() => ({
+      search: query.value,
+      searchType: searchType.value,
+      limit: limit.value,
+      providers: selectedProviders.value.length > 0 ? selectedProviders.value : null
+    }))
 
     const searchInputLabel = computed(() => {
       switch (searchType.value) {
@@ -332,6 +381,7 @@ export default {
       searchResults.value = null
       standardResults.value = []
       skuResults.value = { total_found: 0, results: {} }
+      hasSearched.value = true
 
       try {
         let response
@@ -395,6 +445,48 @@ export default {
       searchResults.value = null
       standardResults.value = []
       skuResults.value = { total_found: 0, results: {} }
+      hasSearched.value = false
+    }
+
+    const handleExecuteSavedSearch = async (searchId) => {
+      try {
+        loading.value = true
+        const response = await executeSavedSearch(searchId)
+        const params = response.search_parameters
+
+        // Apply parameters to search state
+        query.value = params.search || ''
+        searchType.value = params.searchType || 'unified'
+        limit.value = params.limit || 20
+        selectedProviders.value = params.providers || ['lcsc']
+
+        // Execute the search
+        await search()
+
+        $q.notify({
+          type: 'positive',
+          message: 'Saved search loaded',
+          timeout: 2000,
+          icon: 'bookmark'
+        })
+      } catch (error) {
+        console.error('Error executing saved search:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to execute saved search',
+          timeout: 3000
+        })
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const handleSearchSaved = () => {
+      $q.notify({
+        type: 'info',
+        message: 'Search saved successfully',
+        timeout: 2000
+      })
     }
 
     const toggleProvider = (providerName) => {
@@ -474,7 +566,13 @@ export default {
       clearSearch,
       toggleProvider,
       importComponent,
-      viewComponentDetails
+      viewComponentDetails,
+      // Saved searches
+      showSaveDialog,
+      hasSearched,
+      currentSearchParameters,
+      handleExecuteSavedSearch,
+      handleSearchSaved
     }
   }
 }
