@@ -127,6 +127,7 @@ nav:
       - Data Volumes: deployment/volumes.md
       - Backup & Recovery: deployment/backup.md
       - Production Deployment: deployment/production.md
+      - Repository Setup: repository-setup.md
   - API Reference:
       - api.md
       - Bulk Operations: api/bulk-operations.md
@@ -139,13 +140,17 @@ nav:
       - backend/index.md
       - Testing Guide: backend/testing.md
       - KiCad Field Mappings: backend/kicad-field-mappings.md
+      - Database Performance: database/performance/index.md
   - Frontend:
       - frontend/index.md
   - Features:
       - Storage Location Layout: features/storage-location-layout.md
+      - Storage Location Migration: migrations/003-location-generation.md
   - Developer Guide:
       - developer/index.md
       - Workflows: developer/workflows.md
+      - Branch Protection: workflows/branch-protection.md
+      - Troubleshooting: workflows/troubleshooting.md
       - Session Notes (2025-09-27): developer/session-notes-2025-09-27.md
   - Releases:
       - releases/v0.4.0.md

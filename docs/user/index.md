@@ -99,7 +99,7 @@ New to PartsHub? We offer multiple ways to get started:
 - **KiCad Integration**: [KiCad Workflows](kicad-workflows.md)
 - **Technical Documentation**:
   - [Backend Testing](../backend/testing.md)
-  - [System Architecture](../architecture/)
+  - [System Architecture](../architecture/index.md)
 
 ---
 
