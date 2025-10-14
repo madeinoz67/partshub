@@ -44,7 +44,7 @@
             "description": "Implement ability to save and recall search queries",
             "dependencies": [],
             "details": "Store search queries in SQLite JSON fields with metadata, create API endpoints for saving and retrieving searches",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test saving and loading searches with different parameters"
           },
           {
@@ -466,11 +466,92 @@
         ],
         "priority": "medium",
         "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Extract UUID validation helper for saved searches API",
+        "description": "Create a reusable dependency function to validate search IDs across all endpoints, reducing code duplication in backend/src/api/saved_searches.py.",
+        "details": "1. Create a new utility function in backend/src/utils/uuid_validation.py that validates UUID format\n2. Implement the function to accept a string parameter and return boolean indicating valid UUID format\n3. Update all instances of UUID validation in saved_searches.py (lines 195-201, 239-245, 296-302, 328-334, 368-373) to use the new utility function\n4. Add type hints and docstrings to the utility function\n5. Ensure the function handles both UUID v4 format and any other UUID variants used in the system\n6. Add unit tests for the utility function covering valid and invalid UUID formats\n7. Document the new utility function in the project's API documentation",
+        "testStrategy": "1. Verify all existing UUID validation points in saved_searches.py now use the new utility function\n2. Test with valid UUID strings (e.g., '123e4567-e89b-12d3-a456-426614174000') to ensure validation passes\n3. Test with invalid UUID strings (e.g., '123e4567-e89b-12d3-a456-426614174000x', '123e4567-e89b-12d3-a456-42661417400') to ensure validation fails\n4. Run all existing saved searches API tests to ensure functionality remains unchanged\n5. Verify that the code duplication has been eliminated by checking the saved_searches.py file",
+        "status": "pending",
+        "dependencies": [
+          12
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Extract response serialization helper for saved searches API",
+        "description": "Create a reusable function to convert SavedSearch model to response dictionary, reducing duplication across multiple endpoints in saved_searches.py.",
+        "details": "1. Create a new utility function in backend/src/utils/saved_searches.py that accepts a SavedSearch model instance and returns a dictionary representation\n2. Implement the function to handle all required fields for API responses (id, name, query, created_at, updated_at)\n3. Replace all duplicated serialization code at lines 106-117, 151-165, 212-223, 271-282, 390-401 with calls to this new utility function\n4. Add type hints and docstrings to the utility function\n5. Ensure the function handles potential None values for optional fields\n6. Add comprehensive unit tests for the serialization function\n7. Verify that all endpoints using the SavedSearch model now use the new serialization function\n8. Consider adding support for additional fields that might be needed in future endpoints",
+        "testStrategy": "1. Verify all existing endpoints that return SavedSearch objects now use the new serialization function\n2. Test with valid SavedSearch instances to ensure proper dictionary conversion\n3. Test with instances containing None values for optional fields to ensure graceful handling\n4. Verify that the response structure matches the API specification\n5. Confirm that all test cases from the duplicated code sections are covered by the new implementation\n6. Run all existing API tests to ensure no regression in response format",
+        "status": "pending",
+        "dependencies": [
+          13
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Add composite database index for saved searches performance",
+        "description": "Create a composite database index on (user_id, updated_at DESC) in the saved_searches table to improve query performance for default list operations.",
+        "details": "1. Add a new index to the saved_searches table with columns user_id and updated_at in descending order\n2. Use SQL syntax appropriate for the database system (SQLite)\n3. Ensure the index is created with the correct column order (user_id first, then updated_at DESC)\n4. Verify the index is properly created using database tools\n5. Test the performance impact of the index on the default list query\n6. Consider adding a comment in the database migration file explaining the purpose of this index\n7. Ensure the index creation is part of the database migration process rather than a manual operation",
+        "testStrategy": "1. Run the default list query for saved searches before and after index creation to measure performance difference\n2. Verify the index is properly created by checking database metadata\n3. Test with a large dataset (10k+ saved searches) to ensure the index provides meaningful performance improvement\n4. Confirm that queries using user_id and updated_at as filters utilize the new index\n5. Verify that existing functionality continues to work correctly with the new index in place",
+        "status": "pending",
+        "dependencies": [
+          13,
+          14
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Add max searches per user limit for saved searches",
+        "description": "Implement validation in create_saved_search service method to prevent abuse by limiting users to maximum of 100 saved searches.",
+        "details": "1. Add validation logic in the create_saved_search service method to check if the user already has 100 saved searches\n2. Query the saved_searches table to count existing saved searches for the current user\n3. If count >= 100, return a 400 Bad Request response with appropriate error message\n4. If count < 100, proceed with creating the new saved search\n5. Add error handling for database query failures\n6. Implement proper error messages for different failure scenarios\n7. Ensure the validation is performed before any database writes occur\n8. Add unit tests for the validation logic\n9. Consider adding a configuration parameter for the max limit to allow future adjustments\n10. Update documentation to reflect the new limit",
+        "testStrategy": "1. Test with user having 99 saved searches - should allow creation of 100th search\n2. Test with user having 100 saved searches - should return 400 error with 'maximum limit reached' message\n3. Test with user having 101+ saved searches - should return 400 error\n4. Verify that the count query correctly filters by user_id\n5. Test with invalid user IDs to ensure proper error handling\n6. Verify that the validation occurs before database write\n7. Test with concurrent requests to ensure race condition is handled\n8. Verify error messages are clear and user-friendly\n9. Test with different database states (empty, 50 searches, 100 searches)\n10. Verify that the system doesn't allow creation of more than 100 searches",
+        "status": "pending",
+        "dependencies": [
+          13,
+          14,
+          15
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Optimize saved searches statistics query",
+        "description": "Replace in-memory aggregation with database-level aggregation using SQL COUNT functions in get_search_statistics method at lines 199-222 in backend/src/services/saved_search_service.py. Only matters for users with 100+ searches.",
+        "details": "1. Replace the current in-memory aggregation logic (lines 199-222) with a single SQL query using COUNT functions\n2. Implement a database-level aggregation query that counts saved searches by status (active, archived, deleted)\n3. Ensure the query handles the 100+ search limit scenario mentioned in Task 16\n4. Use proper SQL syntax for the database system (SQLite)\n5. Add appropriate error handling for database query failures\n6. Maintain the same response structure as the current implementation\n7. Consider performance implications for users with large numbers of saved searches\n8. Add comments explaining the database-level aggregation approach\n9. Update the method to return the correct statistics format expected by the frontend",
+        "testStrategy": "1. Test with a user having 100+ saved searches to verify the statistics query returns correct counts\n2. Verify the query returns the same statistics structure as the previous implementation\n3. Test with users having fewer than 100 searches to ensure the statistics query still works correctly\n4. Measure performance improvement compared to the previous in-memory aggregation approach\n5. Verify error handling for database query failures\n6. Test with various search statuses (active, archived, deleted) to ensure proper counting\n7. Validate that the query handles edge cases like empty search results",
+        "status": "pending",
+        "dependencies": [
+          16
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Remove generic exception handler from saved searches API",
+        "description": "Remove the catch-all exception handler at lines 118-122 in backend/src/api/saved_searches.py and let FastAPI handle unexpected errors naturally.",
+        "details": "1. Locate the catch-all exception handler at lines 118-122 in backend/src/api/saved_searches.py\n2. Remove the try-except block that catches all exceptions\n3. Ensure the function continues to handle specific exceptions properly (if any)\n4. Verify that FastAPI's default exception handling will now handle any unexpected errors\n5. Add appropriate logging for unexpected errors if needed\n6. Update any error messages to be more specific where possible\n7. Ensure the API response structure remains consistent with FastAPI's default error responses\n8. Test the API endpoints to confirm that unexpected errors are now handled by FastAPI's default exception handlers",
+        "testStrategy": "1. Test with valid requests to ensure normal functionality remains unchanged\n2. Test with invalid inputs to verify specific exception handling still works\n3. Test with deliberate errors (e.g., database connection failure) to confirm FastAPI's default error handling is triggered\n4. Verify error responses follow FastAPI's standard format (JSON with error details)\n5. Check logs to ensure proper error logging occurs for unexpected errors\n6. Confirm no regression in error handling for specific error cases that were previously handled",
+        "status": "pending",
+        "dependencies": [
+          14
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-10-14T13:40:34.817Z",
-      "updated": "2025-10-14T15:26:51.632Z",
+      "updated": "2025-10-14T15:38:40.972Z",
       "description": "Tasks for master context"
     }
   }
