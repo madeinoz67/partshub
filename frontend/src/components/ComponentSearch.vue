@@ -5,8 +5,28 @@
         <div class="text-h6 q-mb-md">Component Search</div>
 
         <q-form class="q-gutter-md" @submit="search">
-          <!-- Search Type Selection -->
+          <!-- Search Mode Toggle -->
+          <div class="row items-center q-mb-md">
+            <div class="col-auto q-mr-md">
+              <q-btn-toggle
+                v-model="searchMode"
+                :options="searchModeOptions"
+                toggle-color="primary"
+                unelevated
+                @update:model-value="onSearchModeChange"
+              />
+            </div>
+            <div v-if="searchMode === 'nl'" class="col-auto">
+              <q-icon name="info" color="info" size="sm" class="q-mr-xs" />
+              <span class="text-caption text-grey-7">
+                Try natural language like "resistors with low stock" or "capacitors in A1"
+              </span>
+            </div>
+          </div>
+
+          <!-- Search Type Selection (Standard Mode Only) -->
           <q-option-group
+            v-if="searchMode === 'standard'"
             v-model="searchType"
             :options="searchTypeOptions"
             color="primary"
@@ -14,8 +34,108 @@
             class="q-mb-md"
           />
 
-          <!-- Search Input -->
+          <!-- Natural Language Search Input -->
+          <div v-if="searchMode === 'nl'">
+            <q-input
+              v-model="nlQuery"
+              label="Natural Language Query"
+              placeholder="Try: 'find resistors with low stock', 'capacitors in A1', '10k SMD resistors'"
+              outlined
+              dense
+              :loading="loading"
+              @keyup.enter="search"
+            >
+              <template #prepend>
+                <q-icon name="psychology" />
+              </template>
+              <template #append>
+                <q-btn
+                  icon="search"
+                  color="primary"
+                  flat
+                  round
+                  dense
+                  :disable="!nlQuery.trim() || loading"
+                  @click="search"
+                />
+              </template>
+            </q-input>
+
+            <!-- Example Queries -->
+            <div class="q-mt-sm">
+              <span class="text-caption text-grey-7 q-mr-sm">Examples:</span>
+              <q-chip
+                v-for="example in exampleQueries"
+                :key="example"
+                clickable
+                size="sm"
+                color="grey-3"
+                text-color="grey-8"
+                class="q-mr-xs"
+                @click="useExampleQuery(example)"
+              >
+                {{ example }}
+              </q-chip>
+            </div>
+
+            <!-- NL Metadata Display -->
+            <div v-if="nlMetadata && hasSearched" class="q-mt-md">
+              <q-card flat bordered>
+                <q-card-section class="q-pa-sm">
+                  <div class="row items-center q-mb-sm">
+                    <div class="col">
+                      <span class="text-caption text-weight-medium">Query Understanding</span>
+                    </div>
+                    <div class="col-auto">
+                      <!-- Confidence Score -->
+                      <q-badge
+                        :color="getConfidenceColor(nlMetadata.confidence)"
+                        :label="`${Math.round(nlMetadata.confidence)}% confidence`"
+                      >
+                        <q-tooltip>
+                          {{ getConfidenceTooltip(nlMetadata.confidence) }}
+                        </q-tooltip>
+                      </q-badge>
+                    </div>
+                  </div>
+
+                  <!-- Parsed Parameters as Chips -->
+                  <div v-if="nlMetadata.parsed_entities && Object.keys(nlMetadata.parsed_entities).length > 0" class="q-mt-sm">
+                    <div class="text-caption text-grey-7 q-mb-xs">Parsed filters:</div>
+                    <div class="row q-gutter-xs">
+                      <q-chip
+                        v-for="(value, key) in nlMetadata.parsed_entities"
+                        :key="key"
+                        removable
+                        color="primary"
+                        text-color="white"
+                        size="sm"
+                        @remove="removeParsedFilter(key)"
+                      >
+                        <strong>{{ formatEntityKey(key) }}:</strong> {{ value }}
+                      </q-chip>
+                    </div>
+                  </div>
+
+                  <!-- FTS5 Fallback Warning -->
+                  <div v-if="nlMetadata.fallback_to_fts5" class="q-mt-sm">
+                    <q-banner dense class="bg-orange-1 text-orange-9">
+                      <template #avatar>
+                        <q-icon name="warning" color="orange" />
+                      </template>
+                      <span class="text-caption">
+                        Query couldn't be fully understood. Using text search fallback.
+                      </span>
+                    </q-banner>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+
+          <!-- Standard Search Input -->
           <q-input
+            v-else
             v-model="query"
             :label="searchInputLabel"
             :placeholder="searchInputPlaceholder"
@@ -120,16 +240,68 @@
                 @execute="handleExecuteSavedSearch"
               />
             </q-btn-dropdown>
+
+            <!-- NL Search History Dropdown -->
+            <q-btn-dropdown
+              v-if="searchMode === 'nl' && nlSearchHistory.length > 0"
+              label="History"
+              icon="history"
+              color="secondary"
+              outline
+              :disable="loading"
+            >
+              <q-list>
+                <q-item
+                  v-for="(historyQuery, index) in nlSearchHistory"
+                  :key="index"
+                  v-close-popup
+                  clickable
+                  @click="nlQuery = historyQuery; search()"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ historyQuery }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item
+                  v-close-popup
+                  clickable
+                  @click="clearSearchHistory"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="delete_sweep" color="negative" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>Clear History</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
           </div>
         </q-form>
       </q-card-section>
 
       <!-- Search Results -->
-      <q-card-section v-if="searchResults">
+      <q-card-section v-if="searchResults || (searchMode === 'nl' && standardResults.length > 0)">
         <q-separator class="q-mb-md" />
 
+        <!-- Natural Language Search Results -->
+        <div v-if="searchMode === 'nl' && standardResults.length > 0">
+          <div class="text-subtitle1 q-mb-md">
+            Natural Language Search Results
+            <q-badge color="positive" class="q-ml-sm">
+              {{ standardResults.length }} found
+            </q-badge>
+          </div>
+          <component-search-results
+            :results="standardResults"
+            @import="importComponent"
+            @view-details="viewComponentDetails"
+          />
+        </div>
+
         <!-- Unified Search Results -->
-        <div v-if="searchType === 'unified'">
+        <div v-else-if="searchType === 'unified'">
           <div class="text-subtitle1 q-mb-md">
             Unified Search Results for "{{ searchResults.query }}"
             <q-badge :color="searchResults.total_results > 0 ? 'positive' : 'negative'" class="q-ml-sm">
@@ -276,6 +448,8 @@ export default {
   setup() {
     const $q = useQuasar()
     const query = ref('')
+    const nlQuery = ref('')
+    const searchMode = ref('standard')
     const searchType = ref('unified')
     const loading = ref(false)
     const limit = ref(20)
@@ -284,16 +458,120 @@ export default {
     const skuResults = ref({ total_found: 0, results: {} })
     const providers = ref(['lcsc'])
     const selectedProviders = ref(['lcsc'])
+    const nlMetadata = ref(null)
+    const nlSearchHistory = ref([])
 
     // Saved searches state
     const showSaveDialog = ref(false)
     const hasSearched = ref(false)
+
+    const searchModeOptions = [
+      { label: 'Standard Search', value: 'standard' },
+      { label: 'Natural Language', value: 'nl' }
+    ]
 
     const searchTypeOptions = [
       { label: 'Unified Search', value: 'unified' },
       { label: 'Part Number', value: 'part_number' },
       { label: 'Provider SKU', value: 'provider_sku' }
     ]
+
+    const exampleQueries = [
+      'resistors with low stock',
+      'capacitors in location A1',
+      '10k SMD resistors',
+      'out of stock transistors',
+      'capacitors under 1uF'
+    ]
+
+    // Load NL search history from localStorage
+    const loadSearchHistory = () => {
+      try {
+        const stored = localStorage.getItem('nl_search_history')
+        if (stored) {
+          nlSearchHistory.value = JSON.parse(stored)
+        }
+      } catch (error) {
+        console.error('Failed to load search history:', error)
+      }
+    }
+
+    // Save NL search to history
+    const saveToHistory = (query) => {
+      if (!query || !query.trim()) return
+
+      // Remove duplicate if exists
+      nlSearchHistory.value = nlSearchHistory.value.filter(q => q !== query)
+
+      // Add to beginning
+      nlSearchHistory.value.unshift(query)
+
+      // Keep only last 10
+      nlSearchHistory.value = nlSearchHistory.value.slice(0, 10)
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('nl_search_history', JSON.stringify(nlSearchHistory.value))
+      } catch (error) {
+        console.error('Failed to save search history:', error)
+      }
+    }
+
+    // Clear search history
+    const clearSearchHistory = () => {
+      nlSearchHistory.value = []
+      localStorage.removeItem('nl_search_history')
+    }
+
+    // Use example query
+    const useExampleQuery = (example) => {
+      nlQuery.value = example
+      search()
+    }
+
+    // Format entity key for display
+    const formatEntityKey = (key) => {
+      return key
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase())
+    }
+
+    // Get confidence color
+    const getConfidenceColor = (confidence) => {
+      if (confidence >= 80) return 'positive'
+      if (confidence >= 50) return 'warning'
+      return 'negative'
+    }
+
+    // Get confidence tooltip
+    const getConfidenceTooltip = (confidence) => {
+      if (confidence >= 80) return 'High confidence - Query well understood'
+      if (confidence >= 50) return 'Medium confidence - Query partially understood'
+      return 'Low confidence - Using fallback text search'
+    }
+
+    // Remove parsed filter and re-search
+    const removeParsedFilter = (key) => {
+      if (nlMetadata.value && nlMetadata.value.parsed_entities) {
+        delete nlMetadata.value.parsed_entities[key]
+        // TODO: Implement re-search with updated filters
+        $q.notify({
+          type: 'info',
+          message: 'Filter removed. Please search again.',
+          timeout: 2000
+        })
+      }
+    }
+
+    // Handle search mode change
+    const onSearchModeChange = () => {
+      // Clear results when switching modes
+      searchResults.value = null
+      standardResults.value = []
+      skuResults.value = { total_found: 0, results: {} }
+      nlMetadata.value = null
+      hasSearched.value = false
+    }
 
     const currentSearchParameters = computed(() => ({
       search: query.value,
@@ -351,6 +629,10 @@ export default {
     })
 
     const hasNoResults = computed(() => {
+      if (searchMode.value === 'nl') {
+        return hasSearched.value && standardResults.value.length === 0
+      }
+
       if (!searchResults.value) return false
 
       if (searchType.value === 'unified') {
@@ -375,12 +657,67 @@ export default {
     }
 
     const search = async () => {
+      // Natural Language Search
+      if (searchMode.value === 'nl') {
+        if (!nlQuery.value.trim()) return
+
+        loading.value = true
+        searchResults.value = null
+        standardResults.value = []
+        skuResults.value = { total_found: 0, results: {} }
+        nlMetadata.value = null
+        hasSearched.value = true
+
+        try {
+          const response = await api.get('/api/v1/components', {
+            params: {
+              nl_query: nlQuery.value.trim(),
+              limit: limit.value
+            }
+          })
+
+          // Store results
+          standardResults.value = response.data.components || []
+          nlMetadata.value = response.data.nl_metadata || null
+
+          // Save to history
+          saveToHistory(nlQuery.value.trim())
+
+          // Show notification
+          if (standardResults.value.length > 0) {
+            $q.notify({
+              type: 'positive',
+              message: `Found ${standardResults.value.length} component(s)`,
+              timeout: 3000
+            })
+          } else {
+            $q.notify({
+              type: 'warning',
+              message: 'No components found',
+              timeout: 3000
+            })
+          }
+        } catch (error) {
+          console.error('Error in NL search:', error)
+          $q.notify({
+            type: 'negative',
+            message: `Search failed: ${error.response?.data?.detail || error.message}`,
+            timeout: 5000
+          })
+        } finally {
+          loading.value = false
+        }
+        return
+      }
+
+      // Standard Search
       if (!query.value.trim()) return
 
       loading.value = true
       searchResults.value = null
       standardResults.value = []
       skuResults.value = { total_found: 0, results: {} }
+      nlMetadata.value = null
       hasSearched.value = true
 
       try {
@@ -442,9 +779,11 @@ export default {
 
     const clearSearch = () => {
       query.value = ''
+      nlQuery.value = ''
       searchResults.value = null
       standardResults.value = []
       skuResults.value = { total_found: 0, results: {} }
+      nlMetadata.value = null
       hasSearched.value = false
     }
 
@@ -544,10 +883,14 @@ export default {
 
     onMounted(() => {
       loadProviders()
+      loadSearchHistory()
     })
 
     return {
       query,
+      nlQuery,
+      searchMode,
+      searchModeOptions,
       searchType,
       searchTypeOptions,
       loading,
@@ -557,6 +900,9 @@ export default {
       skuResults,
       providers,
       selectedProviders,
+      nlMetadata,
+      nlSearchHistory,
+      exampleQueries,
       searchInputLabel,
       searchInputPlaceholder,
       searchIcon,
@@ -572,7 +918,15 @@ export default {
       hasSearched,
       currentSearchParameters,
       handleExecuteSavedSearch,
-      handleSearchSaved
+      handleSearchSaved,
+      // NL search functions
+      useExampleQuery,
+      formatEntityKey,
+      getConfidenceColor,
+      getConfidenceTooltip,
+      removeParsedFilter,
+      onSearchModeChange,
+      clearSearchHistory
     }
   }
 }
@@ -582,5 +936,43 @@ export default {
 .component-search {
   max-width: 1000px;
   margin: 0 auto;
+}
+
+/* Natural Language Search Styling */
+.q-btn-toggle {
+  border-radius: 4px;
+}
+
+/* Example queries styling */
+.component-search :deep(.q-chip--clickable) {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.component-search :deep(.q-chip--clickable:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Metadata card styling */
+.q-card.flat.bordered {
+  background-color: #f8f9fa;
+}
+
+/* Responsive adjustments for NL search */
+@media (max-width: 599px) {
+  .component-search .row.items-center {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .component-search .col-auto {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .q-btn-toggle {
+    width: 100%;
+  }
 }
 </style>
