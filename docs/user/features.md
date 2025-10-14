@@ -95,6 +95,15 @@ Electronics Lab
 - Ascending/Descending order
 - Save and share custom search configurations
 
+### Saved Searches
+Save frequently used search queries for quick access:
+- Store complex search parameters
+- Execute saved searches with one click
+- Track usage statistics
+- Organize searches by category
+
+**Detailed saved searches guide available in [Saved Searches Guide](saved-searches.md)**
+
 ### Examples
 - Find all resistors with stock < 10
 - List components added in the last 30 days
@@ -201,6 +210,7 @@ Bulk operations allow admin users to perform actions on multiple components simu
   - Manage stock quantities
   - Update storage locations
   - Generate API tokens
+  - Save and manage searches
 
 #### Admin Users
 - **All Authenticated Permissions, Plus:**

@@ -28,6 +28,7 @@ New to PartsHub? We offer multiple ways to get started:
   - Powerful search with multi-criteria filtering
   - Smart suggestion and related component recommendations
   - Real-time inventory insights and analytics
+  - Save and reuse frequently used searches
 
 - **Precision Tracking Technologies**
   - Barcode and QR code scanning for instant component updates
@@ -57,6 +58,9 @@ New to PartsHub? We offer multiple ways to get started:
 - **[Bulk Operations](bulk-operations.md)** - Manage multiple components efficiently (v0.2.0+)
 - **[Stock Operations](stock-operations.md)** - Track and manage inventory levels (v0.3.0+)
 
+### Search & Discovery
+- **[Saved Searches](saved-searches.md)** - Save and reuse component search queries (v0.5.0+)
+
 ### Integrations
 - **[KiCad Workflow Integration](kicad-workflows.md)** - Generate libraries and symbols
 
@@ -76,7 +80,7 @@ New to PartsHub? We offer multiple ways to get started:
 3. **Advanced Search & Retrieval**
    - Multi-parameter search
    - Filters by manufacturer, type, stock level
-   - Saved search and smart collections
+   - [Save frequently used searches](saved-searches.md)
 
 4. **Workflow Integrations**
    - Generate KiCad libraries
@@ -89,6 +93,7 @@ New to PartsHub? We offer multiple ways to get started:
 - Utilize barcode scanning for accuracy
 - Regularly backup inventory data
 - Use project tracking for comprehensive management
+- Save complex searches for quick reuse
 
 ## Need Help?
 

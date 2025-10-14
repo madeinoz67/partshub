@@ -119,6 +119,7 @@ nav:
       - Component Creation: user/component-creation.md
       - Bulk Operations: user/bulk-operations.md
       - Stock Operations: user/stock-operations.md
+      - Saved Searches: user/saved-searches.md
       - KiCad Workflows: user/kicad-workflows.md
   - Deployment:
       - Docker: deployment/docker.md
@@ -143,6 +144,7 @@ nav:
       - Database Performance: database/performance/index.md
   - Frontend:
       - frontend/index.md
+      - Saved Searches Integration: frontend/saved-searches-integration.md
   - Features:
       - Storage Location Layout: features/storage-location-layout.md
       - Storage Location Migration: migrations/003-location-generation.md
