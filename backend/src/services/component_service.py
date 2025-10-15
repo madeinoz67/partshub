@@ -606,7 +606,7 @@ class ComponentService:
         if search:
             # Use hybrid search (FTS5 + rapidfuzz) for better recall and typo tolerance
             component_ids = hybrid_search_components(
-                search, session=self.db, limit=1000, fuzzy_threshold=5
+                search, session=self.db, limit=1000, fuzzy_threshold=0
             )
             if component_ids:
                 query = query.filter(Component.id.in_(component_ids))
@@ -738,7 +738,7 @@ class ComponentService:
         if search:
             # Use hybrid search (FTS5 + rapidfuzz) - same as list_components
             component_ids = hybrid_search_components(
-                search, session=self.db, limit=10000, fuzzy_threshold=5
+                search, session=self.db, limit=10000, fuzzy_threshold=0
             )
             if component_ids:
                 query = query.filter(Component.id.in_(component_ids))
