@@ -146,9 +146,9 @@ class TestProviderIntegration:
 
         # Import component using provider data
         import_data = {
-            "name": provider_result.get("description", "Provider Component"),
-            "part_number": provider_result.get("part_number", "PROVIDER-001"),
-            "manufacturer": provider_result.get("manufacturer", "Unknown"),
+            "name": provider_result.get("description") or "Provider Component",
+            "part_number": provider_result.get("part_number") or "PROVIDER-001",
+            "manufacturer": provider_result.get("manufacturer") or "Unknown",
             "category_id": category_id,
             "storage_location_id": storage_id,
             "component_type": "capacitor",
@@ -168,6 +168,9 @@ class TestProviderIntegration:
         component_response = client.post(
             "/api/v1/components", json=import_data, headers=admin_headers
         )
+        if component_response.status_code != 201:
+            print(f"Component creation failed: {component_response.status_code}")
+            print(f"Response: {component_response.text}")
         assert component_response.status_code == 201
         component_data = component_response.json()
 
@@ -322,9 +325,9 @@ class TestProviderIntegration:
 
         # Create component with detailed specifications from provider
         component_data = {
-            "name": provider_result.get("description", "STM32 Microcontroller"),
-            "part_number": provider_result.get("part_number", "STM32F103C8T6"),
-            "manufacturer": provider_result.get("manufacturer", "STMicroelectronics"),
+            "name": provider_result.get("description") or "STM32 Microcontroller",
+            "part_number": provider_result.get("part_number") or "STM32F103C8T6",
+            "manufacturer": provider_result.get("manufacturer") or "STMicroelectronics",
             "category_id": category_id,
             "storage_location_id": storage_id,
             "component_type": "microcontroller",
@@ -424,9 +427,9 @@ class TestProviderIntegration:
         imported_components = []
         for i, provider_result in enumerate(search_data["results"][:2]):
             component_data = {
-                "name": provider_result.get("description", f"Bulk Component {i+1}"),
-                "part_number": provider_result.get("part_number", f"BULK-{i+1:03d}"),
-                "manufacturer": provider_result.get("manufacturer", "Unknown"),
+                "name": provider_result.get("description") or f"Bulk Component {i+1}",
+                "part_number": provider_result.get("part_number") or f"BULK-{i+1:03d}",
+                "manufacturer": provider_result.get("manufacturer") or "Unknown",
                 "category_id": category_id,
                 "storage_location_id": storage_id,
                 "component_type": "resistor",
