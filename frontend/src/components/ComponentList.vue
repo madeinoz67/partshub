@@ -74,6 +74,20 @@
               <span class="add-text-short">Add</span>
             </q-btn>
           </div>
+
+          <!-- Save Search Button -->
+          <div v-if="hasSearched" class="col-auto">
+            <q-btn
+              label="Save Search"
+              icon="bookmark_border"
+              color="secondary"
+              outline
+              dense
+              @click="showSaveDialog = true"
+            >
+              <q-tooltip>Save current search filters</q-tooltip>
+            </q-btn>
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -1155,6 +1169,13 @@
         </div>
       </template>
     </q-table>
+
+    <!-- Save Search Dialog -->
+    <SaveSearchDialog
+      v-model="showSaveDialog"
+      :search-parameters="currentSearchParameters"
+      @saved="handleSearchSaved"
+    />
   </div>
 </template>
 
@@ -1172,6 +1193,7 @@ import AddStockForm from './stock/AddStockForm.vue'
 import RemoveStockForm from './stock/RemoveStockForm.vue'
 import MoveStockForm from './stock/MoveStockForm.vue'
 import StockHistoryTable from './stock/StockHistoryTable.vue'
+import SaveSearchDialog from './SaveSearchDialog.vue'
 import { api } from '../boot/axios'
 import type { Component } from '../services/api'
 import type { ComponentAttachment } from '../types/componentList'
@@ -1234,6 +1256,10 @@ const detailedAttachments = ref<Record<string, unknown[]>>({})
 const barcodeScannerRef = ref()
 const showBarcodeScanner = ref(false)
 const historyRefreshTrigger = ref<Record<string, boolean>>({}) // Track history refresh triggers per component
+
+// Saved searches state
+const hasSearched = ref(false)
+const showSaveDialog = ref(false)
 
 // Sync selection with store
 watch(selected, (newSelected) => {
@@ -1346,6 +1372,13 @@ const categoryOptions = computed(() => {
   }))
 })
 
+// Current search parameters for saved searches
+const currentSearchParameters = computed(() => ({
+  search: searchQuery.value,
+  category: selectedCategory.value || null,
+  stock_status: activeFilter.value !== 'all' ? activeFilter.value : null
+}))
+
 // Stock dropdown options computed from store metrics (currently unused)
 
 // Methods
@@ -1407,11 +1440,16 @@ const getAttachmentIcons = (attachments: unknown[] = []) => {
 
 const onSearch = (query: string) => {
   componentsStore.searchComponents(query)
+  // Mark that a search has been performed
+  if (query && query.trim()) {
+    hasSearched.value = true
+  }
 }
 
 const clearSearch = () => {
   searchQuery.value = ''
   componentsStore.searchComponents('')
+  hasSearched.value = false
 }
 
 const onCategoryFilter = (category: string) => {
@@ -1673,6 +1711,15 @@ const handleStockOperationSuccess = async (componentId: string) => {
 const handleHistoryRefreshed = (componentId: string) => {
   // Reset the refresh trigger after history has been refreshed
   historyRefreshTrigger.value[componentId] = false
+}
+
+const handleSearchSaved = () => {
+  $q.notify({
+    type: 'positive',
+    message: 'Search saved successfully',
+    timeout: 2000,
+    icon: 'bookmark'
+  })
 }
 
 const confirmDeleteAttachment = (attachment: ComponentAttachment, componentId: string) => {
