@@ -16,27 +16,41 @@ Saved Searches allow you to store frequently used search parameters and quickly 
 ### Saving a Search
 
 1. Go to the Component Search page
-2. Enter your search criteria and click "Search"
-3. After results appear, click the **"Save Search"** button
-4. Enter a descriptive name (required)
-5. Optionally add a description to help remember what this search is for
-6. Click "Save Search"
+2. Enter your search criteria (search text, category filter, stock status)
+3. Click "Search" to see results
+4. After results appear, click the **"Save Search"** button
+5. Enter a descriptive name (required)
+6. Optionally add a description to help remember what this search is for
+7. Review the search parameters that will be saved
+8. Click "Save Search"
 
 A success notification will confirm your search has been saved.
 
 ### Using a Saved Search
 
-1. Click the **"Saved Searches"** dropdown button on the search page
-2. Select a saved search from the list
+#### From the Saved Searches Page:
+
+1. Navigate to the **Saved Searches** page from the main menu
+2. Click the "Execute" button next to any saved search
+3. You'll be automatically redirected to the Components page
+4. Search parameters will be loaded and the search will execute automatically
+5. A notification will confirm the saved search was loaded
+
+#### From the Component List Page:
+
+1. Click the **"Saved Searches"** dropdown button on the component list page
+2. Select a saved search from the dropdown list
 3. The search parameters automatically load and execute
 
 Your search results will appear instantly with the saved criteria applied.
 
 ### Managing Saved Searches
 
-Navigate to the Saved Searches management page (or use the "View all" link in the dropdown) to:
+Navigate to the **Saved Searches** management page to:
 
 - View all your saved searches
+- See usage statistics (total, used, unused searches)
+- View your most recently used searches
 - Sort by name, creation date, or last used date
 - Execute any saved search
 - Edit search names and descriptions
@@ -47,12 +61,22 @@ Navigate to the Saved Searches management page (or use the "View all" link in th
 
 ### Search Parameters Saved
 
-When you save a search, the following parameters are captured:
+When you save a search, the following parameters are captured (as of v0.5.0):
 
-- **Search Query** - The text search term
-- **Search Type** - unified, part_number, or provider_sku
-- **Result Limit** - Number of results to display
-- **Provider Filters** - Selected component providers
+- **Search Query** - The text search term entered in the search field
+- **Category Filter** - Selected component category (e.g., "passive", "active", "mechanical")
+- **Stock Status Filter** - Stock level filter (e.g., "low", "critical", "available", "out_of_stock")
+
+Note: Only non-empty parameters are saved. If you leave a field blank, it won't be included in the saved search.
+
+### Search Parameter Visibility
+
+When you execute a saved search:
+
+- Search parameters automatically populate the search form fields
+- You can see exactly what filters are active
+- You can modify the parameters and perform a new search
+- You can save the modified search as a new saved search
 
 ### Statistics Dashboard
 
@@ -61,7 +85,7 @@ The Saved Searches management page displays useful statistics:
 - **Total Searches** - How many searches you've saved
 - **Used Searches** - Searches you've executed at least once
 - **Unused Searches** - Searches you haven't used yet
-- **Most Used Searches** - Your top 5 most frequently used searches with quick-access execute buttons
+- **Most Recent Search** - Your most recently executed search with quick-access execute button
 
 ### Sorting and Pagination
 
@@ -78,25 +102,40 @@ The full management view includes:
 
 Create a saved search for components with low stock levels and check it regularly:
 
-1. Search for components with your low-stock criteria
-2. Save as "Low Stock Check"
-3. Execute periodically to monitor inventory
+1. Set the stock status filter to "low"
+2. Optionally add a search term or category
+3. Click "Search"
+4. Save as "Low Stock Check"
+5. Execute periodically to monitor inventory
 
-### Manufacturer-Specific Searches
+### Category Browsing
 
-Save searches for your frequently ordered manufacturers:
+Save searches for each component category you work with frequently:
 
-1. Search for a specific manufacturer
-2. Save as "Manufacturer Name - Components"
-3. Quickly access all components from that manufacturer
+1. Select a category filter (e.g., "passive components")
+2. Click "Search"
+3. Save as "Passive Components"
+4. Quickly access all components in that category
+
+### Combining Filters
+
+Create searches with multiple criteria:
+
+1. Enter search text: "resistor"
+2. Select category: "passive"
+3. Select stock status: "available"
+4. Click "Search"
+5. Save as "Available Resistors"
+6. Quickly find in-stock resistors when needed
 
 ### Project Component Tracking
 
 Save searches for components related to specific projects:
 
-1. Use tags or descriptions that match your project
-2. Save as "Project Name - Components"
-3. Easily find all relevant parts when working on the project
+1. Enter a search term that matches your project
+2. Apply relevant category or stock filters
+3. Save as "Project Name - Components"
+4. Easily find all relevant parts when working on the project
 
 ### Category Management
 
@@ -112,8 +151,9 @@ Create saved searches for each component category:
 
 Use clear, descriptive names for your saved searches:
 
-- Good: "Resistors - 1% Tolerance - Low Stock"
-- Good: "STMicroelectronics - All ICs"
+- Good: "Resistors - Low Stock"
+- Good: "Passive Components - Available"
+- Good: "Capacitors - All Categories"
 - Avoid: "Search 1", "Test", "Temp"
 
 ### Adding Descriptions
@@ -125,13 +165,15 @@ Include context in the description field:
 - When to use this search
 - Special criteria or filters applied
 
+Example: "Weekly check for passive components running low on stock. Used for ordering decisions."
+
 ### Regular Cleanup
 
 Periodically review and delete:
 
 - Searches you no longer use
 - Duplicate searches
-- Test searches
+- Test searches created while learning the feature
 
 ### Duplicating for Variations
 
@@ -139,36 +181,48 @@ Instead of creating similar searches from scratch:
 
 1. Find an existing search that's close to what you need
 2. Click the "Duplicate" button
-3. Give it a new name
-4. Execute and adjust criteria as needed
-5. Save the updated search
+3. Give it a new name (e.g., "Critical Low Stock" from "Low Stock")
+4. Execute the duplicated search
+5. Modify criteria as needed (e.g., change from "low" to "critical")
+6. The modified search is already saved
+
+Note: Currently, to change search parameters in a saved search, you need to execute it, modify the criteria, and save as a new search.
 
 ## Managing Your Searches
 
 ### Editing
 
-You can edit the **name** and **description** of saved searches, but not the search parameters themselves. To change search parameters:
+You can edit the **name** and **description** of saved searches through the management page:
+
+1. Click the "Edit" icon next to the search
+2. Modify the name or description
+3. Click "Save"
+
+To change search parameters:
 
 1. Execute the saved search
-2. Modify the search criteria
-3. Save as a new search
+2. Modify the search criteria in the search form
+3. Click "Save Search" to save as a new search (with a different name)
 
 ### Deleting
 
 To delete a saved search:
 
 1. Click the delete icon next to the search
-2. Confirm the deletion in the dialog
+2. Confirm the deletion in the confirmation dialog
 3. The search is permanently removed
 
 Warning: Deletion cannot be undone. Consider duplicating important searches before experimenting with variations.
 
 ### Execution Updates
 
-Each time you execute a saved search, the system updates:
+Each time you execute a saved search, the system automatically:
 
-- **Last Used Date** - Timestamp of most recent execution
-- **Usage Statistics** - Tracked for "Most Used" rankings
+- Updates the **Last Used Date** timestamp
+- Tracks usage for statistics
+- Loads the search parameters into the search form
+- Executes the search automatically
+- Displays a success notification
 
 ## Keyboard Navigation
 
@@ -182,9 +236,10 @@ All saved search components support keyboard navigation:
 
 Saved searches work seamlessly on mobile devices:
 
-- Responsive dropdown interface
+- Responsive dropdown interface on component list page
 - Touch-optimized buttons
 - Full management page accessible on mobile
+- All features available on smaller screens
 
 ## Troubleshooting
 
@@ -194,7 +249,7 @@ The "Save Search" button only appears after you've performed a search with resul
 
 1. Ensure you've clicked the "Search" button
 2. Verify that search results are displayed
-3. Check that you're logged in (if authentication is required)
+3. Check that you're logged in (authentication required)
 
 ### Saved Search Not Loading
 
@@ -204,15 +259,27 @@ If a saved search won't execute:
 2. Try refreshing the page
 3. Verify the search still exists in your saved list
 4. Check browser console for error messages
+5. Ensure you're logged in with a valid session
 
 ### Missing Saved Searches
 
 If your saved searches disappeared:
 
 1. Verify you're logged in with the correct account
-2. Check if filters or sorting are hiding the search
+2. Check if sorting is hiding the search (try sorting by "name" or "created date")
 3. Try refreshing the page
-4. Contact support if searches are truly missing
+4. Check that filters or pagination aren't hiding the search
+5. Contact support if searches are truly missing
+
+### Parameters Not Loading
+
+If search parameters don't populate when executing a saved search:
+
+1. Verify you're on the Components page after execution
+2. Check the browser console for errors
+3. Try refreshing the page and executing again
+4. Verify the saved search still exists
+5. Check that the search parameters are valid
 
 ## Privacy and Data
 
@@ -230,15 +297,23 @@ Saved search data includes:
 
 - Search name and description
 - Search parameters (as JSON)
-- Metadata (creation date, last used date, usage count)
+- Metadata (creation date, last used date)
 - User association
 
 No actual search results are stored - only the parameters needed to re-run the search.
+
+### Security
+
+- All saved search operations require authentication
+- Search data is encrypted in transit (HTTPS)
+- User isolation prevents cross-user access
+- No sensitive component data is stored in search parameters
 
 ## Future Enhancements
 
 Planned improvements to saved searches include:
 
+- **Extended Parameters** - Save additional search criteria (tags, manufacturers, part numbers)
 - **Shared Searches** - Share searches with team members
 - **Search Folders** - Organize searches into categories
 - **Search Tags** - Tag searches for better organization
@@ -252,6 +327,7 @@ Planned improvements to saved searches include:
 - [Component Search](features.md#search-and-filtering-capabilities) - Learn about search capabilities
 - [Bulk Operations](bulk-operations.md) - Perform actions on multiple components
 - [Stock Operations](stock-operations.md) - Manage component inventory
+- [API Documentation](../api/saved-searches.md) - Technical API reference
 
 ## Support
 
@@ -260,8 +336,9 @@ For additional help with saved searches:
 1. Check the [Features Guide](features.md) for related functionality
 2. Review the [Getting Started Guide](getting-started.md) for general PartsHub usage
 3. Submit questions or issues through the GitHub repository
+4. Contact your system administrator for account-related issues
 
 ---
 
 **Version**: Added in PartsHub v0.5.0
-**Last Updated**: 2025-10-14
+**Last Updated**: 2025-10-15

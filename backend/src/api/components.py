@@ -328,7 +328,7 @@ def list_components(
 
 
 @router.post("", response_model=ComponentResponse, status_code=status.HTTP_201_CREATED)
-def create_component(
+async def create_component(
     component: ComponentCreate,
     db: Session = Depends(get_db),
     current_user=Depends(require_auth),
@@ -489,7 +489,7 @@ def get_component(component_id: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{component_id}", response_model=ComponentResponse)
-def update_component(
+async def update_component(
     component_id: str,
     component_update: ComponentUpdate,
     current_user=Depends(require_auth),
@@ -521,7 +521,7 @@ def update_component(
 
 
 @router.delete("/{component_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_component(
+async def delete_component(
     component_id: str, current_user=Depends(require_auth), db: Session = Depends(get_db)
 ):
     """Delete a component."""
@@ -538,7 +538,7 @@ def delete_component(
 
 
 @router.post("/{component_id}/stock", response_model=StockTransactionResponse)
-def update_component_stock(
+async def update_component_stock(
     component_id: str,
     stock_update: StockTransactionCreate,
     current_user=Depends(require_auth),

@@ -736,23 +736,15 @@ class ComponentService:
 
         # Apply the same filters as list_components
         if search:
-            search_term = f"%{search}%"
-            query = query.filter(
-                or_(
-                    Component.name.ilike(search_term),
-                    Component.part_number.ilike(search_term),
-                    Component.local_part_id.ilike(search_term),
-                    Component.barcode_id.ilike(search_term),
-                    Component.manufacturer_part_number.ilike(search_term),
-                    Component.provider_sku.ilike(search_term),
-                    Component.manufacturer.ilike(search_term),
-                    Component.component_type.ilike(search_term),
-                    Component.value.ilike(search_term),
-                    Component.package.ilike(search_term),
-                    Component.tags.any(Tag.name.ilike(search_term)),
-                    Component.notes.ilike(search_term),
-                )
+            # Use hybrid search (FTS5 + rapidfuzz) - same as list_components
+            component_ids = hybrid_search_components(
+                search, session=self.db, limit=10000, fuzzy_threshold=5
             )
+            if component_ids:
+                query = query.filter(Component.id.in_(component_ids))
+            else:
+                # No results from search - return empty result
+                query = query.filter(Component.id.is_(None))
 
         if category:
             query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))

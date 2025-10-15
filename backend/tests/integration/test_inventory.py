@@ -95,17 +95,7 @@ class TestInventoryManagement:
     @pytest.fixture
     def client(self, db_session):
         """Test client with shared database session"""
-        # Clear any existing overrides first
-        app.dependency_overrides.clear()
-
-        def override_get_db():
-            yield db_session
-
-        app.dependency_overrides[get_db] = override_get_db
-        client = TestClient(app)
-        yield client
-        # Clean up override after test
-        app.dependency_overrides.clear()
+        return TestClient(app)
 
     @pytest.fixture
     def admin_headers(self, db_session):
