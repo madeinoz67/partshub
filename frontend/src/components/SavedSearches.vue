@@ -327,8 +327,9 @@ export default {
           sort_by: sortBy.value,
           sort_order: sortOrder.value
         })
-        searches.value = response.searches
-        total.value = response.total
+        // Backend returns array directly, not { searches, total }
+        searches.value = Array.isArray(response) ? response : []
+        total.value = Array.isArray(response) ? response.length : 0
       } catch (error) {
         console.error('Error loading saved searches:', error)
         $q.notify({
@@ -336,6 +337,9 @@ export default {
           message: 'Failed to load saved searches',
           timeout: 3000
         })
+        // Set empty array on error to prevent undefined errors
+        searches.value = []
+        total.value = 0
       } finally {
         loading.value = false
       }
