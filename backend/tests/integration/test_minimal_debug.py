@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-def test_simple_component_creation(auth_headers, client):
+def test_simple_component_creation(auth_headers, client, db_session):
     """Minimal test using conftest fixtures"""
     # Create category
     cat_response = client.post(
@@ -48,13 +48,8 @@ def test_simple_component_creation(auth_headers, client):
     # Manually rebuild FTS
     from backend.src.database.search import get_component_search_service
     search_service = get_component_search_service()
-    from backend.src.database import get_session
-    session = get_session()
-    try:
-        count = search_service.rebuild_fts_index(session)
-        print(f"FTS rebuild: indexed {count} components")
-    finally:
-        session.close()
+    count = search_service.rebuild_fts_index(db_session)
+    print(f"FTS rebuild: indexed {count} components")
     
     # Search again
     search_response2 = client.get("/api/v1/components?search=TEST123")
