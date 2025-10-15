@@ -11,11 +11,11 @@
         </div>
         <div class="col-auto">
           <q-btn
-            label="Back to Search"
+            label="Back to Components"
             icon="arrow_back"
             color="primary"
             outline
-            @click="$router.push('/search')"
+            @click="$router.push('/components')"
           />
         </div>
       </div>
@@ -129,9 +129,9 @@ export default {
     const handleExecute = async (searchId) => {
       try {
         const response = await executeSavedSearch(searchId)
-        // Navigate to search page with parameters
+        // Navigate to components page with parameters
         router.push({
-          path: '/search',
+          path: '/components',
           query: {
             savedSearchId: searchId
           }
