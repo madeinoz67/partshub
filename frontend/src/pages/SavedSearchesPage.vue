@@ -66,7 +66,7 @@
           >
             <q-item-section>
               <q-item-label class="text-weight-medium">{{ search.name }}</q-item-label>
-              <q-item-label caption v-if="search.description">
+              <q-item-label v-if="search.description" caption>
                 {{ search.description }}
               </q-item-label>
             </q-item-section>

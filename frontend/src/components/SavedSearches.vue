@@ -65,7 +65,7 @@
         >
           <q-item-section>
             <q-item-label>{{ search.name }}</q-item-label>
-            <q-item-label caption v-if="search.description">
+            <q-item-label v-if="search.description" caption>
               {{ search.description }}
             </q-item-label>
           </q-item-section>
@@ -93,7 +93,7 @@
             <q-item-label class="text-weight-medium">
               {{ search.name }}
             </q-item-label>
-            <q-item-label caption v-if="search.description" class="q-mt-xs">
+            <q-item-label v-if="search.description" caption class="q-mt-xs">
               {{ search.description }}
             </q-item-label>
             <div class="row q-gutter-sm q-mt-sm">

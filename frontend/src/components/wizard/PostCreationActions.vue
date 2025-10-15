@@ -87,15 +87,15 @@ watch(
             <div class="col-4 text-grey-7">Part Number:</div>
             <div class="col-8">{{ wizardStore.selectedPart.part_number }}</div>
           </div>
-          <div class="row q-mb-sm" v-if="wizardStore.selectedPart.description">
+          <div v-if="wizardStore.selectedPart.description" class="row q-mb-sm">
             <div class="col-4 text-grey-7">Description:</div>
             <div class="col-8">{{ wizardStore.selectedPart.description }}</div>
           </div>
-          <div class="row q-mb-sm" v-if="wizardStore.selectedPart.manufacturer">
+          <div v-if="wizardStore.selectedPart.manufacturer" class="row q-mb-sm">
             <div class="col-4 text-grey-7">Manufacturer:</div>
             <div class="col-8">{{ wizardStore.selectedPart.manufacturer }}</div>
           </div>
-          <div class="row" v-if="wizardStore.selectedProvider">
+          <div v-if="wizardStore.selectedProvider" class="row">
             <div class="col-4 text-grey-7">Provider:</div>
             <div class="col-8">{{ wizardStore.selectedProvider.name }}</div>
           </div>
@@ -115,11 +115,11 @@ watch(
             <div class="col-4 text-grey-7">Name:</div>
             <div class="col-8">{{ wizardStore.localPartData.name }}</div>
           </div>
-          <div class="row q-mb-sm" v-if="wizardStore.localPartData.description">
+          <div v-if="wizardStore.localPartData.description" class="row q-mb-sm">
             <div class="col-4 text-grey-7">Description:</div>
             <div class="col-8">{{ wizardStore.localPartData.description }}</div>
           </div>
-          <div class="row q-mb-sm" v-if="wizardStore.localPartData.manufacturer_name">
+          <div v-if="wizardStore.localPartData.manufacturer_name" class="row q-mb-sm">
             <div class="col-4 text-grey-7">Manufacturer:</div>
             <div class="col-8">
               {{ wizardStore.localPartData.manufacturer_name }}
@@ -128,7 +128,7 @@ watch(
               </q-badge>
             </div>
           </div>
-          <div class="row" v-if="wizardStore.localPartData.footprint_name">
+          <div v-if="wizardStore.localPartData.footprint_name" class="row">
             <div class="col-4 text-grey-7">Footprint:</div>
             <div class="col-8">
               {{ wizardStore.localPartData.footprint_name }}
@@ -214,7 +214,7 @@ watch(
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       You will be redirected to the component detail page after creation.
@@ -225,7 +225,7 @@ watch(
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       You will be redirected to the component page where you can add initial stock.
@@ -236,7 +236,7 @@ watch(
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       The wizard will reset and you can create another component immediately. (FR-014)

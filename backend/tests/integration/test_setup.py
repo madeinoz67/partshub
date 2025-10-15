@@ -154,6 +154,7 @@ class TestFirstTimeSetup:
         # Step 8: Test search functionality
         # Debug: Check how many components exist before rebuild
         from sqlalchemy import text
+
         result = db_session.execute(text("SELECT COUNT(*) FROM components"))
         comp_count = result.fetchone()[0]
         print(f"\nDEBUG: Components in database: {comp_count}")
@@ -179,14 +180,18 @@ class TestFirstTimeSetup:
         print(f"DEBUG: FTS entries after rebuild: {fts_count_after}")
 
         # Check what's in FTS
-        result = db_session.execute(text("SELECT id, name, part_number FROM components_fts LIMIT 5"))
+        result = db_session.execute(
+            text("SELECT id, name, part_number FROM components_fts LIMIT 5")
+        )
         fts_samples = result.fetchall()
         print(f"DEBUG: Sample FTS entries: {fts_samples}")
 
         search_response = client.get("/api/v1/components?search=10k")
         assert search_response.status_code == 200
         search_data = search_response.json()
-        print(f"DEBUG: Search returned total={search_data['total']}, components_len={len(search_data['components'])}")
+        print(
+            f"DEBUG: Search returned total={search_data['total']}, components_len={len(search_data['components'])}"
+        )
         print(f"DEBUG: Components list: {search_data['components']}")
         assert search_data["total"] >= 1, f"Search returned no results: {search_data}"
 

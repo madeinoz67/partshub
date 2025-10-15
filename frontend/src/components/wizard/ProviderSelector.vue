@@ -143,7 +143,7 @@ onMounted(() => {
 
           <q-card-section v-if="!provider.api_key_configured" class="q-pt-none">
             <q-banner class="bg-warning text-white" dense rounded>
-              <template v-slot:avatar>
+              <template #avatar>
                 <q-icon name="warning" />
               </template>
               API key not configured. Search may be limited.
@@ -158,7 +158,7 @@ onMounted(() => {
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       You can search {{ selectedProvider.name }} for parts in the next step.

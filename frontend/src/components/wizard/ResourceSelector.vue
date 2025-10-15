@@ -123,7 +123,7 @@ watch(
 
           <q-item-section>
             <q-item-label>{{ getResourceConfig(resource.type).label }}</q-item-label>
-            <q-item-label caption v-if="resource.url">
+            <q-item-label v-if="resource.url" caption>
               {{ resource.url }}
             </q-item-label>
           </q-item-section>
@@ -161,7 +161,7 @@ watch(
 
       <!-- Info Banner -->
       <q-banner class="bg-info text-white q-mt-md" rounded>
-        <template v-slot:avatar>
+        <template #avatar>
           <q-icon name="info" />
         </template>
         <div>
@@ -188,7 +188,7 @@ watch(
       </p>
 
       <q-banner class="bg-info text-white q-mt-md" rounded>
-        <template v-slot:avatar>
+        <template #avatar>
           <q-icon name="info" />
         </template>
         Resource management will be available on the component detail page.
