@@ -9,7 +9,7 @@ import tempfile
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from backend.src.database import get_db
 from backend.src.main import app
@@ -56,8 +56,14 @@ class TestInventoryManagement:
         def override_get_db():
             yield session
 
+        from fastapi import Depends
+        from fastapi.security import HTTPBearer
+
+        security = HTTPBearer(auto_error=False)
+
         async def test_get_optional_user(
-            credentials: HTTPAuthorizationCredentials = None, db=None
+            credentials: HTTPAuthorizationCredentials | None = Depends(security),
+            db: Session = Depends(override_get_db),
         ):
             """TestClient-compatible version of get_optional_user"""
             if not credentials:
