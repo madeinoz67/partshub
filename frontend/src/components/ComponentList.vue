@@ -1183,7 +1183,7 @@
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useComponentsStore } from '../stores/components'
 import { useSelectionStore } from '../stores/selection'
 import { useAuth } from '../composables/useAuth'
@@ -1195,6 +1195,7 @@ import MoveStockForm from './stock/MoveStockForm.vue'
 import StockHistoryTable from './stock/StockHistoryTable.vue'
 import SaveSearchDialog from './SaveSearchDialog.vue'
 import { api } from '../boot/axios'
+import { executeSavedSearch } from '../services/savedSearchesService'
 import type { Component } from '../services/api'
 import type { ComponentAttachment } from '../types/componentList'
 
@@ -1234,6 +1235,7 @@ const selectionStore = useSelectionStore()
 const { canPerformCrud } = useAuth()
 const $q = useQuasar()
 const router = useRouter()
+const route = useRoute()
 const {
   components,
   loading,
@@ -1278,6 +1280,56 @@ watch(selected, (newSelected) => {
     selectionStore.removeSelection(toRemove)
   }
 }, { deep: true })
+
+// Watch for savedSearchId query parameter to load saved search
+watch(() => route.query.savedSearchId, async (savedSearchId) => {
+  if (savedSearchId) {
+    try {
+      // Fetch the saved search parameters
+      const response = await executeSavedSearch(savedSearchId)
+      const params = response.search_parameters
+
+      // Apply the search parameters to the reactive refs
+      searchQuery.value = params.search || ''
+      selectedCategory.value = params.category || ''
+      activeFilter.value = params.stock_status || 'all'
+
+      // Apply category filter if present
+      if (params.category) {
+        componentsStore.filterByCategory(params.category)
+      }
+
+      // Apply stock status filter if present
+      if (params.stock_status && params.stock_status !== 'all') {
+        componentsStore.filterByStockStatus(params.stock_status)
+      }
+
+      // Trigger the search
+      if (params.search) {
+        onSearch(params.search)
+      }
+
+      // Mark that a search has been performed to show the Save button
+      hasSearched.value = true
+
+      // Show success notification
+      $q.notify({
+        type: 'positive',
+        message: 'Saved search loaded successfully',
+        timeout: 2000,
+        icon: 'bookmark_check'
+      })
+    } catch (error) {
+      console.error('Failed to load saved search:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Failed to load saved search',
+        timeout: 3000,
+        icon: 'error'
+      })
+    }
+  }
+}, { immediate: true })
 
 // Table configuration
 const columns = [

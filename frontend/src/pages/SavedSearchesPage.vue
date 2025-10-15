@@ -128,7 +128,7 @@ export default {
 
     const handleExecute = async (searchId) => {
       try {
-        const response = await executeSavedSearch(searchId)
+        await executeSavedSearch(searchId)
         // Navigate to components page with parameters
         router.push({
           path: '/components',
