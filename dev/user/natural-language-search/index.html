@@ -1,0 +1,3955 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Electronic Parts Inventory Management System">
+      
+      
+        <meta name="author" content="Stephen Eaton">
+      
+      
+        <link rel="canonical" href="https://madeinoz67.github.io/partshub/dev/user/natural-language-search/">
+      
+      
+        <link rel="prev" href="../stock-operations/">
+      
+      
+        <link rel="next" href="../saved-searches/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>Natural Language Search - PartsHub Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#natural-language-search" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PartsHub Documentation" class="md-header__button md-logo" aria-label="PartsHub Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PartsHub Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Natural Language Search
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/madeinoz67/partshub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    partshub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../deployment/docker/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../backend/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Backend
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../frontend/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Frontend
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../features/storage-location-layout/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Features
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../developer/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Developer Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../releases/v0.4.0/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Releases
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PartsHub Documentation" class="md-nav__button md-logo" aria-label="PartsHub Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PartsHub Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/madeinoz67/partshub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    partshub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Docker Quickstart
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Features
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../component-creation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Component Creation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bulk-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bulk Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stock-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stock Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Natural Language Search
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Natural Language Search
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Benefits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accessing-natural-language-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessing Natural Language Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#your-first-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Your First Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-component-type-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Component Type Queries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-stock-status-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Stock Status Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-location-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Location Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-value-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Value Filters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Value Filters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resistance-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resistance Values
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capacitance-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Capacitance Values
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#voltage-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Voltage Values
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Values
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-packagefootprint-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Package/Footprint Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-manufacturer-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Manufacturer Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-price-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Price Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-multi-entity-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Multi-Entity Queries
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understanding Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#confidence-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence Scoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parsed-filters-display" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parsed Filters Display
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search History
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-tips-and-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Tips and Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search Tips and Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writing-effective-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Writing Effective Queries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-better-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Better Results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-query-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Query Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-results-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      No Results Found
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-confidence-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Low Confidence Score
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unexpected-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unexpected Results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature Limitations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feature Limitations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-works-well" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Works Well
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-doesnt-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Doesn't Work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-standard-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use Standard Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frequently-asked-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frequently Asked Questions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frequently Asked Questions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q-how-is-this-different-from-standard-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: How is this different from standard search?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-can-i-save-natural-language-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Can I save natural language searches?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-does-it-use-ai-or-machine-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Does it use AI or machine learning?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-what-happens-if-it-doesnt-understand-my-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: What happens if it doesn't understand my query?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-can-i-search-for-multiple-component-types-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Can I search for multiple component types at once?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-why-do-i-see-medium-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Why do I see "Medium confidence"?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-can-i-use-wildcards-or-regex" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Can I use wildcards or regex?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-is-my-search-history-shared-with-other-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Is my search history shared with other users?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples-gallery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples Gallery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples Gallery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Searches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stock-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stock Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#location-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Location-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Value-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Package-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manufacturer-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manufacturer-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#price-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Price-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-combinations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Combinations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../saved-searches/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Saved Searches
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kicad-workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KiCad Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Deployment
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Docker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/docker-compose/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Docker Compose
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environment Variables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/volumes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Volumes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backup & Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/production/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Production Deployment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repository-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Repository Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PartsHub API Documentation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bulk-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bulk Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stock-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stock Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/barcode-scanning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Barcode Scanning
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/kicad-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KiCad Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../backend/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Backend
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Backend
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backend/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backend/kicad-field-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KiCad Field Mappings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Database Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../frontend/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Frontend
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Frontend
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/saved-searches-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Saved Searches Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/storage-location-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage Location Layout
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migrations/003-location-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage Location Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../developer/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Developer Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflows/branch-protection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Branch Protection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflows/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/session-notes-2025-09-27/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Session Notes (2025-09-27)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Releases
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Releases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes: v0.4.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.3.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.3.1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.3.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.3.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.2.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.2.1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.2.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.2.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.1.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.1.1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.1.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Notes for PartsHub v0.1.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Benefits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accessing-natural-language-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessing Natural Language Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#your-first-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Your First Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-component-type-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Component Type Queries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-stock-status-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Stock Status Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-location-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Location Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-value-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Value Filters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Value Filters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resistance-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resistance Values
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capacitance-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Capacitance Values
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#voltage-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Voltage Values
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Values
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-packagefootprint-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Package/Footprint Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-manufacturer-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Manufacturer Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-price-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Price Filters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-multi-entity-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Multi-Entity Queries
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understanding Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#confidence-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence Scoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parsed-filters-display" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parsed Filters Display
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search History
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-tips-and-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Tips and Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search Tips and Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writing-effective-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Writing Effective Queries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-better-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Better Results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-query-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Query Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-results-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      No Results Found
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-confidence-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Low Confidence Score
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unexpected-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unexpected Results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature Limitations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feature Limitations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-works-well" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Works Well
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-doesnt-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Doesn't Work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-standard-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use Standard Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frequently-asked-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frequently Asked Questions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frequently Asked Questions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q-how-is-this-different-from-standard-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: How is this different from standard search?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-can-i-save-natural-language-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Can I save natural language searches?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-does-it-use-ai-or-machine-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Does it use AI or machine learning?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-what-happens-if-it-doesnt-understand-my-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: What happens if it doesn't understand my query?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-can-i-search-for-multiple-component-types-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Can I search for multiple component types at once?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-why-do-i-see-medium-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Why do I see "Medium confidence"?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-can-i-use-wildcards-or-regex" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Can I use wildcards or regex?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-is-my-search-history-shared-with-other-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: Is my search history shared with other users?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples-gallery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples Gallery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples Gallery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Searches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stock-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stock Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#location-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Location-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Value-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Package-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manufacturer-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manufacturer-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#price-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Price-Based
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-combinations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Combinations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/madeinoz67/partshub/edit/main/docs/user/natural-language-search.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/madeinoz67/partshub/raw/main/docs/user/natural-language-search.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="natural-language-search">Natural Language Search<a class="headerlink" href="#natural-language-search" title="Permanent link">&para;</a></h1>
+<p>PartsHub's natural language (NL) search feature allows you to search for components using everyday language instead of complex filters and query syntax. Simply describe what you're looking for, and the system will understand your intent and find matching components.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Natural language search uses pattern-based parsing to understand your queries and convert them into structured search parameters. You can search using phrases like "find resistors with low stock" or "capacitors in location A1" without needing to learn specific syntax or navigate through filter menus.</p>
+<h3 id="key-benefits">Key Benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Intuitive</strong>: Use natural phrases instead of learning complex query syntax</li>
+<li><strong>Fast</strong>: Get results quickly without clicking through multiple filter options</li>
+<li><strong>Flexible</strong>: Combine multiple search criteria in a single query</li>
+<li><strong>Transparent</strong>: See how your query was understood with confidence scoring</li>
+<li><strong>History</strong>: Access your recent searches for quick re-use</li>
+</ul>
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h3 id="accessing-natural-language-search">Accessing Natural Language Search<a class="headerlink" href="#accessing-natural-language-search" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Navigate to the <strong>Components</strong> page</li>
+<li>Click the <strong>Natural Language</strong> button in the search mode toggle</li>
+<li>Type your query in the search box</li>
+<li>Press Enter or click the search button</li>
+</ol>
+<h3 id="your-first-search">Your First Search<a class="headerlink" href="#your-first-search" title="Permanent link">&para;</a></h3>
+<p>Try these simple examples to get started:</p>
+<table>
+<thead>
+<tr>
+<th>Query</th>
+<th>What it finds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resistors</code></td>
+<td>All resistor components</td>
+</tr>
+<tr>
+<td><code>low stock capacitors</code></td>
+<td>Capacitors with low inventory levels</td>
+</tr>
+<tr>
+<td><code>components in A1</code></td>
+<td>All parts stored in location A1</td>
+</tr>
+<tr>
+<td><code>10k resistors</code></td>
+<td>Resistors with 10kΩ resistance value</td>
+</tr>
+<tr>
+<td><code>cheap LEDs</code></td>
+<td>LEDs under $5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="query-patterns">Query Patterns<a class="headerlink" href="#query-patterns" title="Permanent link">&para;</a></h2>
+<p>The natural language parser recognizes several types of queries. You can use one or combine multiple patterns in a single search.</p>
+<h3 id="1-component-type-queries">1. Component Type Queries<a class="headerlink" href="#1-component-type-queries" title="Permanent link">&para;</a></h3>
+<p>Search for specific types of electronic components.</p>
+<p><strong>Supported component types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Recognized terms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Resistors</td>
+<td><code>resistors</code>, <code>resistor</code>, <code>res</code>, <code>r</code></td>
+</tr>
+<tr>
+<td>Capacitors</td>
+<td><code>capacitors</code>, <code>capacitor</code>, <code>caps</code>, <code>cap</code>, <code>c</code></td>
+</tr>
+<tr>
+<td>Inductors</td>
+<td><code>inductors</code>, <code>inductor</code>, <code>ind</code>, <code>l</code></td>
+</tr>
+<tr>
+<td>ICs/Chips</td>
+<td><code>ics</code>, <code>ic</code>, <code>integrated circuits</code>, <code>chips</code></td>
+</tr>
+<tr>
+<td>Microcontrollers</td>
+<td><code>microcontrollers</code>, <code>mcu</code>, <code>mcus</code>, <code>micros</code></td>
+</tr>
+<tr>
+<td>Diodes</td>
+<td><code>diodes</code>, <code>diode</code>, <code>d</code></td>
+</tr>
+<tr>
+<td>Transistors</td>
+<td><code>transistors</code>, <code>transistor</code>, <code>trans</code>, <code>q</code></td>
+</tr>
+<tr>
+<td>LEDs</td>
+<td><code>leds</code>, <code>led</code>, <code>light emitting diodes</code></td>
+</tr>
+<tr>
+<td>Connectors</td>
+<td><code>connectors</code>, <code>connector</code>, <code>conn</code></td>
+</tr>
+<tr>
+<td>Crystals</td>
+<td><code>crystals</code>, <code>crystal</code>, <code>xtals</code>, <code>oscillators</code></td>
+</tr>
+<tr>
+<td>Switches</td>
+<td><code>switches</code>, <code>switch</code>, <code>sw</code></td>
+</tr>
+<tr>
+<td>Sensors</td>
+<td><code>sensors</code>, <code>sensor</code></td>
+</tr>
+<tr>
+<td>Voltage Regulators</td>
+<td><code>voltage regulators</code>, <code>regulators</code>, <code>vreg</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>resistors
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>find capacitors
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>show me all transistors
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>list microcontrollers
+</span></code></pre></div></p>
+<h3 id="2-stock-status-filters">2. Stock Status Filters<a class="headerlink" href="#2-stock-status-filters" title="Permanent link">&para;</a></h3>
+<p>Filter components based on inventory levels.</p>
+<p><strong>Supported stock statuses:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Recognized phrases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Low stock</td>
+<td><code>low stock</code>, <code>running low</code>, <code>almost out</code>, <code>nearly out</code>, <code>few left</code></td>
+</tr>
+<tr>
+<td>Out of stock</td>
+<td><code>out of stock</code>, <code>no stock</code>, <code>empty</code>, <code>none</code>, <code>depleted</code></td>
+</tr>
+<tr>
+<td>Available</td>
+<td><code>available</code>, <code>in stock</code>, <code>have</code>, <code>got</code>, <code>stocked</code></td>
+</tr>
+<tr>
+<td>Unused</td>
+<td><code>unused</code>, <code>never used</code>, <code>brand new</code>, <code>new</code></td>
+</tr>
+<tr>
+<td>Needs reorder</td>
+<td><code>need reorder</code>, <code>need to order</code>, <code>should order</code>, <code>reorder</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>low stock components
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>out of stock resistors
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>available capacitors
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>unused transistors
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>parts that need reorder
+</span></code></pre></div></p>
+<h3 id="3-location-filters">3. Location Filters<a class="headerlink" href="#3-location-filters" title="Permanent link">&para;</a></h3>
+<p>Search for components in specific storage locations.</p>
+<p><strong>Supported location formats:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple code</td>
+<td><code>A1</code>, <code>B5</code>, <code>C12</code></td>
+<td>Single letter + number</td>
+</tr>
+<tr>
+<td>Named location</td>
+<td><code>Bin-23</code>, <code>Shelf-A</code></td>
+<td>Category + identifier</td>
+</tr>
+<tr>
+<td>With preposition</td>
+<td><code>in A1</code>, <code>at Bin-23</code></td>
+<td>Natural phrase format</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>components in A1
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>parts at Bin-23
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>capacitors stored in Shelf-A
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>location B5
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>from Drawer-2
+</span></code></pre></div></p>
+<h3 id="4-value-filters">4. Value Filters<a class="headerlink" href="#4-value-filters" title="Permanent link">&para;</a></h3>
+<p>Search by component specifications like resistance, capacitance, voltage, etc.</p>
+<h4 id="resistance-values">Resistance Values<a class="headerlink" href="#resistance-values" title="Permanent link">&para;</a></h4>
+<p><strong>Formats:</strong> <code>10k</code>, <code>10kΩ</code>, <code>100R</code>, <code>100 ohm</code>, <code>4.7k</code>, <code>1M</code></p>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>10k resistors
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>100 ohm resistors
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>4.7kΩ components
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>1M resistors
+</span></code></pre></div></p>
+<h4 id="capacitance-values">Capacitance Values<a class="headerlink" href="#capacitance-values" title="Permanent link">&para;</a></h4>
+<p><strong>Formats:</strong> <code>100μF</code>, <code>100uF</code>, <code>10nF</code>, <code>1pF</code>, <code>47 microfarad</code></p>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>100μF capacitors
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>10nF caps
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>capacitors under 1uF
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>47pF capacitors
+</span></code></pre></div></p>
+<h4 id="voltage-values">Voltage Values<a class="headerlink" href="#voltage-values" title="Permanent link">&para;</a></h4>
+<p><strong>Formats:</strong> <code>5V</code>, <code>3.3V</code>, <code>12V</code>, <code>5 volt</code></p>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>5V regulators
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>3.3V components
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>12 volt parts
+</span></code></pre></div></p>
+<h4 id="other-values">Other Values<a class="headerlink" href="#other-values" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Inductance:</strong> <code>10μH</code>, <code>100nH</code>, <code>1mH</code></li>
+<li><strong>Current:</strong> <code>1A</code>, <code>500mA</code>, <code>100μA</code></li>
+<li><strong>Frequency:</strong> <code>16MHz</code>, <code>32kHz</code>, <code>1GHz</code></li>
+</ul>
+<h3 id="5-packagefootprint-filters">5. Package/Footprint Filters<a class="headerlink" href="#5-packagefootprint-filters" title="Permanent link">&para;</a></h3>
+<p>Search for components with specific packages or footprints.</p>
+<p><strong>Supported package types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SMD Imperial</td>
+<td><code>0201</code>, <code>0402</code>, <code>0603</code>, <code>0805</code>, <code>1206</code>, <code>1210</code>, <code>1812</code>, <code>2010</code>, <code>2512</code></td>
+</tr>
+<tr>
+<td>SMD Metric</td>
+<td><code>0603M</code>, <code>1005M</code></td>
+</tr>
+<tr>
+<td>DIP Packages</td>
+<td><code>DIP8</code>, <code>DIP-14</code>, <code>DIP16</code></td>
+</tr>
+<tr>
+<td>Surface Mount</td>
+<td><code>SOT-23</code>, <code>SOT-223</code>, <code>SOIC8</code>, <code>SSOP16</code>, <code>TQFP32</code>, <code>QFN48</code></td>
+</tr>
+<tr>
+<td>Through-hole</td>
+<td><code>TO-220</code>, <code>TO-92</code>, <code>TO-3</code></td>
+</tr>
+<tr>
+<td>Generic</td>
+<td><code>SMD</code>, <code>SMT</code>, <code>through-hole</code>, <code>THT</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>0805 resistors
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>1206 capacitors
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>DIP8 ICs
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>SOT-23 transistors
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>SMD components
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>through-hole parts
+</span></code></pre></div></p>
+<h3 id="6-manufacturer-filters">6. Manufacturer Filters<a class="headerlink" href="#6-manufacturer-filters" title="Permanent link">&para;</a></h3>
+<p>Search for components from specific manufacturers.</p>
+<p><strong>Supported manufacturers:</strong></p>
+<ul>
+<li><strong>Texas Instruments</strong> - <code>TI</code>, <code>Texas Instruments</code></li>
+<li><strong>Infineon</strong> - <code>Infineon</code></li>
+<li><strong>NXP</strong> - <code>NXP</code></li>
+<li><strong>STMicroelectronics</strong> - <code>ST</code>, <code>STMicroelectronics</code></li>
+<li><strong>Analog Devices</strong> - <code>ADI</code>, <code>Analog Devices</code></li>
+<li><strong>Microchip</strong> - <code>Microchip</code></li>
+<li><strong>Vishay</strong> - <code>Vishay</code></li>
+<li><strong>Murata</strong> - <code>Murata</code></li>
+<li><strong>TDK</strong> - <code>TDK</code></li>
+<li><strong>KEMET</strong> - <code>KEMET</code></li>
+<li><strong>Samsung</strong> - <code>Samsung</code></li>
+<li><strong>Panasonic</strong> - <code>Panasonic</code></li>
+</ul>
+<p>And many more...</p>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>TI microcontrollers
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Texas Instruments ICs
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Infineon transistors
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>Murata capacitors
+</span></code></pre></div></p>
+<h3 id="7-price-filters">7. Price Filters<a class="headerlink" href="#7-price-filters" title="Permanent link">&para;</a></h3>
+<p>Search for components within specific price ranges.</p>
+<p><strong>Supported price patterns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Under/below</td>
+<td><code>under $5</code>, <code>below $10</code>, <code>less than $20</code></td>
+<td>Maximum price</td>
+</tr>
+<tr>
+<td>Over/above</td>
+<td><code>over $5</code>, <code>above $10</code>, <code>more than $20</code></td>
+<td>Minimum price</td>
+</tr>
+<tr>
+<td>Cheap keywords</td>
+<td><code>cheap</code>, <code>inexpensive</code>, <code>affordable</code>, <code>budget</code></td>
+<td>Under $5 (default)</td>
+</tr>
+<tr>
+<td>Exact</td>
+<td><code>$5</code>, <code>exactly $10</code></td>
+<td>Specific price</td>
+</tr>
+<tr>
+<td>Range</td>
+<td><code>$1 to $5</code>, <code>between $1 and $5</code></td>
+<td>Price range</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>cheap resistors
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>components under $1
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>parts less than $5
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>ICs over $10
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>capacitors between $0.50 and $2
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>affordable microcontrollers
+</span></code></pre></div></p>
+<h3 id="8-multi-entity-queries">8. Multi-Entity Queries<a class="headerlink" href="#8-multi-entity-queries" title="Permanent link">&para;</a></h3>
+<p>Combine multiple search criteria in a single query for precise results.</p>
+<p><strong>Examples:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>10k SMD resistors with low stock
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>0805 capacitors in location A1
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>TI microcontrollers under $10
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>available 5V regulators
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>unused 100μF capacitors in Bin-23
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>cheap 0603 resistors
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>Texas Instruments ICs under $5
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>low stock 1206 components
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>SMD resistors in storage A1 under $1
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>available DIP8 ICs from Texas Instruments
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>out of stock 0805 capacitors
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>10k resistors in A1 under $0.50
+</span></code></pre></div></p>
+<h2 id="understanding-results">Understanding Results<a class="headerlink" href="#understanding-results" title="Permanent link">&para;</a></h2>
+<h3 id="confidence-scoring">Confidence Scoring<a class="headerlink" href="#confidence-scoring" title="Permanent link">&para;</a></h3>
+<p>Every natural language search includes a confidence score that shows how well the system understood your query.</p>
+<table>
+<thead>
+<tr>
+<th>Confidence Level</th>
+<th>Score</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High</td>
+<td>80-100%</td>
+<td>Query well understood, accurate filtering applied</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>50-79%</td>
+<td>Query partially understood, may need refinement</td>
+</tr>
+<tr>
+<td>Low</td>
+<td>&lt;50%</td>
+<td>Using fallback full-text search, try rephrasing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What the scores mean:</strong></p>
+<ul>
+<li>
+<p><strong>High confidence (80-100%)</strong>: The parser recognized your intent and extracted specific search criteria. Results should be very accurate.</p>
+</li>
+<li>
+<p><strong>Medium confidence (50-79%)</strong>: Some parts of your query were understood, but others may be ambiguous. Results are relevant but you might want to refine your query.</p>
+</li>
+<li>
+<p><strong>Low confidence (&lt;50%)</strong>: The query couldn't be parsed into specific filters. The system falls back to full-text search across all component fields.</p>
+</li>
+</ul>
+<h3 id="parsed-filters-display">Parsed Filters Display<a class="headerlink" href="#parsed-filters-display" title="Permanent link">&para;</a></h3>
+<p>When you perform a natural language search, the system shows you exactly how it interpreted your query:</p>
+<ul>
+<li><strong>Confidence badge</strong>: Shows the overall confidence level with color coding (green = high, yellow = medium, red = low)</li>
+<li><strong>Parsed filters</strong>: Displays each recognized search criterion as a removable chip</li>
+<li><strong>Fallback warning</strong>: Alerts you if the system switched to text search fallback</li>
+</ul>
+<p>You can click the "×" on any parsed filter chip to remove that criterion (you'll need to search again after removing).</p>
+<h3 id="search-history">Search History<a class="headerlink" href="#search-history" title="Permanent link">&para;</a></h3>
+<p>Your recent natural language searches are automatically saved for quick re-use:</p>
+<ol>
+<li>Click the <strong>History</strong> button next to the search box</li>
+<li>Select a previous query to re-run it</li>
+<li>Click <strong>Clear History</strong> to remove all saved searches</li>
+</ol>
+<p>History is stored locally in your browser and limited to the last 10 queries.</p>
+<h2 id="search-tips-and-best-practices">Search Tips and Best Practices<a class="headerlink" href="#search-tips-and-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="writing-effective-queries">Writing Effective Queries<a class="headerlink" href="#writing-effective-queries" title="Permanent link">&para;</a></h3>
+<p><strong>DO:</strong>
+- Use natural phrases: <code>resistors with low stock</code>
+- Combine specific details: <code>10k SMD 0805 resistors</code>
+- Be specific about what you want: <code>available 5V regulators in A1</code>
+- Use abbreviations when known: <code>TI MCUs</code>, <code>0805 caps</code>
+- Include units: <code>100uF</code>, <code>5V</code>, <code>16MHz</code></p>
+<p><strong>DON'T:</strong>
+- Use complex grammar: <code>Could you please find...</code> (just start with <code>find</code> or the component type)
+- Ask questions: <code>What resistors do you have?</code> (use <code>resistors</code> or <code>show resistors</code>)
+- Use very long sentences: Keep it concise
+- Mix different component types: Search for one type at a time</p>
+<h3 id="getting-better-results">Getting Better Results<a class="headerlink" href="#getting-better-results" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Start broad, then narrow</strong>: Begin with a simple query like <code>resistors</code>, then add filters: <code>10k resistors</code>, then <code>10k SMD resistors with low stock</code></p>
+</li>
+<li>
+<p><strong>Check the confidence score</strong>: If confidence is low, try rephrasing your query with more specific terms</p>
+</li>
+<li>
+<p><strong>Use recognized abbreviations</strong>: The parser knows common abbreviations like <code>res</code> for resistors, <code>caps</code> for capacitors, <code>MCU</code> for microcontrollers</p>
+</li>
+<li>
+<p><strong>Include units</strong>: Always include units for values (<code>10k</code> not just <code>10</code>, <code>5V</code> not just <code>5</code>)</p>
+</li>
+<li>
+<p><strong>Review parsed filters</strong>: Check what filters were extracted to understand how your query was interpreted</p>
+</li>
+<li>
+<p><strong>Try example queries</strong>: Click on the example query chips to see how different patterns work</p>
+</li>
+</ol>
+<h3 id="common-query-patterns">Common Query Patterns<a class="headerlink" href="#common-query-patterns" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>What you want to find</th>
+<th>Try this query</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Components running low</td>
+<td><code>low stock components</code></td>
+</tr>
+<tr>
+<td>Parts in a specific location</td>
+<td><code>components in A1</code></td>
+</tr>
+<tr>
+<td>Specific resistor value</td>
+<td><code>10k resistors</code></td>
+</tr>
+<tr>
+<td>SMD components by size</td>
+<td><code>0805 components</code></td>
+</tr>
+<tr>
+<td>Budget-friendly parts</td>
+<td><code>cheap resistors</code> or <code>under $1</code></td>
+</tr>
+<tr>
+<td>Manufacturer-specific</td>
+<td><code>TI microcontrollers</code></td>
+</tr>
+<tr>
+<td>Complex combination</td>
+<td><code>10k SMD 0805 resistors in A1 under $0.50</code></td>
+</tr>
+<tr>
+<td>Out of stock items</td>
+<td><code>out of stock capacitors</code></td>
+</tr>
+<tr>
+<td>New/unused parts</td>
+<td><code>unused components</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="no-results-found">No Results Found<a class="headerlink" href="#no-results-found" title="Permanent link">&para;</a></h3>
+<p>If your search returns no results:</p>
+<ol>
+<li><strong>Check your spelling</strong>: Make sure component types and manufacturers are spelled correctly</li>
+<li><strong>Simplify your query</strong>: Remove some filters and try again</li>
+<li><strong>Verify data exists</strong>: Make sure you have components that match your criteria</li>
+<li><strong>Try broader terms</strong>: Use <code>resistors</code> instead of specific values first</li>
+</ol>
+<h3 id="low-confidence-score">Low Confidence Score<a class="headerlink" href="#low-confidence-score" title="Permanent link">&para;</a></h3>
+<p>If you're getting low confidence scores:</p>
+<ol>
+<li><strong>Use recognized terms</strong>: Stick to the component types and patterns listed in this guide</li>
+<li><strong>Be more specific</strong>: Instead of <code>parts</code>, use <code>resistors</code>, <code>capacitors</code>, etc.</li>
+<li><strong>Include units</strong>: Always add units for values (<code>10k</code> not <code>10</code>, <code>100uF</code> not <code>100</code>)</li>
+<li><strong>Check examples</strong>: Use the example query chips as templates</li>
+</ol>
+<h3 id="unexpected-results">Unexpected Results<a class="headerlink" href="#unexpected-results" title="Permanent link">&para;</a></h3>
+<p>If results don't match your expectations:</p>
+<ol>
+<li><strong>Review parsed filters</strong>: Check which filters were extracted from your query</li>
+<li><strong>Rephrase your query</strong>: Try alternative wording for ambiguous terms</li>
+<li><strong>Use standard search</strong>: Switch to standard search mode for more control</li>
+<li><strong>Check confidence</strong>: Low confidence may indicate misunderstanding</li>
+</ol>
+<h2 id="feature-limitations">Feature Limitations<a class="headerlink" href="#feature-limitations" title="Permanent link">&para;</a></h2>
+<p>Natural language search uses pattern-based parsing, which has some limitations:</p>
+<h3 id="what-works-well">What Works Well<a class="headerlink" href="#what-works-well" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Searching for specific component types</li>
+<li>Filtering by stock status, location, value, package, manufacturer, and price</li>
+<li>Combining 2-4 search criteria in one query</li>
+<li>Common abbreviations and units</li>
+</ul>
+<h3 id="what-doesnt-work">What Doesn't Work<a class="headerlink" href="#what-doesnt-work" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Complex questions</strong>: "What resistors do I have that would work for a 5V circuit?"</li>
+<li><strong>Calculations</strong>: "Resistors that give me 2.5V from 5V"</li>
+<li><strong>Comparisons</strong>: "Better than" or "equivalent to"</li>
+<li><strong>Vague terms</strong>: "Good capacitors" or "high quality"</li>
+<li><strong>Multiple component types</strong>: "Resistors and capacitors" (search separately)</li>
+<li><strong>Negations</strong>: "Not in A1" (use standard filters instead)</li>
+</ul>
+<h3 id="when-to-use-standard-search">When to Use Standard Search<a class="headerlink" href="#when-to-use-standard-search" title="Permanent link">&para;</a></h3>
+<p>Consider switching to standard search mode when you need:</p>
+<ul>
+<li>More precise control over filter values</li>
+<li>Multiple component type selection</li>
+<li>Complex boolean logic (AND/OR/NOT)</li>
+<li>Exact parameter matching</li>
+<li>Provider SKU searches</li>
+</ul>
+<h2 id="frequently-asked-questions">Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permanent link">&para;</a></h2>
+<h3 id="q-how-is-this-different-from-standard-search">Q: How is this different from standard search?<a class="headerlink" href="#q-how-is-this-different-from-standard-search" title="Permanent link">&para;</a></h3>
+<p>A: Standard search requires you to type exact part numbers or use dropdown filters. Natural language search lets you describe what you want in plain English. Both search modes work well - use whichever feels more natural for your workflow.</p>
+<h3 id="q-can-i-save-natural-language-searches">Q: Can I save natural language searches?<a class="headerlink" href="#q-can-i-save-natural-language-searches" title="Permanent link">&para;</a></h3>
+<p>A: Yes! After running a search, click the <strong>Save Search</strong> button to save it with a custom name. Saved searches can be accessed from the <strong>Saved Searches</strong> dropdown.</p>
+<h3 id="q-does-it-use-ai-or-machine-learning">Q: Does it use AI or machine learning?<a class="headerlink" href="#q-does-it-use-ai-or-machine-learning" title="Permanent link">&para;</a></h3>
+<p>A: No, it uses pattern-based parsing with regular expressions. This means it's fast, predictable, and works offline without requiring external API calls. However, it only understands the specific patterns documented in this guide.</p>
+<h3 id="q-what-happens-if-it-doesnt-understand-my-query">Q: What happens if it doesn't understand my query?<a class="headerlink" href="#q-what-happens-if-it-doesnt-understand-my-query" title="Permanent link">&para;</a></h3>
+<p>A: If confidence is very low (&lt;30%), the system automatically falls back to full-text search, which searches across all component fields for your query terms. You'll see a warning banner when this happens.</p>
+<h3 id="q-can-i-search-for-multiple-component-types-at-once">Q: Can I search for multiple component types at once?<a class="headerlink" href="#q-can-i-search-for-multiple-component-types-at-once" title="Permanent link">&para;</a></h3>
+<p>A: Not in a single natural language query. Each query should focus on one component type. For multiple types, use standard search or run separate queries.</p>
+<h3 id="q-why-do-i-see-medium-confidence">Q: Why do I see "Medium confidence"?<a class="headerlink" href="#q-why-do-i-see-medium-confidence" title="Permanent link">&para;</a></h3>
+<p>A: Medium confidence (50-79%) means the parser recognized some parts of your query but others may be ambiguous. Results should still be relevant, but you might want to make your query more specific for better accuracy.</p>
+<h3 id="q-can-i-use-wildcards-or-regex">Q: Can I use wildcards or regex?<a class="headerlink" href="#q-can-i-use-wildcards-or-regex" title="Permanent link">&para;</a></h3>
+<p>A: No, natural language search doesn't support wildcards or regular expressions. It focuses on natural phrases. For advanced pattern matching, use standard search mode.</p>
+<h3 id="q-is-my-search-history-shared-with-other-users">Q: Is my search history shared with other users?<a class="headerlink" href="#q-is-my-search-history-shared-with-other-users" title="Permanent link">&para;</a></h3>
+<p>A: No, search history is stored locally in your browser using localStorage. It's private to your browser session and not shared with other users or saved on the server.</p>
+<h2 id="examples-gallery">Examples Gallery<a class="headerlink" href="#examples-gallery" title="Permanent link">&para;</a></h2>
+<p>Here are 25+ real-world examples to inspire your searches:</p>
+<h3 id="basic-searches">Basic Searches<a class="headerlink" href="#basic-searches" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>resistors
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>capacitors
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>microcontrollers
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>transistors
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>LEDs
+</span></code></pre></div>
+<h3 id="stock-management">Stock Management<a class="headerlink" href="#stock-management" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>low stock components
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>out of stock resistors
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>components running low
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>parts that need reorder
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>available capacitors
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>unused transistors
+</span></code></pre></div>
+<h3 id="location-based">Location-Based<a class="headerlink" href="#location-based" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>components in A1
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>parts at Bin-23
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>capacitors stored in Shelf-A
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>transistors from Drawer-2
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>location B5 components
+</span></code></pre></div>
+<h3 id="value-based">Value-Based<a class="headerlink" href="#value-based" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>10k resistors
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>100uF capacitors
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>5V regulators
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>3.3V components
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>16MHz crystals
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>4.7k resistors
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>47pF capacitors
+</span></code></pre></div>
+<h3 id="package-based">Package-Based<a class="headerlink" href="#package-based" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>0805 resistors
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>1206 capacitors
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>DIP8 ICs
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>SOT-23 transistors
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>SMD components
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>through-hole resistors
+</span></code></pre></div>
+<h3 id="manufacturer-based">Manufacturer-Based<a class="headerlink" href="#manufacturer-based" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>TI microcontrollers
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>Texas Instruments ICs
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Infineon transistors
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>Murata capacitors
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>ST microcontrollers
+</span></code></pre></div>
+<h3 id="price-based">Price-Based<a class="headerlink" href="#price-based" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>cheap resistors
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>components under $1
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>parts less than $5
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>affordable ICs
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>budget components
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>capacitors under $0.50
+</span></code></pre></div>
+<h3 id="complex-combinations">Complex Combinations<a class="headerlink" href="#complex-combinations" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>10k SMD resistors with low stock
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>0805 capacitors in location A1
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>TI microcontrollers under $10
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>available 5V regulators
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>unused 100μF capacitors in Bin-23
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>cheap 0603 resistors
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>low stock 1206 components
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>SMD resistors in A1 under $1
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>out of stock 0805 capacitors
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>available DIP8 ICs from TI
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>16MHz crystals with low stock
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>affordable 3.3V regulators in stock
+</span></code></pre></div>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Try it yourself</strong>: Go to the Components page and toggle to Natural Language search</li>
+<li><strong>Explore examples</strong>: Click the example query chips to see how different patterns work</li>
+<li><strong>Save favorites</strong>: Save your most-used queries for quick access</li>
+<li><strong>Combine with filters</strong>: Use manual filters alongside natural language for even more control</li>
+</ul>
+<p>For more search options, see:
+- <a href="../saved-searches/">Saved Searches Guide</a> - Save and reuse frequent searches
+- <a href="../features/#1-component-management">Component Management</a> - Full feature overview
+- <a href="../getting-started/">Getting Started Guide</a> - Setup and basic usage</p>
+<hr />
+<p><strong>Have feedback on natural language search?</strong> We're always improving! Let us know what queries you wish worked or what features would be helpful.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 PartsHub
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/madeinoz67g/partshub" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.highlight", "search.share", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

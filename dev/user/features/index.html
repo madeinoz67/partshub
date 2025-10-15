@@ -543,6 +543,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -848,6 +852,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#natural-language-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Natural Language Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#filter-options" class="md-nav__link">
     <span class="md-ellipsis">
       Filter Options
@@ -860,6 +873,15 @@
   <a href="#sorting" class="md-nav__link">
     <span class="md-ellipsis">
       Sorting
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saved-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saved Searches
     </span>
   </a>
   
@@ -1208,6 +1230,52 @@
   
   <span class="md-ellipsis">
     Stock Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../natural-language-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Natural Language Search
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../saved-searches/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Saved Searches
     
   </span>
   
@@ -1878,6 +1946,8 @@
           
         
       
+        
+      
     
     
     
@@ -1909,6 +1979,11 @@
 
             </a>
             
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
           </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
@@ -1918,6 +1993,29 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/saved-searches-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Saved Searches Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
               
             
           </ul>
@@ -2633,6 +2731,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#natural-language-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Natural Language Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#filter-options" class="md-nav__link">
     <span class="md-ellipsis">
       Filter Options
@@ -2645,6 +2752,15 @@
   <a href="#sorting" class="md-nav__link">
     <span class="md-ellipsis">
       Sorting
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saved-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saved Searches
     </span>
   </a>
   
@@ -3039,6 +3155,28 @@
 <li>Instant results as you type</li>
 <li>Supports complex query combinations</li>
 </ul>
+<h3 id="natural-language-search">Natural Language Search<a class="headerlink" href="#natural-language-search" title="Permanent link">&para;</a></h3>
+<p>PartsHub features an intuitive natural language search mode that lets you find components using everyday language.</p>
+<p><strong>Key Features:</strong>
+- <strong>Describe what you want</strong>: Use natural phrases like "resistors with low stock" or "capacitors in A1"
+- <strong>Pattern-based parsing</strong>: Fast, predictable results without AI dependencies
+- <strong>Confidence scoring</strong>: See how well the system understood your query
+- <strong>Search history</strong>: Quick access to recent queries
+- <strong>Multi-entity queries</strong>: Combine multiple criteria in one search</p>
+<p><strong>Supported Query Patterns:</strong>
+- Component types: <code>resistors</code>, <code>capacitors</code>, <code>ICs</code>, <code>transistors</code>
+- Stock status: <code>low stock</code>, <code>out of stock</code>, <code>available</code>, <code>unused</code>
+- Locations: <code>in A1</code>, <code>location Bin-23</code>, <code>stored in Shelf-A</code>
+- Values: <code>10k</code>, <code>100μF</code>, <code>5V</code>, <code>3.3V</code>, <code>16MHz</code>
+- Packages: <code>0805</code>, <code>1206</code>, <code>DIP8</code>, <code>SOT-23</code>
+- Manufacturers: <code>TI</code>, <code>Texas Instruments</code>, <code>Infineon</code>, <code>Murata</code>
+- Price: <code>cheap</code>, <code>under $5</code>, <code>less than $10</code>
+- Combinations: <code>10k SMD resistors with low stock in A1</code></p>
+<p><strong>Confidence Levels:</strong>
+- <strong>High (80-100%)</strong>: Query well understood, accurate filtering
+- <strong>Medium (50-79%)</strong>: Query partially understood, may need refinement
+- <strong>Low (&lt;50%)</strong>: Using fallback full-text search</p>
+<p><strong>Learn more:</strong> <a href="../natural-language-search/">Natural Language Search Guide</a></p>
 <h3 id="filter-options">Filter Options<a class="headerlink" href="#filter-options" title="Permanent link">&para;</a></h3>
 <ul>
 <li>By Manufacturer</li>
@@ -3054,11 +3192,19 @@
 <li>Ascending/Descending order</li>
 <li>Save and share custom search configurations</li>
 </ul>
+<h3 id="saved-searches">Saved Searches<a class="headerlink" href="#saved-searches" title="Permanent link">&para;</a></h3>
+<p>Save frequently used search queries for quick access:
+- Store complex search parameters
+- Execute saved searches with one click
+- Track usage statistics
+- Organize searches by category</p>
+<p><strong>Detailed saved searches guide available in <a href="../saved-searches/">Saved Searches Guide</a></strong></p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Find all resistors with stock &lt; 10</li>
 <li>List components added in the last 30 days</li>
 <li>Search for specific manufacturers or part numbers</li>
+<li>Natural language: "10k SMD resistors with low stock"</li>
 </ul>
 <h2 id="4-barcode-scanning-features">4. Barcode Scanning Features<a class="headerlink" href="#4-barcode-scanning-features" title="Permanent link">&para;</a></h2>
 <h3 id="quick-component-updates">Quick Component Updates<a class="headerlink" href="#quick-component-updates" title="Permanent link">&para;</a></h3>
@@ -3165,6 +3311,7 @@
 <li>Manage stock quantities</li>
 <li>Update storage locations</li>
 <li>Generate API tokens</li>
+<li>Save and manage searches</li>
 </ul>
 <h4 id="admin-users">Admin Users<a class="headerlink" href="#admin-users" title="Permanent link">&para;</a></h4>
 <ul>
