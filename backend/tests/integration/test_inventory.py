@@ -181,7 +181,7 @@ class TestInventoryManagement:
         return {"categories": categories, "storage_locations": storage_locations}
 
     def test_comprehensive_component_search(
-        self, client: TestClient, admin_headers: dict, seeded_data: dict
+        self, client: TestClient, admin_headers: dict, seeded_data: dict, db_session
     ):
         """Test comprehensive component search functionality"""
 
@@ -286,6 +286,98 @@ class TestInventoryManagement:
                 print(f"Response: {response.text}")
             assert response.status_code == 201
             component_ids.append(response.json()["id"])
+
+        # Debug: Check database state before search
+        from sqlalchemy import text
+
+        result = db_session.execute(text("SELECT COUNT(*) FROM components"))
+        comp_count = result.fetchone()[0]
+        print(f"\nDEBUG: Components in database: {comp_count}")
+
+        result = db_session.execute(text("SELECT COUNT(*) FROM components_fts"))
+        fts_count = result.fetchone()[0]
+        print(f"DEBUG: Components in FTS table: {fts_count}")
+
+        result = db_session.execute(text("SELECT name FROM components LIMIT 3"))
+        names = [row[0] for row in result.fetchall()]
+        print(f"DEBUG: Sample component names: {names}")
+
+        # Debug: Try FTS search directly
+        try:
+            result = db_session.execute(
+                text(
+                    "SELECT id, name FROM components_fts WHERE components_fts MATCH '\"ESP32\"*'"
+                )
+            )
+            fts_results = result.fetchall()
+            print(
+                f"DEBUG: Direct FTS search for ESP32 returned {len(fts_results)} results: {fts_results}"
+            )
+        except Exception as e:
+            print(f"DEBUG: Direct FTS search failed: {e}")
+
+        # Debug: Check if API can see any components at all
+        all_components_response = client.get("/api/v1/components")
+        all_data = all_components_response.json()
+        print(
+            f"DEBUG: API list_components without search returned {all_data['total']} components"
+        )
+
+        # Debug: Test hybrid_search_components directly
+        from backend.src.database.search import get_component_search_service
+
+        search_service = get_component_search_service()
+
+        try:
+            # Test search_components directly
+            fts_results = search_service.search_components(
+                "ESP32", session=db_session, limit=50
+            )
+            print(
+                f"DEBUG: search_components returned {len(fts_results)} results: {fts_results}"
+            )
+        except Exception as e:
+            print(f"DEBUG: search_components failed: {e}")
+            import traceback
+
+            traceback.print_exc()
+
+        try:
+            # Test hybrid_search_components with threshold=1 (should use FTS results only)
+            hybrid_results_no_fuzzy = search_service.hybrid_search_components(
+                "ESP32", session=db_session, limit=50, fuzzy_threshold=1
+            )
+            print(
+                f"DEBUG: hybrid_search (fuzzy_threshold=1) returned {len(hybrid_results_no_fuzzy)} results: {hybrid_results_no_fuzzy}"
+            )
+        except Exception as e:
+            print(f"DEBUG: hybrid_search (threshold=1) failed: {e}")
+
+        # Debug: Test if Component.query works with test session
+        from backend.src.models.component import Component
+
+        try:
+            all_comps = db_session.query(Component.id, Component.name).all()
+            print(f"DEBUG: Direct Component.query returned {len(all_comps)} components")
+        except Exception as e:
+            print(f"DEBUG: Direct Component.query failed: {e}")
+            import traceback
+
+            traceback.print_exc()
+
+        try:
+            # Test hybrid_search_components with threshold=5 (will use fuzzy matching)
+            hybrid_results = search_service.hybrid_search_components(
+                "ESP32", session=db_session, limit=50, fuzzy_threshold=5
+            )
+            print(
+                f"DEBUG: hybrid_search (fuzzy_threshold=5) returned {len(hybrid_results)} results: {hybrid_results}"
+            )
+        except Exception as e:
+            print(f"DEBUG: hybrid_search (threshold=5) failed: {e}")
+            import traceback
+
+            traceback.print_exc()
 
         # Test 1: Basic text search
         search_response = client.get("/api/v1/components?search=ESP32")
