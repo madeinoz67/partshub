@@ -4,8 +4,10 @@
 
 PartsHub provides a RESTful API for electronic component inventory management. The API supports:
 
+- **Saved Searches**: Save and reuse component search queries
 - **Storage Location Layout Generation**: Bulk creation of organized storage hierarchies
 - **Component Bulk Operations**: Admin-only atomic operations on multiple components
+- **Stock Operations**: Add, remove, and move inventory with transaction tracking
 - **Component CRUD**: Individual component management
 - **Projects, Tags, and more**: Full inventory system capabilities
 
@@ -16,6 +18,59 @@ PartsHub provides a RESTful API for electronic component inventory management. T
 **Interactive Docs**:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+---
+
+## Saved Searches
+
+**New in v0.5.0**: Save complex component search queries for quick re-execution.
+
+### Key Features
+- ✅ **User-specific searches**: Each user has isolated saved searches
+- ✅ **Flexible parameters**: Save any component search criteria as JSON
+- ✅ **Usage tracking**: Track when searches are executed
+- ✅ **Statistics**: View usage analytics and most-used searches
+- ✅ **Duplicate & modify**: Create search variations easily
+
+### Available Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/saved-searches` | POST | Create new saved search |
+| `/saved-searches` | GET | List user's saved searches (with pagination) |
+| `/saved-searches/stats` | GET | Get usage statistics |
+| `/saved-searches/{id}` | GET | Get specific saved search |
+| `/saved-searches/{id}` | PUT | Update saved search |
+| `/saved-searches/{id}` | DELETE | Delete saved search |
+| `/saved-searches/{id}/execute` | POST | Execute search (updates last_used_at) |
+| `/saved-searches/{id}/duplicate` | POST | Duplicate search with new name |
+
+**📖 Complete Documentation**:
+- [Saved Searches API Guide](api/saved-searches.md)
+- [Saved Searches User Guide](user/saved-searches.md)
+- [Frontend Integration Guide](frontend/saved-searches-integration.md)
+
+**Quick Example**:
+```bash
+# Create a saved search
+curl -X POST http://localhost:8000/api/v1/saved-searches \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Low Stock Resistors",
+    "description": "All resistors with stock below 10",
+    "search_parameters": {
+      "search": "resistor",
+      "searchType": "unified",
+      "limit": 20,
+      "stock_status": "low"
+    }
+  }'
+
+# Execute a saved search
+curl -X POST http://localhost:8000/api/v1/saved-searches/{id}/execute \
+  -H "Authorization: Bearer $TOKEN"
+```
 
 ---
 

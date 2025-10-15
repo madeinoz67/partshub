@@ -64,6 +64,11 @@ const routes = [
         component: () => import('../pages/ProjectsPage.vue')
       },
       {
+        path: 'saved-searches',
+        name: 'saved-searches',
+        component: () => import('../pages/SavedSearchesPage.vue')
+      },
+      {
         path: 'inventory',
         name: 'inventory',
         component: () => import('../pages/InventoryPage.vue')

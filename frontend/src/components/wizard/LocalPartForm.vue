@@ -174,10 +174,10 @@ watch(
         maxlength="255"
         hint="Required. Max 255 characters. Letters, numbers, spaces, hyphens, periods, underscores only."
       >
-        <template v-slot:prepend>
+        <template #prepend>
           <q-icon name="label" />
         </template>
-        <template v-slot:append>
+        <template #append>
           <q-badge :color="nameCharCount > 255 ? 'negative' : 'grey'">
             {{ nameCharCount }}/255
           </q-badge>
@@ -198,10 +198,10 @@ watch(
         maxlength="500"
         hint="Optional. Max 500 characters."
       >
-        <template v-slot:prepend>
+        <template #prepend>
           <q-icon name="description" />
         </template>
-        <template v-slot:append>
+        <template #append>
           <q-badge :color="descriptionCharCount > 500 ? 'negative' : 'grey'">
             {{ descriptionCharCount }}/500
           </q-badge>
@@ -232,7 +232,7 @@ watch(
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       Local parts are perfect for generic components or custom items without a manufacturer part number.
@@ -241,7 +241,7 @@ watch(
     <!-- Validation Summary -->
     <div v-if="formData.name" class="q-mt-md">
       <q-banner class="bg-positive text-white" rounded>
-        <template v-slot:avatar>
+        <template #avatar>
           <q-icon name="check_circle" />
         </template>
         <div>

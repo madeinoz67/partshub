@@ -213,14 +213,14 @@ watch(() => wizardStore.searchResults, (newResults) => {
       v-model="searchInput"
       outlined
       placeholder="Enter part number or description..."
-      @update:model-value="(val: string | number | null) => onSearchInput(String(val || ''))"
       class="q-mb-md"
       autocomplete="off"
+      @update:model-value="(val: string | number | null) => onSearchInput(String(val || ''))"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <q-icon name="search" />
       </template>
-      <template v-slot:append>
+      <template #append>
         <q-spinner v-if="wizardStore.isLoading" color="primary" size="20px" />
         <q-icon
           v-else-if="searchInput"
@@ -234,18 +234,18 @@ watch(() => wizardStore.searchResults, (newResults) => {
     <!-- Search Results Table -->
     <q-table
       v-if="wizardStore.searchResults.length > 0"
+      v-model:selected="selectedRows"
       :rows="wizardStore.searchResults"
       :columns="columns"
       row-key="part_number"
       :loading="wizardStore.isLoading"
-      v-model:selected="selectedRows"
       selection="single"
       flat
       bordered
       class="search-results-table"
       @update:selected="onSelectionChange"
     >
-      <template v-slot:body-cell-datasheet="props">
+      <template #body-cell-datasheet="props">
         <q-td :props="props">
           <a
             v-if="props.row.datasheet_url"
@@ -268,7 +268,7 @@ watch(() => wizardStore.searchResults, (newResults) => {
         </q-td>
       </template>
 
-      <template v-slot:body-cell-manufacturer="props">
+      <template #body-cell-manufacturer="props">
         <q-td :props="props">
           {{ props.row.manufacturer || '-' }}
         </q-td>
@@ -292,8 +292,8 @@ watch(() => wizardStore.searchResults, (newResults) => {
         color="secondary"
         label="Switch to Local Part"
         icon="inventory_2"
-        @click="switchToLocal"
         class="q-mt-md"
+        @click="switchToLocal"
       />
     </div>
 
@@ -322,7 +322,7 @@ watch(() => wizardStore.searchResults, (newResults) => {
       class="bg-positive text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="check_circle" />
       </template>
       <div>

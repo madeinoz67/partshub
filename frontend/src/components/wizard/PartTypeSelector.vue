@@ -100,7 +100,7 @@ watch(() => wizardStore.partType, (newValue) => {
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       Linked parts automatically fetch specifications, datasheets, and other resources from the provider.
@@ -111,7 +111,7 @@ watch(() => wizardStore.partType, (newValue) => {
       class="bg-info text-white q-mt-md"
       rounded
     >
-      <template v-slot:avatar>
+      <template #avatar>
         <q-icon name="info" />
       </template>
       Local parts are perfect for generic components like resistors, capacitors, or custom PCBs.

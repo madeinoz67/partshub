@@ -1,0 +1,580 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Advanced Search and Discovery",
+        "description": "Enhance search capabilities using lightweight SQLite-based technologies (FTS5, rapidfuzz) with multi-criteria filtering, saved searches, and natural language queries.",
+        "details": "Technical: SQLite FTS5 for full-text indexing, Python cachetools for caching, enhance existing rapidfuzz, saved searches in SQLite JSON fields. Performance: <500ms for 50k components.",
+        "testStrategy": "",
+        "status": "in-progress",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design NL Query Pattern Grammar",
+            "description": "Create nl_patterns.py with regex patterns for intent classification and entity extraction. Define specific intents like search_by_type, filter_by_stock, filter_by_location, filter_by_price, filter_by_time. Implement entity extractors for component types, stock keywords, locations, values, and packages. Test patterns with 50+ example queries to ensure comprehensive coverage.",
+            "dependencies": [],
+            "details": "Create regex patterns for intent classification and entity extraction. Define 5 specific intents. Implement entity extractors for component types, stock keywords, locations, values, packages. Test with 50+ example queries.",
+            "status": "pending",
+            "testStrategy": "Unit tests for pattern matching with 90+ test cases, validate intent classification accuracy, test entity extraction on diverse query examples."
+          },
+          {
+            "id": 2,
+            "title": "Implement NL Parser Service",
+            "description": "Develop natural_language_search_service.py with core parsing functionality. Implement parse_query(), classify_intent(), extract_entities(), and build_search_params() methods. Add confidence scoring for ambiguous queries and fallback to FTS5 when confidence is below 0.5. Ensure robust error handling and logging.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create service file with parsing methods. Implement confidence scoring logic. Add fallback mechanism to FTS5. Include error handling and logging for debugging.",
+            "status": "pending",
+            "testStrategy": "Integration tests for API endpoint, test edge cases with ambiguous queries, benchmark parsing performance (<50ms), validate fallback behavior."
+          },
+          {
+            "id": 3,
+            "title": "Integrate NL Parser with ComponentService",
+            "description": "Add nl_query parameter to list_components() method. Update API endpoint to accept nl_query parameter. Merge parsed parameters with existing filters. Log NL query usage for analytics. Ensure seamless integration with existing search functionality.",
+            "dependencies": [
+              2
+            ],
+            "details": "Modify list_components() method to accept nl_query. Update API endpoint to handle new parameter. Merge parsed parameters with existing filters. Implement logging for NL query usage.",
+            "status": "pending",
+            "testStrategy": "Integration tests for API endpoint, verify parameter merging with existing filters, test logging functionality, validate search results with NL queries."
+          },
+          {
+            "id": 4,
+            "title": "Add Frontend NL Search Interface",
+            "description": "Create UI components for NL search interface. Add toggle between standard and NL search in ComponentSearch.vue. Display parsed parameters as interactive chips. Show confidence score to users. Implement search history dropdown for query reuse.",
+            "dependencies": [
+              3
+            ],
+            "details": "Add toggle button for NL search mode. Implement chip display for parsed parameters. Show confidence score visually. Create search history dropdown component.",
+            "status": "pending",
+            "testStrategy": "UI tests for toggle functionality, verify chip display and confidence score, test search history dropdown, ensure responsive design."
+          },
+          {
+            "id": 5,
+            "title": "Create NL Query Test Suite",
+            "description": "Develop comprehensive test suite for NL query functionality. Write unit tests for pattern matching (90+ tests), integration tests for API endpoint, test edge cases and failure modes, benchmark parsing performance to ensure <50ms execution time.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Create unit tests for pattern matching with 90+ test cases. Write integration tests for API endpoint. Test edge cases like ambiguous queries and invalid inputs. Benchmark parsing performance.",
+            "status": "done",
+            "testStrategy": "Unit tests for pattern matching, integration tests for API endpoint, test edge cases and failure modes, benchmark performance (<50ms parsing)."
+          },
+          {
+            "id": 6,
+            "title": "Add NL Query Documentation",
+            "description": "Update documentation to include NL search functionality. Add section to docs/features/search.md detailing supported query patterns with examples. Document limitations and edge cases. Include inline help in UI for user guidance.",
+            "dependencies": [
+              5
+            ],
+            "details": "Update search documentation with NL search section. List supported query patterns with examples. Document limitations and edge cases. Add inline help in UI.",
+            "status": "pending",
+            "testStrategy": "Verify documentation accuracy, test inline help functionality, ensure examples are correct and comprehensive."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Enhanced KiCad Integration",
+        "description": "Enhance existing basic KiCad integration with bidirectional sync, BOM management, custom symbol/footprint management, and project-based inventory allocation.",
+        "details": "Current: Basic KiCad data model exists. Enhancements: Parse .kicad_sym files, import/export libraries, BOM CSV import with fuzzy matching, symbol preview (SVG), project component reservation, stock updates on board assembly.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Parse .kicad_sym files for symbol metadata extraction",
+            "description": "Implement parser to extract symbol metadata from KiCad .kicad_sym files including reference designators, pins, and properties",
+            "dependencies": [],
+            "details": "Use Python's xml.etree.ElementTree to parse XML-based .kicad_sym files, extract symbol properties, pins, and reference designators into structured data model",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement library import/export functionality",
+            "description": "Create bidirectional library management system for KiCad symbol and footprint libraries",
+            "dependencies": [
+              1
+            ],
+            "details": "Build REST API endpoints for importing/exporting KiCad libraries, implement file conversion between .kicad_sym and internal data model, add version control for library updates",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Develop BOM CSV import with fuzzy matching",
+            "description": "Create BOM processing system that handles CSV imports with fuzzy matching against component database",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement rapidfuzz for fuzzy matching between BOM components and database entries, add confidence scoring, handle duplicate entries, create import validation workflow",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Add symbol preview functionality using SVG",
+            "description": "Implement SVG-based symbol previews for component selection",
+            "dependencies": [
+              2
+            ],
+            "details": "Convert KiCad symbol data to SVG format, create preview component in frontend, integrate with symbol selection interface",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Implement project-based component reservation system",
+            "description": "Create system for reserving components in inventory for specific projects",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Add reservation tracking to stock management, create project-specific component allocation, implement reservation expiration logic, integrate with BOM processing",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Barcode and QR Code Enhancements",
+        "description": "Expand barcode functionality with web-based camera scanning, batch mode, custom QR code generation, and mobile-responsive PWA scanning interface.",
+        "details": "Tech: Browser Web APIs for camera, QR generation (Python qrcode, Pillow), service workers for offline PWA. Features: Multi-format support (Code128, EAN, UPC, QR, DataMatrix), batch scanning, scan-to-update workflows, label printing templates.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Advanced Stock Management",
+        "description": "Enhance existing stock management with automated reorder alerts, usage analytics, forecasting, and advanced FIFO/lot tracking.",
+        "details": "Current: Stock transactions, multi-location tracking, lot/batch tracking exist. Enhancements: Reorder alerts (SQLite triggers, email), analytics dashboard (Chart.js), usage trends, FIFO picking suggestions, slow-moving stock identification, simple forecasting (moving averages).",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement SQLite triggers for reorder alerts",
+            "description": "Create SQLite triggers to automatically calculate stock levels and trigger reorder alerts when stock falls below threshold.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use SQLite FTS5 for stock level monitoring, implement trigger logic to check stock levels against reorder thresholds, and store alert states in a new alerts table.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Develop analytics dashboard with Chart.js",
+            "description": "Build a visual analytics dashboard showing usage trends, stock levels, and forecasting metrics.",
+            "dependencies": [
+              4
+            ],
+            "details": "Integrate Chart.js for interactive charts, create API endpoints to fetch usage data, and design responsive dashboard layout.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Implement FIFO picking suggestions",
+            "description": "Add functionality to suggest optimal FIFO picking order based on lot tracking data.",
+            "dependencies": [
+              4
+            ],
+            "details": "Query lot tracking data to determine oldest lots, implement logic to prioritize these lots for picking, and display suggestions in the UI.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Create slow-moving stock identification",
+            "description": "Develop a system to identify slow-moving stock items based on usage patterns.",
+            "dependencies": [
+              4
+            ],
+            "details": "Calculate usage rates over time, set thresholds for slow-moving items, and generate reports showing these items.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Implement simple forecasting using moving averages",
+            "description": "Add forecasting capabilities using moving averages to predict future stock needs.",
+            "dependencies": [
+              4
+            ],
+            "details": "Calculate moving averages from historical usage data, implement forecasting logic, and display predictions in the analytics dashboard.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Basic Multi-User Features",
+        "description": "Implement simple multi-user support for families/small teams (2-10 users) with basic RBAC (Admin/Editor/Viewer), activity log, commenting, and notifications.",
+        "details": "Current: JWT auth, user model exist. Add: Role-based access control (3 roles), activity feed with filters, component commenting (markdown), in-app + email notifications, password reset. SQLite tables: activity_log, comments. Performance: 10 concurrent users, 100k+ log entries.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Enhanced Supplier Management and Parts Ordering",
+        "description": "Enhance existing supplier/purchase system with smart order creation, direct provider API ordering (LCSC/Digi-Key/Mouser), scan-to-receive workflow, and comprehensive order management.",
+        "details": "Current: Supplier database, purchase tracking exist. Add: Order states (Draft→Placed→Shipped→Received→Completed), smart order creation from reorder alerts/BOMs, direct API ordering, scan-to-receive with barcode, price tracking (6mo history), TCO calculator, order consolidation. SQLite tables: orders, order_items, order_history, price_tracking.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          4
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Order State Machine and Database Schema",
+            "description": "Create detailed state transition diagram for order lifecycle (Draft→Placed→Shipped→Received→Completed) and extend SQLite schema with order_states table and state transition logic.",
+            "dependencies": [
+              4
+            ],
+            "details": "Implement state machine with SQLite triggers for state transitions, define state transition rules, create order_states table with state_id, state_name, description fields",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement Smart Order Creation from Reorder Alerts",
+            "description": "Develop system to automatically generate orders from reorder alerts based on inventory thresholds and BOMs.",
+            "dependencies": [
+              4
+            ],
+            "details": "Create reorder alert triggers in SQLite, implement BOM-to-order conversion logic, add 'smart_order' flag to orders table",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Integrate Direct API Ordering with LCSC/Digi-Key/Mouser",
+            "description": "Implement API integration for direct ordering with LCSC, Digi-Key, and Mouser providers.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create API client classes for each provider, implement authentication flow, add order placement logic with error handling",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Develop Scan-to-Receive Barcode Workflow",
+            "description": "Build barcode scanning functionality for receiving parts into inventory.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement barcode scanning UI with ZXing, create receive workflow with validation against order items, update inventory quantities",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Add Price Tracking and TCO Calculator",
+            "description": "Implement price history tracking and total cost of ownership calculation for components.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create price_tracking table with timestamp, price, and source fields, implement TCO calculation logic with usage data",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Built-in Reporting and Analytics",
+        "description": "Implement pre-built reports (inventory valuation, stock movement, low stock, project usage, supplier spend) with export capabilities (CSV, Excel, PDF) and simple dashboard with charts.",
+        "details": "Tech: SQLite queries, pandas (CSV/Excel), ReportLab (PDF), Chart.js (frontend). Reports: 7 pre-built types, scheduled exports via background tasks. Dashboard: key metrics, quick links, interactive charts (pie, bar, line). Performance: <5s for 50k components, <2s dashboard load.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          4
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Progressive Web App (PWA)",
+        "description": "Make existing web UI work offline as PWA for mobile inventory management with service workers, IndexedDB, and background sync.",
+        "details": "Tech: Service worker with Workbox, IndexedDB for offline data, Background sync API, Vue.js PWA plugin. Features: Offline capability, mobile-optimized UI, install prompts, core offline workflows (search, view, quick stock updates). Performance: Works fully offline, <1min sync on reconnect, 10k+ components in offline storage.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "AI-Powered Features (Lightweight)",
+        "description": "Implement practical AI/ML features using lightweight models: component matching, usage prediction, natural language search, optional datasheet OCR.",
+        "details": "Tech: scikit-learn (no TensorFlow/PyTorch), spaCy small models or regex, Tesseract OCR (optional). Features: Component substitutes suggestion, time-series forecasting, NLP queries, datasheet extraction. All processing in-process, cache predictions in SQLite. Performance: <5s processing, >80% relevance.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1,
+          4
+        ],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Data Import and Migration Tools",
+        "description": "Robust tools for importing existing inventory from CSV/Excel, InvenTree, PartKeepr, KiCad libraries with validation and transformation.",
+        "details": "Tech: Python pandas for CSV/Excel, SQLite transactions for atomic imports, background tasks for large imports, Vue.js wizard with progress bar. Features: Column mapping, preview validation, duplicate detection, unit conversions, format standardization. Performance: 10k components in <2min, <1% error rate.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define CSV/Excel import schema validation rules",
+            "description": "Create comprehensive validation rules for CSV/Excel imports including required fields, data types, and format constraints.",
+            "dependencies": [],
+            "details": "Define validation rules for all supported fields (part number, description, quantity, unit price, etc.) with specific constraints like regex patterns, minimum/maximum values, and required fields.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement column mapping interface",
+            "description": "Develop a Vue.js interface for users to map source columns to target inventory fields.",
+            "dependencies": [],
+            "details": "Create drag-and-drop interface with dropdowns for each field, showing source headers and target fields with validation feedback.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Build preview validation engine",
+            "description": "Create a validation engine that previews import results before committing to database.",
+            "dependencies": [],
+            "details": "Implement pandas-based validation that checks for duplicates, unit conversions, format standardization, and shows preview with error counts.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Develop background import processing",
+            "description": "Implement background task processing for large imports with progress tracking.",
+            "dependencies": [],
+            "details": "Use Celery or similar for background tasks with progress bar updates, SQLite transactions for atomic imports, and error handling for partial failures.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Create duplicate detection system",
+            "description": "Implement duplicate detection logic for imported inventory items.",
+            "dependencies": [],
+            "details": "Develop fuzzy matching algorithm for part numbers, descriptions, and other identifiers with configurable thresholds.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "LLM-Enhanced Component Metadata",
+        "description": "Use LLMs (PydanticAI, LangGraph, LangChain) to intelligently extract and validate component metadata from provider sources with anti-hallucination safeguards.",
+        "details": "Tech: PydanticAI for structured extraction, LangGraph for workflows, cloud (GPT-4o-mini, Claude Haiku) or local (Ollama Llama 3 8B). 11 anti-hallucination safeguards: structured output, range validation, 80% confidence threshold, mandatory human review, audit trail, critical field protection. Features: Provider data extraction, intelligent field mapping, metadata enhancement, quality validation. Performance: <3s cloud, <10s local, <$0.01/component, 90%+ accuracy, zero hallucination tolerance.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define LLM extraction schema and validation rules",
+            "description": "Create structured Pydantic models for component metadata fields with validation constraints and confidence thresholds",
+            "dependencies": [],
+            "details": "Define Pydantic models for component metadata fields including required fields, data types, and validation rules. Implement confidence threshold checks (80%+), range validation, and mandatory human review triggers. Include audit trail requirements for all extraction attempts.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Implement provider data extraction workflow",
+            "description": "Build LangGraph workflow to fetch and process component data from provider sources",
+            "dependencies": [
+              1
+            ],
+            "details": "Create LangGraph workflow that fetches data from provider APIs, processes raw responses, and passes structured data to extraction pipeline. Include error handling for API failures and rate limiting. Implement cloud/local LLM selection logic based on performance requirements (<3s cloud, <10s local).",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Integrate anti-hallucination safeguards",
+            "description": "Implement 11 anti-hallucination safeguards into extraction pipeline",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Implement structured output validation, confidence threshold checks, mandatory human review triggers, audit trail logging, and critical field protection. Ensure all safeguards are integrated into the extraction workflow with proper error handling and fallback mechanisms. Test all 11 safeguards individually and in combination.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Build metadata enhancement and validation layer",
+            "description": "Create intelligent field mapping and quality validation system",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Implement intelligent field mapping between provider data and internal metadata schema. Add quality validation checks including accuracy thresholds (90%+), zero hallucination tolerance, and confidence scoring. Create fallback mechanisms for low-confidence extractions. Ensure all validation logic is integrated with the anti-hallucination safeguards.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Optimize performance and cost metrics",
+            "description": "Ensure extraction meets performance and cost targets",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Implement performance monitoring for extraction time (<3s cloud, <10s local) and cost tracking (<$0.01/component). Add logging for cost and time metrics. Create optimization strategies for both cloud and local LLM implementations. Test all performance and cost targets with realistic data volumes.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Fix KiCad Library Warning",
+        "description": "Investigate and resolve KiCad library-related warnings appearing in the application to ensure stable operation and clean build output.",
+        "details": "1. Reproduce the warning by running the application with KiCad library integration enabled\n2. Analyze the warning message to identify the specific library component causing the issue\n3. Review the KiCad library integration code (likely in Task 10's import functionality) to determine the root cause\n4. Implement a fix based on the root cause analysis - this may involve:\n   - Adding proper error handling for library loading\n   - Updating library validation logic\n   - Fixing path handling for library files\n   - Adding missing metadata fields\n   - Implementing proper fallback mechanisms\n5. Ensure the fix maintains compatibility with existing KiCad library import functionality\n6. Add appropriate logging to monitor for similar issues in the future\n7. Update documentation to reflect any changes in library requirements or usage patterns",
+        "testStrategy": "1. Verify the warning no longer appears when running the application with KiCad libraries\n2. Test with various KiCad library versions to ensure compatibility\n3. Validate that all existing library import functionality still works correctly\n4. Test with both valid and invalid library files to ensure proper error handling\n5. Confirm that the fix doesn't introduce new warnings or errors\n6. Check that the application performance remains unaffected\n7. Verify that the logging system correctly captures any future library-related issues",
+        "status": "pending",
+        "dependencies": [
+          10
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Extract UUID validation helper for saved searches API",
+        "description": "Create a reusable dependency function to validate search IDs across all endpoints, reducing code duplication in backend/src/api/saved_searches.py.",
+        "details": "1. Create a new utility function in backend/src/utils/uuid_validation.py that validates UUID format\n2. Implement the function to accept a string parameter and return boolean indicating valid UUID format\n3. Update all instances of UUID validation in saved_searches.py (lines 195-201, 239-245, 296-302, 328-334, 368-373) to use the new utility function\n4. Add type hints and docstrings to the utility function\n5. Ensure the function handles both UUID v4 format and any other UUID variants used in the system\n6. Add unit tests for the utility function covering valid and invalid UUID formats\n7. Document the new utility function in the project's API documentation",
+        "testStrategy": "1. Verify all existing UUID validation points in saved_searches.py now use the new utility function\n2. Test with valid UUID strings (e.g., '123e4567-e89b-12d3-a456-426614174000') to ensure validation passes\n3. Test with invalid UUID strings (e.g., '123e4567-e89b-12d3-a456-426614174000x', '123e4567-e89b-12d3-a456-42661417400') to ensure validation fails\n4. Run all existing saved searches API tests to ensure functionality remains unchanged\n5. Verify that the code duplication has been eliminated by checking the saved_searches.py file",
+        "status": "pending",
+        "dependencies": [
+          12
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Extract response serialization helper for saved searches API",
+        "description": "Create a reusable function to convert SavedSearch model to response dictionary, reducing duplication across multiple endpoints in saved_searches.py.",
+        "details": "1. Create a new utility function in backend/src/utils/saved_searches.py that accepts a SavedSearch model instance and returns a dictionary representation\n2. Implement the function to handle all required fields for API responses (id, name, query, created_at, updated_at)\n3. Replace all duplicated serialization code at lines 106-117, 151-165, 212-223, 271-282, 390-401 with calls to this new utility function\n4. Add type hints and docstrings to the utility function\n5. Ensure the function handles potential None values for optional fields\n6. Add comprehensive unit tests for the serialization function\n7. Verify that all endpoints using the SavedSearch model now use the new serialization function\n8. Consider adding support for additional fields that might be needed in future endpoints",
+        "testStrategy": "1. Verify all existing endpoints that return SavedSearch objects now use the new serialization function\n2. Test with valid SavedSearch instances to ensure proper dictionary conversion\n3. Test with instances containing None values for optional fields to ensure graceful handling\n4. Verify that the response structure matches the API specification\n5. Confirm that all test cases from the duplicated code sections are covered by the new implementation\n6. Run all existing API tests to ensure no regression in response format",
+        "status": "pending",
+        "dependencies": [
+          13
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Add composite database index for saved searches performance",
+        "description": "Create a composite database index on (user_id, updated_at DESC) in the saved_searches table to improve query performance for default list operations.",
+        "details": "1. Add a new index to the saved_searches table with columns user_id and updated_at in descending order\n2. Use SQL syntax appropriate for the database system (SQLite)\n3. Ensure the index is created with the correct column order (user_id first, then updated_at DESC)\n4. Verify the index is properly created using database tools\n5. Test the performance impact of the index on the default list query\n6. Consider adding a comment in the database migration file explaining the purpose of this index\n7. Ensure the index creation is part of the database migration process rather than a manual operation",
+        "testStrategy": "1. Run the default list query for saved searches before and after index creation to measure performance difference\n2. Verify the index is properly created by checking database metadata\n3. Test with a large dataset (10k+ saved searches) to ensure the index provides meaningful performance improvement\n4. Confirm that queries using user_id and updated_at as filters utilize the new index\n5. Verify that existing functionality continues to work correctly with the new index in place",
+        "status": "pending",
+        "dependencies": [
+          13,
+          14
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Add max searches per user limit for saved searches",
+        "description": "Implement validation in create_saved_search service method to prevent abuse by limiting users to maximum of 100 saved searches.",
+        "details": "1. Add validation logic in the create_saved_search service method to check if the user already has 100 saved searches\n2. Query the saved_searches table to count existing saved searches for the current user\n3. If count >= 100, return a 400 Bad Request response with appropriate error message\n4. If count < 100, proceed with creating the new saved search\n5. Add error handling for database query failures\n6. Implement proper error messages for different failure scenarios\n7. Ensure the validation is performed before any database writes occur\n8. Add unit tests for the validation logic\n9. Consider adding a configuration parameter for the max limit to allow future adjustments\n10. Update documentation to reflect the new limit",
+        "testStrategy": "1. Test with user having 99 saved searches - should allow creation of 100th search\n2. Test with user having 100 saved searches - should return 400 error with 'maximum limit reached' message\n3. Test with user having 101+ saved searches - should return 400 error\n4. Verify that the count query correctly filters by user_id\n5. Test with invalid user IDs to ensure proper error handling\n6. Verify that the validation occurs before database write\n7. Test with concurrent requests to ensure race condition is handled\n8. Verify error messages are clear and user-friendly\n9. Test with different database states (empty, 50 searches, 100 searches)\n10. Verify that the system doesn't allow creation of more than 100 searches",
+        "status": "pending",
+        "dependencies": [
+          13,
+          14,
+          15
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Optimize saved searches statistics query",
+        "description": "Replace in-memory aggregation with database-level aggregation using SQL COUNT functions in get_search_statistics method at lines 199-222 in backend/src/services/saved_search_service.py. Only matters for users with 100+ searches.",
+        "details": "1. Replace the current in-memory aggregation logic (lines 199-222) with a single SQL query using COUNT functions\n2. Implement a database-level aggregation query that counts saved searches by status (active, archived, deleted)\n3. Ensure the query handles the 100+ search limit scenario mentioned in Task 16\n4. Use proper SQL syntax for the database system (SQLite)\n5. Add appropriate error handling for database query failures\n6. Maintain the same response structure as the current implementation\n7. Consider performance implications for users with large numbers of saved searches\n8. Add comments explaining the database-level aggregation approach\n9. Update the method to return the correct statistics format expected by the frontend",
+        "testStrategy": "1. Test with a user having 100+ saved searches to verify the statistics query returns correct counts\n2. Verify the query returns the same statistics structure as the previous implementation\n3. Test with users having fewer than 100 searches to ensure the statistics query still works correctly\n4. Measure performance improvement compared to the previous in-memory aggregation approach\n5. Verify error handling for database query failures\n6. Test with various search statuses (active, archived, deleted) to ensure proper counting\n7. Validate that the query handles edge cases like empty search results",
+        "status": "pending",
+        "dependencies": [
+          16
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Remove generic exception handler from saved searches API",
+        "description": "Remove the catch-all exception handler at lines 118-122 in backend/src/api/saved_searches.py and let FastAPI handle unexpected errors naturally.",
+        "details": "1. Locate the catch-all exception handler at lines 118-122 in backend/src/api/saved_searches.py\n2. Remove the try-except block that catches all exceptions\n3. Ensure the function continues to handle specific exceptions properly (if any)\n4. Verify that FastAPI's default exception handling will now handle any unexpected errors\n5. Add appropriate logging for unexpected errors if needed\n6. Update any error messages to be more specific where possible\n7. Ensure the API response structure remains consistent with FastAPI's default error responses\n8. Test the API endpoints to confirm that unexpected errors are now handled by FastAPI's default exception handlers",
+        "testStrategy": "1. Test with valid requests to ensure normal functionality remains unchanged\n2. Test with invalid inputs to verify specific exception handling still works\n3. Test with deliberate errors (e.g., database connection failure) to confirm FastAPI's default error handling is triggered\n4. Verify error responses follow FastAPI's standard format (JSON with error details)\n5. Check logs to ensure proper error logging occurs for unexpected errors\n6. Confirm no regression in error handling for specific error cases that were previously handled",
+        "status": "pending",
+        "dependencies": [
+          14
+        ],
+        "priority": "medium",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-10-14T13:40:34.817Z",
+      "updated": "2025-10-14T16:45:52.891Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

@@ -173,8 +173,8 @@ function cancelWizard() {
 
     <q-card-section class="q-pa-md">
       <q-stepper
-        v-model="wizardStore.currentStep"
         ref="stepper"
+        v-model="wizardStore.currentStep"
         animated
         flat
         header-nav

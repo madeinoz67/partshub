@@ -110,15 +110,15 @@ function handleCreateNew() {
     clearable
     @filter="onFilter"
   >
-    <template v-slot:option="scope">
+    <template #option="scope">
       <q-item v-bind="scope.itemProps">
         <q-item-section>
           <q-item-label>{{ scope.opt.name }}</q-item-label>
-          <q-item-label caption v-if="scope.opt.component_count !== undefined">
+          <q-item-label v-if="scope.opt.component_count !== undefined" caption>
             Used in {{ scope.opt.component_count }} components
           </q-item-label>
         </q-item-section>
-        <q-item-section side v-if="scope.opt.score !== undefined">
+        <q-item-section v-if="scope.opt.score !== undefined" side>
           <q-badge color="primary">
             {{ Math.round(scope.opt.score) }}%
           </q-badge>
@@ -126,7 +126,7 @@ function handleCreateNew() {
       </q-item>
     </template>
 
-    <template v-slot:no-option>
+    <template #no-option>
       <q-item>
         <q-item-section class="text-grey">
           <template v-if="inputValue && inputValue.length >= 2">
@@ -140,8 +140,8 @@ function handleCreateNew() {
       <q-item
         v-if="inputValue && inputValue.length >= 2"
         clickable
-        @click="handleCreateNew"
         class="bg-grey-2"
+        @click="handleCreateNew"
       >
         <q-item-section avatar>
           <q-icon name="add" color="primary" />
@@ -154,7 +154,7 @@ function handleCreateNew() {
       </q-item>
     </template>
 
-    <template v-slot:prepend>
+    <template #prepend>
       <q-icon name="search" />
     </template>
   </q-select>

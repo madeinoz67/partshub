@@ -137,6 +137,8 @@ class TestFirstTimeSetup:
 
         # Ensure the database transaction is committed and FTS triggers have fired
         db_session.commit()
+        # Force a refresh to ensure all lazy-loaded relationships are populated
+        db_session.expire_all()
 
         # Step 7: Verify component was created properly
         get_component_response = client.get(f"/api/v1/components/{component_id}")
@@ -150,19 +152,52 @@ class TestFirstTimeSetup:
         assert retrieved_component["specifications"]["resistance"] == "10000"
 
         # Step 8: Test search functionality
+        # Debug: Check how many components exist before rebuild
+        from sqlalchemy import text
+
+        result = db_session.execute(text("SELECT COUNT(*) FROM components"))
+        comp_count = result.fetchone()[0]
+        print(f"\nDEBUG: Components in database: {comp_count}")
+
+        # Check FTS table before rebuild
+        try:
+            result = db_session.execute(text("SELECT COUNT(*) FROM components_fts"))
+            fts_count_before = result.fetchone()[0]
+            print(f"DEBUG: FTS entries before rebuild: {fts_count_before}")
+        except Exception as e:
+            print(f"DEBUG: FTS table query failed: {e}")
+
         # Manually rebuild FTS index to ensure it's populated for this test
         from backend.src.database.search import get_component_search_service
 
         search_service = get_component_search_service()
-        search_service.rebuild_fts_index(db_session)
+        indexed_count = search_service.rebuild_fts_index(db_session)
+        print(f"DEBUG: FTS rebuild indexed {indexed_count} components")
+
+        # Check FTS table after rebuild
+        result = db_session.execute(text("SELECT COUNT(*) FROM components_fts"))
+        fts_count_after = result.fetchone()[0]
+        print(f"DEBUG: FTS entries after rebuild: {fts_count_after}")
+
+        # Check what's in FTS
+        result = db_session.execute(
+            text("SELECT id, name, part_number FROM components_fts LIMIT 5")
+        )
+        fts_samples = result.fetchall()
+        print(f"DEBUG: Sample FTS entries: {fts_samples}")
 
         search_response = client.get("/api/v1/components?search=10k")
         assert search_response.status_code == 200
         search_data = search_response.json()
+        print(
+            f"DEBUG: Search returned total={search_data['total']}, components_len={len(search_data['components'])}"
+        )
+        print(f"DEBUG: Components list: {search_data['components']}")
         assert search_data["total"] >= 1, f"Search returned no results: {search_data}"
 
         # Debug: print what components were found
         found_parts = [comp["part_number"] for comp in search_data["components"]]
+        print(f"DEBUG: Found parts: {found_parts}")
         assert any(
             comp["part_number"] == "CFR25J10K" for comp in search_data["components"]
         ), f"Component CFR25J10K not found in search results. Found: {found_parts}"
@@ -341,6 +376,17 @@ class TestFirstTimeSetup:
         )
         assert component_response.status_code == 201
         component_response.json()["id"]
+
+        # Ensure the database transaction is committed and FTS triggers have fired
+        db_session.commit()
+        # Force a refresh to ensure all lazy-loaded relationships are populated
+        db_session.expire_all()
+
+        # Manually rebuild FTS index to ensure it's populated for this test
+        from backend.src.database.search import get_component_search_service
+
+        search_service = get_component_search_service()
+        search_service.rebuild_fts_index(db_session)
 
         # Test that component shows up in search
         search_response = client.get("/api/v1/components?search=ESP32")

@@ -4,6 +4,7 @@ Components API endpoints implementing the OpenAPI specification.
 
 import math
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -118,12 +119,24 @@ class StockTransactionResponse(BaseModel):
         from_attributes = True
 
 
+class NLMetadata(BaseModel):
+    """Natural language query metadata."""
+
+    query: str
+    confidence: float
+    parsed_entities: dict[str, Any]
+    fallback_to_fts5: bool
+    intent: str | None = None
+    error: str | None = None
+
+
 class ComponentsListResponse(BaseModel):
     components: list[ComponentResponse]
     total: int
     page: int
     total_pages: int
     limit: int
+    nl_metadata: NLMetadata | None = None
 
 
 router = APIRouter(prefix="/api/v1/components", tags=["components"])
@@ -145,6 +158,7 @@ def list_components(
     stock_status: str | None = Query(
         None, pattern="^(low|out|available)$", description="Filter by stock status"
     ),
+    tags: list[str] | None = Query(None, description="Filter by tag names"),
     sort_by: str = Query(
         "updated_at",
         pattern="^(name|quantity|created_at|updated_at)$",
@@ -153,32 +167,82 @@ def list_components(
     sort_order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
     limit: int = Query(50, ge=1, le=100, description="Number of items to return"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
+    nl_query: str | None = Query(
+        None,
+        description=(
+            "Natural language query (e.g., 'find resistors with low stock'). "
+            "When provided, the query is parsed and merged with manual parameters. "
+            "Manual parameters take priority over parsed parameters. "
+            "Returns metadata about parsing confidence and intent."
+        ),
+    ),
     db: Session = Depends(get_db),
 ):
-    """List components with filtering and pagination."""
+    """
+    List components with filtering and pagination.
+
+    Supports both traditional filter parameters and natural language queries via the
+    `nl_query` parameter. When using natural language queries, the system parses the
+    query and extracts entities like component type, stock status, location, etc.
+
+    Manual filter parameters always take priority over parsed parameters from the
+    natural language query.
+
+    Example NL queries:
+    - "find resistors with low stock"
+    - "show me capacitors in location A1"
+    - "10k resistors"
+    - "out of stock LEDs"
+    """
     service = ComponentService(db)
 
-    # Get total count for pagination
-    total_count = service.count_components(
+    # Call list_components with nl_query to get both results and metadata
+    components, nl_metadata = service.list_components(
         search=search,
         category=category,
         category_id=category_id,
         storage_location=storage_location,
         component_type=component_type,
         stock_status=stock_status,
-    )
-
-    components = service.list_components(
-        search=search,
-        category=category,
-        category_id=category_id,
-        storage_location=storage_location,
-        component_type=component_type,
-        stock_status=stock_status,
+        tags=tags,
         sort_by=sort_by,
         sort_order=sort_order,
         limit=limit,
         offset=offset,
+        nl_query=nl_query,
+    )
+
+    # Get total count for pagination (nl_query affects filtering, so we need to count after parsing)
+    # Note: We need to extract the parsed filters from nl_metadata to count accurately
+    count_search = search
+    count_component_type = component_type
+    count_stock_status = stock_status
+    count_storage_location = storage_location
+    count_category = category
+
+    # If nl_query was used and provided filters, use those for counting
+    if nl_metadata and not nl_metadata.get("fallback_to_fts5", True):
+        parsed_entities = nl_metadata.get("parsed_entities", {})
+        # Only override if manual params were not set
+        if search is None and "search" in parsed_entities:
+            count_search = parsed_entities["search"]
+        if component_type is None and "component_type" in parsed_entities:
+            count_component_type = parsed_entities["component_type"]
+        if stock_status is None and "stock_status" in parsed_entities:
+            count_stock_status = parsed_entities["stock_status"]
+        if storage_location is None and "storage_location" in parsed_entities:
+            count_storage_location = parsed_entities["storage_location"]
+        if category is None and "category" in parsed_entities:
+            count_category = parsed_entities["category"]
+
+    total_count = service.count_components(
+        search=count_search,
+        category=count_category,
+        category_id=category_id,
+        storage_location=count_storage_location,
+        component_type=count_component_type,
+        stock_status=count_stock_status,
+        tags=tags,
     )
 
     # Convert to response format
@@ -259,11 +323,12 @@ def list_components(
         page=page,
         total_pages=total_pages,
         limit=limit,
+        nl_metadata=nl_metadata,
     )
 
 
 @router.post("", response_model=ComponentResponse, status_code=status.HTTP_201_CREATED)
-def create_component(
+async def create_component(
     component: ComponentCreate,
     db: Session = Depends(get_db),
     current_user=Depends(require_auth),
@@ -424,7 +489,7 @@ def get_component(component_id: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{component_id}", response_model=ComponentResponse)
-def update_component(
+async def update_component(
     component_id: str,
     component_update: ComponentUpdate,
     current_user=Depends(require_auth),
@@ -456,7 +521,7 @@ def update_component(
 
 
 @router.delete("/{component_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_component(
+async def delete_component(
     component_id: str, current_user=Depends(require_auth), db: Session = Depends(get_db)
 ):
     """Delete a component."""
@@ -473,7 +538,7 @@ def delete_component(
 
 
 @router.post("/{component_id}/stock", response_model=StockTransactionResponse)
-def update_component_stock(
+async def update_component_stock(
     component_id: str,
     stock_update: StockTransactionCreate,
     current_user=Depends(require_auth),

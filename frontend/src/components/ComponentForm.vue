@@ -141,7 +141,7 @@
             </div>
           </div>
           <q-banner class="bg-info text-white q-mt-md" rounded>
-            <template v-slot:avatar>
+            <template #avatar>
               <q-icon name="info" />
             </template>
             Storage locations are managed through stock movements (Add/Remove Stock).

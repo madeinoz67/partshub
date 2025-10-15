@@ -304,6 +304,12 @@ const essentialLinks: EssentialLink[] = [
     link: '/components'
   },
   {
+    title: 'Saved Searches',
+    caption: 'Manage saved component searches',
+    icon: 'bookmark',
+    link: '/saved-searches'
+  },
+  {
     title: 'Projects',
     caption: 'Manage project BOMs',
     icon: 'engineering',

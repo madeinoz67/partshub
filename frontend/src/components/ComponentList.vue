@@ -74,6 +74,20 @@
               <span class="add-text-short">Add</span>
             </q-btn>
           </div>
+
+          <!-- Save Search Button -->
+          <div v-if="hasSearched" class="col-auto">
+            <q-btn
+              label="Save Search"
+              icon="bookmark_border"
+              color="secondary"
+              outline
+              dense
+              @click="showSaveDialog = true"
+            >
+              <q-tooltip>Save current search filters</q-tooltip>
+            </q-btn>
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -1155,6 +1169,13 @@
         </div>
       </template>
     </q-table>
+
+    <!-- Save Search Dialog -->
+    <SaveSearchDialog
+      v-model="showSaveDialog"
+      :search-parameters="currentSearchParameters"
+      @saved="handleSearchSaved"
+    />
   </div>
 </template>
 
@@ -1162,7 +1183,7 @@
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useComponentsStore } from '../stores/components'
 import { useSelectionStore } from '../stores/selection'
 import { useAuth } from '../composables/useAuth'
@@ -1172,7 +1193,9 @@ import AddStockForm from './stock/AddStockForm.vue'
 import RemoveStockForm from './stock/RemoveStockForm.vue'
 import MoveStockForm from './stock/MoveStockForm.vue'
 import StockHistoryTable from './stock/StockHistoryTable.vue'
+import SaveSearchDialog from './SaveSearchDialog.vue'
 import { api } from '../boot/axios'
+import { executeSavedSearch } from '../services/savedSearchesService'
 import type { Component } from '../services/api'
 import type { ComponentAttachment } from '../types/componentList'
 
@@ -1212,6 +1235,7 @@ const selectionStore = useSelectionStore()
 const { canPerformCrud } = useAuth()
 const $q = useQuasar()
 const router = useRouter()
+const route = useRoute()
 const {
   components,
   loading,
@@ -1235,6 +1259,10 @@ const barcodeScannerRef = ref()
 const showBarcodeScanner = ref(false)
 const historyRefreshTrigger = ref<Record<string, boolean>>({}) // Track history refresh triggers per component
 
+// Saved searches state
+const hasSearched = ref(false)
+const showSaveDialog = ref(false)
+
 // Sync selection with store
 watch(selected, (newSelected) => {
   const newIds = newSelected.map(c => c.id)
@@ -1252,6 +1280,56 @@ watch(selected, (newSelected) => {
     selectionStore.removeSelection(toRemove)
   }
 }, { deep: true })
+
+// Watch for savedSearchId query parameter to load saved search
+watch(() => route.query.savedSearchId, async (savedSearchId) => {
+  if (savedSearchId) {
+    try {
+      // Fetch the saved search parameters
+      const response = await executeSavedSearch(savedSearchId)
+      const params = response.search_parameters
+
+      // Apply the search parameters to the reactive refs
+      searchQuery.value = params.search || ''
+      selectedCategory.value = params.category || ''
+      activeFilter.value = params.stock_status || 'all'
+
+      // Apply category filter if present
+      if (params.category) {
+        componentsStore.filterByCategory(params.category)
+      }
+
+      // Apply stock status filter if present
+      if (params.stock_status && params.stock_status !== 'all') {
+        componentsStore.filterByStockStatus(params.stock_status)
+      }
+
+      // Trigger the search
+      if (params.search) {
+        onSearch(params.search)
+      }
+
+      // Mark that a search has been performed to show the Save button
+      hasSearched.value = true
+
+      // Show success notification
+      $q.notify({
+        type: 'positive',
+        message: 'Saved search loaded successfully',
+        timeout: 2000,
+        icon: 'bookmark_check'
+      })
+    } catch (error) {
+      console.error('Failed to load saved search:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Failed to load saved search',
+        timeout: 3000,
+        icon: 'error'
+      })
+    }
+  }
+}, { immediate: true })
 
 // Table configuration
 const columns = [
@@ -1346,6 +1424,13 @@ const categoryOptions = computed(() => {
   }))
 })
 
+// Current search parameters for saved searches
+const currentSearchParameters = computed(() => ({
+  search: searchQuery.value,
+  category: selectedCategory.value || null,
+  stock_status: activeFilter.value !== 'all' ? activeFilter.value : null
+}))
+
 // Stock dropdown options computed from store metrics (currently unused)
 
 // Methods
@@ -1407,11 +1492,16 @@ const getAttachmentIcons = (attachments: unknown[] = []) => {
 
 const onSearch = (query: string) => {
   componentsStore.searchComponents(query)
+  // Mark that a search has been performed
+  if (query && query.trim()) {
+    hasSearched.value = true
+  }
 }
 
 const clearSearch = () => {
   searchQuery.value = ''
   componentsStore.searchComponents('')
+  hasSearched.value = false
 }
 
 const onCategoryFilter = (category: string) => {
@@ -1673,6 +1763,15 @@ const handleStockOperationSuccess = async (componentId: string) => {
 const handleHistoryRefreshed = (componentId: string) => {
   // Reset the refresh trigger after history has been refreshed
   historyRefreshTrigger.value[componentId] = false
+}
+
+const handleSearchSaved = () => {
+  $q.notify({
+    type: 'positive',
+    message: 'Search saved successfully',
+    timeout: 2000,
+    icon: 'bookmark'
+  })
 }
 
 const confirmDeleteAttachment = (attachment: ComponentAttachment, componentId: string) => {
