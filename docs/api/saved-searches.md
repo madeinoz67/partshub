@@ -513,7 +513,7 @@ curl -X PUT http://localhost:8000/api/v1/saved-searches/{new_id} \
 
 All endpoints require a valid JWT bearer token in the `Authorization` header:
 
-```
+```http
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -566,16 +566,19 @@ The following database indexes improve performance:
 ### Common Error Scenarios
 
 **401 Unauthorized:**
+
 - Missing JWT token in Authorization header
 - Invalid or expired JWT token
 - Token signature verification failed
 
 **404 Not Found:**
+
 - Search ID doesn't exist in database
 - Search belongs to a different user
 - User attempting to access non-existent search
 
 **422 Unprocessable Entity:**
+
 - Invalid UUID format for search_id
 - Name too long (>100 characters)
 - Name too short (<1 character)
@@ -584,6 +587,7 @@ The following database indexes improve performance:
 - Invalid limit or offset values
 
 **500 Internal Server Error:**
+
 - Database connection failure
 - Unexpected server error
 - JSON serialization error
@@ -632,6 +636,7 @@ See `backend/tests/integration/test_saved_searches_api.py` for comprehensive tes
 ### v0.5.0 (2025-10-14)
 
 **Initial Release:**
+
 - Complete CRUD operations for saved searches
 - Execute endpoint with usage tracking
 - Duplicate functionality
