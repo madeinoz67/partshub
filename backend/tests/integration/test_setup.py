@@ -377,6 +377,17 @@ class TestFirstTimeSetup:
         assert component_response.status_code == 201
         component_response.json()["id"]
 
+        # Ensure the database transaction is committed and FTS triggers have fired
+        db_session.commit()
+        # Force a refresh to ensure all lazy-loaded relationships are populated
+        db_session.expire_all()
+
+        # Manually rebuild FTS index to ensure it's populated for this test
+        from backend.src.database.search import get_component_search_service
+
+        search_service = get_component_search_service()
+        search_service.rebuild_fts_index(db_session)
+
         # Test that component shows up in search
         search_response = client.get("/api/v1/components?search=ESP32")
         assert search_response.status_code == 200
