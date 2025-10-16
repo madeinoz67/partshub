@@ -138,7 +138,7 @@ class ReorderAlertResponse(BaseModel):
     # Component information
     component_id: str = Field(..., description="Component UUID")
     component_name: str = Field(..., description="Component name")
-    component_part_number: str = Field(..., description="Component part number")
+    component_part_number: str | None = Field(None, description="Component part number")
 
     # Location information
     location_id: str = Field(..., description="Storage location UUID")

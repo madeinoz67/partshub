@@ -46,10 +46,10 @@ api.interceptors.response.use(
       // Only redirect to login if the user had a token (was authenticated)
       // Anonymous users browsing should not be automatically redirected
       if (hadToken && typeof window !== 'undefined') {
-        const { useRouter } = await import('vue-router')
-        const router = useRouter()
-        if (router.currentRoute.value.name !== 'login') {
-          router.push('/login')
+        // Use window.location for redirect since we're outside Vue's setup context
+        // This is more reliable than trying to use Vue Router in an interceptor
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
         }
       }
     }
