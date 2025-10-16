@@ -1286,6 +1286,19 @@ interface ExpandableRowProps {
   expand: boolean
 }
 
+interface NLMetadata {
+  query: string
+  confidence: number
+  parsed_entities?: Record<string, string>
+  fallback_to_fts5: boolean
+  intent?: string
+}
+
+interface APIParams {
+  nl_query: string
+  limit: number
+}
+
 // Component props
 interface Props {
   embedded?: boolean
@@ -1327,7 +1340,7 @@ const searchQuery = ref('')
 const selectedCategory = ref('')
 const activeFilter = ref('all')
 const searchMode = ref('standard')  // 'standard' or 'nl'
-const nlMetadata = ref<Record<string, any> | null>(null)
+const nlMetadata = ref<NLMetadata | null>(null)
 // Sorting is handled by store filters
 const expanded = ref<string[]>([])
 const selected = ref<Component[]>([])
@@ -1584,7 +1597,7 @@ const onSearch = async (query: string) => {
   // Natural Language Search
   if (searchMode.value === 'nl' && query && query.trim()) {
     try {
-      const params: Record<string, any> = {
+      const params: APIParams = {
         nl_query: query.trim(),
         limit: 100
       }
