@@ -201,3 +201,136 @@ class TestNaturalLanguageSearchService:
 
         assert result["intent"] == "filter_by_stock"
         assert result["stock_status"] == "low"
+
+
+class TestNaturalLanguageSearchPerformance:
+    """Performance tests for Natural Language Search Service."""
+
+    @pytest.fixture
+    def service(self):
+        """Create a NaturalLanguageSearchService instance for testing."""
+        return NaturalLanguageSearchService()
+
+    def test_parse_performance_single_query(self, service):
+        """Test that parsing a single query completes in under 50ms."""
+        import time
+
+        query = "find 10k resistors with low stock in location A1"
+
+        # Warm up (first parse may be slower due to initialization)
+        service.parse_query(query)
+
+        # Measure performance
+        start_time = time.perf_counter()
+        result = service.parse_query(query)
+        end_time = time.perf_counter()
+
+        elapsed_ms = (end_time - start_time) * 1000
+
+        # Assert successful parse
+        assert result is not None
+        assert "component_type" in result
+
+        # Assert performance (should be under 50ms)
+        assert (
+            elapsed_ms < 50
+        ), f"Query parsing took {elapsed_ms:.2f}ms, expected < 50ms"
+
+    def test_parse_performance_batch(self, service):
+        """Test that parsing 10 queries in batch completes in under 100ms total."""
+        import time
+
+        queries = [
+            "find resistors",
+            "capacitors with low stock",
+            "10k SMD resistors",
+            "components in location A1",
+            "cheap LEDs under $5",
+            "out of stock ICs",
+            "Texas Instruments microcontrollers",
+            "0805 package resistors",
+            "100μF capacitors",
+            "available transistors",
+        ]
+
+        # Warm up
+        service.parse_batch(queries[:2])
+
+        # Measure performance
+        start_time = time.perf_counter()
+        results = service.parse_batch(queries)
+        end_time = time.perf_counter()
+
+        elapsed_ms = (end_time - start_time) * 1000
+
+        # Assert successful batch parse
+        assert len(results) == 10
+        assert all(result is not None for result in results)
+
+        # Assert performance (should be under 100ms total for 10 queries)
+        assert (
+            elapsed_ms < 100
+        ), f"Batch parsing took {elapsed_ms:.2f}ms, expected < 100ms"
+
+    def test_parse_performance_complex_query(self, service):
+        """Test that parsing a complex multi-entity query completes in under 50ms."""
+        import time
+
+        # Complex query with multiple entities
+        query = "10k SMD resistors with low stock in drawer A1 under $5 from Texas Instruments"
+
+        # Warm up
+        service.parse_query(query)
+
+        # Measure performance
+        start_time = time.perf_counter()
+        result = service.parse_query(query)
+        end_time = time.perf_counter()
+
+        elapsed_ms = (end_time - start_time) * 1000
+
+        # Assert successful parse with multiple entities
+        assert result is not None
+        assert "component_type" in result
+        assert "stock_status" in result.get("parsed_entities", {})
+        assert "package" in result.get("parsed_entities", {})
+
+        # Assert performance (should be under 50ms even for complex queries)
+        assert (
+            elapsed_ms < 50
+        ), f"Complex query parsing took {elapsed_ms:.2f}ms, expected < 50ms"
+
+    def test_parse_performance_consistency(self, service):
+        """Test that parsing performance is consistent across multiple runs."""
+        import time
+
+        query = "find resistors with low stock"
+        runs = 5
+        timings = []
+
+        # Warm up
+        service.parse_query(query)
+
+        # Measure multiple runs
+        for _ in range(runs):
+            start_time = time.perf_counter()
+            service.parse_query(query)
+            end_time = time.perf_counter()
+            timings.append((end_time - start_time) * 1000)
+
+        # Calculate statistics
+        avg_time = sum(timings) / len(timings)
+        max_time = max(timings)
+        min_time = min(timings)
+
+        # Assert consistent performance
+        assert avg_time < 50, f"Average parse time {avg_time:.2f}ms, expected < 50ms"
+        assert (
+            max_time < 75
+        ), f"Maximum parse time {max_time:.2f}ms shows inconsistency, expected < 75ms"
+
+        # Variance should be reasonable (max should not be more than 3x min)
+        variance_ratio = max_time / min_time if min_time > 0 else float("inf")
+        assert (
+            variance_ratio < 3.0
+        ), f"Performance variance too high (ratio: {variance_ratio:.2f})"
