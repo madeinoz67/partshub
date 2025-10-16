@@ -5,6 +5,7 @@ ComponentLocation model for tracking component inventory across multiple storage
 import uuid
 
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     ForeignKey,
@@ -27,6 +28,8 @@ class ComponentLocation(Base):
 
     This allows a single component (same part number) to be stored in multiple locations
     with different quantities, enabling flexible inventory management.
+
+    Includes automatic reorder alert capabilities through database triggers.
     """
 
     __tablename__ = "component_locations"
@@ -47,6 +50,10 @@ class ComponentLocation(Base):
     quantity_ordered = Column(Integer, nullable=False, default=0)
     minimum_stock = Column(Integer, nullable=False, default=0)
 
+    # Reorder alert configuration
+    reorder_threshold = Column(Integer, nullable=False, default=0)
+    reorder_enabled = Column(Boolean, nullable=False, default=False)
+
     # Location-specific notes and data
     location_notes = Column(Text, nullable=True)  # Notes specific to this location
     unit_cost_at_location = Column(
@@ -63,6 +70,11 @@ class ComponentLocation(Base):
     component = relationship("Component", back_populates="locations")
     storage_location = relationship(
         "StorageLocation", back_populates="component_locations"
+    )
+    reorder_alerts = relationship(
+        "ReorderAlert",
+        back_populates="component_location",
+        cascade="all, delete-orphan"
     )
 
     # Table constraints
@@ -84,6 +96,30 @@ class ComponentLocation(Base):
     def is_out_of_stock(self):
         """Check if component at this location is completely out of stock."""
         return self.quantity_on_hand == 0
+
+    @property
+    def needs_reorder(self):
+        """
+        Check if component needs reordering based on enabled reorder threshold.
+
+        Returns True only if reorder alerts are enabled and stock is below threshold.
+        """
+        return (
+            self.reorder_enabled
+            and self.quantity_on_hand < self.reorder_threshold
+        )
+
+    @property
+    def reorder_shortage(self):
+        """
+        Calculate the shortage amount for reorder purposes.
+
+        Returns the difference between threshold and current quantity,
+        or 0 if stock is adequate or reorder is not enabled.
+        """
+        if not self.reorder_enabled or self.quantity_on_hand >= self.reorder_threshold:
+            return 0
+        return self.reorder_threshold - self.quantity_on_hand
 
     @classmethod
     def acquire_lock(

@@ -36,6 +36,7 @@ from backend.src.models import (
     ProjectStatus,
     Purchase,
     PurchaseItem,
+    ReorderAlert,
     StockTransaction,
     StorageLocation,
     Substitute,
