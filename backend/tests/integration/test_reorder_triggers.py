@@ -9,9 +9,8 @@ Tests that SQLite triggers automatically create/update/resolve alerts when:
 """
 
 import pytest
-from sqlalchemy import text
 
-from backend.src.models import ComponentLocation, ReorderAlert
+from backend.src.models import ReorderAlert
 
 
 @pytest.mark.integration

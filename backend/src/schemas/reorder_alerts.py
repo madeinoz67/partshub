@@ -174,7 +174,8 @@ class ReorderAlertResponse(BaseModel):
         None, description="When alert was dismissed (ISO 8601, null if not dismissed)"
     )
     ordered_at: str | None = Field(
-        None, description="When alert was marked as ordered (ISO 8601, null if not ordered)"
+        None,
+        description="When alert was marked as ordered (ISO 8601, null if not ordered)",
     )
     resolved_at: str | None = Field(
         None,
@@ -210,7 +211,8 @@ class ThresholdUpdateResponse(BaseModel):
     reorder_enabled: bool = Field(..., description="Reorder monitoring enabled status")
     current_quantity: int = Field(..., description="Current stock quantity at location")
     needs_reorder: bool = Field(
-        ..., description="True if current stock is below threshold and monitoring is enabled"
+        ...,
+        description="True if current stock is below threshold and monitoring is enabled",
     )
 
 

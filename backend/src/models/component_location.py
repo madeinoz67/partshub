@@ -74,7 +74,7 @@ class ComponentLocation(Base):
     reorder_alerts = relationship(
         "ReorderAlert",
         back_populates="component_location",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     # Table constraints
@@ -104,10 +104,7 @@ class ComponentLocation(Base):
 
         Returns True only if reorder alerts are enabled and stock is below threshold.
         """
-        return (
-            self.reorder_enabled
-            and self.quantity_on_hand < self.reorder_threshold
-        )
+        return self.reorder_enabled and self.quantity_on_hand < self.reorder_threshold
 
     @property
     def reorder_shortage(self):

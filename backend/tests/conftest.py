@@ -61,7 +61,9 @@ def create_reorder_alert_triggers(connection):
     manually create triggers for integration tests.
     """
     # Trigger 1: Create alert when stock drops below threshold (UPDATE case)
-    connection.execute(text("""
+    connection.execute(
+        text(
+            """
         CREATE TRIGGER IF NOT EXISTS trigger_check_low_stock_after_update
         AFTER UPDATE OF quantity_on_hand ON component_locations
         FOR EACH ROW
@@ -97,10 +99,14 @@ def create_reorder_alert_triggers(connection):
             datetime('now')
           );
         END;
-    """))
+    """
+        )
+    )
 
     # Trigger 2: Update existing alert when quantity changes further
-    connection.execute(text("""
+    connection.execute(
+        text(
+            """
         CREATE TRIGGER IF NOT EXISTS trigger_update_low_stock_after_update
         AFTER UPDATE OF quantity_on_hand ON component_locations
         FOR EACH ROW
@@ -120,10 +126,14 @@ def create_reorder_alert_triggers(connection):
           WHERE component_location_id = NEW.id
             AND status = 'active';
         END;
-    """))
+    """
+        )
+    )
 
     # Trigger 3: Auto-resolve alert when stock rises above threshold
-    connection.execute(text("""
+    connection.execute(
+        text(
+            """
         CREATE TRIGGER IF NOT EXISTS trigger_resolve_alert_after_update
         AFTER UPDATE OF quantity_on_hand ON component_locations
         FOR EACH ROW
@@ -138,10 +148,14 @@ def create_reorder_alert_triggers(connection):
           WHERE component_location_id = NEW.id
             AND status IN ('active', 'ordered');
         END;
-    """))
+    """
+        )
+    )
 
     # Trigger 4: Create alert on initial stock entry (INSERT case)
-    connection.execute(text("""
+    connection.execute(
+        text(
+            """
         CREATE TRIGGER IF NOT EXISTS trigger_check_low_stock_after_insert
         AFTER INSERT ON component_locations
         FOR EACH ROW
@@ -171,10 +185,14 @@ def create_reorder_alert_triggers(connection):
             datetime('now')
           );
         END;
-    """))
+    """
+        )
+    )
 
     # Trigger 5: Check if alert needed when threshold is updated
-    connection.execute(text("""
+    connection.execute(
+        text(
+            """
         CREATE TRIGGER IF NOT EXISTS trigger_check_low_stock_after_threshold_update
         AFTER UPDATE OF reorder_threshold, reorder_enabled ON component_locations
         FOR EACH ROW
@@ -209,7 +227,9 @@ def create_reorder_alert_triggers(connection):
             datetime('now')
           );
         END;
-    """))
+    """
+        )
+    )
 
     connection.commit()
 

@@ -17,8 +17,6 @@ Endpoints tested:
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.src.models import ComponentLocation, ReorderAlert
-
 
 @pytest.mark.contract
 class TestReorderAlertsContract:
@@ -532,14 +530,22 @@ class TestReorderAlertsContract:
         # Create two component locations (need unique part_number for each)
         comp1_resp = client.post(
             "/api/v1/components",
-            json={**sample_component_data, "name": "Component 1", "part_number": "PN-001"},
+            json={
+                **sample_component_data,
+                "name": "Component 1",
+                "part_number": "PN-001",
+            },
             headers=auth_headers,
         )
         comp1_id = comp1_resp.json()["id"]
 
         comp2_resp = client.post(
             "/api/v1/components",
-            json={**sample_component_data, "name": "Component 2", "part_number": "PN-002"},
+            json={
+                **sample_component_data,
+                "name": "Component 2",
+                "part_number": "PN-002",
+            },
             headers=auth_headers,
         )
         comp2_id = comp2_resp.json()["id"]

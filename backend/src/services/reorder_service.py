@@ -141,9 +141,7 @@ class ReorderService:
                     ComponentLocation.storage_location
                 ),
             )
-            .where(
-                ReorderAlert.status.in_(["dismissed", "ordered", "resolved"])
-            )
+            .where(ReorderAlert.status.in_(["dismissed", "ordered", "resolved"]))
             .order_by(ReorderAlert.updated_at.desc())
             .limit(limit)
         )
@@ -192,7 +190,9 @@ class ReorderService:
 
         # Reload with relationships
         self.session.refresh(alert)
-        self.session.refresh(alert.component_location, ["component", "storage_location"])
+        self.session.refresh(
+            alert.component_location, ["component", "storage_location"]
+        )
 
         logger.info(f"Alert {alert_id} dismissed by user")
         return self._to_dict(alert)
@@ -233,7 +233,9 @@ class ReorderService:
 
         # Reload with relationships
         self.session.refresh(alert)
-        self.session.refresh(alert.component_location, ["component", "storage_location"])
+        self.session.refresh(
+            alert.component_location, ["component", "storage_location"]
+        )
 
         logger.info(f"Alert {alert_id} marked as ordered")
         return self._to_dict(alert)
@@ -336,7 +338,11 @@ class ReorderService:
                     }
                 )
 
-        return {"success_count": success_count, "error_count": len(errors), "errors": errors}
+        return {
+            "success_count": success_count,
+            "error_count": len(errors),
+            "errors": errors,
+        }
 
     # ==================== Reporting ====================
 
@@ -357,7 +363,8 @@ class ReorderService:
             )
             .where(
                 ComponentLocation.reorder_enabled.is_(True),
-                ComponentLocation.quantity_on_hand < ComponentLocation.reorder_threshold,
+                ComponentLocation.quantity_on_hand
+                < ComponentLocation.reorder_threshold,
             )
             .order_by(
                 (

@@ -52,19 +52,22 @@ class ReorderAlert(Base):
 
     # Foreign keys
     component_location_id = Column(
-        Integer, ForeignKey("component_locations.id", ondelete="CASCADE"),
+        Integer,
+        ForeignKey("component_locations.id", ondelete="CASCADE"),
         nullable=False,
-        index=True
+        index=True,
     )
     component_id = Column(
-        String, ForeignKey("components.id", ondelete="CASCADE"),
+        String,
+        ForeignKey("components.id", ondelete="CASCADE"),
         nullable=False,
-        index=True
+        index=True,
     )
     storage_location_id = Column(
-        String, ForeignKey("storage_locations.id", ondelete="CASCADE"),
+        String,
+        ForeignKey("storage_locations.id", ondelete="CASCADE"),
         nullable=False,
-        index=True
+        index=True,
     )
 
     # Alert state
@@ -87,8 +90,7 @@ class ReorderAlert(Base):
 
     # Relationships
     component_location = relationship(
-        "ComponentLocation",
-        back_populates="reorder_alerts"
+        "ComponentLocation", back_populates="reorder_alerts"
     )
     component = relationship("Component")
     storage_location = relationship("StorageLocation")

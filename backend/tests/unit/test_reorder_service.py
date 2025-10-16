@@ -59,7 +59,9 @@ class TestReorderService:
         mock_alert.component_location.component = mock_component
         mock_alert.component_location.storage_location = mock_location
 
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [mock_alert]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            mock_alert
+        ]
 
         alerts = service.get_active_alerts()
 
@@ -280,7 +282,9 @@ class TestReorderService:
         mock_comp_loc.quantity_on_hand = 100
         mock_comp_loc.needs_reorder = False
 
-        mock_session.execute.return_value.scalar_one_or_none.return_value = mock_comp_loc
+        mock_session.execute.return_value.scalar_one_or_none.return_value = (
+            mock_comp_loc
+        )
 
         result = service.update_reorder_threshold(
             component_id="comp-id",
@@ -338,7 +342,9 @@ class TestReorderService:
         mock_comp_loc.quantity_on_hand = 100
         mock_comp_loc.needs_reorder = False
 
-        mock_session.execute.return_value.scalar_one_or_none.return_value = mock_comp_loc
+        mock_session.execute.return_value.scalar_one_or_none.return_value = (
+            mock_comp_loc
+        )
 
         updates = [
             {
@@ -411,7 +417,9 @@ class TestReorderService:
         mock_item.reorder_threshold = 20
         mock_item.reorder_shortage = 15
 
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [mock_item]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            mock_item
+        ]
 
         result = service.check_low_stock()
 
@@ -483,7 +491,9 @@ class TestReorderService:
             return mock_alert
 
         mock_alerts = [create_mock_alert() for _ in range(50)]
-        mock_session.execute.return_value.scalars.return_value.all.return_value = mock_alerts
+        mock_session.execute.return_value.scalars.return_value.all.return_value = (
+            mock_alerts
+        )
 
         result = service.get_alert_history(limit=50)
 

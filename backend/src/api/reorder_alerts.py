@@ -49,9 +49,7 @@ router = APIRouter(prefix="/api/v1/reorder-alerts", tags=["Reorder Alerts"])
     status_code=status.HTTP_200_OK,
 )
 async def list_active_alerts(
-    component_id: UUID | None = Query(
-        None, description="Filter by component UUID"
-    ),
+    component_id: UUID | None = Query(None, description="Filter by component UUID"),
     location_id: UUID | None = Query(
         None, description="Filter by storage location UUID"
     ),
@@ -97,9 +95,7 @@ async def list_active_alerts(
     status_code=status.HTTP_200_OK,
 )
 async def get_alert_history(
-    component_id: UUID | None = Query(
-        None, description="Filter by component UUID"
-    ),
+    component_id: UUID | None = Query(None, description="Filter by component UUID"),
     limit: int = Query(50, ge=1, le=500, description="Maximum number of records"),
     db: Session = Depends(get_db),
     admin: dict = Depends(require_admin),
