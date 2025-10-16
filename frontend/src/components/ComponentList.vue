@@ -14,18 +14,38 @@
     <!-- Header with search and filters -->
     <q-card class="q-mb-sm">
       <q-card-section class="q-pa-sm">
+        <!-- Search Mode Toggle -->
+        <div class="row items-center q-mb-sm">
+          <div class="col-auto q-mr-md">
+            <q-btn-toggle
+              v-model="searchMode"
+              :options="searchModeOptions"
+              toggle-color="primary"
+              unelevated
+              dense
+              @update:model-value="onSearchModeChange"
+            />
+          </div>
+          <div v-if="searchMode === 'nl'" class="col-auto">
+            <q-icon name="info" color="info" size="sm" class="q-mr-xs" />
+            <span class="text-caption text-grey-7">
+              Try natural language like "resistors with low stock" or "capacitors in A1"
+            </span>
+          </div>
+        </div>
+
         <div class="row q-gutter-sm items-center">
           <div class="col-md-4 col-xs-12">
             <q-input
               v-model="searchQuery"
               outlined
               dense
-              placeholder="Search components..."
+              :placeholder="searchMode === 'nl' ? 'Try: resistors with low stock, capacitors in A1...' : 'Search components...'"
               debounce="300"
               @update:model-value="onSearch"
             >
               <template #prepend>
-                <q-icon name="search" />
+                <q-icon :name="searchMode === 'nl' ? 'psychology' : 'search'" />
               </template>
               <template #append>
                 <q-btn
@@ -88,6 +108,62 @@
               <q-tooltip>Save current search filters</q-tooltip>
             </q-btn>
           </div>
+        </div>
+
+        <!-- NL Metadata Display -->
+        <div v-if="searchMode === 'nl' && nlMetadata && hasSearched" class="q-mt-sm">
+          <q-card flat bordered class="nl-metadata-card">
+            <q-card-section class="q-pa-sm">
+              <div class="row items-center q-mb-xs">
+                <div class="col">
+                  <span class="text-caption text-weight-medium">Query Understanding</span>
+                  <q-linear-progress
+                    :value="nlMetadata.confidence"
+                    :color="getConfidenceColor(nlMetadata.confidence * 100)"
+                    size="6px"
+                    rounded
+                    class="q-mt-xs"
+                  />
+                </div>
+                <div class="col-auto">
+                  <q-badge
+                    :color="getConfidenceColor(nlMetadata.confidence * 100)"
+                    :label="`${Math.round(nlMetadata.confidence * 100)}% confidence`"
+                  />
+                </div>
+              </div>
+
+              <!-- Parsed Parameters as Chips -->
+              <div v-if="nlMetadata.parsed_entities && Object.keys(nlMetadata.parsed_entities).length > 0" class="q-mt-xs">
+                <div class="text-caption text-grey-7 q-mb-xs">Parsed filters:</div>
+                <div class="row q-gutter-xs">
+                  <q-chip
+                    v-for="(value, key) in nlMetadata.parsed_entities"
+                    :key="key"
+                    removable
+                    :color="getEntityChipColor(key)"
+                    text-color="white"
+                    size="sm"
+                    @remove="removeParsedFilter(key)"
+                  >
+                    <strong>{{ formatEntityKey(key) }}:</strong> {{ value }}
+                  </q-chip>
+                </div>
+              </div>
+
+              <!-- FTS5 Fallback Warning -->
+              <div v-if="nlMetadata.fallback_to_fts5" class="q-mt-xs">
+                <q-banner dense class="bg-orange-1 text-orange-9">
+                  <template #avatar>
+                    <q-icon name="warning" color="orange" />
+                  </template>
+                  <span class="text-caption">
+                    Query couldn't be fully understood. Using text search fallback.
+                  </span>
+                </q-banner>
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
       </q-card-section>
     </q-card>
@@ -1232,7 +1308,7 @@ defineEmits<{
 // Stores
 const componentsStore = useComponentsStore()
 const selectionStore = useSelectionStore()
-const { canPerformCrud } = useAuth()
+const { canPerformCrud, isAuthenticated } = useAuth()
 const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
@@ -1250,6 +1326,8 @@ const {
 const searchQuery = ref('')
 const selectedCategory = ref('')
 const activeFilter = ref('all')
+const searchMode = ref('standard')  // 'standard' or 'nl'
+const nlMetadata = ref<Record<string, any> | null>(null)
 // Sorting is handled by store filters
 const expanded = ref<string[]>([])
 const selected = ref<Component[]>([])
@@ -1262,6 +1340,12 @@ const historyRefreshTrigger = ref<Record<string, boolean>>({}) // Track history 
 // Saved searches state
 const hasSearched = ref(false)
 const showSaveDialog = ref(false)
+
+// Search mode options
+const searchModeOptions = [
+  { label: 'Standard', value: 'standard' },
+  { label: 'Natural Language', value: 'nl' }
+]
 
 // Sync selection with store
 watch(selected, (newSelected) => {
@@ -1284,6 +1368,12 @@ watch(selected, (newSelected) => {
 // Watch for savedSearchId query parameter to load saved search
 watch(() => route.query.savedSearchId, async (savedSearchId) => {
   if (savedSearchId) {
+    // Only execute saved search if user is authenticated
+    if (!isAuthenticated.value) {
+      console.log('Skipping saved search execution - user not authenticated')
+      return
+    }
+
     try {
       // Fetch the saved search parameters
       const response = await executeSavedSearch(savedSearchId)
@@ -1490,7 +1580,39 @@ const getAttachmentIcons = (attachments: unknown[] = []) => {
   return icons
 }
 
-const onSearch = (query: string) => {
+const onSearch = async (query: string) => {
+  // Natural Language Search
+  if (searchMode.value === 'nl' && query && query.trim()) {
+    try {
+      const params: Record<string, any> = {
+        nl_query: query.trim(),
+        limit: 100
+      }
+
+      const response = await api.get('/api/v1/components', { params })
+
+      // Update components store with NL search results
+      componentsStore.$patch({
+        components: response.data.components || [],
+        loading: false
+      })
+
+      // Store NL metadata
+      nlMetadata.value = response.data.nl_metadata || null
+
+      hasSearched.value = true
+    } catch (error) {
+      console.error('Error in NL search:', error)
+      $q.notify({
+        type: 'negative',
+        message: `Search failed: ${error.response?.data?.detail || error.message}`,
+        timeout: 5000
+      })
+    }
+    return
+  }
+
+  // Standard search
   componentsStore.searchComponents(query)
   // Mark that a search has been performed
   if (query && query.trim()) {
@@ -1500,8 +1622,18 @@ const onSearch = (query: string) => {
 
 const clearSearch = () => {
   searchQuery.value = ''
+  nlMetadata.value = null
   componentsStore.searchComponents('')
   hasSearched.value = false
+}
+
+const onSearchModeChange = () => {
+  // Clear results and metadata when switching modes
+  nlMetadata.value = null
+  componentsStore.clearFilters()
+  if (searchQuery.value) {
+    onSearch(searchQuery.value)
+  }
 }
 
 const onCategoryFilter = (category: string) => {
@@ -1809,6 +1941,50 @@ const deleteAttachment = async (attachment: ComponentAttachment, componentId: st
       type: 'negative',
       message: 'Failed to delete attachment',
       position: 'top-right'
+    })
+  }
+}
+
+// Natural Language Search Helper Functions
+const getConfidenceColor = (confidence: number) => {
+  if (confidence >= 80) return 'positive'
+  if (confidence >= 50) return 'warning'
+  return 'negative'
+}
+
+const getEntityChipColor = (entityKey: string) => {
+  const colorMap: Record<string, string> = {
+    component_type: 'purple',
+    stock_status: 'orange',
+    storage_location: 'blue',
+    location: 'blue',
+    category: 'teal',
+    search: 'indigo',
+    value: 'deep-purple',
+    resistance: 'deep-purple',
+    capacitance: 'deep-purple',
+    voltage: 'deep-purple',
+    package: 'cyan',
+    manufacturer: 'green',
+    price: 'amber'
+  }
+  return colorMap[entityKey] || 'primary'
+}
+
+const formatEntityKey = (key: string) => {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase())
+}
+
+const removeParsedFilter = async (key: string) => {
+  if (nlMetadata.value && nlMetadata.value.parsed_entities) {
+    delete nlMetadata.value.parsed_entities[key]
+    await onSearch(searchQuery.value)
+    $q.notify({
+      type: 'info',
+      message: `Filter "${formatEntityKey(key)}" removed`,
+      timeout: 2000
     })
   }
 }
