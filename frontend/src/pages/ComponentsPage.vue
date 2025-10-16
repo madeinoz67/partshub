@@ -22,6 +22,7 @@
       @view-component="viewComponent"
       @edit-component="editComponent"
       @update-stock="updateStock"
+      @configure-reorder="configureReorder"
       @delete-component="deleteComponent"
     />
 
@@ -38,6 +39,13 @@
       v-model="showStockDialog"
       :component="selectedComponent"
       @updated="onStockUpdated"
+    />
+
+    <!-- Reorder Threshold Dialog -->
+    <MultiLocationThresholdDialog
+      v-model="showThresholdDialog"
+      :component="selectedComponent"
+      @saved="onThresholdSaved"
     />
 
     <!-- Delete Confirmation Dialog -->
@@ -110,6 +118,7 @@ import { useQuasar } from 'quasar'
 import ComponentList from '../components/ComponentList.vue'
 import ComponentForm from '../components/ComponentForm.vue'
 import StockUpdateDialog from '../components/StockUpdateDialog.vue'
+import MultiLocationThresholdDialog from '../components/reorder/MultiLocationThresholdDialog.vue'
 import BulkOperationMenu from '../components/BulkOperationMenu.vue'
 import TagManagementDialog from '../components/TagManagementDialog.vue'
 import AddToProjectDialog from '../components/AddToProjectDialog.vue'
@@ -128,6 +137,7 @@ const { requireAuth } = useAuth()
 const selectedComponent = ref<Component | null>(null)
 const showCreateDialog = ref(false)
 const showStockDialog = ref(false)
+const showThresholdDialog = ref(false)
 const showDeleteDialog = ref(false)
 const showTagDialog = ref(false)
 const showProjectDialog = ref(false)
@@ -163,6 +173,13 @@ const updateStock = (component: Component) => {
   showStockDialog.value = true
 }
 
+const configureReorder = (component: Component) => {
+  if (!requireAuth('configure reorder alerts')) return
+
+  selectedComponent.value = component
+  showThresholdDialog.value = true
+}
+
 const deleteComponent = (component: Component) => {
   if (!requireAuth('delete components')) return
 
@@ -192,6 +209,19 @@ const onStockUpdated = () => {
 
   selectedComponent.value = null
   showStockDialog.value = false
+}
+
+const onThresholdSaved = async () => {
+  $q.notify({
+    type: 'positive',
+    message: 'Reorder thresholds updated successfully',
+    position: 'top-right'
+  })
+
+  // Refresh components to show updated reorder status
+  await componentsStore.fetchComponents()
+  selectedComponent.value = null
+  showThresholdDialog.value = false
 }
 
 const confirmDelete = async () => {

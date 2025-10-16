@@ -173,46 +173,66 @@
         "subtasks": [
           {
             "id": 1,
-            "title": "Implement SQLite triggers for reorder alerts",
-            "description": "Create SQLite triggers to automatically calculate stock levels and trigger reorder alerts when stock falls below threshold.",
+            "title": "Design analytics API contracts",
+            "description": "Create Pydantic schemas for time-series stock data, usage trends, and forecast data to standardize API responses.",
             "dependencies": [],
-            "details": "Use SQLite FTS5 for stock level monitoring, implement trigger logic to check stock levels against reorder thresholds, and store alert states in a new alerts table.\n<info added on 2025-10-16T06:37:21.204Z>\nIntegration with reorder alerts system (currently in implementation) will display alert metrics and stock level trends using Chart.js\n</info added on 2025-10-16T06:37:21.204Z>\n<info added on 2025-10-16T06:44:39.472Z>\nIntegration with completed reorder alerts system will display alert metrics and stock level trends using Chart.js. The database layer now provides active alert states, shortage metrics, and timestamped workflow data for visualization.\n</info added on 2025-10-16T06:44:39.472Z>\n<info added on 2025-10-16T06:48:56.022Z>\nThe ORM models for reorder alerts are now complete and verified. The ReorderAlert model provides workflow tracking (active → dismissed/ordered → resolved), while the extended ComponentLocation model includes reorder thresholds and shortage calculations. These models now supply the necessary data structure for the analytics dashboard, including active alert states, shortage metrics, and timestamped workflow data. The dashboard implementation can now leverage these models to display alert metrics and stock level trends using Chart.js.\n</info added on 2025-10-16T06:48:56.022Z>",
-            "status": "done",
+            "details": "Define Pydantic models for stock time-series, usage patterns, and moving average forecasts with required fields and validation.",
+            "status": "pending",
             "testStrategy": null
           },
           {
             "id": 2,
-            "title": "Develop analytics dashboard with Chart.js",
-            "description": "Build a visual analytics dashboard showing usage trends, stock levels, and forecasting metrics.",
-            "dependencies": [],
-            "details": "Integrate Chart.js for interactive charts, create API endpoints to fetch usage data, and design responsive dashboard layout.",
+            "title": "Implement AnalyticsService",
+            "description": "Develop backend service for data aggregation and analytics processing.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create analytics_service.py with methods for stock time-series aggregation, usage pattern analysis, and moving average forecasting.",
             "status": "pending",
             "testStrategy": null
           },
           {
             "id": 3,
-            "title": "Implement FIFO picking suggestions",
-            "description": "Add functionality to suggest optimal FIFO picking order based on lot tracking data.",
-            "dependencies": [],
-            "details": "Query lot tracking data to determine oldest lots, implement logic to prioritize these lots for picking, and display suggestions in the UI.",
+            "title": "Create analytics API endpoints",
+            "description": "Build FastAPI REST endpoints for analytics data access.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement router with endpoints for stock-levels, usage-trends, forecast data, and dashboard summary.",
             "status": "pending",
             "testStrategy": null
           },
           {
             "id": 4,
-            "title": "Create slow-moving stock identification",
-            "description": "Develop a system to identify slow-moving stock items based on usage patterns.",
-            "dependencies": [],
-            "details": "Calculate usage rates over time, set thresholds for slow-moving items, and generate reports showing these items.",
+            "title": "Create Chart.js composable",
+            "description": "Develop TypeScript composable for Chart.js integration.",
+            "dependencies": [
+              1
+            ],
+            "details": "Build useChart.ts with Chart.js lifecycle management and TypeScript type definitions.",
             "status": "pending",
             "testStrategy": null
           },
           {
             "id": 5,
-            "title": "Implement simple forecasting using moving averages",
-            "description": "Add forecasting capabilities using moving averages to predict future stock needs.",
-            "dependencies": [],
-            "details": "Calculate moving averages from historical usage data, implement forecasting logic, and display predictions in the analytics dashboard.",
+            "title": "Build chart components",
+            "description": "Create Vue.js chart components for analytics dashboard.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Develop StockLevelChart.vue, UsageTrendsChart.vue, ForecastChart.vue, and ReorderAlertsSummary.vue.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 6,
+            "title": "Create dashboard page",
+            "description": "Build responsive analytics dashboard page.",
+            "dependencies": [
+              5
+            ],
+            "details": "Implement AnalyticsDashboard.vue with Quasar layout, date filters, and all chart components.",
             "status": "pending",
             "testStrategy": null
           }
@@ -563,7 +583,7 @@
     ],
     "metadata": {
       "created": "2025-10-14T13:40:34.817Z",
-      "updated": "2025-10-16T07:15:42.499Z",
+      "updated": "2025-10-16T07:56:48.327Z",
       "description": "Tasks for master context"
     }
   }
