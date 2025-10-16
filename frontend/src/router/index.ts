@@ -74,6 +74,12 @@ const routes = [
         component: () => import('../pages/InventoryPage.vue')
       },
       {
+        path: 'reorder-alerts',
+        name: 'reorder-alerts',
+        component: () => import('../pages/ReorderAlertsPage.vue'),
+        meta: { requiresAdmin: true }
+      },
+      {
         path: 'admin',
         name: 'admin',
         component: () => import('../pages/AdminPage.vue'),

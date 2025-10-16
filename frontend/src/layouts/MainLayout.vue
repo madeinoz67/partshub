@@ -322,6 +322,13 @@ const essentialLinks: EssentialLink[] = [
     link: '/storage'
   },
   {
+    title: 'Reorder Alerts',
+    caption: 'Monitor low stock alerts',
+    icon: 'notification_important',
+    link: '/reorder-alerts',
+    adminOnly: true
+  },
+  {
     title: 'Dashboard',
     caption: 'Overview and statistics',
     icon: 'dashboard',
