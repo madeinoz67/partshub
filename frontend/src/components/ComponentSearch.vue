@@ -85,15 +85,23 @@
                   <div class="row items-center q-mb-sm">
                     <div class="col">
                       <span class="text-caption text-weight-medium">Query Understanding</span>
+                      <!-- Visual confidence progress bar -->
+                      <q-linear-progress
+                        :value="nlMetadata.confidence"
+                        :color="getConfidenceColor(nlMetadata.confidence * 100)"
+                        size="6px"
+                        rounded
+                        class="q-mt-xs"
+                      />
                     </div>
                     <div class="col-auto">
-                      <!-- Confidence Score -->
+                      <!-- Confidence Score (convert 0-1 to percentage) -->
                       <q-badge
-                        :color="getConfidenceColor(nlMetadata.confidence)"
-                        :label="`${Math.round(nlMetadata.confidence)}% confidence`"
+                        :color="getConfidenceColor(nlMetadata.confidence * 100)"
+                        :label="`${Math.round(nlMetadata.confidence * 100)}% confidence`"
                       >
                         <q-tooltip>
-                          {{ getConfidenceTooltip(nlMetadata.confidence) }}
+                          {{ getConfidenceTooltip(nlMetadata.confidence * 100) }}
                         </q-tooltip>
                       </q-badge>
                     </div>
@@ -107,7 +115,7 @@
                         v-for="(value, key) in nlMetadata.parsed_entities"
                         :key="key"
                         removable
-                        color="primary"
+                        :color="getEntityChipColor(key)"
                         text-color="white"
                         size="sm"
                         @remove="removeParsedFilter(key)"
@@ -550,14 +558,33 @@ export default {
       return 'Low confidence - Using fallback text search'
     }
 
-    // Remove parsed filter and re-search
-    const removeParsedFilter = (key) => {
+    // Get chip color based on entity type
+    const getEntityChipColor = (entityKey) => {
+      const colorMap = {
+        component_type: 'purple',
+        stock_status: 'orange',
+        storage_location: 'blue',
+        category: 'teal',
+        search: 'indigo',
+        value: 'deep-purple',
+        package: 'cyan'
+      }
+      return colorMap[entityKey] || 'primary'
+    }
+
+    // Remove parsed filter and re-search automatically
+    const removeParsedFilter = async (key) => {
       if (nlMetadata.value && nlMetadata.value.parsed_entities) {
+        // Remove the entity from metadata
         delete nlMetadata.value.parsed_entities[key]
-        // TODO: Implement re-search with updated filters
+
+        // Rebuild the query without the removed filter
+        // This is a simple approach - we just re-run the search with updated metadata
+        await search()
+
         $q.notify({
           type: 'info',
-          message: 'Filter removed. Please search again.',
+          message: `Filter "${formatEntityKey(key)}" removed`,
           timeout: 2000
         })
       }
@@ -665,23 +692,44 @@ export default {
         searchResults.value = null
         standardResults.value = []
         skuResults.value = { total_found: 0, results: {} }
-        nlMetadata.value = null
+
+        // Keep existing metadata if we're re-searching after filter removal
+        const previousMetadata = nlMetadata.value
+        if (!previousMetadata || !previousMetadata.parsed_entities || Object.keys(previousMetadata.parsed_entities).length === 0) {
+          nlMetadata.value = null
+        }
+
         hasSearched.value = true
 
         try {
-          const response = await api.get('/api/v1/components', {
-            params: {
-              nl_query: nlQuery.value.trim(),
-              limit: limit.value
-            }
-          })
+          // Build parameters from current metadata if it exists (for filter removal case)
+          const params = {
+            nl_query: nlQuery.value.trim(),
+            limit: limit.value
+          }
+
+          // If we have modified metadata (after filter removal), apply manual filters
+          if (previousMetadata && previousMetadata.parsed_entities) {
+            const entities = previousMetadata.parsed_entities
+            if (entities.component_type) params.component_type = entities.component_type
+            if (entities.stock_status) params.stock_status = entities.stock_status
+            if (entities.storage_location) params.storage_location = entities.storage_location
+            if (entities.category) params.category = entities.category
+            if (entities.search) params.search = entities.search
+          }
+
+          const response = await api.get('/api/v1/components', { params })
 
           // Store results
           standardResults.value = response.data.components || []
-          nlMetadata.value = response.data.nl_metadata || null
 
-          // Save to history
-          saveToHistory(nlQuery.value.trim())
+          // Update metadata - merge with previous if we had filter removal
+          nlMetadata.value = response.data.nl_metadata || previousMetadata || null
+
+          // Save to history only for fresh queries
+          if (!previousMetadata || Object.keys(previousMetadata.parsed_entities || {}).length === 0) {
+            saveToHistory(nlQuery.value.trim())
+          }
 
           // Show notification
           if (standardResults.value.length > 0) {
@@ -924,6 +972,7 @@ export default {
       formatEntityKey,
       getConfidenceColor,
       getConfidenceTooltip,
+      getEntityChipColor,
       removeParsedFilter,
       onSearchModeChange,
       clearSearchHistory
@@ -974,5 +1023,31 @@ export default {
   .q-btn-toggle {
     width: 100%;
   }
+
+  /* Stack example chips on mobile */
+  .component-search :deep(.q-chip) {
+    margin-bottom: 4px;
+  }
+
+  /* Make parsed filter chips wrap nicely */
+  .component-search .row.q-gutter-xs {
+    flex-wrap: wrap;
+  }
+}
+
+/* Enhanced chip animations */
+.component-search :deep(.q-chip) {
+  transition: all 0.3s ease;
+}
+
+.component-search :deep(.q-chip:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Confidence badge styling */
+.q-badge {
+  font-weight: 600;
+  padding: 4px 10px;
 }
 </style>
