@@ -7,13 +7,12 @@ automatic reorder alert system powered by SQLite triggers.
 
 import logging
 from datetime import UTC, datetime
-from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from ..models import Component, ComponentLocation, ReorderAlert, StorageLocation
+from ..models import ComponentLocation, ReorderAlert
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +39,9 @@ class ReorderService:
 
     def get_active_alerts(
         self,
-        component_id: Optional[str] = None,
-        location_id: Optional[str] = None,
-        min_shortage: Optional[int] = None,
+        component_id: str | None = None,
+        location_id: str | None = None,
+        min_shortage: int | None = None,
     ) -> list[dict]:
         """
         Retrieve active reorder alerts with optional filters.
@@ -120,7 +119,7 @@ class ReorderService:
         return self._to_dict(alert)
 
     def get_alert_history(
-        self, component_id: Optional[str] = None, limit: int = 50
+        self, component_id: str | None = None, limit: int = 50
     ) -> list[dict]:
         """
         Retrieve historical alerts (dismissed, ordered, resolved).
@@ -157,7 +156,7 @@ class ReorderService:
 
     # ==================== Alert Lifecycle ====================
 
-    def dismiss_alert(self, alert_id: int, notes: Optional[str] = None) -> dict:
+    def dismiss_alert(self, alert_id: int, notes: str | None = None) -> dict:
         """
         Dismiss an active alert (user acknowledges but won't reorder).
 
@@ -198,7 +197,7 @@ class ReorderService:
         logger.info(f"Alert {alert_id} dismissed by user")
         return self._to_dict(alert)
 
-    def mark_alert_ordered(self, alert_id: int, notes: Optional[str] = None) -> dict:
+    def mark_alert_ordered(self, alert_id: int, notes: str | None = None) -> dict:
         """
         Mark alert as ordered (user placed order with supplier).
 
@@ -357,7 +356,7 @@ class ReorderService:
                 joinedload(ComponentLocation.storage_location),
             )
             .where(
-                ComponentLocation.reorder_enabled == True,  # noqa: E712
+                ComponentLocation.reorder_enabled.is_(True),
                 ComponentLocation.quantity_on_hand < ComponentLocation.reorder_threshold,
             )
             .order_by(

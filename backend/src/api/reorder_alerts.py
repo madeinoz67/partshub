@@ -17,7 +17,6 @@ falls below configured thresholds. These endpoints provide lifecycle management
 and reporting capabilities.
 """
 
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
@@ -50,13 +49,13 @@ router = APIRouter(prefix="/api/v1/reorder-alerts", tags=["Reorder Alerts"])
     status_code=status.HTTP_200_OK,
 )
 async def list_active_alerts(
-    component_id: Optional[UUID] = Query(
+    component_id: UUID | None = Query(
         None, description="Filter by component UUID"
     ),
-    location_id: Optional[UUID] = Query(
+    location_id: UUID | None = Query(
         None, description="Filter by storage location UUID"
     ),
-    min_shortage: Optional[int] = Query(
+    min_shortage: int | None = Query(
         None, ge=0, description="Minimum shortage amount to include"
     ),
     db: Session = Depends(get_db),
@@ -98,7 +97,7 @@ async def list_active_alerts(
     status_code=status.HTTP_200_OK,
 )
 async def get_alert_history(
-    component_id: Optional[UUID] = Query(
+    component_id: UUID | None = Query(
         None, description="Filter by component UUID"
     ),
     limit: int = Query(50, ge=1, le=500, description="Maximum number of records"),
