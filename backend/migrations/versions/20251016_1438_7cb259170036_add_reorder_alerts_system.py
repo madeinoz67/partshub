@@ -82,6 +82,25 @@ def upgrade() -> None:
     """)
 
     # 4. Create SQLite triggers
+    #
+    # SECURITY AUDIT: SQL Injection Safety
+    # =====================================
+    # All SQLite triggers below use NEW.* and OLD.* pseudo-columns, which are
+    # database-controlled values populated by the SQLite engine during row operations.
+    # These values are NOT derived from user input - they are the result of validated
+    # SQL UPDATE/INSERT operations that have already passed through SQLAlchemy ORM
+    # validation and parameterized queries in the application layer.
+    #
+    # User input flow:
+    # 1. User → FastAPI endpoint → Pydantic validation
+    # 2. Application → SQLAlchemy ORM → Parameterized SQL
+    # 3. SQLAlchemy → SQLite engine (executes validated operation)
+    # 4. SQLite engine → Triggers fire (NEW.*/OLD.* from database state)
+    #
+    # Since NEW.* and OLD.* reference database columns directly (not user strings),
+    # there are no SQL injection vectors in these trigger definitions. The trigger
+    # SQL is static and all dynamic values come from database-controlled pseudo-columns.
+    #
     # Trigger 1: Create alert when stock drops below threshold (UPDATE case)
     op.execute("""
         CREATE TRIGGER trigger_check_low_stock_after_update
@@ -187,9 +206,44 @@ def upgrade() -> None:
         END;
     """)
 
+    # Trigger 5: Create alert when threshold/enabled changes on existing low stock
+    op.execute("""
+        CREATE TRIGGER trigger_check_low_stock_after_threshold_update
+        AFTER UPDATE OF reorder_threshold, reorder_enabled ON component_locations
+        FOR EACH ROW
+        WHEN NEW.reorder_enabled = 1
+          AND NEW.quantity_on_hand < NEW.reorder_threshold
+          AND NOT EXISTS (
+            SELECT 1 FROM reorder_alerts
+            WHERE component_location_id = NEW.id
+              AND status = 'active'
+          )
+        BEGIN
+          INSERT INTO reorder_alerts (
+            component_location_id,
+            component_id,
+            storage_location_id,
+            status,
+            current_quantity,
+            reorder_threshold,
+            shortage_amount
+          )
+          VALUES (
+            NEW.id,
+            NEW.component_id,
+            NEW.storage_location_id,
+            'active',
+            NEW.quantity_on_hand,
+            NEW.reorder_threshold,
+            NEW.reorder_threshold - NEW.quantity_on_hand
+          );
+        END;
+    """)
+
 
 def downgrade() -> None:
     # Drop triggers
+    op.execute("DROP TRIGGER IF EXISTS trigger_check_low_stock_after_threshold_update")
     op.execute("DROP TRIGGER IF EXISTS trigger_check_low_stock_after_insert")
     op.execute("DROP TRIGGER IF EXISTS trigger_resolve_alert_after_update")
     op.execute("DROP TRIGGER IF EXISTS trigger_update_low_stock_after_update")

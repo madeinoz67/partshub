@@ -529,17 +529,17 @@ class TestReorderAlertsContract:
         sample_storage_location_data,
     ):
         """Test POST /api/v1/reorder-alerts/thresholds/bulk succeeds (200 OK)"""
-        # Create two component locations
+        # Create two component locations (need unique part_number for each)
         comp1_resp = client.post(
             "/api/v1/components",
-            json={**sample_component_data, "name": "Component 1"},
+            json={**sample_component_data, "name": "Component 1", "part_number": "PN-001"},
             headers=auth_headers,
         )
         comp1_id = comp1_resp.json()["id"]
 
         comp2_resp = client.post(
             "/api/v1/components",
-            json={**sample_component_data, "name": "Component 2"},
+            json={**sample_component_data, "name": "Component 2", "part_number": "PN-002"},
             headers=auth_headers,
         )
         comp2_id = comp2_resp.json()["id"]
