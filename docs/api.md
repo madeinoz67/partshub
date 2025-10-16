@@ -4,6 +4,7 @@
 
 PartsHub provides a RESTful API for electronic component inventory management. The API supports:
 
+- **Reorder Alerts**: Automatic low-stock alerting with database triggers
 - **Natural Language Search**: Search components using plain English queries
 - **Saved Searches**: Save and reuse component search queries
 - **Storage Location Layout Generation**: Bulk creation of organized storage hierarchies
@@ -19,6 +20,55 @@ PartsHub provides a RESTful API for electronic component inventory management. T
 **Interactive Docs**:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+---
+
+## Reorder Alerts (Admin Only)
+
+**New in v0.5.0**: Automatic low-stock monitoring and alerting with zero-latency database triggers.
+
+### Key Features
+- ✅ **Zero-latency alerts**: Database triggers create alerts instantly when stock < threshold
+- ✅ **Per-location thresholds**: Configure different reorder points for each storage location
+- ✅ **Alert lifecycle**: Active → Dismissed/Ordered → Resolved
+- ✅ **Severity calculation**: Critical/High/Medium/Low based on shortage percentage
+- ✅ **Bulk threshold updates**: Configure multiple locations simultaneously
+- ✅ **Real-time reporting**: Low stock reports and statistics
+
+### Available Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/reorder-alerts/` | GET | List active alerts with filters |
+| `/reorder-alerts/history` | GET | View historical alerts |
+| `/reorder-alerts/{alert_id}` | GET | Get single alert details |
+| `/reorder-alerts/{alert_id}/dismiss` | POST | Dismiss an alert |
+| `/reorder-alerts/{alert_id}/mark-ordered` | POST | Mark alert as ordered |
+| `/reorder-alerts/thresholds/{component_id}/{location_id}` | PUT | Update reorder threshold |
+| `/reorder-alerts/thresholds/bulk` | POST | Bulk threshold updates |
+| `/reorder-alerts/reports/low-stock` | GET | Low stock report |
+| `/reorder-alerts/reports/statistics` | GET | Alert statistics |
+
+**📖 Complete Documentation**: [Reorder Alerts API Guide](api/reorder-alerts.md)
+
+**Quick Example**:
+```bash
+# List active alerts
+curl -X GET "http://localhost:8000/api/v1/reorder-alerts/" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# Configure threshold
+curl -X PUT "http://localhost:8000/api/v1/reorder-alerts/thresholds/$COMPONENT_ID/$LOCATION_ID" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"threshold": 50, "enabled": true}'
+
+# Mark alert as ordered
+curl -X POST "http://localhost:8000/api/v1/reorder-alerts/42/mark-ordered" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"notes": "PO-2025-042 - Mouser - ETA: 2025-11-01"}'
+```
 
 ---
 

@@ -205,7 +205,72 @@ Bulk operations allow admin users to perform actions on multiple components simu
 
 **Detailed bulk operations guide available in [Bulk Operations Guide](bulk-operations.md)**
 
-## 7. API Access and Token Management
+## 7. Reorder Alerts (Admin Only)
+
+### Overview
+Automatic low-stock monitoring and alerting system that eliminates manual inventory checking and ensures timely reordering of critical components.
+
+### Key Features
+- **Zero-latency alerts**: Database triggers create alerts instantly when stock falls below threshold
+- **Per-location configuration**: Set different reorder points for each storage location
+- **Severity-based prioritization**: Automatic criticality assessment (critical/high/medium/low)
+- **Alert lifecycle management**: Track alerts from creation through dismissal, ordering, or resolution
+- **Bulk threshold updates**: Configure multiple locations simultaneously
+- **Real-time reporting**: Low stock reports and statistics independent of alert status
+
+### How It Works
+
+1. **Configuration**: Set reorder threshold per component per location (e.g., "Alert when stock < 50")
+2. **Monitoring**: Database triggers automatically monitor stock levels
+3. **Alerting**: When stock falls below threshold, alert is created instantly
+4. **Action**: Admin can dismiss, mark as ordered, or let auto-resolve when restocked
+5. **Resolution**: Alert auto-resolves when stock rises above threshold
+
+### Severity Levels
+
+Alerts are prioritized by shortage percentage:
+
+| Severity | Condition | Action |
+|----------|-----------|--------|
+| **Critical** | > 80% shortage | Immediate reorder needed |
+| **High** | > 50% shortage | High priority reorder |
+| **Medium** | > 20% shortage | Plan reorder soon |
+| **Low** | ≤ 20% shortage | Monitor |
+
+### Alert Lifecycle
+
+```
+ACTIVE → User Action → DISMISSED / ORDERED → Auto-Resolve → RESOLVED
+```
+
+- **Active**: Stock below threshold, needs attention
+- **Dismissed**: User determined reorder not needed
+- **Ordered**: Restock order placed with supplier
+- **Resolved**: Auto-resolved when stock replenished above threshold
+
+### Workflow Example
+
+1. **Setup**: Configure reorder threshold (e.g., 50 units for 10kΩ resistors in Bin A1)
+2. **Alert Creation**: Stock drops to 45 units → Alert created automatically
+3. **Process**: Admin reviews alert, places order with supplier
+4. **Mark Ordered**: Admin marks alert as ordered with PO details
+5. **Resolution**: When stock arrives and is added → Alert auto-resolves
+
+### Common Use Cases
+
+- **Daily inventory check**: Review active alerts each morning
+- **Bulk purchasing**: Export low stock report, group by supplier, place batch orders
+- **Threshold tuning**: Analyze alert history to optimize thresholds
+- **Project planning**: Check alerts before starting new projects
+
+### Access Control
+- Only admin users can view and manage reorder alerts
+- All operations require admin JWT authentication
+- Non-admin users cannot access reorder alert features
+
+**Detailed reorder alerts guide available in [Reorder Alerts Guide](reorder-alerts.md)**
+
+## 8. API Access and Token Management
 
 ### API Token Generation
 - Available for Authenticated and Admin users
@@ -222,7 +287,7 @@ Bulk operations allow admin users to perform actions on multiple components simu
 - Use the most restrictive token possible
 - Never share tokens publicly
 
-## 8. Authentication and Access Levels
+## 9. Authentication and Access Levels
 
 ### User Tiers
 
@@ -244,6 +309,7 @@ Bulk operations allow admin users to perform actions on multiple components simu
 #### Admin Users
 - **All Authenticated Permissions, Plus:**
   - Bulk operations on components
+  - Reorder alerts management
   - API token management
   - User administration (future feature)
   - System-wide configuration
