@@ -23,7 +23,7 @@
         <q-card flat bordered>
           <q-card-section>
             <div class="text-caption text-grey">Total Active Alerts</div>
-            <div class="text-h5 text-weight-bold">{{ statistics.by_status.active }}</div>
+            <div class="text-h5 text-weight-bold">{{ statistics.by_status?.active || 0 }}</div>
           </q-card-section>
         </q-card>
       </div>
@@ -33,7 +33,7 @@
           <q-card-section>
             <div class="text-caption text-grey">Critical Alerts</div>
             <div class="text-h5 text-weight-bold text-negative">
-              {{ statistics.by_severity.critical }}
+              {{ (statistics as any).by_severity?.critical || 0 }}
             </div>
           </q-card-section>
         </q-card>
@@ -44,7 +44,7 @@
           <q-card-section>
             <div class="text-caption text-grey">High Priority</div>
             <div class="text-h5 text-weight-bold text-warning">
-              {{ statistics.by_severity.high }}
+              {{ (statistics as any).by_severity?.high || 0 }}
             </div>
           </q-card-section>
         </q-card>
@@ -55,7 +55,7 @@
           <q-card-section>
             <div class="text-caption text-grey">Orders Placed</div>
             <div class="text-h5 text-weight-bold text-positive">
-              {{ statistics.by_status.ordered }}
+              {{ statistics.by_status?.ordered || 0 }}
             </div>
           </q-card-section>
         </q-card>
