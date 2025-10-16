@@ -28,8 +28,10 @@ A modern, web-based inventory management system designed specifically for electr
 - **Admin users** - API token management and system administration
 
 ### 🔍 Advanced Search & Filtering
+- **Natural Language Search** - Use plain English queries like "resistors with low stock in A1" (Latest!)
 - **Real-time search** across component names, part numbers, and descriptions
-- **Multiple filter options** by category, stock status, storage location
+- **Multiple filter options** by category, stock status, storage location, price, and specifications
+- **Smart confidence scoring** with automatic fallback to full-text search
 - **Sorting capabilities** by various fields
 
 ### 🌐 Modern Web Interface
@@ -104,6 +106,65 @@ make build         # Build all components
 make docs          # Start documentation server
 make clean         # Clean build artifacts
 ```
+
+### Natural Language Search (Latest Feature!)
+
+PartsHub now supports searching with conversational queries, making it faster and more intuitive to find components.
+
+#### Quick Examples
+
+Instead of setting multiple filters manually, just type:
+- **"find resistors with low stock"** - Get all resistors below minimum stock level
+- **"capacitors in location A1"** - Find all capacitors stored in bin A1
+- **"10k SMD resistors"** - Search for 10kΩ surface-mount resistors
+- **"out of stock transistors"** - List transistors with zero quantity
+- **"components under $5"** - Find budget-friendly parts
+
+#### Key Features
+
+- **Plain English queries** - No need to learn complex filter syntax
+- **Multi-entity support** - Combine multiple criteria: "10k SMD resistors with low stock in A1"
+- **Confidence scoring** - Visual feedback (green/orange/red) shows how well your query was understood
+- **Smart fallback** - Automatically uses full-text search for ambiguous queries
+- **Search history** - Access your 10 most recent natural language queries
+- **Interactive filters** - Click to remove extracted filters and refine results
+
+#### Supported Query Patterns
+
+- **Component types**: resistors, capacitors, LEDs, ICs, transistors, connectors, etc.
+- **Stock status**: low stock, out of stock, available, unused, need reorder
+- **Locations**: in A1, at Bin-23, from Shelf-A, stored in Cabinet-1
+- **Values**: 10k, 100μF, 5V, 16MHz, 0805, DIP8
+- **Price**: under $5, cheap, between $1 and $5, less than $10
+- **Manufacturers**: Texas Instruments, Murata, Vishay, and more
+
+#### API Example
+
+```bash
+# Natural language search via API
+curl -X GET "http://localhost:8000/api/v1/components?nl_query=10k%20SMD%20resistors%20with%20low%20stock" \
+  -H "accept: application/json"
+
+# Response includes confidence and parsed entities
+{
+  "components": [...],
+  "total": 5,
+  "nl_metadata": {
+    "query": "10k SMD resistors with low stock",
+    "confidence": 0.92,
+    "parsed_entities": {
+      "component_type": "resistor",
+      "resistance": "10kΩ",
+      "package": "SMD",
+      "stock_status": "low"
+    },
+    "fallback_to_fts5": false,
+    "intent": "search_by_type"
+  }
+}
+```
+
+For complete documentation, see [Natural Language Search Guide](docs/features/search.md).
 
 ### Component Creation Wizard (v0.4.0+)
 
@@ -282,6 +343,7 @@ curl -X POST http://localhost:8000/api/v1/storage-locations/generate-preview \
 
 ## Documentation
 
+- **[Natural Language Search Guide](docs/features/search.md)** - Complete guide to plain English queries
 - **[Getting Started Guide](docs/getting-started.md)** - Complete setup and first-time use
 - **[API Documentation](http://localhost:8000/docs)** - Interactive Swagger UI (when backend is running)
 - **[Architecture Overview](docs/architecture.md)** - System design and components (coming soon)
@@ -309,7 +371,7 @@ partshub/
 
 ### Anonymous Users (No Login Required)
 - Browse all components and inventory data
-- Search and filter components
+- Search and filter components (including natural language search)
 - View detailed specifications and stock levels
 - Access storage location information
 

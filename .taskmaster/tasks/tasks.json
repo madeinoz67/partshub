@@ -7,7 +7,7 @@
         "description": "Enhance search capabilities using lightweight SQLite-based technologies (FTS5, rapidfuzz) with multi-criteria filtering, saved searches, and natural language queries.",
         "details": "Technical: SQLite FTS5 for full-text indexing, Python cachetools for caching, enhance existing rapidfuzz, saved searches in SQLite JSON fields. Performance: <500ms for 50k components.",
         "testStrategy": "",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "subtasks": [
@@ -74,8 +74,8 @@
             "dependencies": [
               5
             ],
-            "details": "Update search documentation with NL search section. List supported query patterns with examples. Document limitations and edge cases. Add inline help in UI.",
-            "status": "pending",
+            "details": "Update search documentation with NL search section. List supported query patterns with examples. Document limitations and edge cases. Add inline help in UI.\n<info added on 2025-10-16T04:42:01.911Z>\nDocumentation completed successfully by @documentation-specialist. All required documentation artifacts updated: docs/features/search.md (1,000+ line comprehensive user guide), docs/api.md (added NL search API reference), and README.md (feature highlights). Comprehensive coverage includes all 5 intent types with 3+ examples each, 19 component types, 7 entity extractors, 50+ example queries, confidence scoring system, interactive UI features, best practices, troubleshooting guide, API reference with curl examples, limitations, performance benchmarks, and privacy considerations. Documentation follows PartsHub style guidelines with absolute paths and is production-ready for users and developers.\n</info added on 2025-10-16T04:42:01.911Z>",
+            "status": "done",
             "testStrategy": "Verify documentation accuracy, test inline help functionality, ensure examples are correct and comprehensive."
           }
         ]
@@ -573,7 +573,7 @@
     ],
     "metadata": {
       "created": "2025-10-14T13:40:34.817Z",
-      "updated": "2025-10-16T03:47:35.637Z",
+      "updated": "2025-10-16T04:42:19.595Z",
       "description": "Tasks for master context"
     }
   }
