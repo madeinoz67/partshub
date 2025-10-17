@@ -165,7 +165,7 @@
         "description": "Enhance existing stock management with automated reorder alerts, usage analytics, forecasting, and advanced FIFO/lot tracking.",
         "details": "Current: Stock transactions, multi-location tracking, lot/batch tracking exist. Enhancements: Reorder alerts (SQLite triggers, email), analytics dashboard (Chart.js), usage trends, FIFO picking suggestions, slow-moving stock identification, simple forecasting (moving averages).",
         "testStrategy": "",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           1
         ],
@@ -222,7 +222,7 @@
               4
             ],
             "details": "Develop StockLevelChart.vue, UsageTrendsChart.vue, ForecastChart.vue, and ReorderAlertsSummary.vue.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null
           },
           {
@@ -233,7 +233,7 @@
               5
             ],
             "details": "Implement AnalyticsDashboard.vue with Quasar layout, date filters, and all chart components.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null
           }
         ]
@@ -583,7 +583,7 @@
     ],
     "metadata": {
       "created": "2025-10-14T13:40:34.817Z",
-      "updated": "2025-10-17T03:29:54.845Z",
+      "updated": "2025-10-17T04:39:30.517Z",
       "description": "Tasks for master context"
     }
   }
