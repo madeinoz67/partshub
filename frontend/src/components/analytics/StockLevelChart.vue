@@ -3,16 +3,17 @@
     <q-card-section>
       <div class="text-h6 q-mb-md">Stock Levels Over Time</div>
 
-      <q-spinner v-if="loading" color="primary" size="50px" class="absolute-center" />
-
-      <q-banner v-else-if="error" class="bg-negative text-white">
+      <q-banner v-if="error" class="bg-negative text-white">
         <template #avatar>
           <q-icon name="error" />
         </template>
         {{ error }}
       </q-banner>
 
-      <div v-else class="chart-container">
+      <div class="chart-container" style="position: relative;">
+        <q-inner-loading :showing="loading">
+          <q-spinner color="primary" size="50px" />
+        </q-inner-loading>
         <canvas ref="chartCanvas"></canvas>
       </div>
     </q-card-section>
@@ -145,20 +146,14 @@ async function fetchData() {
 }
 
 onMounted(async () => {
-  // Wait for canvas to be available
   await nextTick()
-  if (chartCanvas.value) {
-    await fetchData()
-  }
+  await fetchData()
 })
 
 watch(
   () => [props.componentId, props.locationId, props.startDate, props.endDate, props.period],
   async () => {
-    await nextTick()
-    if (chartCanvas.value) {
-      await fetchData()
-    }
+    await fetchData()
   }
 )
 </script>
