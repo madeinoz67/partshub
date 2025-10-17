@@ -334,7 +334,11 @@ def test_get_usage_trends_no_consumption(
 
 
 def test_get_forecast_basic(
-    analytics_service, sample_component, sample_location, component_location, historical_transactions
+    analytics_service,
+    sample_component,
+    sample_location,
+    component_location,
+    historical_transactions,
 ):
     """Test basic forecast generation."""
     response = analytics_service.get_forecast(
@@ -356,8 +360,14 @@ def test_get_forecast_basic(
         assert 0.0 <= forecast_point.confidence_level <= 1.0
         # Confidence should generally decrease with time
         if i > 0:
-            assert forecast_point.confidence_level <= response.data[i - 1].confidence_level or \
-                   abs(forecast_point.confidence_level - response.data[i - 1].confidence_level) < 0.1
+            assert (
+                forecast_point.confidence_level <= response.data[i - 1].confidence_level
+                or abs(
+                    forecast_point.confidence_level
+                    - response.data[i - 1].confidence_level
+                )
+                < 0.1
+            )
 
     # Check reorder suggestion structure
     assert response.reorder_suggestion is not None
@@ -365,7 +375,11 @@ def test_get_forecast_basic(
 
 
 def test_get_forecast_reorder_suggestion(
-    analytics_service, sample_component, sample_location, component_location, historical_transactions
+    analytics_service,
+    sample_component,
+    sample_location,
+    component_location,
+    historical_transactions,
 ):
     """Test forecast reorder suggestion logic."""
     # Update component location to have low stock
@@ -390,7 +404,11 @@ def test_get_forecast_reorder_suggestion(
 
 
 def test_get_forecast_no_reorder_threshold(
-    analytics_service, sample_component, sample_location, historical_transactions, db_session
+    analytics_service,
+    sample_component,
+    sample_location,
+    historical_transactions,
+    db_session,
 ):
     """Test forecast when reorder threshold is not configured."""
     # Create component location without reorder threshold
@@ -416,7 +434,11 @@ def test_get_forecast_no_reorder_threshold(
 
 
 def test_get_forecast_confidence_decreases(
-    analytics_service, sample_component, sample_location, component_location, historical_transactions
+    analytics_service,
+    sample_component,
+    sample_location,
+    component_location,
+    historical_transactions,
 ):
     """Test that forecast confidence decreases with time horizon."""
     response = analytics_service.get_forecast(
@@ -434,7 +456,11 @@ def test_get_forecast_confidence_decreases(
 
 
 def test_get_dashboard_summary_basic(
-    analytics_service, sample_component, sample_location, component_location, historical_transactions
+    analytics_service,
+    sample_component,
+    sample_location,
+    component_location,
+    historical_transactions,
 ):
     """Test basic dashboard summary generation."""
     response = analytics_service.get_dashboard_summary()
@@ -458,7 +484,12 @@ def test_get_dashboard_summary_basic(
 
 
 def test_get_dashboard_summary_with_filters(
-    analytics_service, sample_component, sample_location, component_location, historical_transactions, db_session
+    analytics_service,
+    sample_component,
+    sample_location,
+    component_location,
+    historical_transactions,
+    db_session,
 ):
     """Test dashboard summary with category and location filters."""
     from backend.src.models import Category
@@ -545,7 +576,11 @@ def test_get_dashboard_summary_recent_activity(
 
 
 def test_get_slow_moving_stock_basic(
-    analytics_service, sample_component, sample_location, component_location, historical_transactions
+    analytics_service,
+    sample_component,
+    sample_location,
+    component_location,
+    historical_transactions,
 ):
     """Test basic slow-moving stock identification."""
     response = analytics_service.get_slow_moving_stock(
@@ -624,9 +659,7 @@ def test_get_slow_moving_stock_with_last_use_filter(
     assert isinstance(response.items, list)
 
 
-def test_get_slow_moving_stock_sorting(
-    analytics_service, db_session, sample_location
-):
+def test_get_slow_moving_stock_sorting(analytics_service, db_session, sample_location):
     """Test that slow-moving items are sorted by days_of_stock descending."""
     # Create multiple components with different velocities
     components = []
@@ -668,7 +701,9 @@ def test_get_slow_moving_stock_sorting(
     # Items should be sorted by days_of_stock (highest first)
     if len(response.items) > 1:
         for i in range(len(response.items) - 1):
-            assert response.items[i].days_of_stock >= response.items[i + 1].days_of_stock
+            assert (
+                response.items[i].days_of_stock >= response.items[i + 1].days_of_stock
+            )
 
 
 def test_get_slow_moving_stock_excludes_out_of_stock(
@@ -719,8 +754,10 @@ def test_zero_velocity_handling(
     # Should not crash, should handle zero velocity
     assert response.reorder_suggestion is not None
     # With zero velocity, days_until_stockout should be None
-    assert response.reorder_suggestion.days_until_stockout is None or \
-           response.reorder_suggestion.should_reorder is False
+    assert (
+        response.reorder_suggestion.days_until_stockout is None
+        or response.reorder_suggestion.should_reorder is False
+    )
 
 
 def test_single_transaction_analytics(

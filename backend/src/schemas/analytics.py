@@ -16,7 +16,6 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-
 # ==================== Enums ====================
 
 
@@ -160,9 +159,7 @@ class StockLevelsResponse(BaseModel):
     location_name: str | None = Field(
         None, description="Storage location name (null = all locations)"
     )
-    period: AggregationPeriod = Field(
-        ..., description="Time aggregation period used"
-    )
+    period: AggregationPeriod = Field(..., description="Time aggregation period used")
     data: list[StockDataPoint] = Field(
         ..., description="Time-series stock level data points"
     )
@@ -258,19 +255,13 @@ class UsageTrendDataPoint(BaseModel):
     Negative values indicate stock additions, positive values indicate removals.
     """
 
-    timestamp: datetime = Field(
-        ..., description="Period start timestamp (ISO 8601)"
-    )
+    timestamp: datetime = Field(..., description="Period start timestamp (ISO 8601)")
     consumed: int = Field(
         ...,
         description="Net consumption in period (positive = removed, negative = added)",
     )
-    added: int = Field(
-        ..., description="Units added to stock in period", ge=0
-    )
-    removed: int = Field(
-        ..., description="Units removed from stock in period", ge=0
-    )
+    added: int = Field(..., description="Units added to stock in period", ge=0)
+    removed: int = Field(..., description="Units removed from stock in period", ge=0)
 
     class Config:
         """Pydantic configuration."""
@@ -331,9 +322,7 @@ class UsageTrendsResponse(BaseModel):
     location_name: str | None = Field(
         None, description="Storage location name (null = all locations)"
     )
-    period: AggregationPeriod = Field(
-        ..., description="Time aggregation period used"
-    )
+    period: AggregationPeriod = Field(..., description="Time aggregation period used")
     data: list[UsageTrendDataPoint] = Field(
         ..., description="Time-series usage data points"
     )
@@ -392,9 +381,7 @@ class ForecastDataPoint(BaseModel):
     as forecast horizon extends into the future.
     """
 
-    timestamp: datetime = Field(
-        ..., description="Forecast timestamp (ISO 8601)"
-    )
+    timestamp: datetime = Field(..., description="Forecast timestamp (ISO 8601)")
     predicted_quantity: float = Field(
         ...,
         description="Predicted stock quantity (moving average)",
@@ -534,9 +521,7 @@ class ForecastResponse(BaseModel):
     location_name: str | None = Field(
         None, description="Storage location name (null = all locations)"
     )
-    current_quantity: int = Field(
-        ..., description="Current stock quantity", ge=0
-    )
+    current_quantity: int = Field(..., description="Current stock quantity", ge=0)
     reorder_threshold: int | None = Field(
         None, description="Reorder threshold (null if not configured)", ge=0
     )
@@ -616,9 +601,7 @@ class ComponentStockSummary(BaseModel):
     total_quantity: int = Field(
         ..., description="Total stock across all locations", ge=0
     )
-    locations_count: int = Field(
-        ..., description="Number of storage locations", ge=0
-    )
+    locations_count: int = Field(..., description="Number of storage locations", ge=0)
     has_active_alerts: bool = Field(
         ..., description="True if component has any active reorder alerts"
     )
@@ -796,12 +779,8 @@ class SlowMovingItem(BaseModel):
 
     component_id: str = Field(..., description="Component UUID")
     component_name: str = Field(..., description="Component name")
-    total_quantity: int = Field(
-        ..., description="Total stock quantity", ge=0
-    )
-    daily_velocity: float = Field(
-        ..., description="Average daily consumption", ge=0
-    )
+    total_quantity: int = Field(..., description="Total stock quantity", ge=0)
+    daily_velocity: float = Field(..., description="Average daily consumption", ge=0)
     days_of_stock: float = Field(
         ...,
         description="Days of stock remaining at current velocity (quantity / velocity)",
@@ -878,7 +857,8 @@ class SlowMovingStockResponse(BaseModel):
     """
 
     items: list[SlowMovingItem] = Field(
-        ..., description="List of slow-moving components (ordered by days_of_stock DESC)"
+        ...,
+        description="List of slow-moving components (ordered by days_of_stock DESC)",
     )
     total_count: int = Field(
         ..., description="Total number of slow-moving items found", ge=0

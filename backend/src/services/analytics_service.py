@@ -89,7 +89,9 @@ class AnalyticsService:
         if not component:
             from fastapi import HTTPException
 
-            raise HTTPException(status_code=404, detail=f"Component {component_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Component {component_id} not found"
+            )
 
         # Get location details if specified
         location = None
@@ -99,7 +101,9 @@ class AnalyticsService:
             if not location:
                 from fastapi import HTTPException
 
-                raise HTTPException(status_code=404, detail=f"Location {location_id} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Location {location_id} not found"
+                )
             location_name = location.name
 
         # Ensure dates are timezone-aware
@@ -126,7 +130,11 @@ class AnalyticsService:
                 )
             )
 
-        transactions = self.session.execute(query.order_by(StockTransaction.created_at)).scalars().all()
+        transactions = (
+            self.session.execute(query.order_by(StockTransaction.created_at))
+            .scalars()
+            .all()
+        )
 
         # Aggregate data by period
         data_points = self._aggregate_stock_by_period(
@@ -148,7 +156,9 @@ class AnalyticsService:
             )
             if comp_loc:
                 current_quantity = comp_loc.quantity_on_hand
-                reorder_threshold = comp_loc.reorder_threshold if comp_loc.reorder_enabled else None
+                reorder_threshold = (
+                    comp_loc.reorder_threshold if comp_loc.reorder_enabled else None
+                )
         else:
             # Aggregate across all locations
             comp_locs = (
@@ -219,7 +229,13 @@ class AnalyticsService:
             bucket_transactions = [
                 t
                 for t in transactions
-                if bucket_start <= (t.created_at.replace(tzinfo=UTC) if t.created_at.tzinfo is None else t.created_at) < bucket_end
+                if bucket_start
+                <= (
+                    t.created_at.replace(tzinfo=UTC)
+                    if t.created_at.tzinfo is None
+                    else t.created_at
+                )
+                < bucket_end
             ]
 
             # Calculate net change
@@ -336,7 +352,9 @@ class AnalyticsService:
         if not component:
             from fastapi import HTTPException
 
-            raise HTTPException(status_code=404, detail=f"Component {component_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Component {component_id} not found"
+            )
 
         # Get location details if specified
         location = None
@@ -369,10 +387,16 @@ class AnalyticsService:
                 )
             )
 
-        transactions = self.session.execute(query.order_by(StockTransaction.created_at)).scalars().all()
+        transactions = (
+            self.session.execute(query.order_by(StockTransaction.created_at))
+            .scalars()
+            .all()
+        )
 
         # Aggregate usage by period
-        trend_data = self._aggregate_usage_by_period(transactions, start_date, end_date, period)
+        trend_data = self._aggregate_usage_by_period(
+            transactions, start_date, end_date, period
+        )
 
         # Calculate velocity metrics
         days_analyzed = (end_date - start_date).days or 1
@@ -381,8 +405,12 @@ class AnalyticsService:
 
         velocity = VelocityMetrics(
             daily_average=total_consumed / days_analyzed if days_analyzed > 0 else 0.0,
-            weekly_average=total_consumed / (days_analyzed / 7) if days_analyzed >= 7 else 0.0,
-            monthly_average=total_consumed / (days_analyzed / 30) if days_analyzed >= 30 else 0.0,
+            weekly_average=total_consumed / (days_analyzed / 7)
+            if days_analyzed >= 7
+            else 0.0,
+            monthly_average=total_consumed / (days_analyzed / 30)
+            if days_analyzed >= 30
+            else 0.0,
             total_consumed=total_consumed,
             days_analyzed=days_analyzed,
         )
@@ -428,13 +456,29 @@ class AnalyticsService:
             bucket_transactions = [
                 t
                 for t in transactions
-                if bucket_start <= (t.created_at.replace(tzinfo=UTC) if t.created_at.tzinfo is None else t.created_at) < bucket_end
+                if bucket_start
+                <= (
+                    t.created_at.replace(tzinfo=UTC)
+                    if t.created_at.tzinfo is None
+                    else t.created_at
+                )
+                < bucket_end
             ]
 
             # Calculate added vs removed
-            added = sum(t.quantity_change for t in bucket_transactions if t.quantity_change > 0)
-            removed = abs(sum(t.quantity_change for t in bucket_transactions if t.quantity_change < 0))
-            consumed = removed - added  # Net consumption (positive = removed more than added)
+            added = sum(
+                t.quantity_change for t in bucket_transactions if t.quantity_change > 0
+            )
+            removed = abs(
+                sum(
+                    t.quantity_change
+                    for t in bucket_transactions
+                    if t.quantity_change < 0
+                )
+            )
+            consumed = (
+                removed - added
+            )  # Net consumption (positive = removed more than added)
 
             data_points.append(
                 UsageTrendDataPoint(
@@ -476,7 +520,9 @@ class AnalyticsService:
         if not component:
             from fastapi import HTTPException
 
-            raise HTTPException(status_code=404, detail=f"Component {component_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Component {component_id} not found"
+            )
 
         # Get location details and current quantity
         location_name = None
@@ -498,7 +544,9 @@ class AnalyticsService:
             )
             if comp_loc:
                 current_quantity = comp_loc.quantity_on_hand
-                reorder_threshold = comp_loc.reorder_threshold if comp_loc.reorder_enabled else None
+                reorder_threshold = (
+                    comp_loc.reorder_threshold if comp_loc.reorder_enabled else None
+                )
         else:
             # Aggregate across all locations
             comp_locs = (
@@ -536,7 +584,9 @@ class AnalyticsService:
         transactions = self.session.execute(query).scalars().all()
 
         # Calculate daily velocity (negative = consumption)
-        total_removed = abs(sum(t.quantity_change for t in transactions if t.quantity_change < 0))
+        total_removed = abs(
+            sum(t.quantity_change for t in transactions if t.quantity_change < 0)
+        )
         daily_velocity = total_removed / lookback_days if lookback_days > 0 else 0.0
 
         # Generate forecast data points
@@ -631,11 +681,15 @@ class AnalyticsService:
                 suggested_quantity=None,
                 estimated_stockout_date=None,
                 days_until_stockout=None,
-                confidence_level=forecast_data[0].confidence_level if forecast_data else 0.8,
+                confidence_level=forecast_data[0].confidence_level
+                if forecast_data
+                else 0.8,
             )
 
         # Calculate days until stockout
-        days_until_stockout = int(current_quantity / daily_velocity) if daily_velocity > 0 else None
+        days_until_stockout = (
+            int(current_quantity / daily_velocity) if daily_velocity > 0 else None
+        )
 
         # Estimate stockout date
         estimated_stockout_date = (
@@ -700,7 +754,9 @@ class AnalyticsService:
         total_value = 0.0
         for cl in comp_locs:
             if cl.component.average_purchase_price:
-                total_value += cl.quantity_on_hand * float(cl.component.average_purchase_price)
+                total_value += cl.quantity_on_hand * float(
+                    cl.component.average_purchase_price
+                )
 
         # Calculate average velocity
         velocities = []
@@ -771,7 +827,9 @@ class AnalyticsService:
             .all()
         )
 
-        total_removed = abs(sum(t.quantity_change for t in transactions if t.quantity_change < 0))
+        total_removed = abs(
+            sum(t.quantity_change for t in transactions if t.quantity_change < 0)
+        )
         return total_removed / days if days > 0 else 0.0
 
     def _get_top_low_stock(
@@ -801,7 +859,9 @@ class AnalyticsService:
             urgency_list.append((cl, days_until_stockout))
 
         # Sort by urgency (lowest days_until_stockout first, None values last)
-        urgency_list.sort(key=lambda x: (x[1] is None, x[1] if x[1] is not None else float("inf")))
+        urgency_list.sort(
+            key=lambda x: (x[1] is None, x[1] if x[1] is not None else float("inf"))
+        )
 
         # Build summaries
         summaries = []
@@ -954,17 +1014,24 @@ class AnalyticsService:
                 continue
 
             # Get last used date
-            last_used_date, days_since_last_use = self._get_last_used_info(cl.component_id)
+            last_used_date, days_since_last_use = self._get_last_used_info(
+                cl.component_id
+            )
 
             # Apply days_since_last_use filter if specified
             if min_days_since_last_use is not None:
-                if days_since_last_use is None or days_since_last_use < min_days_since_last_use:
+                if (
+                    days_since_last_use is None
+                    or days_since_last_use < min_days_since_last_use
+                ):
                     continue
 
             # Calculate inventory value
             inventory_value = 0.0
             if cl.component.average_purchase_price:
-                inventory_value = cl.quantity_on_hand * float(cl.component.average_purchase_price)
+                inventory_value = cl.quantity_on_hand * float(
+                    cl.component.average_purchase_price
+                )
 
             total_value_locked += inventory_value
 
@@ -974,7 +1041,9 @@ class AnalyticsService:
                     component_name=cl.component.name,
                     total_quantity=cl.quantity_on_hand,
                     daily_velocity=velocity,
-                    days_of_stock=days_of_stock if days_of_stock != float("inf") else 9999.0,
+                    days_of_stock=days_of_stock
+                    if days_of_stock != float("inf")
+                    else 9999.0,
                     last_used_date=last_used_date,
                     days_since_last_use=days_since_last_use,
                     inventory_value=inventory_value,
@@ -995,7 +1064,9 @@ class AnalyticsService:
             },
         )
 
-    def _get_last_used_info(self, component_id: str) -> tuple[datetime | None, int | None]:
+    def _get_last_used_info(
+        self, component_id: str
+    ) -> tuple[datetime | None, int | None]:
         """
         Get last used date and days since last use for a component.
 
