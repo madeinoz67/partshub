@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { useChart, chartHelpers } from '../../composables/useChart'
 import { api } from '../../boot/axios'
 
@@ -108,6 +108,9 @@ async function fetchData() {
     velocityMetrics.value = data.velocity
 
     const chartData = chartHelpers.transformUsageTrends(data.data)
+
+    // Wait for next tick to ensure canvas ref is populated
+    await nextTick()
 
     createChart({
       type: 'bar',
