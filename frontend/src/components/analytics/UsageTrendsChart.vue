@@ -152,11 +152,22 @@ async function fetchData() {
   }
 }
 
-onMounted(() => fetchData())
+onMounted(async () => {
+  // Wait for canvas to be available
+  await nextTick()
+  if (chartCanvas.value) {
+    await fetchData()
+  }
+})
 
 watch(
   () => [props.componentId, props.locationId, props.startDate, props.endDate, props.period],
-  () => fetchData()
+  async () => {
+    await nextTick()
+    if (chartCanvas.value) {
+      await fetchData()
+    }
+  }
 )
 </script>
 
