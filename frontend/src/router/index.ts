@@ -80,6 +80,12 @@ const routes = [
         meta: { requiresAdmin: true }
       },
       {
+        path: 'analytics',
+        name: 'analytics',
+        component: () => import('../pages/AnalyticsDashboardPage.vue'),
+        meta: { requiresAdmin: true }
+      },
+      {
         path: 'admin',
         name: 'admin',
         component: () => import('../pages/AdminPage.vue'),

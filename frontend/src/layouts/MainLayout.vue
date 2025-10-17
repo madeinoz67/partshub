@@ -329,6 +329,13 @@ const essentialLinks: EssentialLink[] = [
     adminOnly: true
   },
   {
+    title: 'Analytics',
+    caption: 'Stock analytics and forecasting',
+    icon: 'analytics',
+    link: '/analytics',
+    adminOnly: true
+  },
+  {
     title: 'Dashboard',
     caption: 'Overview and statistics',
     icon: 'dashboard',
