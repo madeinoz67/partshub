@@ -243,8 +243,20 @@ const periodOptions = [
 ]
 
 // Computed
-const startDate = computed(() => dateRange.value.from)
-const endDate = computed(() => dateRange.value.to)
+const startDate = computed(() => {
+  if (!dateRange.value.from) return ''
+  // Convert YYYY/MM/DD to ISO 8601 format
+  const date = new Date(dateRange.value.from)
+  return date.toISOString()
+})
+
+const endDate = computed(() => {
+  if (!dateRange.value.to) return ''
+  // Convert YYYY/MM/DD to ISO 8601 format with end of day
+  const date = new Date(dateRange.value.to)
+  date.setHours(23, 59, 59, 999)
+  return date.toISOString()
+})
 
 const dateRangeDisplay = computed(() => {
   if (!dateRange.value.from || !dateRange.value.to) return ''
