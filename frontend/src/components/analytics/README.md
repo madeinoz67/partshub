@@ -156,14 +156,222 @@ const locationId = ref<string | null>(null)
 
 ---
 
+### 5. StockDistributionChart.vue
+
+Doughnut chart showing inventory-wide distribution across stock status categories.
+
+**Props:** None (fetches global data)
+
+**Features:**
+- Doughnut chart with center label showing total components
+- Color-coded status categories (critical, low, ok, overstocked)
+- Percentage breakdown in legend
+- Timestamp display
+- Auto-refresh on mount
+- Manual refresh via exposed method
+
+**Example:**
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { StockDistributionChart } from 'src/components/analytics'
+
+const chartRef = ref()
+
+// Manual refresh
+function refresh() {
+  chartRef.value?.refresh()
+}
+</script>
+
+<template>
+  <StockDistributionChart ref="chartRef" />
+</template>
+```
+
+---
+
+### 6. TopVelocityChart.vue
+
+Horizontal bar chart showing the top 10 fastest-moving components with urgency-based coloring.
+
+**Props:** None (uses internal period selector)
+
+**Features:**
+- Horizontal bar chart with dynamic urgency colors
+- Period selector (7/30/90 days) in header
+- Rich tooltip with component details (velocity, stock, stockout prediction)
+- Color coding based on days until stockout:
+  - Red: <= 7 days (critical)
+  - Orange: <= 14 days (warning)
+  - Blue: > 14 days or no projection (OK)
+- Auto-refresh on mount
+- Manual refresh via exposed method
+
+**Example:**
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { TopVelocityChart } from 'src/components/analytics'
+
+const chartRef = ref()
+
+// Manual refresh
+function refresh() {
+  chartRef.value?.refresh()
+}
+</script>
+
+<template>
+  <TopVelocityChart ref="chartRef" />
+</template>
+```
+
+---
+
+### 7. InventoryValueChart.vue
+
+KPI summary card displaying key inventory-wide metrics (not a chart component).
+
+**Props:** None (fetches global data)
+
+**Features:**
+- 4 key metrics in a responsive 2x2 grid:
+  - Total stock value (formatted currency)
+  - Total components count
+  - Average stock level with progress bar
+  - Total locations
+- Stock status overview section (out of stock, low stock, overstocked counts)
+- Manual refresh button in header
+- Auto-refresh on mount
+- Manual refresh via exposed method
+- Hover effects on metric cards
+
+**Example:**
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { InventoryValueChart } from 'src/components/analytics'
+
+const chartRef = ref()
+
+// Manual refresh
+function refresh() {
+  chartRef.value?.refresh()
+}
+</script>
+
+<template>
+  <InventoryValueChart ref="chartRef" />
+</template>
+```
+
+---
+
+## Dashboard Integration Example
+
+Full example showing all components together:
+
+```vue
+<template>
+  <q-page class="q-pa-md">
+    <div class="row q-col-gutter-md">
+      <!-- Page Header -->
+      <div class="col-12">
+        <div class="row items-center justify-between">
+          <div>
+            <h4 class="q-my-none">Inventory Analytics Dashboard</h4>
+            <p class="text-grey-7 q-mb-none">Real-time insights and metrics</p>
+          </div>
+          <q-btn
+            color="primary"
+            icon="refresh"
+            label="Refresh All"
+            @click="refreshAll"
+            :loading="isRefreshing"
+          />
+        </div>
+      </div>
+
+      <!-- Top Row: Inventory Summary (KPI Card) -->
+      <div class="col-12">
+        <InventoryValueChart ref="inventoryValueChart" />
+      </div>
+
+      <!-- Second Row: Stock Distribution & Top Velocity -->
+      <div class="col-12 col-md-6">
+        <StockDistributionChart ref="stockDistributionChart" />
+      </div>
+      <div class="col-12 col-md-6">
+        <TopVelocityChart ref="topVelocityChart" />
+      </div>
+
+      <!-- Component-specific charts (example) -->
+      <div class="col-12 col-md-6">
+        <StockLevelChart
+          :component-id="selectedComponentId"
+          :start-date="startDate"
+          :end-date="endDate"
+        />
+      </div>
+      <div class="col-12 col-md-6">
+        <UsageTrendsChart
+          :component-id="selectedComponentId"
+          :start-date="startDate"
+          :end-date="endDate"
+        />
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import InventoryValueChart from 'src/components/analytics/InventoryValueChart.vue'
+import StockDistributionChart from 'src/components/analytics/StockDistributionChart.vue'
+import TopVelocityChart from 'src/components/analytics/TopVelocityChart.vue'
+import StockLevelChart from 'src/components/analytics/StockLevelChart.vue'
+import UsageTrendsChart from 'src/components/analytics/UsageTrendsChart.vue'
+
+const inventoryValueChart = ref()
+const stockDistributionChart = ref()
+const topVelocityChart = ref()
+const isRefreshing = ref(false)
+
+const selectedComponentId = ref('660e8400-e29b-41d4-a716-446655440001')
+const startDate = ref(new Date('2025-09-16').toISOString())
+const endDate = ref(new Date('2025-10-16').toISOString())
+
+async function refreshAll() {
+  isRefreshing.value = true
+  try {
+    await Promise.all([
+      inventoryValueChart.value?.refresh(),
+      stockDistributionChart.value?.refresh(),
+      topVelocityChart.value?.refresh()
+    ])
+  } catch (error) {
+    console.error('Failed to refresh dashboard:', error)
+  } finally {
+    isRefreshing.value = false
+  }
+}
+</script>
+```
+
+---
+
 ## API Endpoints Used
 
 All components use the analytics API endpoints:
 
-- `/api/v1/analytics/stock-levels` - Stock level time-series
-- `/api/v1/analytics/usage-trends` - Usage trend analysis
-- `/api/v1/analytics/forecast` - Stock forecast
-- `/api/v1/analytics/dashboard` - Dashboard summary
+- `/api/v1/analytics/stock-levels` - Stock level time-series (component-specific)
+- `/api/v1/analytics/usage-trends` - Usage trend analysis (component-specific)
+- `/api/v1/analytics/forecast` - Stock forecast (component-specific)
+- `/api/v1/analytics/dashboard` - Dashboard summary (component-specific)
+- `/api/v1/analytics/inventory-summary` - Inventory-wide KPIs (NEW)
+- `/api/v1/analytics/stock-distribution` - Stock status distribution (NEW)
+- `/api/v1/analytics/top-velocity` - Top velocity components (NEW)
 
 Authentication is handled automatically via the axios interceptor (Bearer token from localStorage).
 

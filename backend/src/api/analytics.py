@@ -25,8 +25,11 @@ from ..schemas.analytics import (
     DashboardSummaryResponse,
     ForecastHorizon,
     ForecastResponse,
+    InventorySummaryResponse,
     SlowMovingStockResponse,
+    StockDistributionResponse,
     StockLevelsResponse,
+    TopVelocityResponse,
     UsageTrendsResponse,
 )
 from ..services.analytics_service import AnalyticsService
@@ -355,4 +358,168 @@ async def get_slow_moving_stock(
     return service.get_slow_moving_stock(
         min_days_of_stock=min_days_of_stock,
         min_days_since_last_use=min_days_since_last_use,
+    )
+
+
+# ==================== Inventory-Wide Analytics ====================
+
+
+@router.get(
+    "/inventory-summary",
+    response_model=InventorySummaryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get aggregate inventory KPIs",
+    description=(
+        "Returns aggregate key performance indicators across entire inventory. "
+        "Provides single pane of glass view of inventory health including total value, "
+        "stock levels, and component distribution metrics."
+    ),
+)
+async def get_inventory_summary(
+    db: Session = Depends(get_db),
+    admin: dict = Depends(require_admin),
+) -> InventorySummaryResponse:
+    """
+    Get aggregate inventory KPIs across all components.
+
+    Provides comprehensive summary metrics including:
+    - Total components count
+    - Total inventory value (sum of qty * unit_price)
+    - Low stock count (components below threshold)
+    - Out of stock count (components with qty = 0)
+    - Overstocked count (components >= 1.5x threshold)
+    - Average stock level percentage
+    - Total unique storage locations in use
+
+    **Admin-only operation.**
+
+    Args:
+        db: Database session (injected)
+        admin: Current admin user (injected)
+
+    Returns:
+        InventorySummaryResponse with aggregate KPIs
+
+    Raises:
+        HTTPException 403: User is not admin
+
+    Example:
+        GET /api/v1/analytics/inventory-summary
+    """
+    service = AnalyticsService(db)
+    return service.get_inventory_summary()
+
+
+@router.get(
+    "/stock-distribution",
+    response_model=StockDistributionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get component distribution by stock status",
+    description=(
+        "Returns breakdown of components by stock status categories: "
+        "critical (qty=0), low (below threshold), ok (above threshold), "
+        "and overstocked (>= 1.5x threshold). Used for pie/donut chart visualization."
+    ),
+)
+async def get_stock_distribution(
+    db: Session = Depends(get_db),
+    admin: dict = Depends(require_admin),
+) -> StockDistributionResponse:
+    """
+    Get component distribution breakdown by stock status.
+
+    Categorizes entire inventory into stock health status buckets:
+    - Critical: quantity = 0
+    - Low: quantity > 0 and quantity <= reorder threshold
+    - OK: quantity > threshold and quantity < threshold * 1.5
+    - Overstocked: quantity >= threshold * 1.5
+
+    Components without configured thresholds are categorized as OK if qty > 0,
+    or CRITICAL if qty = 0.
+
+    **Admin-only operation.**
+
+    Args:
+        db: Database session (injected)
+        admin: Current admin user (injected)
+
+    Returns:
+        StockDistributionResponse with distribution breakdown and percentages
+
+    Raises:
+        HTTPException 403: User is not admin
+
+    Example:
+        GET /api/v1/analytics/stock-distribution
+    """
+    service = AnalyticsService(db)
+    return service.get_stock_distribution()
+
+
+@router.get(
+    "/top-velocity",
+    response_model=TopVelocityResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get top velocity components",
+    description=(
+        "Returns fastest-moving components by consumption velocity. "
+        "Analyzes transaction history to identify high-demand components "
+        "with stockout predictions for proactive inventory management."
+    ),
+)
+async def get_top_velocity(
+    limit: int = Query(
+        10, ge=1, le=50, description="Maximum number of components to return"
+    ),
+    lookback_days: int = Query(
+        30,
+        ge=7,
+        le=365,
+        description="Number of days to analyze for velocity calculation",
+    ),
+    min_transactions: int = Query(
+        2,
+        ge=1,
+        description="Minimum transaction count required to be included",
+    ),
+    db: Session = Depends(get_db),
+    admin: dict = Depends(require_admin),
+) -> TopVelocityResponse:
+    """
+    Get top N fastest-moving components by consumption velocity.
+
+    Analyzes stock removal transactions over the specified lookback period
+    to calculate consumption velocity (units/day). Returns components with
+    highest velocity along with:
+    - Daily, weekly, and monthly velocity metrics
+    - Current stock quantity
+    - Days until stockout prediction
+    - Primary storage location
+
+    Only components with sufficient transaction history (>= min_transactions)
+    are included in the analysis.
+
+    **Admin-only operation.**
+
+    Args:
+        limit: Maximum number of components to return (1-50, default 10)
+        lookback_days: Days to analyze for velocity (7-365, default 30)
+        min_transactions: Minimum transactions required (>= 1, default 2)
+        db: Database session (injected)
+        admin: Current admin user (injected)
+
+    Returns:
+        TopVelocityResponse with top velocity components and metrics
+
+    Raises:
+        HTTPException 403: User is not admin
+
+    Example:
+        GET /api/v1/analytics/top-velocity?limit=10&lookback_days=30&min_transactions=2
+    """
+    service = AnalyticsService(db)
+    return service.get_top_velocity(
+        limit=limit,
+        lookback_days=lookback_days,
+        min_transactions=min_transactions,
     )

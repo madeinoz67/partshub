@@ -960,3 +960,530 @@ class TestAnalyticsAuthorization:
             assert (
                 response.status_code == 403
             ), f"Endpoint {endpoint} should require admin role"
+
+
+@pytest.mark.integration
+class TestAnalyticsInventorySummary:
+    """Integration tests for inventory summary endpoint"""
+
+    def test_get_inventory_summary_basic(
+        self,
+        client,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test inventory summary returns aggregate KPIs"""
+        # Create component with stock
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 100},
+            headers=auth_headers,
+        )
+
+        # Get inventory summary
+        response = client.get(
+            "/api/v1/analytics/inventory-summary",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify response structure
+        assert "total_components" in data
+        assert "total_stock_value" in data
+        assert "low_stock_count" in data
+        assert "out_of_stock_count" in data
+        assert "overstocked_count" in data
+        assert "average_stock_level_percentage" in data
+        assert "total_locations" in data
+        assert "metadata" in data
+
+        # Verify values are reasonable
+        assert data["total_components"] >= 1
+        assert data["total_stock_value"] >= 0
+        assert data["total_locations"] >= 1
+
+    def test_get_inventory_summary_with_low_stock(
+        self,
+        client,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test inventory summary identifies low stock correctly"""
+        # Create component with low stock
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        # Add stock below threshold
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 10},
+            headers=auth_headers,
+        )
+
+        # Set high threshold to trigger low stock
+        client.put(
+            f"/api/v1/reorder-alerts/thresholds/{component_id}/{location_id}",
+            json={"threshold": 50, "enabled": True},
+            headers=auth_headers,
+        )
+
+        db_session.commit()
+
+        # Get summary
+        response = client.get(
+            "/api/v1/analytics/inventory-summary",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify low stock is detected
+        assert data["low_stock_count"] >= 1
+        assert data["out_of_stock_count"] == 0
+
+    def test_get_inventory_summary_with_overstocked(
+        self,
+        client,
+        db_session,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test inventory summary identifies overstocked components"""
+        # Create component
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        # Add stock well above threshold (>= 1.5x)
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 200},
+            headers=auth_headers,
+        )
+
+        # Set low threshold
+        client.put(
+            f"/api/v1/reorder-alerts/thresholds/{component_id}/{location_id}",
+            json={"threshold": 50, "enabled": True},
+            headers=auth_headers,
+        )
+
+        db_session.commit()
+
+        # Get summary
+        response = client.get(
+            "/api/v1/analytics/inventory-summary",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify overstocked is detected (200 >= 50 * 1.5 = 75)
+        assert data["overstocked_count"] >= 1
+
+    def test_get_inventory_summary_requires_admin(self, client, user_auth_headers):
+        """Test that inventory summary endpoint requires admin authentication"""
+        response = client.get(
+            "/api/v1/analytics/inventory-summary",
+            headers=user_auth_headers,
+        )
+
+        assert response.status_code == 403
+
+
+@pytest.mark.integration
+class TestAnalyticsStockDistribution:
+    """Integration tests for stock distribution endpoint"""
+
+    def test_get_stock_distribution_basic(
+        self,
+        client,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test stock distribution returns category breakdown"""
+        # Create component with stock
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 100},
+            headers=auth_headers,
+        )
+
+        # Get stock distribution
+        response = client.get(
+            "/api/v1/analytics/stock-distribution",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify response structure
+        assert "total_components" in data
+        assert "distribution" in data
+        assert "timestamp" in data
+        assert data["total_components"] >= 1
+        assert isinstance(data["distribution"], list)
+        assert len(data["distribution"]) == 4  # 4 status categories
+
+        # Verify each distribution item
+        for item in data["distribution"]:
+            assert "status" in item
+            assert "count" in item
+            assert "percentage" in item
+            assert item["status"] in ["critical", "low", "ok", "overstocked"]
+            assert item["count"] >= 0
+            assert 0 <= item["percentage"] <= 100
+
+        # Verify percentages sum to 100 (or close due to rounding)
+        total_percentage = sum(item["percentage"] for item in data["distribution"])
+        assert 99.9 <= total_percentage <= 100.1
+
+    def test_get_stock_distribution_multiple_components(
+        self,
+        client,
+        db_session,
+        auth_headers,
+        sample_component_data,
+    ):
+        """Test stock distribution with multiple components in different states"""
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json={"name": "Test Location", "type": "drawer"},
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        # Create LOW component (below threshold)
+        comp2_resp = client.post(
+            "/api/v1/components",
+            json={"name": "Low Component", "category": "Capacitors"},
+            headers=auth_headers,
+        )
+        comp2_id = comp2_resp.json()["id"]
+        client.post(
+            f"/api/v1/components/{comp2_id}/stock/add",
+            json={"location_id": location_id, "quantity": 10},
+            headers=auth_headers,
+        )
+        client.put(
+            f"/api/v1/reorder-alerts/thresholds/{comp2_id}/{location_id}",
+            json={"threshold": 50, "enabled": True},
+            headers=auth_headers,
+        )
+
+        # Create OK component (above threshold but < 1.5x)
+        comp3_resp = client.post(
+            "/api/v1/components",
+            json={"name": "OK Component", "category": "ICs"},
+            headers=auth_headers,
+        )
+        comp3_id = comp3_resp.json()["id"]
+        client.post(
+            f"/api/v1/components/{comp3_id}/stock/add",
+            json={"location_id": location_id, "quantity": 60},
+            headers=auth_headers,
+        )
+        client.put(
+            f"/api/v1/reorder-alerts/thresholds/{comp3_id}/{location_id}",
+            json={"threshold": 50, "enabled": True},
+            headers=auth_headers,
+        )
+
+        # Create OVERSTOCKED component (>= 1.5x threshold)
+        comp4_resp = client.post(
+            "/api/v1/components",
+            json={"name": "Overstocked Component", "category": "Diodes"},
+            headers=auth_headers,
+        )
+        comp4_id = comp4_resp.json()["id"]
+        client.post(
+            f"/api/v1/components/{comp4_id}/stock/add",
+            json={"location_id": location_id, "quantity": 200},
+            headers=auth_headers,
+        )
+        client.put(
+            f"/api/v1/reorder-alerts/thresholds/{comp4_id}/{location_id}",
+            json={"threshold": 50, "enabled": True},
+            headers=auth_headers,
+        )
+
+        db_session.commit()
+
+        # Get distribution
+        response = client.get(
+            "/api/v1/analytics/stock-distribution",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify we have the expected components in their categories
+        status_counts = {item["status"]: item["count"] for item in data["distribution"]}
+        assert status_counts["low"] >= 1
+        assert status_counts["ok"] >= 1
+        assert status_counts["overstocked"] >= 1
+        # Total should be at least 3
+        assert data["total_components"] >= 3
+
+    def test_get_stock_distribution_requires_admin(self, client, user_auth_headers):
+        """Test that stock distribution endpoint requires admin authentication"""
+        response = client.get(
+            "/api/v1/analytics/stock-distribution",
+            headers=user_auth_headers,
+        )
+
+        assert response.status_code == 403
+
+
+@pytest.mark.integration
+class TestAnalyticsTopVelocity:
+    """Integration tests for top velocity endpoint"""
+
+    def test_get_top_velocity_basic(
+        self,
+        client,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test top velocity returns fastest-moving components"""
+        # Create component with consumption
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        # Add stock
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 100},
+            headers=auth_headers,
+        )
+
+        # Create multiple removal transactions to establish velocity
+        client.post(
+            f"/api/v1/components/{component_id}/stock/remove",
+            json={"location_id": location_id, "quantity": 10, "reason": "usage"},
+            headers=auth_headers,
+        )
+        client.post(
+            f"/api/v1/components/{component_id}/stock/remove",
+            json={"location_id": location_id, "quantity": 15, "reason": "usage"},
+            headers=auth_headers,
+        )
+
+        # Get top velocity
+        response = client.get(
+            "/api/v1/analytics/top-velocity",
+            params={"limit": 10, "lookback_days": 30, "min_transactions": 2},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify response structure
+        assert "components" in data
+        assert "period_analyzed" in data
+        assert "total_components_analyzed" in data
+        assert "metadata" in data
+        assert isinstance(data["components"], list)
+
+        # If we have velocity components, verify structure
+        if data["components"]:
+            component = data["components"][0]
+            assert "component_id" in component
+            assert "component_name" in component
+            assert "part_number" in component
+            assert "daily_velocity" in component
+            assert "weekly_velocity" in component
+            assert "monthly_velocity" in component
+            assert "current_quantity" in component
+            assert "days_until_stockout" in component
+            assert "location_name" in component
+
+            # Verify velocity values are positive
+            assert component["daily_velocity"] > 0
+            assert component["weekly_velocity"] > 0
+            assert component["monthly_velocity"] > 0
+
+    def test_get_top_velocity_with_parameters(
+        self,
+        client,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test top velocity with different query parameters"""
+        # Create component with consumption
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 100},
+            headers=auth_headers,
+        )
+
+        # Create transactions
+        for _ in range(5):
+            client.post(
+                f"/api/v1/components/{component_id}/stock/remove",
+                json={"location_id": location_id, "quantity": 5, "reason": "usage"},
+                headers=auth_headers,
+            )
+
+        # Test with custom parameters
+        response = client.get(
+            "/api/v1/analytics/top-velocity",
+            params={"limit": 5, "lookback_days": 7, "min_transactions": 3},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Verify metadata reflects our parameters
+        assert data["metadata"]["limit"] == 5
+        assert data["metadata"]["lookback_days"] == 7
+        assert data["metadata"]["min_transactions"] == 3
+        assert data["period_analyzed"] == "last_7_days"
+
+    def test_get_top_velocity_min_transactions_filter(
+        self,
+        client,
+        auth_headers,
+        sample_component_data,
+        sample_storage_location_data,
+    ):
+        """Test top velocity filters by minimum transactions"""
+        # Create component with only 1 transaction (below min_transactions=2)
+        component_resp = client.post(
+            "/api/v1/components", json=sample_component_data, headers=auth_headers
+        )
+        component_id = component_resp.json()["id"]
+
+        location_resp = client.post(
+            "/api/v1/storage-locations",
+            json=sample_storage_location_data,
+            headers=auth_headers,
+        )
+        location_id = location_resp.json()["id"]
+
+        client.post(
+            f"/api/v1/components/{component_id}/stock/add",
+            json={"location_id": location_id, "quantity": 100},
+            headers=auth_headers,
+        )
+
+        # Single transaction (should be filtered out)
+        client.post(
+            f"/api/v1/components/{component_id}/stock/remove",
+            json={"location_id": location_id, "quantity": 10, "reason": "usage"},
+            headers=auth_headers,
+        )
+
+        # Get top velocity with min_transactions=2
+        response = client.get(
+            "/api/v1/analytics/top-velocity",
+            params={"min_transactions": 2},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Component should not appear in results (only 1 transaction)
+        component_ids = [comp["component_id"] for comp in data["components"]]
+        assert component_id not in component_ids
+
+    def test_get_top_velocity_empty_inventory(self, client, auth_headers):
+        """Test top velocity with empty inventory"""
+        response = client.get(
+            "/api/v1/analytics/top-velocity",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Should return empty list
+        assert data["components"] == []
+        assert data["total_components_analyzed"] >= 0
+
+    def test_get_top_velocity_requires_admin(self, client, user_auth_headers):
+        """Test that top velocity endpoint requires admin authentication"""
+        response = client.get(
+            "/api/v1/analytics/top-velocity",
+            headers=user_auth_headers,
+        )
+
+        assert response.status_code == 403

@@ -3,10 +3,17 @@
     <!-- Page Header -->
     <div class="row items-center q-mb-lg">
       <div class="col">
-        <div class="text-h4">Reorder Alerts</div>
-        <div class="text-caption text-grey">Monitor and manage low stock alerts</div>
+        <div class="text-h4">Reorder Alert Management</div>
+        <div class="text-caption text-grey">Operational tool for managing low stock alerts and reorder workflows</div>
       </div>
-      <div class="col-auto">
+      <div class="col-auto row q-gutter-sm">
+        <q-btn
+          outline
+          color="primary"
+          icon="analytics"
+          label="View Analytics"
+          @click="$router.push('/analytics')"
+        />
         <q-btn
           color="primary"
           icon="refresh"
@@ -14,51 +21,6 @@
           :loading="loading"
           @click="loadData"
         />
-      </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div v-if="statistics" class="row q-col-gutter-md q-mb-lg">
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="text-caption text-grey">Total Active Alerts</div>
-            <div class="text-h5 text-weight-bold">{{ statistics.by_status?.active || 0 }}</div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="text-caption text-grey">Critical Alerts</div>
-            <div class="text-h5 text-weight-bold text-negative">
-              {{ (statistics as any).by_severity?.critical || 0 }}
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="text-caption text-grey">High Priority</div>
-            <div class="text-h5 text-weight-bold text-warning">
-              {{ (statistics as any).by_severity?.high || 0 }}
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered>
-          <q-card-section>
-            <div class="text-caption text-grey">Orders Placed</div>
-            <div class="text-h5 text-weight-bold text-positive">
-              {{ statistics.by_status?.ordered || 0 }}
-            </div>
-          </q-card-section>
-        </q-card>
       </div>
     </div>
 
@@ -133,9 +95,9 @@
             row-key="id"
             :loading="loading"
             :pagination="pagination"
-            @request="onTableRequest"
             flat
             bordered
+            @request="onTableRequest"
           >
             <template #body-cell-component="props">
               <q-td :props="props">

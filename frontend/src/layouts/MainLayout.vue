@@ -322,17 +322,17 @@ const essentialLinks: EssentialLink[] = [
     link: '/storage'
   },
   {
-    title: 'Reorder Alerts',
-    caption: 'Monitor low stock alerts',
-    icon: 'notification_important',
-    link: '/reorder-alerts',
+    title: 'Analytics Hub',
+    caption: 'Inventory insights and forecasting',
+    icon: 'analytics',
+    link: '/analytics',
     adminOnly: true
   },
   {
-    title: 'Analytics',
-    caption: 'Stock analytics and forecasting',
-    icon: 'analytics',
-    link: '/analytics',
+    title: 'Reorder Alerts',
+    caption: 'Manage low stock workflows',
+    icon: 'notification_important',
+    link: '/reorder-alerts',
     adminOnly: true
   },
   {

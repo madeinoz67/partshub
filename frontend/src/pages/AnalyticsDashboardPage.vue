@@ -3,8 +3,8 @@
     <!-- Page Header -->
     <div class="row items-center q-mb-lg">
       <div class="col">
-        <div class="text-h4">Analytics Dashboard</div>
-        <div class="text-caption text-grey">Advanced stock management analytics and forecasting</div>
+        <div class="text-h4">Analytics Hub</div>
+        <div class="text-caption text-grey">Comprehensive inventory insights, forecasting, and component analytics</div>
       </div>
       <div class="col-auto">
         <q-btn
@@ -141,13 +141,43 @@
       </q-card-section>
     </q-card>
 
-    <!-- Dashboard Summary - Always Visible -->
-    <ReorderAlertsSummary class="q-mb-md" />
+    <!-- Inventory-Wide Analytics - Always Visible -->
+    <div class="q-mb-lg">
+      <div class="text-h5 q-mb-md">Inventory Overview</div>
 
-    <!-- Charts Section - Show when component selected -->
+      <!-- KPI Summary Card -->
+      <InventoryValueChart class="q-mb-md" />
+
+      <!-- Distribution and Velocity Charts -->
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-md-6">
+          <StockDistributionChart />
+        </div>
+        <div class="col-12 col-md-6">
+          <TopVelocityChart />
+        </div>
+      </div>
+    </div>
+
+    <!-- Reorder Alerts Summary with Action Button -->
+    <div class="q-mb-lg">
+      <div class="row items-center justify-between q-mb-md">
+        <div class="text-h5">Reorder Alerts</div>
+        <q-btn
+          outline
+          color="primary"
+          icon="arrow_forward"
+          label="View All Alerts"
+          @click="$router.push('/reorder-alerts')"
+        />
+      </div>
+      <ReorderAlertsSummary />
+    </div>
+
+    <!-- Component Deep-Dive Section - Show when component selected -->
     <div v-if="selectedComponent">
-      <div class="text-h6 q-mb-md">
-        Analytics for: {{ selectedComponent.name }}
+      <div class="text-h5 q-mb-md">
+        Component Analytics: {{ selectedComponent.name }}
         <span v-if="selectedComponent.part_number" class="text-caption text-grey">
           ({{ selectedComponent.part_number }})
         </span>
@@ -189,14 +219,24 @@
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div v-else class="text-center q-pa-xl">
-      <q-icon name="analytics" size="6em" color="grey-4" />
-      <div class="text-h5 text-grey q-mt-md">Select a Component</div>
-      <div class="text-grey q-mb-lg">
-        Choose a component from the dropdown above to view detailed analytics,<br>
-        stock trends, usage patterns, and forecasting data.
-      </div>
+    <!-- Empty State for Component Selection -->
+    <div v-else class="q-mb-lg">
+      <q-card flat bordered class="bg-grey-1">
+        <q-card-section class="text-center q-pa-xl">
+          <q-icon name="analytics" size="6em" color="grey-5" />
+          <div class="text-h6 text-grey-7 q-mt-md">Component-Specific Analytics</div>
+          <div class="text-grey-6 q-mb-md">
+            Select a component from the dropdown above to view detailed analytics:<br>
+            stock trends, usage patterns, and forecasting data.
+          </div>
+          <q-btn
+            color="primary"
+            icon="search"
+            label="Select Component"
+            @click="() => {}"
+          />
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -209,7 +249,10 @@ import {
   ReorderAlertsSummary,
   StockLevelChart,
   UsageTrendsChart,
-  ForecastChart
+  ForecastChart,
+  InventoryValueChart,
+  StockDistributionChart,
+  TopVelocityChart
 } from '../components/analytics'
 import type { Component } from '../services/api'
 

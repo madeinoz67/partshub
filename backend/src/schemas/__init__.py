@@ -13,13 +13,19 @@ from .analytics import (
     ForecastRequest,
     ForecastResponse,
     InventoryHealthMetrics,
+    InventorySummaryResponse,
     ReorderSuggestion,
     SlowMovingItem,
     SlowMovingStockRequest,
     SlowMovingStockResponse,
     StockDataPoint,
+    StockDistributionItem,
+    StockDistributionResponse,
     StockLevelsRequest,
     StockLevelsResponse,
+    StockStatusCategory,
+    TopVelocityComponent,
+    TopVelocityResponse,
     UsageTrendDataPoint,
     UsageTrendsRequest,
     UsageTrendsResponse,
@@ -47,6 +53,7 @@ __all__ = [
     # Analytics schemas - Enums
     "AggregationPeriod",
     "ForecastHorizon",
+    "StockStatusCategory",
     # Analytics schemas - Base/Common
     "DateRangeFilter",
     # Analytics schemas - Stock Time-Series
@@ -72,4 +79,10 @@ __all__ = [
     "SlowMovingItem",
     "SlowMovingStockRequest",
     "SlowMovingStockResponse",
+    # Analytics schemas - Inventory-Wide Analytics
+    "InventorySummaryResponse",
+    "StockDistributionItem",
+    "StockDistributionResponse",
+    "TopVelocityComponent",
+    "TopVelocityResponse",
 ]

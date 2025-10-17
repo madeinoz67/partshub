@@ -21,11 +21,17 @@ from ..schemas.analytics import (
     ForecastHorizon,
     ForecastResponse,
     InventoryHealthMetrics,
+    InventorySummaryResponse,
     ReorderSuggestion,
     SlowMovingItem,
     SlowMovingStockResponse,
     StockDataPoint,
+    StockDistributionItem,
+    StockDistributionResponse,
     StockLevelsResponse,
+    StockStatusCategory,
+    TopVelocityComponent,
+    TopVelocityResponse,
     UsageTrendDataPoint,
     UsageTrendsResponse,
     VelocityMetrics,
@@ -1098,3 +1104,340 @@ class AnalyticsService:
         days_since_last_use = (datetime.now(UTC) - last_used_date).days
 
         return last_used_date, days_since_last_use
+
+    # ==================== Inventory-Wide Analytics ====================
+
+    def get_inventory_summary(self) -> InventorySummaryResponse:
+        """
+        Get aggregate inventory KPIs across all components.
+
+        Calculates summary statistics including total value, stock levels,
+        and health indicators for the entire inventory.
+
+        Returns:
+            InventorySummaryResponse with aggregate KPIs
+        """
+        # Get all component locations
+        comp_locs = (
+            self.session.query(ComponentLocation)
+            .options(
+                joinedload(ComponentLocation.component),
+                joinedload(ComponentLocation.storage_location),
+            )
+            .all()
+        )
+
+        # Calculate metrics
+        unique_components = set()
+        total_stock_value = 0.0
+        low_stock_count = 0
+        out_of_stock_count = 0
+        overstocked_count = 0
+        stock_level_percentages = []
+        unique_locations = set()
+
+        components_with_threshold = 0
+        components_without_threshold = 0
+
+        for cl in comp_locs:
+            unique_components.add(cl.component_id)
+            unique_locations.add(cl.storage_location_id)
+
+            # Calculate stock value
+            if cl.component.average_purchase_price:
+                total_stock_value += cl.quantity_on_hand * float(
+                    cl.component.average_purchase_price
+                )
+
+            # Check stock status
+            if cl.quantity_on_hand == 0:
+                out_of_stock_count += 1
+
+            # Check reorder status
+            if cl.reorder_enabled and cl.reorder_threshold:
+                components_with_threshold += 1
+
+                if cl.needs_reorder:
+                    low_stock_count += 1
+
+                # Check for overstocked (>= 1.5x threshold)
+                if cl.quantity_on_hand >= (cl.reorder_threshold * 1.5):
+                    overstocked_count += 1
+
+                # Calculate stock level percentage
+                percentage = (cl.quantity_on_hand / cl.reorder_threshold) * 100
+                stock_level_percentages.append(percentage)
+            else:
+                components_without_threshold += 1
+
+        # Calculate average stock level percentage
+        avg_stock_level_pct = (
+            sum(stock_level_percentages) / len(stock_level_percentages)
+            if stock_level_percentages
+            else 0.0
+        )
+
+        return InventorySummaryResponse(
+            total_components=len(unique_components),
+            total_stock_value=total_stock_value,
+            low_stock_count=low_stock_count,
+            out_of_stock_count=out_of_stock_count,
+            overstocked_count=overstocked_count,
+            average_stock_level_percentage=avg_stock_level_pct,
+            total_locations=len(unique_locations),
+            metadata={
+                "timestamp": datetime.now(UTC).isoformat(),
+                "components_with_threshold": components_with_threshold,
+                "components_without_threshold": components_without_threshold,
+            },
+        )
+
+    def get_stock_distribution(self) -> StockDistributionResponse:
+        """
+        Get breakdown of components by stock status.
+
+        Categorizes each component into critical/low/ok/overstocked based
+        on current quantity vs reorder threshold.
+
+        Returns:
+            StockDistributionResponse with distribution breakdown
+        """
+        # Get all component locations
+        comp_locs = (
+            self.session.query(ComponentLocation)
+            .options(joinedload(ComponentLocation.component))
+            .all()
+        )
+
+        # Categorize components by unique component_id
+        component_status_map = {}
+
+        for cl in comp_locs:
+            # Skip if already categorized (use worst status per component)
+            if cl.component_id in component_status_map:
+                current_status = component_status_map[cl.component_id]
+                # Priority: CRITICAL > LOW > OK > OVERSTOCKED
+                priority = {
+                    StockStatusCategory.CRITICAL: 0,
+                    StockStatusCategory.LOW: 1,
+                    StockStatusCategory.OK: 2,
+                    StockStatusCategory.OVERSTOCKED: 3,
+                }
+                # Only update if new status is higher priority (lower number)
+                new_status = self._categorize_stock_status(cl)
+                if priority[new_status] < priority[current_status]:
+                    component_status_map[cl.component_id] = new_status
+            else:
+                component_status_map[cl.component_id] = self._categorize_stock_status(
+                    cl
+                )
+
+        # Count by status
+        status_counts = {
+            StockStatusCategory.CRITICAL: 0,
+            StockStatusCategory.LOW: 0,
+            StockStatusCategory.OK: 0,
+            StockStatusCategory.OVERSTOCKED: 0,
+        }
+
+        for status in component_status_map.values():
+            status_counts[status] += 1
+
+        total_components = len(component_status_map)
+
+        # Build distribution items
+        distribution = []
+        for status, count in status_counts.items():
+            percentage = (
+                (count / total_components * 100) if total_components > 0 else 0.0
+            )
+            distribution.append(
+                StockDistributionItem(
+                    status=status,
+                    count=count,
+                    percentage=round(percentage, 2),
+                )
+            )
+
+        return StockDistributionResponse(
+            total_components=total_components,
+            distribution=distribution,
+            timestamp=datetime.now(UTC),
+        )
+
+    def _categorize_stock_status(
+        self, component_location: ComponentLocation
+    ) -> StockStatusCategory:
+        """
+        Categorize a component location by stock status.
+
+        Args:
+            component_location: ComponentLocation to categorize
+
+        Returns:
+            StockStatusCategory enum value
+        """
+        qty = component_location.quantity_on_hand
+
+        # Critical: qty = 0
+        if qty == 0:
+            return StockStatusCategory.CRITICAL
+
+        # If no threshold configured, assume OK
+        if (
+            not component_location.reorder_enabled
+            or not component_location.reorder_threshold
+        ):
+            return StockStatusCategory.OK
+
+        threshold = component_location.reorder_threshold
+
+        # Low: qty > 0 and qty <= threshold
+        if qty <= threshold:
+            return StockStatusCategory.LOW
+
+        # Overstocked: qty >= threshold * 1.5
+        if qty >= (threshold * 1.5):
+            return StockStatusCategory.OVERSTOCKED
+
+        # OK: qty > threshold and qty < threshold * 1.5
+        return StockStatusCategory.OK
+
+    def get_top_velocity(
+        self,
+        limit: int = 10,
+        lookback_days: int = 30,
+        min_transactions: int = 2,
+    ) -> TopVelocityResponse:
+        """
+        Get top N fastest-moving components by consumption velocity.
+
+        Analyzes consumption patterns across all components and returns
+        the fastest movers with stockout predictions.
+
+        Args:
+            limit: Maximum number of components to return (1-50)
+            lookback_days: Number of days to analyze for velocity (7-365)
+            min_transactions: Minimum transactions required to be included (1+)
+
+        Returns:
+            TopVelocityResponse with top velocity components
+        """
+        # Get all component locations
+        comp_locs = (
+            self.session.query(ComponentLocation)
+            .options(
+                joinedload(ComponentLocation.component),
+                joinedload(ComponentLocation.storage_location),
+            )
+            .all()
+        )
+
+        # Calculate velocity for each unique component
+        velocity_data = []
+        seen_components = set()
+
+        for cl in comp_locs:
+            if cl.component_id in seen_components:
+                continue
+            seen_components.add(cl.component_id)
+
+            # Get velocity and transaction count
+            velocity, transaction_count = self._calculate_component_velocity_with_count(
+                cl.component_id, days=lookback_days
+            )
+
+            # Skip if insufficient transactions
+            if transaction_count < min_transactions:
+                continue
+
+            # Skip if zero velocity
+            if velocity <= 0:
+                continue
+
+            # Calculate total quantity across all locations for this component
+            total_qty = sum(
+                loc.quantity_on_hand
+                for loc in comp_locs
+                if loc.component_id == cl.component_id
+            )
+
+            # Calculate days until stockout
+            days_until_stockout = int(total_qty / velocity) if velocity > 0 else None
+
+            # Get primary location (highest quantity)
+            primary_loc = max(
+                (loc for loc in comp_locs if loc.component_id == cl.component_id),
+                key=lambda x: x.quantity_on_hand,
+            )
+
+            velocity_data.append(
+                {
+                    "component_id": cl.component_id,
+                    "component_name": cl.component.name,
+                    "part_number": cl.component.part_number,
+                    "daily_velocity": velocity,
+                    "weekly_velocity": velocity * 7,
+                    "monthly_velocity": velocity * 30,
+                    "current_quantity": total_qty,
+                    "days_until_stockout": days_until_stockout,
+                    "location_name": primary_loc.storage_location.name
+                    if primary_loc.storage_location
+                    else None,
+                }
+            )
+
+        # Sort by daily velocity (highest first)
+        velocity_data.sort(key=lambda x: x["daily_velocity"], reverse=True)
+
+        # Take top N
+        top_components = velocity_data[:limit]
+
+        # Build response
+        components = [TopVelocityComponent(**comp) for comp in top_components]
+
+        return TopVelocityResponse(
+            components=components,
+            period_analyzed=f"last_{lookback_days}_days",
+            total_components_analyzed=len(seen_components),
+            metadata={
+                "lookback_days": lookback_days,
+                "min_transactions": min_transactions,
+                "limit": limit,
+            },
+        )
+
+    def _calculate_component_velocity_with_count(
+        self, component_id: str, days: int = 30
+    ) -> tuple[float, int]:
+        """
+        Calculate daily consumption velocity and transaction count for a component.
+
+        Args:
+            component_id: Component UUID
+            days: Number of days to analyze
+
+        Returns:
+            Tuple of (daily_velocity, transaction_count)
+        """
+        end_date = datetime.now(UTC)
+        start_date = end_date - timedelta(days=days)
+
+        transactions = (
+            self.session.query(StockTransaction)
+            .filter(
+                and_(
+                    StockTransaction.component_id == component_id,
+                    StockTransaction.created_at >= start_date,
+                    StockTransaction.created_at <= end_date,
+                    StockTransaction.quantity_change < 0,  # Only removals
+                )
+            )
+            .all()
+        )
+
+        total_removed = abs(sum(t.quantity_change for t in transactions))
+        transaction_count = len(transactions)
+        velocity = total_removed / days if days > 0 else 0.0
+
+        return velocity, transaction_count

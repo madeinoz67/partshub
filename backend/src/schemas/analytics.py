@@ -898,3 +898,235 @@ class SlowMovingStockResponse(BaseModel):
                 },
             }
         }
+
+
+# ==================== Inventory-Wide Analytics Schemas ====================
+
+
+class InventorySummaryResponse(BaseModel):
+    """
+    Aggregate KPIs across entire inventory.
+
+    Provides a single pane of glass view of inventory health with
+    key performance indicators for dashboard visualization.
+    """
+
+    total_components: int = Field(
+        ..., description="Total number of unique components in inventory", ge=0
+    )
+    total_stock_value: float = Field(
+        ...,
+        description="Total inventory value (sum of qty * unit_price for all components)",
+        ge=0,
+    )
+    low_stock_count: int = Field(
+        ..., description="Number of components below reorder threshold", ge=0
+    )
+    out_of_stock_count: int = Field(
+        ..., description="Number of components with quantity = 0", ge=0
+    )
+    overstocked_count: int = Field(
+        ...,
+        description="Number of components significantly above threshold (>= 1.5x threshold)",
+        ge=0,
+    )
+    average_stock_level_percentage: float = Field(
+        ...,
+        description="Average stock level percentage across all components (current_qty / threshold)",
+        ge=0,
+    )
+    total_locations: int = Field(
+        ..., description="Total number of unique storage locations in use", ge=0
+    )
+    metadata: dict = Field(
+        ..., description="Additional context (timestamp, filters, calculation notes)"
+    )
+
+    class Config:
+        """Pydantic configuration."""
+
+        json_schema_extra = {
+            "example": {
+                "total_components": 523,
+                "total_stock_value": 15432.50,
+                "low_stock_count": 42,
+                "out_of_stock_count": 5,
+                "overstocked_count": 18,
+                "average_stock_level_percentage": 125.5,
+                "total_locations": 15,
+                "metadata": {
+                    "timestamp": "2025-10-17T12:00:00Z",
+                    "components_with_threshold": 450,
+                    "components_without_threshold": 73,
+                },
+            }
+        }
+
+
+class StockStatusCategory(str, Enum):
+    """Stock status categories for distribution analysis."""
+
+    CRITICAL = "critical"  # qty = 0
+    LOW = "low"  # qty > 0 and qty <= threshold
+    OK = "ok"  # qty > threshold and qty < threshold * 1.5
+    OVERSTOCKED = "overstocked"  # qty >= threshold * 1.5
+
+
+class StockDistributionItem(BaseModel):
+    """
+    Single item in stock distribution breakdown.
+
+    Represents count and percentage of components in a specific stock status.
+    """
+
+    status: StockStatusCategory = Field(
+        ..., description="Stock status category (critical, low, ok, overstocked)"
+    )
+    count: int = Field(..., description="Number of components in this status", ge=0)
+    percentage: float = Field(
+        ..., description="Percentage of total components in this status", ge=0, le=100
+    )
+
+    class Config:
+        """Pydantic configuration."""
+
+        json_schema_extra = {
+            "example": {
+                "status": "ok",
+                "count": 350,
+                "percentage": 66.9,
+            }
+        }
+
+
+class StockDistributionResponse(BaseModel):
+    """
+    Breakdown of components by stock status.
+
+    Categorizes entire inventory by stock health status for
+    Chart.js pie/donut chart visualization.
+    """
+
+    total_components: int = Field(
+        ..., description="Total number of components analyzed", ge=0
+    )
+    distribution: list[StockDistributionItem] = Field(
+        ..., description="Distribution breakdown by status category"
+    )
+    timestamp: datetime = Field(
+        ..., description="Timestamp when analysis was performed (ISO 8601)"
+    )
+
+    class Config:
+        """Pydantic configuration."""
+
+        json_schema_extra = {
+            "example": {
+                "total_components": 523,
+                "distribution": [
+                    {"status": "critical", "count": 5, "percentage": 0.96},
+                    {"status": "low", "count": 42, "percentage": 8.03},
+                    {"status": "ok", "count": 458, "percentage": 87.57},
+                    {"status": "overstocked", "count": 18, "percentage": 3.44},
+                ],
+                "timestamp": "2025-10-17T12:00:00Z",
+            }
+        }
+
+
+class TopVelocityComponent(BaseModel):
+    """
+    Component with velocity metrics for top velocity analysis.
+
+    Represents a fast-moving component with consumption rates
+    and stockout predictions.
+    """
+
+    component_id: str = Field(..., description="Component UUID")
+    component_name: str = Field(..., description="Component name")
+    part_number: str | None = Field(None, description="Component part number")
+    daily_velocity: float = Field(
+        ..., description="Units consumed per day (average)", ge=0
+    )
+    weekly_velocity: float = Field(
+        ..., description="Units consumed per week (average)", ge=0
+    )
+    monthly_velocity: float = Field(
+        ..., description="Units consumed per month (average)", ge=0
+    )
+    current_quantity: int = Field(..., description="Current stock quantity", ge=0)
+    days_until_stockout: int | None = Field(
+        None,
+        description="Days until stockout based on current velocity (null if velocity = 0)",
+        ge=0,
+    )
+    location_name: str | None = Field(None, description="Primary storage location name")
+
+    class Config:
+        """Pydantic configuration."""
+
+        json_schema_extra = {
+            "example": {
+                "component_id": "660e8400-e29b-41d4-a716-446655440001",
+                "component_name": "Ceramic Capacitor 100nF 0805",
+                "part_number": "CAP-100N-0805",
+                "daily_velocity": 15.5,
+                "weekly_velocity": 108.5,
+                "monthly_velocity": 465.0,
+                "current_quantity": 250,
+                "days_until_stockout": 16,
+                "location_name": "Bin A-12",
+            }
+        }
+
+
+class TopVelocityResponse(BaseModel):
+    """
+    Top fastest-moving components by consumption velocity.
+
+    Returns components with highest consumption rates for
+    proactive inventory management and demand forecasting.
+    """
+
+    components: list[TopVelocityComponent] = Field(
+        ...,
+        description="List of top velocity components (ordered by daily_velocity DESC)",
+    )
+    period_analyzed: str = Field(
+        ...,
+        description="Time period analyzed for velocity calculation (e.g., 'last_30_days')",
+    )
+    total_components_analyzed: int = Field(
+        ..., description="Total number of components analyzed (before filtering)", ge=0
+    )
+    metadata: dict = Field(
+        ..., description="Additional metadata (filters, calculation parameters)"
+    )
+
+    class Config:
+        """Pydantic configuration."""
+
+        json_schema_extra = {
+            "example": {
+                "components": [
+                    {
+                        "component_id": "660e8400-e29b-41d4-a716-446655440001",
+                        "component_name": "Ceramic Capacitor 100nF 0805",
+                        "part_number": "CAP-100N-0805",
+                        "daily_velocity": 15.5,
+                        "weekly_velocity": 108.5,
+                        "monthly_velocity": 465.0,
+                        "current_quantity": 250,
+                        "days_until_stockout": 16,
+                        "location_name": "Bin A-12",
+                    }
+                ],
+                "period_analyzed": "last_30_days",
+                "total_components_analyzed": 523,
+                "metadata": {
+                    "lookback_days": 30,
+                    "min_transactions": 2,
+                    "limit": 10,
+                },
+            }
+        }
