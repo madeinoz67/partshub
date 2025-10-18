@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.0](https://github.com/madeinoz67/partshub/compare/v0.4.0...v0.5.0) (2025-10-18)
+
+
+### Features
+
+* Add evaluation task for Crawl4AI library to enhance provider metadata extraction ([f3e4d86](https://github.com/madeinoz67/partshub/commit/f3e4d86ef375e77ae806f9406db2dcd3ceb9479c))
+* Advanced Stock Management with Reorder Alerts System (Task 4) ([#24](https://github.com/madeinoz67/partshub/issues/24)) ([1b8538e](https://github.com/madeinoz67/partshub/commit/1b8538e036a53f46dddc0efc61e5234613c62e90))
+* Implement saved search parameter visibility on execution ([#21](https://github.com/madeinoz67/partshub/issues/21)) ([77811cf](https://github.com/madeinoz67/partshub/commit/77811cf31f27c4b0d0830453bfef8e910b4b2314))
+* Natural Language Search for Components ([#23](https://github.com/madeinoz67/partshub/issues/23)) ([b24b481](https://github.com/madeinoz67/partshub/commit/b24b481a27076762717de46d9d94f629356816e4))
+
 ## [0.4.0](https://github.com/madeinoz67/partshub/compare/v0.3.1...v0.4.0) (2025-10-07)
 
 
