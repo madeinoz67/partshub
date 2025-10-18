@@ -2,6 +2,35 @@
 Pydantic schemas for PartsHub API.
 """
 
+from .analytics import (
+    AggregationPeriod,
+    ComponentStockSummary,
+    DashboardSummaryRequest,
+    DashboardSummaryResponse,
+    DateRangeFilter,
+    ForecastDataPoint,
+    ForecastHorizon,
+    ForecastRequest,
+    ForecastResponse,
+    InventoryHealthMetrics,
+    InventorySummaryResponse,
+    ReorderSuggestion,
+    SlowMovingItem,
+    SlowMovingStockRequest,
+    SlowMovingStockResponse,
+    StockDataPoint,
+    StockDistributionItem,
+    StockDistributionResponse,
+    StockLevelsRequest,
+    StockLevelsResponse,
+    StockStatusCategory,
+    TopVelocityComponent,
+    TopVelocityResponse,
+    UsageTrendDataPoint,
+    UsageTrendsRequest,
+    UsageTrendsResponse,
+    VelocityMetrics,
+)
 from .stock_operations import (
     AddStockRequest,
     AddStockResponse,
@@ -13,6 +42,7 @@ from .stock_operations import (
 )
 
 __all__ = [
+    # Stock operations schemas
     "AddStockRequest",
     "AddStockResponse",
     "RemoveStockRequest",
@@ -20,4 +50,39 @@ __all__ = [
     "MoveStockRequest",
     "MoveStockResponse",
     "StockHistoryEntry",
+    # Analytics schemas - Enums
+    "AggregationPeriod",
+    "ForecastHorizon",
+    "StockStatusCategory",
+    # Analytics schemas - Base/Common
+    "DateRangeFilter",
+    # Analytics schemas - Stock Time-Series
+    "StockDataPoint",
+    "StockLevelsRequest",
+    "StockLevelsResponse",
+    # Analytics schemas - Usage Trends
+    "VelocityMetrics",
+    "UsageTrendDataPoint",
+    "UsageTrendsRequest",
+    "UsageTrendsResponse",
+    # Analytics schemas - Forecast
+    "ForecastDataPoint",
+    "ReorderSuggestion",
+    "ForecastRequest",
+    "ForecastResponse",
+    # Analytics schemas - Dashboard Summary
+    "ComponentStockSummary",
+    "InventoryHealthMetrics",
+    "DashboardSummaryRequest",
+    "DashboardSummaryResponse",
+    # Analytics schemas - Slow-Moving Stock
+    "SlowMovingItem",
+    "SlowMovingStockRequest",
+    "SlowMovingStockResponse",
+    # Analytics schemas - Inventory-Wide Analytics
+    "InventorySummaryResponse",
+    "StockDistributionItem",
+    "StockDistributionResponse",
+    "TopVelocityComponent",
+    "TopVelocityResponse",
 ]

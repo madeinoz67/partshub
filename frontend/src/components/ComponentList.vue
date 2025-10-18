@@ -438,6 +438,17 @@
                     <q-item-section>Update Stock</q-item-section>
                   </q-item>
 
+                  <q-item
+                    v-close-popup
+                    clickable
+                    @click="$emit('configure-reorder', props.row)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="notifications" />
+                    </q-item-section>
+                    <q-item-section>Configure Reorder Alerts</q-item-section>
+                  </q-item>
+
                   <q-separator />
 
                   <q-item
@@ -1223,6 +1234,16 @@
                 v-if="canPerformCrud()"
                 flat
                 dense
+                icon="notifications"
+                color="primary"
+                @click="$emit('configure-reorder', props.row)"
+              >
+                <q-tooltip>Configure Reorder Alerts</q-tooltip>
+              </q-btn>
+              <q-btn
+                v-if="canPerformCrud()"
+                flat
+                dense
                 icon="delete"
                 color="negative"
                 @click="$emit('delete-component', props.row)"
@@ -1315,6 +1336,7 @@ defineEmits<{
   'view-component': [component: Component]
   'edit-component': [component: Component]
   'update-stock': [component: Component]
+  'configure-reorder': [component: Component]
   'delete-component': [component: Component]
 }>()
 

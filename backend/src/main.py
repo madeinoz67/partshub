@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # Import all models to ensure SQLAlchemy relationships are configured
+from .api.analytics import router as analytics_router
 from .api.attachments import router as attachments_router
 from .api.auth import router as auth_router
 from .api.bom import router as bom_router
@@ -26,6 +27,7 @@ from .api.kicad import router as kicad_router
 from .api.location_layout import router as location_layout_router
 from .api.projects import router as projects_router
 from .api.providers import router as providers_router
+from .api.reorder_alerts import router as reorder_alerts_router
 from .api.reports import router as reports_router
 from .api.resources import router as resources_router
 from .api.saved_searches import router as saved_searches_router
@@ -196,6 +198,8 @@ app.include_router(categories_router)
 app.include_router(bulk_operations_router)
 app.include_router(stock_operations_router)
 app.include_router(stock_history_router)
+app.include_router(reorder_alerts_router)
+app.include_router(analytics_router)
 app.include_router(providers_router)
 app.include_router(wizard_router)
 app.include_router(resources_router)

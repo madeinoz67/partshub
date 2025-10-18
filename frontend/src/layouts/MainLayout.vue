@@ -322,6 +322,20 @@ const essentialLinks: EssentialLink[] = [
     link: '/storage'
   },
   {
+    title: 'Analytics Hub',
+    caption: 'Inventory insights and forecasting',
+    icon: 'analytics',
+    link: '/analytics',
+    adminOnly: true
+  },
+  {
+    title: 'Reorder Alerts',
+    caption: 'Manage low stock workflows',
+    icon: 'notification_important',
+    link: '/reorder-alerts',
+    adminOnly: true
+  },
+  {
     title: 'Dashboard',
     caption: 'Overview and statistics',
     icon: 'dashboard',

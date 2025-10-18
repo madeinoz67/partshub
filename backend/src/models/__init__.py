@@ -21,6 +21,7 @@ from .provider import ComponentDataProvider
 from .provider_data import ComponentProviderData
 from .provider_link import ProviderLink
 from .purchase import Purchase, PurchaseItem
+from .reorder_alert import ReorderAlert
 from .resource import Resource
 from .saved_search import SavedSearch
 from .stock_transaction import StockTransaction, TransactionType
@@ -62,6 +63,7 @@ __all__ = [
     "MetaPartComponent",
     "Provider",
     "ProviderLink",
+    "ReorderAlert",
     "Resource",
     "SavedSearch",
 ]

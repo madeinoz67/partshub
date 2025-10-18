@@ -52,6 +52,188 @@ def apply_migrations():
     command.upgrade(alembic_cfg, "head")
 
 
+def create_reorder_alert_triggers(connection):
+    """
+    Create reorder alert triggers for test database.
+
+    These triggers are normally created by Alembic migrations, but since
+    test database uses Base.metadata.create_all() for speed, we need to
+    manually create triggers for integration tests.
+    """
+    # Trigger 1: Create alert when stock drops below threshold (UPDATE case)
+    connection.execute(
+        text(
+            """
+        CREATE TRIGGER IF NOT EXISTS trigger_check_low_stock_after_update
+        AFTER UPDATE OF quantity_on_hand ON component_locations
+        FOR EACH ROW
+        WHEN NEW.reorder_enabled = 1
+          AND NEW.quantity_on_hand < NEW.reorder_threshold
+          AND OLD.quantity_on_hand >= OLD.reorder_threshold
+          AND NOT EXISTS (
+            SELECT 1 FROM reorder_alerts
+            WHERE component_location_id = NEW.id
+              AND status = 'active'
+          )
+        BEGIN
+          INSERT INTO reorder_alerts (
+            component_location_id,
+            component_id,
+            storage_location_id,
+            status,
+            current_quantity,
+            reorder_threshold,
+            shortage_amount,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            NEW.id,
+            NEW.component_id,
+            NEW.storage_location_id,
+            'active',
+            NEW.quantity_on_hand,
+            NEW.reorder_threshold,
+            NEW.reorder_threshold - NEW.quantity_on_hand,
+            datetime('now'),
+            datetime('now')
+          );
+        END;
+    """
+        )
+    )
+
+    # Trigger 2: Update existing alert when quantity changes further
+    connection.execute(
+        text(
+            """
+        CREATE TRIGGER IF NOT EXISTS trigger_update_low_stock_after_update
+        AFTER UPDATE OF quantity_on_hand ON component_locations
+        FOR EACH ROW
+        WHEN NEW.reorder_enabled = 1
+          AND NEW.quantity_on_hand < NEW.reorder_threshold
+          AND EXISTS (
+            SELECT 1 FROM reorder_alerts
+            WHERE component_location_id = NEW.id
+              AND status = 'active'
+          )
+        BEGIN
+          UPDATE reorder_alerts
+          SET
+            current_quantity = NEW.quantity_on_hand,
+            shortage_amount = NEW.reorder_threshold - NEW.quantity_on_hand,
+            updated_at = datetime('now')
+          WHERE component_location_id = NEW.id
+            AND status = 'active';
+        END;
+    """
+        )
+    )
+
+    # Trigger 3: Auto-resolve alert when stock rises above threshold
+    connection.execute(
+        text(
+            """
+        CREATE TRIGGER IF NOT EXISTS trigger_resolve_alert_after_update
+        AFTER UPDATE OF quantity_on_hand ON component_locations
+        FOR EACH ROW
+        WHEN NEW.quantity_on_hand >= NEW.reorder_threshold
+          AND OLD.quantity_on_hand < OLD.reorder_threshold
+        BEGIN
+          UPDATE reorder_alerts
+          SET
+            status = 'resolved',
+            resolved_at = datetime('now'),
+            updated_at = datetime('now')
+          WHERE component_location_id = NEW.id
+            AND status IN ('active', 'ordered');
+        END;
+    """
+        )
+    )
+
+    # Trigger 4: Create alert on initial stock entry (INSERT case)
+    connection.execute(
+        text(
+            """
+        CREATE TRIGGER IF NOT EXISTS trigger_check_low_stock_after_insert
+        AFTER INSERT ON component_locations
+        FOR EACH ROW
+        WHEN NEW.reorder_enabled = 1
+          AND NEW.quantity_on_hand < NEW.reorder_threshold
+        BEGIN
+          INSERT INTO reorder_alerts (
+            component_location_id,
+            component_id,
+            storage_location_id,
+            status,
+            current_quantity,
+            reorder_threshold,
+            shortage_amount,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            NEW.id,
+            NEW.component_id,
+            NEW.storage_location_id,
+            'active',
+            NEW.quantity_on_hand,
+            NEW.reorder_threshold,
+            NEW.reorder_threshold - NEW.quantity_on_hand,
+            datetime('now'),
+            datetime('now')
+          );
+        END;
+    """
+        )
+    )
+
+    # Trigger 5: Check if alert needed when threshold is updated
+    connection.execute(
+        text(
+            """
+        CREATE TRIGGER IF NOT EXISTS trigger_check_low_stock_after_threshold_update
+        AFTER UPDATE OF reorder_threshold, reorder_enabled ON component_locations
+        FOR EACH ROW
+        WHEN NEW.reorder_enabled = 1
+          AND NEW.quantity_on_hand < NEW.reorder_threshold
+          AND NOT EXISTS (
+            SELECT 1 FROM reorder_alerts
+            WHERE component_location_id = NEW.id
+              AND status = 'active'
+          )
+        BEGIN
+          INSERT INTO reorder_alerts (
+            component_location_id,
+            component_id,
+            storage_location_id,
+            status,
+            current_quantity,
+            reorder_threshold,
+            shortage_amount,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            NEW.id,
+            NEW.component_id,
+            NEW.storage_location_id,
+            'active',
+            NEW.quantity_on_hand,
+            NEW.reorder_threshold,
+            NEW.reorder_threshold - NEW.quantity_on_hand,
+            datetime('now'),
+            datetime('now')
+          );
+        END;
+    """
+        )
+    )
+
+    connection.commit()
+
+
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_database():
     """
@@ -76,6 +258,11 @@ def setup_test_database():
 
     # Create all tables with proper metadata
     Base.metadata.create_all(bind=test_engine)
+
+    # Create reorder alert triggers (normally done via migrations)
+    # This ensures integration tests can verify trigger behavior
+    with test_engine.connect() as conn:
+        create_reorder_alert_triggers(conn)
 
     # Initialize FTS table and triggers BEFORE any tests run
     # This ensures triggers are in place when components are created
