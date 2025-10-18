@@ -2,190 +2,198 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/CHANGELOG/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/api/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/repository-setup/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/api/bulk-operations/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
+    </url>
+    <url>
+         <loc>https://madeinoz67.github.io/partshub/dev/api/reorder-alerts/</loc>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/api/saved-searches/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/api/stock-operations/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/architecture/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/architecture/barcode-scanning/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/architecture/kicad-integration/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/backend/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/backend/kicad-field-mappings/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/backend/testing/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/database/performance/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/deployment/backup/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/deployment/docker-compose/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/deployment/docker/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/deployment/environment/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/deployment/production/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/deployment/volumes/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/developer/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/developer/session-notes-2025-09-27/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/developer/workflows/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/features/search/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/features/storage-location-layout/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/frontend/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/frontend/saved-searches-integration/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/migrations/003-location-generation/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.1.0/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.1.1/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.2.0/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.2.1/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.3.0/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.3.1/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/releases/v0.4.0/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/bulk-operations/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/component-creation/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/docker-quickstart/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/features/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/getting-started/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/kicad-workflows/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/natural-language-search/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
+    </url>
+    <url>
+         <loc>https://madeinoz67.github.io/partshub/dev/user/reorder-alerts/</loc>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/saved-searches/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/user/stock-operations/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/workflows/branch-protection/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
     <url>
          <loc>https://madeinoz67.github.io/partshub/dev/workflows/troubleshooting/</loc>
-         <lastmod>2025-10-16</lastmod>
+         <lastmod>2025-10-18</lastmod>
     </url>
 </urlset>
